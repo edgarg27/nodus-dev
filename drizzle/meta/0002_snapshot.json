@@ -1,0 +1,659 @@
+{
+  "id": "535eb11d-90e9-4138-af2c-02465091078c",
+  "prevId": "7488fc94-5887-492a-a02c-25215d6655d3",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.contact_request": {
+      "name": "contact_request",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "buscador_id": {
+          "name": "buscador_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "propiedad_id": {
+          "name": "propiedad_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "oferente_id": {
+          "name": "oferente_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "broker_id": {
+          "name": "broker_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "quiere_financiamiento": {
+          "name": "quiere_financiamiento",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_contact_request_oferente_id": {
+          "name": "idx_contact_request_oferente_id",
+          "columns": [
+            {
+              "expression": "oferente_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_contact_request_broker_id": {
+          "name": "idx_contact_request_broker_id",
+          "columns": [
+            {
+              "expression": "broker_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "where": "\"contact_request\".\"broker_id\" is not null",
+          "concurrently": false
+        },
+        "idx_contact_request_propiedad_id": {
+          "name": "idx_contact_request_propiedad_id",
+          "columns": [
+            {
+              "expression": "propiedad_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "contact_request_buscador_id_usuario_id_fk": {
+          "name": "contact_request_buscador_id_usuario_id_fk",
+          "tableFrom": "contact_request",
+          "columnsFrom": [
+            "buscador_id"
+          ],
+          "tableTo": "usuario",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "contact_request_propiedad_id_propiedad_id_fk": {
+          "name": "contact_request_propiedad_id_propiedad_id_fk",
+          "tableFrom": "contact_request",
+          "columnsFrom": [
+            "propiedad_id"
+          ],
+          "tableTo": "propiedad",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "contact_request_oferente_id_usuario_id_fk": {
+          "name": "contact_request_oferente_id_usuario_id_fk",
+          "tableFrom": "contact_request",
+          "columnsFrom": [
+            "oferente_id"
+          ],
+          "tableTo": "usuario",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "contact_request_broker_id_usuario_id_fk": {
+          "name": "contact_request_broker_id_usuario_id_fk",
+          "tableFrom": "contact_request",
+          "columnsFrom": [
+            "broker_id"
+          ],
+          "tableTo": "usuario",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.propiedad": {
+      "name": "propiedad",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "oferente_id": {
+          "name": "oferente_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "modalidad": {
+          "name": "modalidad",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "direccion": {
+          "name": "direccion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "direccion_normalizada": {
+          "name": "direccion_normalizada",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lat": {
+          "name": "lat",
+          "type": "numeric(9, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lng": {
+          "name": "lng",
+          "type": "numeric(9, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lat_redondeada": {
+          "name": "lat_redondeada",
+          "type": "numeric(9, 5)",
+          "primaryKey": false,
+          "notNull": true,
+          "generated": {
+            "type": "stored",
+            "as": "round(lat, 5)"
+          }
+        },
+        "lng_redondeada": {
+          "name": "lng_redondeada",
+          "type": "numeric(9, 5)",
+          "primaryKey": false,
+          "notNull": true,
+          "generated": {
+            "type": "stored",
+            "as": "round(lng, 5)"
+          }
+        },
+        "estado": {
+          "name": "estado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ciudad": {
+          "name": "ciudad",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descripcion": {
+          "name": "descripcion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "activo": {
+          "name": "activo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "estado_publicacion": {
+          "name": "estado_publicacion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pendiente'"
+        },
+        "motivo_rechazo": {
+          "name": "motivo_rechazo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "revisada_por": {
+          "name": "revisada_por",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "revisada_en": {
+          "name": "revisada_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_propiedad_oferente_id": {
+          "name": "idx_propiedad_oferente_id",
+          "columns": [
+            {
+              "expression": "oferente_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "idx_propiedad_busqueda": {
+          "name": "idx_propiedad_busqueda",
+          "columns": [
+            {
+              "expression": "estado",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "ciudad",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "modalidad",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "tipo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "where": "\"propiedad\".\"activo\" = true",
+          "concurrently": false
+        },
+        "idx_propiedad_revision": {
+          "name": "idx_propiedad_revision",
+          "columns": [
+            {
+              "expression": "updated_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "where": "\"propiedad\".\"activo\" = true and \"propiedad\".\"estado_publicacion\" = 'pendiente'",
+          "concurrently": false
+        },
+        "uq_propiedad_duplicado": {
+          "name": "uq_propiedad_duplicado",
+          "columns": [
+            {
+              "expression": "direccion_normalizada",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lat_redondeada",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lng_redondeada",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "where": "\"propiedad\".\"activo\" = true and \"propiedad\".\"estado_publicacion\" <> 'rechazada'",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "propiedad_oferente_id_usuario_id_fk": {
+          "name": "propiedad_oferente_id_usuario_id_fk",
+          "tableFrom": "propiedad",
+          "columnsFrom": [
+            "oferente_id"
+          ],
+          "tableTo": "usuario",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "propiedad_revisada_por_usuario_id_fk": {
+          "name": "propiedad_revisada_por_usuario_id_fk",
+          "tableFrom": "propiedad",
+          "columnsFrom": [
+            "revisada_por"
+          ],
+          "tableTo": "usuario",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "chk_propiedad_publicacion": {
+          "name": "chk_propiedad_publicacion",
+          "value": "\"propiedad\".\"estado_publicacion\" in ('pendiente','publicada','rechazada')"
+        },
+        "chk_propiedad_motivo_rechazo": {
+          "name": "chk_propiedad_motivo_rechazo",
+          "value": "(\"propiedad\".\"estado_publicacion\" = 'rechazada' and \"propiedad\".\"motivo_rechazo\" is not null and length(btrim(\"propiedad\".\"motivo_rechazo\")) > 0) or (\"propiedad\".\"estado_publicacion\" <> 'rechazada' and \"propiedad\".\"motivo_rechazo\" is null)"
+        },
+        "chk_propiedad_revision": {
+          "name": "chk_propiedad_revision",
+          "value": "(\"propiedad\".\"estado_publicacion\" = 'pendiente' and \"propiedad\".\"revisada_por\" is null and \"propiedad\".\"revisada_en\" is null) or (\"propiedad\".\"estado_publicacion\" <> 'pendiente' and (\"propiedad\".\"revisada_por\" is null) = (\"propiedad\".\"revisada_en\" is null))"
+        },
+        "chk_propiedad_tipo": {
+          "name": "chk_propiedad_tipo",
+          "value": "\"propiedad\".\"tipo\" in ('nave_industrial','oficina','local_comercial')"
+        },
+        "chk_propiedad_modalidad": {
+          "name": "chk_propiedad_modalidad",
+          "value": "\"propiedad\".\"modalidad\" in ('renta','venta','desde_cero')"
+        },
+        "chk_propiedad_estado": {
+          "name": "chk_propiedad_estado",
+          "value": "\"propiedad\".\"estado\" in ('SLP','Aguascalientes','Leon')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.propiedad_foto": {
+      "name": "propiedad_foto",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "propiedad_id": {
+          "name": "propiedad_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "storage_url": {
+          "name": "storage_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "orden": {
+          "name": "orden",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_propiedad_foto_propiedad_id": {
+          "name": "idx_propiedad_foto_propiedad_id",
+          "columns": [
+            {
+              "expression": "propiedad_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "propiedad_foto_propiedad_id_propiedad_id_fk": {
+          "name": "propiedad_foto_propiedad_id_propiedad_id_fk",
+          "tableFrom": "propiedad_foto",
+          "columnsFrom": [
+            "propiedad_id"
+          ],
+          "tableTo": "propiedad",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.usuario": {
+      "name": "usuario",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre": {
+          "name": "nombre",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "telefono": {
+          "name": "telefono",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rol": {
+          "name": "rol",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_broker": {
+          "name": "is_broker",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "broker_code": {
+          "name": "broker_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "referral_broker_id": {
+          "name": "referral_broker_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "usuario_referral_broker_id_usuario_id_fk": {
+          "name": "usuario_referral_broker_id_usuario_id_fk",
+          "tableFrom": "usuario",
+          "columnsFrom": [
+            "referral_broker_id"
+          ],
+          "tableTo": "usuario",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "usuario_email_unique": {
+          "name": "usuario_email_unique",
+          "columns": [
+            "email"
+          ],
+          "nullsNotDistinct": false
+        },
+        "usuario_broker_code_unique": {
+          "name": "usuario_broker_code_unique",
+          "columns": [
+            "broker_code"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "chk_usuario_rol": {
+          "name": "chk_usuario_rol",
+          "value": "\"usuario\".\"rol\" in ('buscador','oferente','admin')"
+        },
+        "chk_usuario_broker_code": {
+          "name": "chk_usuario_broker_code",
+          "value": "\"usuario\".\"broker_code\" is null or \"usuario\".\"is_broker\" = true"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "views": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

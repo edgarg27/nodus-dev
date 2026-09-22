@@ -8,6 +8,20 @@
       "when": 1790092016620,
       "tag": "0000_bored_mandroid",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790095318058,
+      "tag": "0001_updated_at_trigger",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790095326347,
+      "tag": "0002_data_api_lockdown",
+      "breakpoints": true
     }
   ]
 }
