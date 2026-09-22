@@ -125,6 +125,14 @@ export async function editarPropiedad(
     (parche.lat !== undefined && String(parche.lat) !== existente.lat) ||
     (parche.lng !== undefined && String(parche.lng) !== existente.lng);
 
+  const cambiaContenido =
+    cambiaUbicacion ||
+    (parche.tipo !== undefined && parche.tipo !== existente.tipo) ||
+    (parche.modalidad !== undefined && parche.modalidad !== existente.modalidad) ||
+    (parche.estado !== undefined && parche.estado !== existente.estado) ||
+    (parche.ciudad !== undefined && parche.ciudad !== existente.ciudad) ||
+    (parche.descripcion !== undefined && parche.descripcion !== existente.descripcion);
+
   const direccionNormalizada =
     parche.direccion !== undefined
       ? normalizeAddress(parche.direccion)
@@ -153,6 +161,17 @@ export async function editarPropiedad(
         ...(parche.estado !== undefined ? { estado: parche.estado } : {}),
         ...(parche.ciudad !== undefined ? { ciudad: parche.ciudad } : {}),
         ...(parche.descripcion !== undefined ? { descripcion: parche.descripcion } : {}),
+        // Editar el contenido de una `publicada`/`rechazada` la devuelve a `pendiente` y limpia
+        // la revisión, en la misma sentencia UPDATE (§14). Sin cambios de contenido, no toca el
+        // ciclo de publicación.
+        ...(cambiaContenido
+          ? {
+              estadoPublicacion: "pendiente",
+              motivoRechazo: null,
+              revisadaPor: null,
+              revisadaEn: null,
+            }
+          : {}),
       })
       .where(eq(propiedad.id, id))
       .returning();

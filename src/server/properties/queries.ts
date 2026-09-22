@@ -2,9 +2,8 @@ import { and, eq } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
 import { propiedad } from "../../lib/db/schema.ts";
 
-// En este paso todo filtra `activo = true` — el filtro por estado de publicación y la vista
-// pública llegan en el paso 14.
-
+// Listado del dueño ("mis propiedades") — todas sus filas activas, en cualquier estado de
+// publicación (con `estadoPublicacion` y `motivoRechazo` incluidos, ya son columnas de la fila).
 export async function listarPropiedadesDelDueno(oferenteId: string) {
   return db
     .select()
@@ -12,10 +11,29 @@ export async function listarPropiedadesDelDueno(oferenteId: string) {
     .where(and(eq(propiedad.oferenteId, oferenteId), eq(propiedad.activo, true)));
 }
 
-export async function obtenerPropiedadPorId(id: string) {
+// Detalle público: solo `activo` y `publicada`. Un id que existe pero no es público responde
+// como si no existiera (404 en la ruta que la consuma).
+export async function obtenerPropiedadPublicaPorId(id: string) {
   const [fila] = await db
     .select()
     .from(propiedad)
-    .where(and(eq(propiedad.id, id), eq(propiedad.activo, true)));
+    .where(
+      and(
+        eq(propiedad.id, id),
+        eq(propiedad.activo, true),
+        eq(propiedad.estadoPublicacion, "publicada"),
+      ),
+    );
+  return fila ?? null;
+}
+
+// Detalle del dueño: su propia fila en cualquier estado, con `estadoPublicacion` y
+// `motivoRechazo`. Un admin no ve un detalle distinto por esta vía — su acceso es la cola del
+// paso 24.
+export async function obtenerPropiedadDelDuenoPorId(oferenteId: string, id: string) {
+  const [fila] = await db
+    .select()
+    .from(propiedad)
+    .where(and(eq(propiedad.id, id), eq(propiedad.oferenteId, oferenteId)));
   return fila ?? null;
 }

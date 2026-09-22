@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { eq, max } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
-import { propiedadFoto } from "../../lib/db/schema.ts";
+import { propiedad, propiedadFoto } from "../../lib/db/schema.ts";
 import { crearClienteAdmin } from "../supabase/admin.ts";
 
 const BUCKET = "propiedades-fotos";
@@ -26,6 +26,26 @@ export type ResultadoAgregarFoto =
 export type ResultadoQuitarFoto =
   | { ok: true }
   | { ok: false; error: { code: "not_found"; status: 404; message: string } };
+
+// Agregar o quitar una foto de una propiedad `publicada` o `rechazada` la devuelve a `pendiente`
+// y limpia la revisión, en la misma transacción que la fila de `propiedad_foto` (§14).
+async function reenviarARevisionSiHaceFalta(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  propiedadId: string,
+) {
+  const [prop] = await tx.select().from(propiedad).where(eq(propiedad.id, propiedadId));
+  if (prop && (prop.estadoPublicacion === "publicada" || prop.estadoPublicacion === "rechazada")) {
+    await tx
+      .update(propiedad)
+      .set({
+        estadoPublicacion: "pendiente",
+        motivoRechazo: null,
+        revisadaPor: null,
+        revisadaEn: null,
+      })
+      .where(eq(propiedad.id, propiedadId));
+  }
+}
 
 export async function agregarFotoPropiedad(
   propiedadId: string,
@@ -56,17 +76,22 @@ export async function agregarFotoPropiedad(
 
   const { data } = admin.storage.from(BUCKET).getPublicUrl(ruta);
 
-  const [fila_orden] = await db
-    .select({ maximo: max(propiedadFoto.orden) })
-    .from(propiedadFoto)
-    .where(eq(propiedadFoto.propiedadId, propiedadId));
-  const orden = (fila_orden?.maximo ?? -1) + 1;
+  const fila = await db.transaction(async (tx) => {
+    const [filaOrden] = await tx
+      .select({ maximo: max(propiedadFoto.orden) })
+      .from(propiedadFoto)
+      .where(eq(propiedadFoto.propiedadId, propiedadId));
+    const orden = (filaOrden?.maximo ?? -1) + 1;
 
-  const [fila] = await db
-    .insert(propiedadFoto)
-    .values({ propiedadId, storageUrl: data.publicUrl, orden })
-    .returning();
-  if (!fila) throw new Error("insert de propiedad_foto no devolvió fila");
+    const [nuevaFoto] = await tx
+      .insert(propiedadFoto)
+      .values({ propiedadId, storageUrl: data.publicUrl, orden })
+      .returning();
+    if (!nuevaFoto) throw new Error("insert de propiedad_foto no devolvió fila");
+
+    await reenviarARevisionSiHaceFalta(tx, propiedadId);
+    return nuevaFoto;
+  });
 
   return { ok: true, data: { id: fila.id, storageUrl: fila.storageUrl, orden: fila.orden } };
 }
@@ -85,6 +110,10 @@ export async function quitarFotoPropiedad(fotoId: string): Promise<ResultadoQuit
     await admin.storage.from(BUCKET).remove([ruta]);
   }
 
-  await db.delete(propiedadFoto).where(eq(propiedadFoto.id, fotoId));
+  await db.transaction(async (tx) => {
+    await tx.delete(propiedadFoto).where(eq(propiedadFoto.id, fotoId));
+    await reenviarARevisionSiHaceFalta(tx, foto.propiedadId);
+  });
+
   return { ok: true };
 }
