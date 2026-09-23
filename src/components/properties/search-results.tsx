@@ -32,6 +32,7 @@ export function SearchResults({ propiedades }: SearchResultsProps) {
               propiedad={propiedad}
               selected={propiedad.id === selectedId}
               onSelect={() => setSelectedId(propiedad.id)}
+              permitirContacto
             />
           </li>
         ))}
