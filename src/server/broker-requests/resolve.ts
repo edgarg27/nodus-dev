@@ -18,6 +18,10 @@ export type ResultadoResolucion =
   | { ok: true; data: SolicitudFila }
   | { ok: false; error: ErrorResolucion };
 
+export type ResultadoAprobacion =
+  | { ok: true; data: SolicitudFila & { brokerCode: string } }
+  | { ok: false; error: ErrorResolucion };
+
 function errorNotFound(): ResultadoResolucion {
   return {
     ok: false,
@@ -76,10 +80,10 @@ async function validarActorYSolicitud(
 export async function aprobarSolicitud(
   actor: ActorAutenticado | null,
   id: string,
-): Promise<ResultadoResolucion> {
+): Promise<ResultadoAprobacion> {
   const validacion = await validarActorYSolicitud(actor, id);
   if (!validacion.ok) return { ok: false, error: validacion.error };
-  if (!actor) return errorNotFound();
+  if (!actor) return errorNotFound() as ResultadoAprobacion;
 
   return db.transaction(async (tx) => {
     const [resuelta] = await tx
@@ -87,10 +91,10 @@ export async function aprobarSolicitud(
       .set({ estado: "aprobada", resueltaPor: actor.id, resueltaEn: new Date() })
       .where(and(eq(brokerSolicitud.id, id), eq(brokerSolicitud.estado, "pendiente")))
       .returning();
-    if (!resuelta) return errorYaResuelta();
+    if (!resuelta) return errorYaResuelta() as ResultadoAprobacion;
 
-    let asignado = false;
-    for (let intento = 0; intento < MAX_INTENTOS_CODIGO && !asignado; intento++) {
+    let codigoAsignado: string | null = null;
+    for (let intento = 0; intento < MAX_INTENTOS_CODIGO && !codigoAsignado; intento++) {
       const codigo = generarBrokerCode();
       try {
         await tx.transaction(async (tx2) => {
@@ -99,18 +103,18 @@ export async function aprobarSolicitud(
             .set({ isBroker: true, brokerCode: codigo })
             .where(eq(usuario.id, resuelta.usuarioId));
         });
-        asignado = true;
+        codigoAsignado = codigo;
       } catch (err) {
         if (!esErrorUnico(err)) throw err;
       }
     }
-    if (!asignado) {
+    if (!codigoAsignado) {
       throw new Error(
         `No se pudo asignar un broker_code único tras ${MAX_INTENTOS_CODIGO} intentos`,
       );
     }
 
-    return { ok: true, data: resuelta };
+    return { ok: true, data: { ...resuelta, brokerCode: codigoAsignado } };
   });
 }
 
