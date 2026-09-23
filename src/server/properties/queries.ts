@@ -1,6 +1,6 @@
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
-import { propiedad } from "../../lib/db/schema.ts";
+import { propiedad, propiedadFoto } from "../../lib/db/schema.ts";
 
 // Listado del dueño ("mis propiedades") — todas sus filas activas, en cualquier estado de
 // publicación (con `estadoPublicacion` y `motivoRechazo` incluidos, ya son columnas de la fila).
@@ -36,4 +36,13 @@ export async function obtenerPropiedadDelDuenoPorId(oferenteId: string, id: stri
     .from(propiedad)
     .where(and(eq(propiedad.id, id), eq(propiedad.oferenteId, oferenteId)));
   return fila ?? null;
+}
+
+// Fotos de una propiedad, en el orden en que se subieron — usado por el formulario de edición.
+export async function obtenerFotosDePropiedad(propiedadId: string) {
+  return db
+    .select()
+    .from(propiedadFoto)
+    .where(eq(propiedadFoto.propiedadId, propiedadId))
+    .orderBy(asc(propiedadFoto.orden));
 }

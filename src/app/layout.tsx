@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import { cookies } from "next/headers";
 import { SiteHeader } from "@/components/nav/site-header";
+import { QueryProvider } from "@/components/providers/query-provider";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -23,8 +24,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="es" data-theme={dataTheme} className={`${manrope.variable} antialiased`}>
       <body>
-        <SiteHeader />
-        {children}
+        <QueryProvider>
+          <SiteHeader />
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );
