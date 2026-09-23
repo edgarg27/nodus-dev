@@ -36,6 +36,20 @@
       "when": 1790183138688,
       "tag": "0004_broker_lockdown",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790207577206,
+      "tag": "0005_pale_network",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790207589082,
+      "tag": "0006_rate_limit_lockdown",
+      "breakpoints": true
     }
   ]
 }

@@ -8,6 +8,7 @@ import {
   integer,
   numeric,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -208,6 +209,17 @@ export const brokerAtribucionHistorica = pgTable(
     index("idx_broker_atribucion_historica_usuario_id").on(t.usuarioId),
     check("chk_broker_atribucion_historica_total_leads", sql`${t.totalLeads} >= 0`),
   ],
+);
+
+// Paso 36 — no existe en el esquema del paso 4.
+export const rateLimitHit = pgTable(
+  "rate_limit_hit",
+  {
+    clave: text("clave").notNull(),
+    ventanaInicio: timestamp("ventana_inicio", { withTimezone: true }).notNull(),
+    conteo: integer("conteo").notNull().default(1),
+  },
+  (t) => [primaryKey({ columns: [t.clave, t.ventanaInicio] })],
 );
 
 export const usuarioRelations = relations(usuario, ({ many, one }) => ({

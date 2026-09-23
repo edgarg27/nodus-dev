@@ -27,6 +27,6 @@ export async function resetTestDatabase(): Promise<void> {
   assertSafeToReset(process.env);
   const { db } = await import("../../src/lib/db/client.ts");
   await db.execute(
-    sql`truncate table broker_atribucion_historica, broker_revocacion, broker_solicitud, contact_request, propiedad_foto, propiedad, usuario restart identity cascade;`,
+    sql`truncate table rate_limit_hit, broker_atribucion_historica, broker_revocacion, broker_solicitud, contact_request, propiedad_foto, propiedad, usuario restart identity cascade;`,
   );
 }
