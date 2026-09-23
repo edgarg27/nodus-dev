@@ -11,5 +11,5 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ estado }: StatusBadgeProps) {
-  return <span>{TEXTOS[estado]}</span>;
+  return <span role="status">{TEXTOS[estado]}</span>;
 }

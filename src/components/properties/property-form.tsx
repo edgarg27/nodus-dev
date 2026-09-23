@@ -262,7 +262,21 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
       />
       {errors.direccion ? <p role="alert">{errors.direccion.message}</p> : null}
 
-      <PinPicker lat={lat} lng={lng} onChange={alMoverPin} />
+      <label htmlFor="estado">Estado</label>
+      <select id="estado" {...register("estado")}>
+        <option value="SLP">San Luis Potosí</option>
+        <option value="Aguascalientes">Aguascalientes</option>
+        <option value="Leon">León</option>
+      </select>
+      {errors.estado ? <p role="alert">{errors.estado.message}</p> : null}
+
+      <label htmlFor="ciudad">Ciudad</label>
+      <input id="ciudad" {...register("ciudad")} />
+      {errors.ciudad ? <p role="alert">{errors.ciudad.message}</p> : null}
+
+      <label htmlFor="descripcion">Descripción</label>
+      <textarea id="descripcion" {...register("descripcion")} />
+      {errors.descripcion ? <p role="alert">{errors.descripcion.message}</p> : null}
 
       <label htmlFor="lat">Latitud</label>
       <input
@@ -288,21 +302,7 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
       />
       {errors.lng ? <p role="alert">{errors.lng.message}</p> : null}
 
-      <label htmlFor="estado">Estado</label>
-      <select id="estado" {...register("estado")}>
-        <option value="SLP">San Luis Potosí</option>
-        <option value="Aguascalientes">Aguascalientes</option>
-        <option value="Leon">León</option>
-      </select>
-      {errors.estado ? <p role="alert">{errors.estado.message}</p> : null}
-
-      <label htmlFor="ciudad">Ciudad</label>
-      <input id="ciudad" {...register("ciudad")} />
-      {errors.ciudad ? <p role="alert">{errors.ciudad.message}</p> : null}
-
-      <label htmlFor="descripcion">Descripción</label>
-      <textarea id="descripcion" {...register("descripcion")} />
-      {errors.descripcion ? <p role="alert">{errors.descripcion.message}</p> : null}
+      <PinPicker lat={lat} lng={lng} onChange={alMoverPin} />
 
       <label htmlFor="fotos">Fotos</label>
       <input

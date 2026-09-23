@@ -10,9 +10,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div>
-      <nav>
-        <Link href="/admin/propiedades">Propiedades</Link>
-        <Link href="/admin/brokers">Brokers</Link>
+      <nav className="flex gap-4 p-2">
+        <Link className="inline-block px-2 py-2" href="/admin/propiedades">
+          Propiedades
+        </Link>
+        <Link className="inline-block px-2 py-2" href="/admin/brokers">
+          Brokers
+        </Link>
       </nav>
       {children}
     </div>
