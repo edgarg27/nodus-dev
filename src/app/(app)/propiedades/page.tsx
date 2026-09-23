@@ -16,6 +16,11 @@ export default async function PropiedadesPage() {
   return (
     <main>
       <h1>Mis propiedades</h1>
+      {actor.isBroker ? (
+        <Link href="/broker">Mi código de broker</Link>
+      ) : (
+        <Link href="/broker">Solicitar ser broker</Link>
+      )}
       {propiedades.length === 0 ? (
         <div>
           <p>Aún no tienes propiedades</p>
