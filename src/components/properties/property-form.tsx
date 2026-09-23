@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { type ChangeEvent, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { PinPicker } from "../map/pin-picker";
 import type { EstadoPublicacion } from "./status-badge";
 
 const TIPOS = ["nave_industrial", "oficina", "local_comercial"] as const;
@@ -94,6 +95,9 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
   const {
     register,
     handleSubmit,
+    setValue,
+    getValues,
+    watch,
     formState: { errors },
   } = useForm<PropertyFormValues>({
     resolver: zodResolver(propertyFormSchema),
@@ -116,6 +120,32 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
   const [fotosExistentes, setFotosExistentes] = useState(propiedad?.fotos ?? []);
   const [mensajeDuplicado, setMensajeDuplicado] = useState<{ id: string } | null>(null);
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
+  const [coordenadasTocadas, setCoordenadasTocadas] = useState(Boolean(propiedad));
+
+  const lat = watch("lat");
+  const lng = watch("lng");
+
+  function alMoverPin(latNueva: number, lngNueva: number) {
+    setCoordenadasTocadas(true);
+    setValue("lat", latNueva, { shouldValidate: true });
+    setValue("lng", lngNueva, { shouldValidate: true });
+  }
+
+  async function alSalirDeDireccion() {
+    if (coordenadasTocadas) return;
+    const direccion = getValues("direccion")?.trim();
+    if (!direccion || direccion.length < 3) return;
+
+    try {
+      const respuesta = await fetch(`/api/v1/geocode?q=${encodeURIComponent(direccion)}`);
+      if (!respuesta.ok || coordenadasTocadas) return;
+      const cuerpo = await respuesta.json();
+      setValue("lat", cuerpo.data.lat, { shouldValidate: true });
+      setValue("lng", cuerpo.data.lng, { shouldValidate: true });
+    } catch {
+      // El geocode es solo una sugerencia editable; un fallo no bloquea el formulario.
+    }
+  }
 
   const mutacion = useMutation({
     mutationFn: async (valores: PropertyFormValues) => {
@@ -222,15 +252,40 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
       {errors.modalidad ? <p role="alert">{errors.modalidad.message}</p> : null}
 
       <label htmlFor="direccion">Dirección</label>
-      <input id="direccion" {...register("direccion")} />
+      <input
+        id="direccion"
+        {...register("direccion", {
+          onBlur: () => {
+            void alSalirDeDireccion();
+          },
+        })}
+      />
       {errors.direccion ? <p role="alert">{errors.direccion.message}</p> : null}
 
+      <PinPicker lat={lat} lng={lng} onChange={alMoverPin} />
+
       <label htmlFor="lat">Latitud</label>
-      <input id="lat" type="number" step="any" {...register("lat", { valueAsNumber: true })} />
+      <input
+        id="lat"
+        type="number"
+        step="any"
+        {...register("lat", {
+          valueAsNumber: true,
+          onChange: () => setCoordenadasTocadas(true),
+        })}
+      />
       {errors.lat ? <p role="alert">{errors.lat.message}</p> : null}
 
       <label htmlFor="lng">Longitud</label>
-      <input id="lng" type="number" step="any" {...register("lng", { valueAsNumber: true })} />
+      <input
+        id="lng"
+        type="number"
+        step="any"
+        {...register("lng", {
+          valueAsNumber: true,
+          onChange: () => setCoordenadasTocadas(true),
+        })}
+      />
       {errors.lng ? <p role="alert">{errors.lng.message}</p> : null}
 
       <label htmlFor="estado">Estado</label>
