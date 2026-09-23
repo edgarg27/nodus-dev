@@ -1,6 +1,6 @@
-import { and, asc, eq, gt } from "drizzle-orm";
+import { and, asc, eq, gt, inArray } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
-import { propiedad, propiedadFoto } from "../../lib/db/schema.ts";
+import { propiedad, propiedadFoto, usuario } from "../../lib/db/schema.ts";
 
 const LIMITE_MAXIMO_BUSQUEDA = 50;
 
@@ -88,4 +88,64 @@ export async function obtenerFotosDePropiedad(propiedadId: string) {
     .from(propiedadFoto)
     .where(eq(propiedadFoto.propiedadId, propiedadId))
     .orderBy(asc(propiedadFoto.orden));
+}
+
+export interface OferenteResumen {
+  id: string;
+  nombre: string;
+  email: string;
+  telefono: string | null;
+  isBroker: boolean;
+}
+
+export interface PropiedadPendienteDeRevision extends PropiedadFila {
+  fotos: (typeof propiedadFoto.$inferSelect)[];
+  oferente: OferenteResumen | null;
+}
+
+type PropiedadFila = typeof propiedad.$inferSelect;
+
+// Cola de revisión del admin: solo pendiente y activa, la que entró antes primero, con sus
+// fotos y los datos de su oferente. Sin paginación en v1: la cola de pendientes es corta.
+export async function listarPendientesDeRevision(): Promise<PropiedadPendienteDeRevision[]> {
+  const filas = await db
+    .select()
+    .from(propiedad)
+    .where(and(eq(propiedad.activo, true), eq(propiedad.estadoPublicacion, "pendiente")))
+    .orderBy(asc(propiedad.updatedAt));
+
+  if (filas.length === 0) return [];
+
+  const idsPropiedad = filas.map((fila) => fila.id);
+  const idsOferente = [...new Set(filas.map((fila) => fila.oferenteId))];
+
+  const fotos = await db
+    .select()
+    .from(propiedadFoto)
+    .where(inArray(propiedadFoto.propiedadId, idsPropiedad))
+    .orderBy(asc(propiedadFoto.orden));
+  const oferentes = await db
+    .select({
+      id: usuario.id,
+      nombre: usuario.nombre,
+      email: usuario.email,
+      telefono: usuario.telefono,
+      isBroker: usuario.isBroker,
+    })
+    .from(usuario)
+    .where(inArray(usuario.id, idsOferente));
+
+  const fotosPorPropiedad = new Map<string, (typeof propiedadFoto.$inferSelect)[]>();
+  for (const foto of fotos) {
+    const lista = fotosPorPropiedad.get(foto.propiedadId) ?? [];
+    lista.push(foto);
+    fotosPorPropiedad.set(foto.propiedadId, lista);
+  }
+  const oferentePorId = new Map(oferentes.map((oferente) => [oferente.id, oferente]));
+
+  return filas.map((fila) => ({
+    ...fila,
+    fotos: fotosPorPropiedad.get(fila.id) ?? [],
+    oferente: oferentePorId.get(fila.oferenteId) ?? null,
+  }));
 }
