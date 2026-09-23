@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getUsuarioActual } from "../../../../server/auth/session.ts";
 import { crearPropiedad } from "../../../../server/properties/mutations.ts";
+import { buscarPropiedadesPublicas } from "../../../../server/properties/queries.ts";
 
 const TIPOS = ["nave_industrial", "oficina", "local_comercial"] as const;
 const MODALIDADES = ["renta", "venta", "desde_cero"] as const;
@@ -26,6 +27,18 @@ const crearPropiedadSchema = z.object({
   descripcion: z.string().trim().min(1),
 });
 
+const searchQuerySchema = z.object({
+  modalidad: z.enum(MODALIDADES).optional(),
+  tipo: z.enum(TIPOS).optional(),
+  estado: z.enum(ESTADOS).optional(),
+  ciudad: z.string().trim().min(1).optional(),
+  // `financiamiento` se acepta en la query string pero no filtra (§ contrato del paso 19).
+  financiamiento: z.string().optional(),
+  // Un límite mayor a 50 no es un error: se recorta a 50 (ver buscarPropiedadesPublicas).
+  limit: z.coerce.number().int().min(1).optional(),
+  cursor: z.string().optional(),
+});
+
 function requestId(): string {
   return `req_${randomUUID()}`;
 }
@@ -34,6 +47,31 @@ function errorEnvelope(code: string, message: string, details?: unknown[]) {
   return {
     error: { code, message, ...(details ? { details } : {}), request_id: requestId() },
   };
+}
+
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const parsed = searchQuerySchema.safeParse(Object.fromEntries(url.searchParams));
+  if (!parsed.success) {
+    const details = parsed.error.issues.map((issue) => ({
+      field: issue.path.join("."),
+      message: issue.message,
+    }));
+    return NextResponse.json(errorEnvelope("validation_error", "Filtros inválidos", details), {
+      status: 422,
+    });
+  }
+
+  const { modalidad, tipo, estado, ciudad, limit, cursor } = parsed.data;
+  const resultado = await buscarPropiedadesPublicas(
+    { modalidad, tipo, estado, ciudad },
+    { limit, cursor },
+  );
+
+  return NextResponse.json({
+    data: resultado.data,
+    meta: { has_more: resultado.hasMore, next_cursor: resultado.nextCursor },
+  });
 }
 
 export async function POST(request: Request) {

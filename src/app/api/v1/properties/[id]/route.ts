@@ -3,6 +3,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getUsuarioActual } from "../../../../../server/auth/session.ts";
 import { darDeBajaPropiedad, editarPropiedad } from "../../../../../server/properties/mutations.ts";
+import {
+  obtenerPropiedadDelDuenoPorId,
+  obtenerPropiedadPublicaPorId,
+} from "../../../../../server/properties/queries.ts";
 
 const TIPOS = ["nave_industrial", "oficina", "local_comercial"] as const;
 const MODALIDADES = ["renta", "venta", "desde_cero"] as const;
@@ -42,6 +46,32 @@ function errorEnvelope(code: string, message: string, details?: unknown[]) {
 
 interface RouteParams {
   params: Promise<{ id: string }>;
+}
+
+export async function GET(_request: Request, { params }: RouteParams) {
+  const { id } = await params;
+  if (!esUuid(id)) {
+    return NextResponse.json(errorEnvelope("not_found", "Propiedad no encontrada"), {
+      status: 404,
+    });
+  }
+
+  const publica = await obtenerPropiedadPublicaPorId(id);
+  if (publica) {
+    return NextResponse.json({ data: publica });
+  }
+
+  const actor = await getUsuarioActual();
+  if (actor) {
+    const propia = await obtenerPropiedadDelDuenoPorId(actor.id, id);
+    if (propia) {
+      return NextResponse.json({ data: propia });
+    }
+  }
+
+  return NextResponse.json(errorEnvelope("not_found", "Propiedad no encontrada"), {
+    status: 404,
+  });
 }
 
 export async function PATCH(request: Request, { params }: RouteParams) {
