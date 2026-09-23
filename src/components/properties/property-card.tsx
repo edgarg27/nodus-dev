@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type KeyboardEvent, type MouseEvent, useState } from "react";
+import { type MouseEvent, useState } from "react";
 import { type EstadoPublicacion, StatusBadge } from "./status-badge";
 
 export interface PropertyCardData {
@@ -37,14 +37,6 @@ export function PropertyCard({
   const [contacto, setContacto] = useState<ContactoRevelado | null>(null);
   const [errorContacto, setErrorContacto] = useState<string | null>(null);
 
-  function alPresionarTecla(evento: KeyboardEvent<HTMLElement>) {
-    if (!onSelect) return;
-    if (evento.key === "Enter" || evento.key === " ") {
-      evento.preventDefault();
-      onSelect();
-    }
-  }
-
   async function alContactar(evento: MouseEvent<HTMLButtonElement>) {
     evento.stopPropagation();
     setErrorContacto(null);
@@ -70,14 +62,23 @@ export function PropertyCard({
   }
 
   return (
-    <article
-      aria-current={selected ? "true" : undefined}
-      role={onSelect ? "button" : undefined}
-      tabIndex={onSelect ? 0 : undefined}
-      onClick={onSelect}
-      onKeyDown={onSelect ? alPresionarTecla : undefined}
-    >
-      <h3>{propiedad.direccion}</h3>
+    // biome-ignore lint/a11y/useKeyWithClickEvents: onClick aquí es solo conveniencia de mouse (área completa de la tarjeta); el teclado selecciona con el botón del encabezado, sin anidar controles interactivos bajo un role="button".
+    <article aria-current={selected ? "true" : undefined} onClick={onSelect}>
+      <h3>
+        {onSelect ? (
+          <button
+            type="button"
+            onClick={(evento) => {
+              evento.stopPropagation();
+              onSelect();
+            }}
+          >
+            {propiedad.direccion}
+          </button>
+        ) : (
+          propiedad.direccion
+        )}
+      </h3>
       <p>
         {propiedad.tipo} · {propiedad.modalidad} · {propiedad.ciudad}
       </p>
