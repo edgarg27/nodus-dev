@@ -131,6 +131,85 @@ export const contactRequest = pgTable(
   ],
 );
 
+// Paso 26 — no existe en el esquema del paso 4.
+export const brokerSolicitud = pgTable(
+  "broker_solicitud",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id),
+    mensaje: text("mensaje").notNull(),
+    estado: text("estado").notNull().default("pendiente"),
+    motivoDenegacion: text("motivo_denegacion"),
+    resueltaPor: uuid("resuelta_por").references(() => usuario.id),
+    resueltaEn: timestamp("resuelta_en", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("uq_broker_solicitud_pendiente")
+      .on(t.usuarioId)
+      .where(sql`${t.estado} = 'pendiente'`),
+    index("idx_broker_solicitud_usuario_id").on(t.usuarioId),
+    index("idx_broker_solicitud_pendientes").on(t.createdAt).where(sql`${t.estado} = 'pendiente'`),
+    check("chk_broker_solicitud_estado", sql`${t.estado} in ('pendiente','aprobada','denegada')`),
+    check("chk_broker_solicitud_mensaje", sql`length(btrim(${t.mensaje})) > 0`),
+    check(
+      "chk_broker_solicitud_resolucion",
+      sql`(${t.estado} = 'pendiente' and ${t.resueltaPor} is null and ${t.resueltaEn} is null) or (${t.estado} <> 'pendiente' and ${t.resueltaPor} is not null and ${t.resueltaEn} is not null)`,
+    ),
+    check(
+      "chk_broker_solicitud_motivo",
+      sql`${t.motivoDenegacion} is null or ${t.estado} = 'denegada'`,
+    ),
+  ],
+);
+
+// Paso 26 — no existe en el esquema del paso 4.
+export const brokerRevocacion = pgTable(
+  "broker_revocacion",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id),
+    brokerCode: text("broker_code").notNull(),
+    motivo: text("motivo").notNull(),
+    revocadaPor: uuid("revocada_por")
+      .notNull()
+      .references(() => usuario.id),
+    revocadaEn: timestamp("revocada_en", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("idx_broker_revocacion_usuario_id").on(t.usuarioId),
+    check("chk_broker_revocacion_motivo", sql`length(btrim(${t.motivo})) > 0`),
+  ],
+);
+
+// Paso 26 — no existe en el esquema del paso 4. Escrita por el paso 30 (revocarBroker()), nunca
+// actualizada ni borrada después del INSERT: es la fotografía inmutable de la decisión #17 (§20.3).
+export const brokerAtribucionHistorica = pgTable(
+  "broker_atribucion_historica",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    brokerRevocacionId: uuid("broker_revocacion_id")
+      .notNull()
+      .references(() => brokerRevocacion.id),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id),
+    brokerCode: text("broker_code").notNull(),
+    contactRequestIds: uuid("contact_request_ids").array().notNull().default(sql`'{}'::uuid[]`),
+    totalLeads: integer("total_leads").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("uq_broker_atribucion_historica_revocacion").on(t.brokerRevocacionId),
+    index("idx_broker_atribucion_historica_usuario_id").on(t.usuarioId),
+    check("chk_broker_atribucion_historica_total_leads", sql`${t.totalLeads} >= 0`),
+  ],
+);
+
 export const usuarioRelations = relations(usuario, ({ many, one }) => ({
   propiedades: many(propiedad),
   referidoPor: one(usuario, {

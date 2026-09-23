@@ -8,12 +8,12 @@
 // después se importa el cliente de base de datos (import dinámico: sin la guardia satisfecha nunca
 // se abre una conexión).
 //
-// Lista deliberadamente acotada a las 4 tablas que existen desde el paso 4 (`usuario`,
-// `propiedad`, `propiedad_foto`, `contact_request`). Las demás NO van aquí todavía — un `truncate`
-// que nombrara una tabla que aún no existe fallaría con `relation "..." does not exist` en cada
-// prueba de integración anterior a su paso:
-//   - `broker_solicitud` y `broker_revocacion`: no existen hasta el paso 26 (solicitudes de broker);
-//     el paso 26 EDITA este archivo para agregarlas, en el mismo commit que crea las tablas.
+// Lista deliberadamente acotada a las tablas que ya existen en cada paso — un `truncate` que
+// nombrara una tabla inexistente fallaría con `relation "..." does not exist` en cada prueba de
+// integración anterior a su paso:
+//   - `usuario`, `propiedad`, `propiedad_foto`, `contact_request`: existen desde el paso 4.
+//   - `broker_solicitud`, `broker_revocacion`, `broker_atribucion_historica`: agregadas por el
+//     paso 26 (solicitudes de broker), en el mismo commit que crea las tablas.
 //   - `rate_limit_hit`: no existe hasta el paso 36 (hardening); el paso 36 EDITA este archivo otra
 //     vez para agregarla, en el mismo commit que agrega la tabla.
 // Nunca antes — mismo patrón de "staging" que `tsconfig.tests.json`/`tsconfig.scripts.json`.
@@ -27,6 +27,6 @@ export async function resetTestDatabase(): Promise<void> {
   assertSafeToReset(process.env);
   const { db } = await import("../../src/lib/db/client.ts");
   await db.execute(
-    sql`truncate table contact_request, propiedad_foto, propiedad, usuario restart identity cascade;`,
+    sql`truncate table broker_atribucion_historica, broker_revocacion, broker_solicitud, contact_request, propiedad_foto, propiedad, usuario restart identity cascade;`,
   );
 }
