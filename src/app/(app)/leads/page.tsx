@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import { listarLeadsDelOferente } from "@/server/contact-requests/queries";
@@ -20,22 +21,29 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
   const leads = await listarLeadsDelOferente(actor.id, propiedadId);
 
   return (
-    <main>
-      <h1>Mis leads</h1>
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
+      <h1 className="text-2xl font-semibold text-foreground">Mis leads</h1>
       {leads.length === 0 ? (
-        <div>
-          <p>Aún no tienes leads</p>
-          <Link href="/propiedades/nueva">Publicar una propiedad</Link>
+        <div className="flex flex-col items-start gap-2">
+          <p className="text-sm text-muted-foreground">Aún no tienes leads</p>
+          <Button asChild>
+            <Link href="/propiedades/nueva">Publicar una propiedad</Link>
+          </Button>
         </div>
       ) : (
-        <ul>
+        <ul className="flex flex-col gap-3">
           {leads.map((lead) => (
-            <li key={lead.id}>
-              <p>{lead.direccionPropiedad}</p>
-              <p>
+            <li
+              key={lead.id}
+              className="flex flex-col gap-1 rounded-lg bg-surface p-4 ring-1 ring-border shadow-sm"
+            >
+              <p className="text-sm font-medium text-text">{lead.direccionPropiedad}</p>
+              <p className="text-sm text-text-muted">
                 {lead.nombreBuscador} · {lead.emailBuscador}
               </p>
-              {lead.quiereFinanciamiento ? <p>Quiere financiamiento</p> : null}
+              {lead.quiereFinanciamiento ? (
+                <p className="text-sm text-text-muted">Quiere financiamiento</p>
+              ) : null}
             </li>
           ))}
         </ul>

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type MouseEvent, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { type EstadoPublicacion, StatusBadge } from "./status-badge";
 
 export interface PropertyCardData {
@@ -63,8 +65,12 @@ export function PropertyCard({
 
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: onClick aquí es solo conveniencia de mouse (área completa de la tarjeta); el teclado selecciona con el botón del encabezado, sin anidar controles interactivos bajo un role="button".
-    <article aria-current={selected ? "true" : undefined} onClick={onSelect}>
-      <h3>
+    <article
+      aria-current={selected ? "true" : undefined}
+      onClick={onSelect}
+      className="flex flex-col gap-2 rounded-lg bg-surface p-4 ring-1 ring-border shadow-sm transition-colors aria-[current=true]:ring-2 aria-[current=true]:ring-ring"
+    >
+      <h3 className="text-base font-semibold text-text">
         {onSelect ? (
           <button
             type="button"
@@ -72,6 +78,7 @@ export function PropertyCard({
               evento.stopPropagation();
               onSelect();
             }}
+            className="text-left underline-offset-4 hover:underline"
           >
             {propiedad.direccion}
           </button>
@@ -79,31 +86,45 @@ export function PropertyCard({
           propiedad.direccion
         )}
       </h3>
-      <p>
+      <p className="text-sm text-text-muted">
         {propiedad.tipo} · {propiedad.modalidad} · {propiedad.ciudad}
       </p>
       <StatusBadge estado={propiedad.estadoPublicacion} />
       {propiedad.estadoPublicacion === "rechazada" ? (
-        <div>
-          <p>{propiedad.motivoRechazo}</p>
-          <Link href={`/propiedades/${propiedad.id}/editar`}>Corregir y reenviar</Link>
+        <div className="flex flex-col gap-1">
+          <p className="text-sm text-destructive">{propiedad.motivoRechazo}</p>
+          <Link
+            href={`/propiedades/${propiedad.id}/editar`}
+            className="text-sm text-primary underline underline-offset-4"
+          >
+            Corregir y reenviar
+          </Link>
         </div>
       ) : null}
       {permitirContacto ? (
-        <div>
+        <div className="flex flex-col gap-1.5">
           {contacto ? (
-            <p>
+            <p className="text-sm text-text">
               {contacto.telefono}
               {contacto.whatsappUrl ? (
-                <a href={contacto.whatsappUrl}>Escribir por WhatsApp</a>
+                <a
+                  href={contacto.whatsappUrl}
+                  className="ml-1.5 text-primary underline underline-offset-4"
+                >
+                  Escribir por WhatsApp
+                </a>
               ) : null}
             </p>
           ) : (
-            <button type="button" onClick={alContactar}>
+            <Button type="button" size="sm" onClick={alContactar}>
               Contactar
-            </button>
+            </Button>
           )}
-          {errorContacto ? <p role="alert">{errorContacto}</p> : null}
+          {errorContacto ? (
+            <Alert variant="destructive">
+              <AlertDescription>{errorContacto}</AlertDescription>
+            </Alert>
+          ) : null}
         </div>
       ) : null}
     </article>
