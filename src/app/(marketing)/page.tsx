@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/marketing/hero";
+import { HowItWorks } from "@/components/marketing/how-it-works";
 import { SearchCard } from "@/components/marketing/search-card";
+import { ValueProposition } from "@/components/marketing/value-proposition";
 import { getUsuarioActual } from "@/server/auth/session";
 
 export const metadata: Metadata = {
@@ -19,6 +21,8 @@ export default async function MarketingPage() {
       <section className="mx-auto flex max-w-7xl justify-center px-4 py-12 sm:px-6 lg:px-8">
         <SearchCard />
       </section>
+      <ValueProposition />
+      <HowItWorks />
     </main>
   );
 }
