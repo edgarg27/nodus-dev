@@ -345,3 +345,33 @@ test("un 409 al enviar una solicitud de broker se anuncia con role=alert o aria-
   });
   await expect(anuncio).toBeVisible();
 });
+
+test("el Dialog de revocación atrapa el foco y Escape lo cierra devolviendo el foco al botón", async ({
+  page,
+}) => {
+  await iniciarSesion(page, admin);
+  await page.goto("/admin/brokers");
+
+  const seccionActivos = page
+    .locator("section")
+    .filter({ has: page.getByRole("heading", { name: "Brokers activos" }) });
+  const filaBroker = seccionActivos.locator("li").filter({ hasText: "BRK-A11YOK" });
+  const botonRevocar = filaBroker.getByRole("button", { name: "Revocar" });
+  await botonRevocar.click();
+
+  const dialogo = page.getByRole("dialog", { name: "Revocar acceso de broker" });
+  await expect(dialogo).toBeVisible();
+  await expect(dialogo.getByLabel("Motivo (obligatorio)")).toBeFocused();
+
+  for (let intento = 0; intento < 8; intento++) {
+    await page.keyboard.press("Tab");
+    const foco = await page.evaluate(
+      () => document.activeElement?.closest('[role="dialog"]') !== null,
+    );
+    expect(foco).toBe(true);
+  }
+
+  await page.keyboard.press("Escape");
+  await expect(dialogo).toHaveCount(0);
+  await expect(botonRevocar).toBeFocused();
+});
