@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { type ChangeEvent, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import type { PropiedadPendienteDeRevision } from "@/server/properties/queries";
 
 interface PropertyReviewCardProps {
@@ -41,18 +44,21 @@ export function PropertyReviewCard({ propiedad }: PropertyReviewCardProps) {
   }
 
   return (
-    <article>
-      <h2>{propiedad.direccion}</h2>
-      <p>
+    <article
+      className="flex flex-col gap-3 rounded-lg bg-surface p-4 ring-1 ring-border shadow-sm transition-opacity duration-150 ease-out motion-reduce:transition-none aria-busy:opacity-70"
+      aria-busy={enviando}
+    >
+      <h2 className="text-base font-semibold text-text">{propiedad.direccion}</h2>
+      <p className="text-sm text-text-muted">
         {propiedad.tipo} · {propiedad.modalidad} · {propiedad.estado} · {propiedad.ciudad}
       </p>
-      <p>{propiedad.descripcion}</p>
-      <p>
+      <p className="text-sm text-text">{propiedad.descripcion}</p>
+      <p className="text-sm text-text-muted">
         Lat: {propiedad.lat} · Lng: {propiedad.lng}
       </p>
 
       {propiedad.fotos.length > 0 ? (
-        <ul>
+        <ul className="flex flex-wrap gap-3">
           {propiedad.fotos.map((foto) => (
             <li key={foto.id}>
               {/* biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático */}
@@ -61,6 +67,7 @@ export function PropertyReviewCard({ propiedad }: PropertyReviewCardProps) {
                 alt={`${propiedad.direccion} — ${propiedad.tipo}`}
                 width={120}
                 height={120}
+                className="rounded-lg border border-border object-cover"
               />
             </li>
           ))}
@@ -68,40 +75,52 @@ export function PropertyReviewCard({ propiedad }: PropertyReviewCardProps) {
       ) : null}
 
       {propiedad.oferente ? (
-        <p>
+        <p className="text-sm text-text-muted">
           {propiedad.oferente.nombre} · {propiedad.oferente.email}
           {propiedad.oferente.telefono ? ` · ${propiedad.oferente.telefono}` : ""}
           {propiedad.oferente.isBroker ? " · Broker" : ""}
         </p>
       ) : null}
 
-      {mensajeConflicto ? <p aria-live="polite">{mensajeConflicto}</p> : null}
+      {mensajeConflicto ? (
+        <p aria-live="polite" className="text-sm text-destructive">
+          {mensajeConflicto}
+        </p>
+      ) : null}
 
-      <button
-        type="button"
-        disabled={enviando}
-        onClick={() => enviarDecision({ decision: "aprobar" })}
-      >
-        Aprobar
-      </button>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          disabled={enviando}
+          onClick={() => enviarDecision({ decision: "aprobar" })}
+        >
+          Aprobar
+        </Button>
 
-      {mostrarMotivo ? (
-        <div>
-          <label htmlFor={`motivo-${propiedad.id}`}>Motivo (obligatorio)</label>
-          <textarea id={`motivo-${propiedad.id}`} value={motivo} onChange={alCambiarMotivo} />
-          <button
+        {mostrarMotivo ? (
+          <div className="flex w-full flex-col gap-1.5">
+            <Label htmlFor={`motivo-${propiedad.id}`}>Motivo (obligatorio)</Label>
+            <Textarea id={`motivo-${propiedad.id}`} value={motivo} onChange={alCambiarMotivo} />
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={enviando || motivo.trim().length === 0}
+              onClick={() => enviarDecision({ decision: "rechazar", motivo })}
+            >
+              Confirmar rechazo
+            </Button>
+          </div>
+        ) : (
+          <Button
             type="button"
-            disabled={enviando || motivo.trim().length === 0}
-            onClick={() => enviarDecision({ decision: "rechazar", motivo })}
+            variant="outline"
+            disabled={enviando}
+            onClick={() => setMostrarMotivo(true)}
           >
-            Confirmar rechazo
-          </button>
-        </div>
-      ) : (
-        <button type="button" disabled={enviando} onClick={() => setMostrarMotivo(true)}>
-          Rechazar
-        </button>
-      )}
+            Rechazar
+          </Button>
+        )}
+      </div>
     </article>
   );
 }
