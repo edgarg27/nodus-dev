@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 const MENSAJE_MAXIMO = 500;
 
@@ -20,7 +23,7 @@ export function SolicitudForm() {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<SolicitudInput>({
     resolver: zodResolver(solicitudSchema),
     defaultValues: { mensaje: "" },
@@ -57,19 +60,41 @@ export function SolicitudForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      {errorEnvio ? <p aria-live="polite">{errorEnvio}</p> : null}
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      className="mx-auto flex w-full max-w-[480px] flex-col gap-4 px-4"
+    >
+      {errorEnvio ? (
+        <p aria-live="polite" className="text-sm text-destructive">
+          {errorEnvio}
+        </p>
+      ) : null}
 
-      <label htmlFor="mensaje">Empresa y nota para el equipo de Nodus</label>
-      <textarea id="mensaje" maxLength={MENSAJE_MAXIMO} {...register("mensaje")} />
-      <p>
-        {mensaje.length}/{MENSAJE_MAXIMO}
-      </p>
-      {errors.mensaje ? <p role="alert">{errors.mensaje.message}</p> : null}
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="mensaje">Empresa y nota para el equipo de Nodus</Label>
+        <Textarea
+          id="mensaje"
+          maxLength={MENSAJE_MAXIMO}
+          {...register("mensaje")}
+          aria-invalid={!!errors.mensaje}
+        />
+        <p className="text-right text-xs text-muted-foreground">{mensaje.length}/500</p>
+        {errors.mensaje ? (
+          <p role="alert" className="text-sm text-destructive">
+            {errors.mensaje.message}
+          </p>
+        ) : null}
+      </div>
 
-      <button type="submit" disabled={enviando}>
-        Enviar solicitud
-      </button>
+      <Button
+        type="submit"
+        disabled={enviando || isSubmitting}
+        aria-busy={enviando}
+        className="transition-opacity duration-150 ease-out motion-reduce:transition-none disabled:opacity-60"
+      >
+        {enviando ? "Enviando…" : "Enviar solicitud"}
+      </Button>
     </form>
   );
 }
