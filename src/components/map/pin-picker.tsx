@@ -88,5 +88,5 @@ export function PinPicker({ lat, lng, onChange }: PinPickerProps) {
     marcadorRef.current?.setLngLat([lng as number, lat as number]);
   }, [lat, lng]);
 
-  return <div ref={contenedorRef} style={{ height: 320, width: "100%" }} />;
+  return <div ref={contenedorRef} className="h-[320px] w-full" />;
 }

@@ -88,5 +88,5 @@ export function PropertyMap({ propiedades, selectedId, onSelect }: PropertyMapPr
     mapa.flyTo({ center: [punto.lng, punto.lat], zoom: 14 });
   }, [selectedId, propiedades]);
 
-  return <div ref={contenedorRef} style={{ height: 480, width: "100%" }} />;
+  return <div ref={contenedorRef} className="h-[480px] w-full" />;
 }
