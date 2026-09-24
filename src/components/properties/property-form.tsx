@@ -7,6 +7,12 @@ import { useRouter } from "next/navigation";
 import { type ChangeEvent, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { PinPicker } from "../map/pin-picker";
 import type { EstadoPublicacion } from "./status-badge";
 
@@ -64,6 +70,9 @@ interface ErrorApi {
   message?: string;
   details?: Array<{ existing_property_id?: string }>;
 }
+
+const selectClassName =
+  "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30";
 
 function validarArchivo(archivo: File): string | null {
   if (!TIPOS_FOTO_PERMITIDOS.includes(archivo.type)) {
@@ -223,120 +232,225 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      {errorEnvio ? <p role="alert">{errorEnvio}</p> : null}
-      {mensajeDuplicado ? (
-        <div role="alert">
-          <p>Ya existe una propiedad activa en esta dirección.</p>
-          <Link href={`/propiedades/${mensajeDuplicado.id}`}>Ver propiedad existente</Link>
-        </div>
-      ) : null}
-      {propiedad?.estadoPublicacion === "rechazada" && propiedad.motivoRechazo ? (
-        <p>Motivo de rechazo: {propiedad.motivoRechazo}</p>
-      ) : null}
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="mx-auto w-full max-w-3xl px-4">
+      <Card>
+        <CardContent className="flex flex-col gap-4">
+          {errorEnvio ? (
+            <Alert variant="destructive">
+              <AlertDescription>{errorEnvio}</AlertDescription>
+            </Alert>
+          ) : null}
+          {mensajeDuplicado ? (
+            <Alert variant="destructive">
+              <AlertDescription className="flex flex-col gap-1">
+                <p>Ya existe una propiedad activa en esta dirección.</p>
+                <Link
+                  href={`/propiedades/${mensajeDuplicado.id}`}
+                  className="text-primary underline underline-offset-4"
+                >
+                  Ver propiedad existente
+                </Link>
+              </AlertDescription>
+            </Alert>
+          ) : null}
+          {propiedad?.estadoPublicacion === "rechazada" && propiedad.motivoRechazo ? (
+            <p className="text-sm text-destructive">Motivo de rechazo: {propiedad.motivoRechazo}</p>
+          ) : null}
 
-      <label htmlFor="tipo">Tipo</label>
-      <select id="tipo" {...register("tipo")}>
-        <option value="nave_industrial">Nave industrial</option>
-        <option value="oficina">Oficina</option>
-        <option value="local_comercial">Local comercial</option>
-      </select>
-      {errors.tipo ? <p role="alert">{errors.tipo.message}</p> : null}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="tipo">Tipo</Label>
+              <select id="tipo" {...register("tipo")} className={selectClassName}>
+                <option value="nave_industrial">Nave industrial</option>
+                <option value="oficina">Oficina</option>
+                <option value="local_comercial">Local comercial</option>
+              </select>
+              {errors.tipo ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.tipo.message}
+                </p>
+              ) : null}
+            </div>
 
-      <label htmlFor="modalidad">Modalidad</label>
-      <select id="modalidad" {...register("modalidad")}>
-        <option value="renta">Renta</option>
-        <option value="venta">Venta</option>
-        <option value="desde_cero">Desde cero</option>
-      </select>
-      {errors.modalidad ? <p role="alert">{errors.modalidad.message}</p> : null}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="modalidad">Modalidad</Label>
+              <select id="modalidad" {...register("modalidad")} className={selectClassName}>
+                <option value="renta">Renta</option>
+                <option value="venta">Venta</option>
+                <option value="desde_cero">Desde cero</option>
+              </select>
+              {errors.modalidad ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.modalidad.message}
+                </p>
+              ) : null}
+            </div>
+          </div>
 
-      <label htmlFor="direccion">Dirección</label>
-      <input
-        id="direccion"
-        {...register("direccion", {
-          onBlur: () => {
-            void alSalirDeDireccion();
-          },
-        })}
-      />
-      {errors.direccion ? <p role="alert">{errors.direccion.message}</p> : null}
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="direccion">Dirección</Label>
+            <Input
+              id="direccion"
+              {...register("direccion", {
+                onBlur: () => {
+                  void alSalirDeDireccion();
+                },
+              })}
+              aria-invalid={!!errors.direccion}
+            />
+            {errors.direccion ? (
+              <p role="alert" className="text-sm text-destructive">
+                {errors.direccion.message}
+              </p>
+            ) : null}
+          </div>
 
-      <label htmlFor="estado">Estado</label>
-      <select id="estado" {...register("estado")}>
-        <option value="SLP">San Luis Potosí</option>
-        <option value="Aguascalientes">Aguascalientes</option>
-        <option value="Leon">León</option>
-      </select>
-      {errors.estado ? <p role="alert">{errors.estado.message}</p> : null}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="estado">Estado</Label>
+              <select id="estado" {...register("estado")} className={selectClassName}>
+                <option value="SLP">San Luis Potosí</option>
+                <option value="Aguascalientes">Aguascalientes</option>
+                <option value="Leon">León</option>
+              </select>
+              {errors.estado ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.estado.message}
+                </p>
+              ) : null}
+            </div>
 
-      <label htmlFor="ciudad">Ciudad</label>
-      <input id="ciudad" {...register("ciudad")} />
-      {errors.ciudad ? <p role="alert">{errors.ciudad.message}</p> : null}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="ciudad">Ciudad</Label>
+              <Input id="ciudad" {...register("ciudad")} aria-invalid={!!errors.ciudad} />
+              {errors.ciudad ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.ciudad.message}
+                </p>
+              ) : null}
+            </div>
+          </div>
 
-      <label htmlFor="descripcion">Descripción</label>
-      <textarea id="descripcion" {...register("descripcion")} />
-      {errors.descripcion ? <p role="alert">{errors.descripcion.message}</p> : null}
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="descripcion">Descripción</Label>
+            <Textarea
+              id="descripcion"
+              {...register("descripcion")}
+              aria-invalid={!!errors.descripcion}
+            />
+            {errors.descripcion ? (
+              <p role="alert" className="text-sm text-destructive">
+                {errors.descripcion.message}
+              </p>
+            ) : null}
+          </div>
 
-      <label htmlFor="lat">Latitud</label>
-      <input
-        id="lat"
-        type="number"
-        step="any"
-        {...register("lat", {
-          valueAsNumber: true,
-          onChange: () => setCoordenadasTocadas(true),
-        })}
-      />
-      {errors.lat ? <p role="alert">{errors.lat.message}</p> : null}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="lat">Latitud</Label>
+              <Input
+                id="lat"
+                type="number"
+                step="any"
+                {...register("lat", {
+                  valueAsNumber: true,
+                  onChange: () => setCoordenadasTocadas(true),
+                })}
+                aria-invalid={!!errors.lat}
+              />
+              {errors.lat ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.lat.message}
+                </p>
+              ) : null}
+            </div>
 
-      <label htmlFor="lng">Longitud</label>
-      <input
-        id="lng"
-        type="number"
-        step="any"
-        {...register("lng", {
-          valueAsNumber: true,
-          onChange: () => setCoordenadasTocadas(true),
-        })}
-      />
-      {errors.lng ? <p role="alert">{errors.lng.message}</p> : null}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="lng">Longitud</Label>
+              <Input
+                id="lng"
+                type="number"
+                step="any"
+                {...register("lng", {
+                  valueAsNumber: true,
+                  onChange: () => setCoordenadasTocadas(true),
+                })}
+                aria-invalid={!!errors.lng}
+              />
+              {errors.lng ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.lng.message}
+                </p>
+              ) : null}
+            </div>
+          </div>
 
-      <PinPicker lat={lat} lng={lng} onChange={alMoverPin} />
+          <PinPicker lat={lat} lng={lng} onChange={alMoverPin} />
 
-      <label htmlFor="fotos">Fotos</label>
-      <input
-        id="fotos"
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        multiple
-        onChange={alSeleccionarArchivos}
-      />
-      {errorArchivos ? <p role="alert">{errorArchivos}</p> : null}
-      {archivosNuevos.length > 0 ? (
-        <ul>
-          {archivosNuevos.map((archivo) => (
-            <li key={`${archivo.name}-${archivo.size}-${archivo.lastModified}`}>{archivo.name}</li>
-          ))}
-        </ul>
-      ) : null}
-      {fotosExistentes.length > 0 ? (
-        <ul>
-          {fotosExistentes.map((foto) => (
-            <li key={foto.id}>
-              {/* biome-ignore lint/performance/noImgElement: foto subida por el usuario, no un asset estático */}
-              <img src={foto.storageUrl} alt="" width={80} height={80} />
-              <button type="button" onClick={() => quitarFotoExistente(foto.id)}>
-                Quitar foto
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="fotos">Fotos</Label>
+            <input
+              id="fotos"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              onChange={alSeleccionarArchivos}
+              className="text-sm text-muted-foreground file:mr-2.5 file:h-8 file:rounded-lg file:border file:border-input file:bg-transparent file:px-2.5 file:text-sm file:font-medium file:text-foreground"
+            />
+            {errorArchivos ? (
+              <p role="alert" className="text-sm text-destructive">
+                {errorArchivos}
+              </p>
+            ) : null}
+            {archivosNuevos.length > 0 ? (
+              <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
+                {archivosNuevos.map((archivo) => (
+                  <li key={`${archivo.name}-${archivo.size}-${archivo.lastModified}`}>
+                    {archivo.name}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {fotosExistentes.length > 0 ? (
+              <ul className="flex flex-wrap gap-3">
+                {fotosExistentes.map((foto) => (
+                  <li key={foto.id} className="flex flex-col items-start gap-1.5">
+                    {/* biome-ignore lint/performance/noImgElement: foto subida por el usuario, no un asset estático */}
+                    <img
+                      src={foto.storageUrl}
+                      alt=""
+                      width={80}
+                      height={80}
+                      className="rounded-lg border border-border object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => quitarFotoExistente(foto.id)}
+                    >
+                      Quitar foto
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
 
-      <button type="submit" disabled={mutacion.isPending}>
-        {modo === "nueva" ? "Publicar propiedad" : "Guardar cambios"}
-      </button>
+          <Button
+            type="submit"
+            disabled={mutacion.isPending}
+            aria-busy={mutacion.isPending}
+            className="transition-opacity duration-150 ease-out motion-reduce:transition-none disabled:opacity-60"
+          >
+            {mutacion.isPending
+              ? "Guardando…"
+              : modo === "nueva"
+                ? "Publicar propiedad"
+                : "Guardar cambios"}
+          </Button>
+        </CardContent>
+      </Card>
     </form>
   );
 }

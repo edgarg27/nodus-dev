@@ -24,8 +24,8 @@ export default async function EditarPropiedadPage({ params }: EditarPropiedadPag
   const fotos = await obtenerFotosDePropiedad(propiedad.id);
 
   return (
-    <main>
-      <h1>Editar propiedad</h1>
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 py-8">
+      <h1 className="px-4 text-2xl font-semibold text-foreground">Editar propiedad</h1>
       <PropertyForm
         propiedad={{
           id: propiedad.id,
