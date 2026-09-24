@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { type ChangeEvent, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface RequestActionsProps {
   solicitudId: string;
@@ -62,28 +65,39 @@ export function RequestActions({ solicitudId }: RequestActionsProps) {
   }
 
   return (
-    <div>
-      {mensaje ? <p aria-live="polite">{mensaje}</p> : null}
-      <button type="button" disabled={enviando} onClick={aprobar}>
-        Aprobar
-      </button>
-      {mostrarMotivo ? (
-        <div>
-          <label htmlFor={`motivo-denegar-${solicitudId}`}>Motivo (opcional)</label>
-          <textarea
-            id={`motivo-denegar-${solicitudId}`}
-            value={motivo}
-            onChange={alCambiarMotivo}
-          />
-          <button type="button" disabled={enviando} onClick={denegar}>
-            Confirmar denegación
-          </button>
-        </div>
-      ) : (
-        <button type="button" disabled={enviando} onClick={() => setMostrarMotivo(true)}>
-          Denegar
-        </button>
-      )}
+    <div className="flex flex-col gap-2">
+      {mensaje ? (
+        <p aria-live="polite" className="text-sm text-text-muted">
+          {mensaje}
+        </p>
+      ) : null}
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" disabled={enviando} onClick={aprobar}>
+          Aprobar
+        </Button>
+        {mostrarMotivo ? (
+          <div className="flex w-full flex-col gap-1.5">
+            <Label htmlFor={`motivo-denegar-${solicitudId}`}>Motivo (opcional)</Label>
+            <Textarea
+              id={`motivo-denegar-${solicitudId}`}
+              value={motivo}
+              onChange={alCambiarMotivo}
+            />
+            <Button type="button" variant="outline" disabled={enviando} onClick={denegar}>
+              Confirmar denegación
+            </Button>
+          </div>
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={enviando}
+            onClick={() => setMostrarMotivo(true)}
+          >
+            Denegar
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

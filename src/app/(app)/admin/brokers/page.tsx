@@ -7,22 +7,25 @@ export default async function AdminBrokersPage() {
   const activos = await listarBrokersActivos();
 
   return (
-    <main>
-      <h1>Brokers</h1>
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-8">
+      <h1 className="text-2xl font-semibold text-foreground">Brokers</h1>
 
-      <section>
-        <h2>Solicitudes pendientes</h2>
+      <section className="flex flex-col gap-4">
+        <h2 className="text-lg font-medium text-text">Solicitudes pendientes</h2>
         {pendientes.length === 0 ? (
-          <p>No hay solicitudes pendientes</p>
+          <p className="text-sm text-muted-foreground">No hay solicitudes pendientes</p>
         ) : (
-          <ul>
+          <ul className="flex flex-col gap-4">
             {pendientes.map((solicitud) => (
-              <li key={solicitud.id}>
-                <p>{solicitud.usuario.nombre}</p>
-                <p>{solicitud.usuario.email}</p>
-                <p>{solicitud.usuario.telefono}</p>
-                <p>{solicitud.mensaje}</p>
-                <p>{solicitud.createdAt.toISOString()}</p>
+              <li
+                key={solicitud.id}
+                className="flex flex-col gap-1.5 rounded-lg bg-surface p-4 ring-1 ring-border shadow-sm"
+              >
+                <p className="text-sm font-medium text-text">{solicitud.usuario.nombre}</p>
+                <p className="text-sm text-text-muted">{solicitud.usuario.email}</p>
+                <p className="text-sm text-text-muted">{solicitud.usuario.telefono}</p>
+                <p className="text-sm text-text">{solicitud.mensaje}</p>
+                <p className="text-sm text-text-muted">{solicitud.createdAt.toISOString()}</p>
                 <RequestActions solicitudId={solicitud.id} />
               </li>
             ))}
@@ -30,18 +33,21 @@ export default async function AdminBrokersPage() {
         )}
       </section>
 
-      <section>
-        <h2>Brokers activos</h2>
+      <section className="flex flex-col gap-4">
+        <h2 className="text-lg font-medium text-text">Brokers activos</h2>
         {activos.length === 0 ? (
-          <p>No hay brokers activos</p>
+          <p className="text-sm text-muted-foreground">No hay brokers activos</p>
         ) : (
-          <ul>
+          <ul className="flex flex-col gap-4">
             {activos.map((broker) => (
-              <li key={broker.id}>
-                <p>{broker.nombre}</p>
-                <p>{broker.email}</p>
-                <p>{broker.brokerCode}</p>
-                <p>{broker.aprobadoEn?.toISOString() ?? "—"}</p>
+              <li
+                key={broker.id}
+                className="flex flex-col gap-1.5 rounded-lg bg-surface p-4 ring-1 ring-border shadow-sm"
+              >
+                <p className="text-sm font-medium text-text">{broker.nombre}</p>
+                <p className="text-sm text-text-muted">{broker.email}</p>
+                <p className="text-sm text-text-muted">{broker.brokerCode}</p>
+                <p className="text-sm text-text-muted">{broker.aprobadoEn?.toISOString() ?? "—"}</p>
                 <RevokeForm usuarioId={broker.id} />
               </li>
             ))}
