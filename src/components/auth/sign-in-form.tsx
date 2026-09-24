@@ -4,6 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 
 const signInSchema = z.object({
@@ -21,7 +25,7 @@ export function SignInForm({ errorConfirmacion }: SignInFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<SignInInput>({ resolver: zodResolver(signInSchema) });
 
   const [sinConfirmar, setSinConfirmar] = useState(false);
@@ -61,33 +65,67 @@ export function SignInForm({ errorConfirmacion }: SignInFormProps) {
 
   if (sinConfirmar) {
     return (
-      <div>
-        <p role="alert">Confirma tu correo antes de iniciar sesión</p>
+      <div className="mx-auto flex w-full max-w-[400px] flex-col gap-4 px-4">
+        <Alert variant="destructive">
+          <AlertDescription>Confirma tu correo antes de iniciar sesión</AlertDescription>
+        </Alert>
         {mensajeReenvio ? (
-          <p role="status" aria-live="polite">
+          <p role="status" aria-live="polite" className="text-sm text-muted-foreground">
             {mensajeReenvio}
           </p>
         ) : null}
-        <button type="button" onClick={reenviarCorreo}>
+        <Button type="button" variant="outline" onClick={reenviarCorreo}>
           Reenviar correo
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      {errorGenerico ? <p role="alert">{errorGenerico}</p> : null}
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      noValidate
+      className="mx-auto flex w-full max-w-[400px] flex-col gap-4 px-4"
+    >
+      {errorGenerico ? (
+        <Alert variant="destructive">
+          <AlertDescription>{errorGenerico}</AlertDescription>
+        </Alert>
+      ) : null}
 
-      <label htmlFor="email">Correo electrónico</label>
-      <input id="email" type="email" {...register("email")} />
-      {errors.email ? <p role="alert">{errors.email.message}</p> : null}
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="email">Correo electrónico</Label>
+        <Input id="email" type="email" {...register("email")} aria-invalid={!!errors.email} />
+        {errors.email ? (
+          <p role="alert" className="text-sm text-destructive">
+            {errors.email.message}
+          </p>
+        ) : null}
+      </div>
 
-      <label htmlFor="password">Contraseña</label>
-      <input id="password" type="password" {...register("password")} />
-      {errors.password ? <p role="alert">{errors.password.message}</p> : null}
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="password">Contraseña</Label>
+        <Input
+          id="password"
+          type="password"
+          {...register("password")}
+          aria-invalid={!!errors.password}
+        />
+        {errors.password ? (
+          <p role="alert" className="text-sm text-destructive">
+            {errors.password.message}
+          </p>
+        ) : null}
+      </div>
 
-      <button type="submit">Iniciar sesión</button>
+      <Button
+        type="submit"
+        disabled={isSubmitting}
+        aria-busy={isSubmitting}
+        className="transition-opacity duration-150 ease-out motion-reduce:transition-none disabled:opacity-60"
+      >
+        {isSubmitting ? "Iniciando sesión…" : "Iniciar sesión"}
+      </Button>
     </form>
   );
 }
