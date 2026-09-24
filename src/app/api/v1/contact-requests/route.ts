@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getUsuarioActual } from "../../../../server/auth/session.ts";
 import { crearContactRequest } from "../../../../server/contact-requests/mutations.ts";
+import { obtenerIpCliente, verificarLimite } from "../../../../server/rate-limit/check.ts";
 
 const contactRequestSchema = z.object({
   propiedad_id: z.uuid(),
@@ -24,6 +25,14 @@ export async function POST(request: Request) {
   if (!actor) {
     return NextResponse.json(errorEnvelope("unauthenticated", "Sesión requerida"), {
       status: 401,
+    });
+  }
+
+  const limite = await verificarLimite(`contact:${obtenerIpCliente(request)}`, { max: 10 });
+  if (!limite.ok) {
+    return NextResponse.json(errorEnvelope("rate_limited", "Demasiadas solicitudes"), {
+      status: 429,
+      headers: { "Retry-After": String(limite.retryAfterSegundos) },
     });
   }
 

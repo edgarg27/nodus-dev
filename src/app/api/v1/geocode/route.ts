@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getUsuarioActual } from "../../../../server/auth/session.ts";
 import { geocodificar } from "../../../../server/geocoding/client.ts";
+import { obtenerIpCliente, verificarLimite } from "../../../../server/rate-limit/check.ts";
 
 const geocodeQuerySchema = z.object({
   q: z.string().trim().min(3),
@@ -23,6 +24,14 @@ export async function GET(request: Request) {
   if (!actor) {
     return NextResponse.json(errorEnvelope("unauthenticated", "Sesión requerida"), {
       status: 401,
+    });
+  }
+
+  const limite = await verificarLimite(`geocode:${obtenerIpCliente(request)}`, { max: 30 });
+  if (!limite.ok) {
+    return NextResponse.json(errorEnvelope("rate_limited", "Demasiadas solicitudes"), {
+      status: 429,
+      headers: { "Retry-After": String(limite.retryAfterSegundos) },
     });
   }
 
