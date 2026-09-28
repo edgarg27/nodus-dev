@@ -1,4 +1,4 @@
-import { and, asc, eq, gt, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
 import { propiedad, propiedadFoto, usuario } from "../../lib/db/schema.ts";
 
@@ -79,6 +79,41 @@ export async function buscarPropiedadesPublicas(
   const ultima = pagina[pagina.length - 1];
 
   return { data: pagina, hasMore, nextCursor: hasMore && ultima ? ultima.id : null };
+}
+
+export interface PropiedadDestacada extends PropiedadFila {
+  foto: typeof propiedadFoto.$inferSelect | null;
+}
+
+// Portada: las últimas publicadas, con su primera foto — usado por el home. Sin paginación:
+// siempre un puñado fijo de tarjetas.
+export async function listarPropiedadesPublicadasRecientes(
+  limite: number,
+): Promise<PropiedadDestacada[]> {
+  const filas = await db
+    .select()
+    .from(propiedad)
+    .where(and(eq(propiedad.activo, true), eq(propiedad.estadoPublicacion, "publicada")))
+    .orderBy(desc(propiedad.createdAt))
+    .limit(limite);
+
+  if (filas.length === 0) return [];
+
+  const idsPropiedad = filas.map((fila) => fila.id);
+  const fotos = await db
+    .select()
+    .from(propiedadFoto)
+    .where(inArray(propiedadFoto.propiedadId, idsPropiedad))
+    .orderBy(asc(propiedadFoto.orden));
+
+  const primeraFotoPorPropiedad = new Map<string, typeof propiedadFoto.$inferSelect>();
+  for (const foto of fotos) {
+    if (!primeraFotoPorPropiedad.has(foto.propiedadId)) {
+      primeraFotoPorPropiedad.set(foto.propiedadId, foto);
+    }
+  }
+
+  return filas.map((fila) => ({ ...fila, foto: primeraFotoPorPropiedad.get(fila.id) ?? null }));
 }
 
 // Fotos de una propiedad, en el orden en que se subieron — usado por el formulario de edición.

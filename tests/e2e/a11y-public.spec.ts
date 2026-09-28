@@ -60,6 +60,10 @@ test.afterAll(async () => {
 for (const ruta of ["/", "/buscar", "/sign-in", "/sign-up"]) {
   test(`${ruta} no tiene violaciones de axe`, async ({ page }) => {
     await page.goto(ruta);
+    // Deja terminar la animación de entrada (fade-in duration-500 de las tarjetas) antes de
+    // escanear contraste: si axe corre a mitad de la transición, ve una opacidad menor a 1 y
+    // reporta un falso positivo de contraste insuficiente.
+    await page.waitForTimeout(600);
     const resultados = await new AxeBuilder({ page }).withTags(AXE_TAGS).analyze();
     expect(resultados.violations).toEqual([]);
   });

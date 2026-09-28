@@ -1,32 +1,50 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Reveal } from "./reveal";
+
+const PASOS = [
+  {
+    numero: 1,
+    titulo: "Crea tu cuenta",
+    descripcion: "Regístrate e indica qué buscas: modalidad, tipo de inmueble y ubicación.",
+  },
+  {
+    numero: 2,
+    titulo: "Explora resultados filtrados",
+    descripcion:
+      "Compara espacios disponibles con fotos, descripción, ubicación y condiciones, todo en un solo lugar.",
+  },
+  {
+    numero: 3,
+    titulo: "Contacta al oferente",
+    descripcion: "Envía tu solicitud de contacto directo, sin intermediarios, y agenda tu visita.",
+  },
+];
 
 export function HowItWorks() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <h2 className="text-2xl font-semibold text-foreground sm:text-3xl">Cómo funciona</h2>
-      <div className="mt-8 grid gap-8 sm:grid-cols-2">
-        <div className="flex flex-col gap-4">
-          <h3 className="text-lg font-medium text-text">Buscar y contactar</h3>
-          <ol className="flex flex-col gap-3 text-sm text-text-muted">
-            <li>1. Filtra por tipo, modalidad y plaza en el buscador.</li>
-            <li>2. Explora el mapa interactivo y compara propiedades.</li>
-            <li>3. Contacta directo al oferente desde la ficha de la propiedad.</li>
-          </ol>
-        </div>
-        <div className="flex flex-col gap-4">
-          <h3 className="text-lg font-medium text-text">Publicar y aprobar</h3>
-          <ol className="flex flex-col gap-3 text-sm text-text-muted">
-            <li>1. Publica tu nave, oficina o local con fotos y ubicación.</li>
-            <li>2. Un admin de Nodus revisa la propiedad antes de publicarla.</li>
-            <li>3. Recibe leads de buscadores directo en tu panel.</li>
-          </ol>
-        </div>
-      </div>
-      <div className="mt-8">
-        <Button asChild>
-          <Link href="/sign-up">Crear cuenta</Link>
-        </Button>
+    <section id="como-funciona" className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+      <Reveal className="flex max-w-xl flex-col gap-3">
+        <span className="text-[13px] font-bold tracking-wide text-primary uppercase">
+          Cómo funciona
+        </span>
+        <h2 className="text-[34px] leading-tight font-bold text-foreground">
+          Tres pasos para encontrar tu próximo espacio
+        </h2>
+      </Reveal>
+
+      <div className="mt-12 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+        {PASOS.map((paso, indice) => (
+          <Reveal
+            key={paso.numero}
+            delayMs={indice * 90}
+            className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-7"
+          >
+            <span className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-primary font-display text-[17px] font-bold text-primary-foreground">
+              {paso.numero}
+            </span>
+            <h3 className="text-[19px] font-semibold text-foreground">{paso.titulo}</h3>
+            <p className="text-[15px] leading-relaxed text-muted-foreground">{paso.descripcion}</p>
+          </Reveal>
+        ))}
       </div>
     </section>
   );
