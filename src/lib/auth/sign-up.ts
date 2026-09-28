@@ -1,10 +1,11 @@
 import { z } from "zod";
 
 export const signUpSchema = z.object({
-  nombre: z.string().trim().min(1),
-  email: z.email(),
-  password: z.string().min(8),
-  rol: z.enum(["buscador", "oferente"]),
+  nombre: z.string().trim().min(1, "El nombre es obligatorio"),
+  email: z.email("Ingresa un correo electrónico válido"),
+  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+  rol: z.enum(["buscador", "oferente"], "Selecciona un tipo de cuenta"),
+  aceptaTerminos: z.literal(true, "Debes aceptar los términos y el aviso de privacidad"),
   ref: z.string().optional(),
 });
 

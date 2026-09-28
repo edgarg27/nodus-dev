@@ -46,10 +46,12 @@ test("registro con la red interceptada muestra Revisa tu correo y permite reenvi
   await page.goto("/sign-up");
   await page.getByLabel("Nombre").fill("Prueba");
   await page.getByLabel("Correo electrónico").fill("revisa-correo@example.com");
-  await page.getByLabel("Contraseña").fill("password123");
+  await page.getByLabel("Contraseña", { exact: true }).fill("password123");
+  await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
-  await expect(page.getByRole("status")).toContainText("Revisa tu correo");
+  await expect(page.getByRole("heading", { name: "Revisa tu correo" })).toBeVisible();
+  await expect(page.getByRole("status")).toContainText("revisa-correo@example.com");
   await page.getByRole("button", { name: "Reenviar correo" }).click();
   await expect(page.getByRole("status")).toContainText("Correo reenviado");
 });
@@ -85,7 +87,7 @@ test("un usuario sin confirmar ve Confirma tu correo y no llega a ningún panel"
 
   await page.goto("/sign-in");
   await page.getByLabel("Correo electrónico").fill(cuenta.email);
-  await page.getByLabel("Contraseña").fill(cuenta.password);
+  await page.getByLabel("Contraseña", { exact: true }).fill(cuenta.password);
   await page.getByRole("button", { name: "Iniciar sesión" }).click();
 
   await expect(page.getByText("Confirma tu correo antes de iniciar sesión")).toBeVisible();

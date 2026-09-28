@@ -88,7 +88,7 @@ test("los controles del mapa de /buscar miden al menos 24x24 px", async ({ page 
   expect(caja?.height ?? 0).toBeGreaterThanOrEqual(24);
 });
 
-test("el registro se recorre con teclado en orden email, password, rol y Crear cuenta", async ({
+test("el registro se recorre con teclado en orden email, password, mostrar contraseña, rol, términos y Crear cuenta", async ({
   page,
 }) => {
   await interceptarSignUp(page);
@@ -104,13 +104,28 @@ test("el registro se recorre con teclado en orden email, password, rol y Crear c
   await page.keyboard.type("password123");
 
   await page.keyboard.press("Tab");
+  await expect(page.getByRole("button", { name: "Mostrar contraseña" })).toBeFocused();
+
+  await page.keyboard.press("Tab");
   await expect(page.locator("#rol")).toBeFocused();
+
+  await page.keyboard.press("Tab");
+  const aceptaTerminos = page.getByRole("checkbox");
+  await expect(aceptaTerminos).toBeFocused();
+  await page.keyboard.press("Space");
+  await expect(aceptaTerminos).toBeChecked();
+
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "términos y condiciones" })).toBeFocused();
+
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "aviso de privacidad" })).toBeFocused();
 
   await page.keyboard.press("Tab");
   await expect(page.getByRole("button", { name: "Crear cuenta" })).toBeFocused();
 
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("status")).toContainText("Revisa tu correo");
+  await expect(page.getByRole("heading", { name: "Revisa tu correo" })).toBeVisible();
 });
 
 test("Revisa tu correo usa role=status y aria-live=polite", async ({ page }) => {
@@ -118,10 +133,12 @@ test("Revisa tu correo usa role=status y aria-live=polite", async ({ page }) => 
   await page.goto("/sign-up");
   await page.getByLabel("Nombre").fill("Correo");
   await page.getByLabel("Correo electrónico").fill("correo@example.com");
-  await page.getByLabel("Contraseña").fill("password123");
+  await page.getByLabel("Contraseña", { exact: true }).fill("password123");
+  await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
+  await expect(page.getByRole("heading", { name: "Revisa tu correo" })).toBeVisible();
   const estado = page.getByRole("status");
-  await expect(estado).toContainText("Revisa tu correo");
+  await expect(estado).toContainText("correo@example.com");
   await expect(estado).toHaveAttribute("aria-live", "polite");
 });

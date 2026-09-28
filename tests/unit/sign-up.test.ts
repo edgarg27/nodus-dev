@@ -6,6 +6,7 @@ const base = {
   email: "ana@example.com",
   password: "password123",
   rol: "buscador",
+  aceptaTerminos: true,
 };
 
 describe("validarSignUp", () => {
@@ -31,6 +32,12 @@ describe("validarSignUp", () => {
     const resultado = validarSignUp({ ...base, password: "1234567" });
     expect(resultado.ok).toBe(false);
     if (!resultado.ok) expect(resultado.error.status).toBe(422);
+  });
+
+  it("aceptaTerminos ausente o en false → 422", () => {
+    const { aceptaTerminos: _omit, ...sinAceptar } = base;
+    expect(validarSignUp(sinAceptar).ok).toBe(false);
+    expect(validarSignUp({ ...base, aceptaTerminos: false }).ok).toBe(false);
   });
 });
 

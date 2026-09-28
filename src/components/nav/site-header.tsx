@@ -35,7 +35,7 @@ export function SiteHeader() {
           aria-expanded={open}
           aria-controls="site-nav-menu"
           onClick={() => setOpen((prev) => !prev)}
-          className="rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted md:hidden"
+          className="cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted md:hidden"
         >
           Menú
         </button>

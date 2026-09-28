@@ -9,7 +9,7 @@ export async function iniciarSesion(
 ): Promise<void> {
   await page.goto("/sign-in");
   await page.getByLabel("Correo electrónico").fill(credenciales.email);
-  await page.getByLabel("Contraseña").fill(credenciales.password);
+  await page.getByLabel("Contraseña", { exact: true }).fill(credenciales.password);
   await page.getByRole("button", { name: "Iniciar sesión" }).click();
   await page.waitForURL((url) => !url.pathname.startsWith("/sign-in"));
 }

@@ -58,7 +58,7 @@ test("el admin inicia sesión y termina en /admin/propiedades, con la cola y sus
 
   await page.goto("/sign-in");
   await page.getByLabel("Correo electrónico").fill(admin.email);
-  await page.getByLabel("Contraseña").fill(admin.password);
+  await page.getByLabel("Contraseña", { exact: true }).fill(admin.password);
   await page.getByRole("button", { name: "Iniciar sesión" }).click();
   await page.waitForURL("/admin/propiedades");
 

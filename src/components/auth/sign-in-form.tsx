@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,45 +10,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
-
-function EyeIcon({ hidden }: { hidden: boolean }) {
-  if (hidden) {
-    return (
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
-        <circle cx="12" cy="12" r="3" />
-      </svg>
-    );
-  }
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a20.3 20.3 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
-      <line x1="1" y1="1" x2="23" y2="23" />
-    </svg>
-  );
-}
+import { EyeIcon } from "./eye-icon";
 
 const DURACION_AUTO_DESCARTE_MS = 6000;
+const SEGUNDOS_ESPERA_REENVIO = 30;
 
 const signInSchema = z.object({
   email: z.email("Ingresa un correo electrónico válido"),
@@ -75,6 +41,7 @@ export function SignInForm({ errorConfirmacion }: SignInFormProps) {
   );
   const [mensajeReenvio, setMensajeReenvio] = useState<string | null>(null);
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [segundosParaReenvio, setSegundosParaReenvio] = useState(0);
 
   useEffect(() => {
     if (!errorGenerico) return;
@@ -120,100 +87,179 @@ export function SignInForm({ errorConfirmacion }: SignInFormProps) {
     const supabase = createClient();
     await supabase.auth.resend({ type: "signup", email: emailParaReenvio });
     setMensajeReenvio("Correo reenviado");
+    setSegundosParaReenvio(SEGUNDOS_ESPERA_REENVIO);
+    const intervalo = setInterval(() => {
+      setSegundosParaReenvio((segundos) => {
+        if (segundos <= 1) {
+          clearInterval(intervalo);
+          return 0;
+        }
+        return segundos - 1;
+      });
+    }, 1000);
   }
 
   if (sinConfirmar) {
     return (
-      <div className="flex w-full flex-col gap-4">
-        <Alert
-          variant="destructive"
-          className="animate-in fade-in slide-in-from-top-1 duration-200 ease-out motion-reduce:animate-none"
-        >
-          <AlertDescription>Confirma tu correo antes de iniciar sesión</AlertDescription>
-        </Alert>
-        {mensajeReenvio ? (
-          <p
-            role="status"
-            aria-live="polite"
-            className="animate-in fade-in text-sm text-muted-foreground duration-200 ease-out motion-reduce:animate-none"
+      <div className="flex w-full flex-col items-center gap-[22px] text-center">
+        <span className="flex h-14 w-14 shrink-0 animate-in items-center justify-center rounded-full bg-accent/15 fade-in zoom-in-75 duration-500 ease-out [animation-delay:120ms] motion-reduce:animate-none">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-accent"
+            aria-hidden="true"
           >
-            {mensajeReenvio}
+            <rect x="2" y="4" width="20" height="16" rx="2" />
+            <path d="m22 6-10 7L2 6" />
+          </svg>
+        </span>
+
+        <h1 className="text-[24px] font-bold text-foreground">
+          Confirma tu correo antes de iniciar sesión
+        </h1>
+
+        <div role="status" aria-live="polite" className="flex flex-col gap-2">
+          <p className="max-w-[340px] text-sm leading-relaxed text-muted-foreground">
+            Te enviamos un enlace de confirmación a{" "}
+            <strong className="font-semibold text-foreground">{emailParaReenvio}</strong>.
           </p>
-        ) : null}
-        <Button type="button" variant="outline" onClick={reenviarCorreo}>
-          Reenviar correo
+          {mensajeReenvio ? (
+            <p className="animate-in fade-in text-sm text-muted-foreground duration-200 ease-out motion-reduce:animate-none">
+              {mensajeReenvio}
+            </p>
+          ) : null}
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={reenviarCorreo}
+          disabled={segundosParaReenvio > 0}
+          className="h-12 w-full rounded-[10px] border-input"
+        >
+          {segundosParaReenvio > 0 ? `Reenviar en ${segundosParaReenvio}s` : "Reenviar correo"}
         </Button>
+
+        <p className="text-[13px] text-muted-foreground">
+          ¿No lo encuentras? Revisa tu carpeta de spam.
+        </p>
+
+        <div className="flex w-full items-center gap-3">
+          <div className="h-px flex-grow bg-border" />
+          <span className="text-xs text-muted-foreground">o</span>
+          <div className="h-px flex-grow bg-border" />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setSinConfirmar(false)}
+          className="cursor-pointer text-sm font-bold text-foreground underline underline-offset-4 transition-colors hover:text-accent"
+        >
+          Volver a iniciar sesión
+        </button>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex w-full flex-col gap-[18px]">
-      {errorGenerico ? (
-        <Alert
-          variant="destructive"
-          className="animate-in fade-in slide-in-from-top-1 duration-200 ease-out motion-reduce:animate-none"
-        >
-          <AlertDescription>{errorGenerico}</AlertDescription>
-        </Alert>
-      ) : null}
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="email" className="text-[13px] font-semibold text-foreground">
-          Correo electrónico
-        </Label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="tu@empresa.com"
-          className="h-[46px] rounded-lg border-border bg-background px-3.5 text-[15px]"
-          {...register("email")}
-          aria-invalid={!!errors.email}
-        />
-        {errors.email ? (
-          <p role="alert" className="text-sm text-destructive">
-            {errors.email.message}
-          </p>
-        ) : null}
+    <div className="flex w-full flex-col gap-[26px]">
+      <div className="flex flex-col gap-2 text-center">
+        <h1 className="text-[26px] font-bold text-foreground">Bienvenido de vuelta</h1>
+        <p className="text-sm text-muted-foreground">
+          Inicia sesión para buscar o publicar espacios
+        </p>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="password" className="text-[13px] font-semibold text-foreground">
-          Contraseña
-        </Label>
-        <div className="relative flex items-center">
-          <Input
-            id="password"
-            type={passwordVisible ? "text" : "password"}
-            placeholder="••••••••"
-            className="h-[46px] rounded-lg border-border bg-background pr-11 pl-3.5 text-[15px]"
-            {...register("password")}
-            aria-invalid={!!errors.password}
-          />
-          <button
-            type="button"
-            onClick={() => setPasswordVisible((v) => !v)}
-            aria-label={passwordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
-            className="absolute right-2 flex h-[30px] w-[30px] items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <EyeIcon hidden={!passwordVisible} />
-          </button>
-        </div>
-        {errors.password ? (
-          <p role="alert" className="text-sm text-destructive">
-            {errors.password.message}
-          </p>
-        ) : null}
-      </div>
-
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        aria-busy={isSubmitting}
-        className="h-12 rounded-lg bg-accent text-[15px] font-bold text-accent-foreground transition-all duration-150 ease-out hover:bg-accent/90 hover:-translate-y-px active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0 disabled:opacity-60"
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        className="flex w-full flex-col gap-[18px]"
       >
-        {isSubmitting ? "Iniciando sesión…" : "Iniciar sesión"}
-      </Button>
-    </form>
+        {errorGenerico ? (
+          <Alert
+            variant="destructive"
+            className="animate-in fade-in slide-in-from-top-1 duration-200 ease-out motion-reduce:animate-none"
+          >
+            <AlertDescription>{errorGenerico}</AlertDescription>
+          </Alert>
+        ) : null}
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="email" className="text-[13px] font-semibold text-foreground">
+            Correo electrónico
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="tu@empresa.com"
+            className="h-[46px] rounded-lg border-border bg-background px-3.5 text-[15px]"
+            {...register("email")}
+            aria-invalid={!!errors.email}
+          />
+          {errors.email ? (
+            <p role="alert" className="text-sm text-destructive">
+              {errors.email.message}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="password" className="text-[13px] font-semibold text-foreground">
+            Contraseña
+          </Label>
+          <div className="relative flex items-center">
+            <Input
+              id="password"
+              type={passwordVisible ? "text" : "password"}
+              placeholder="••••••••"
+              className="h-[46px] rounded-lg border-border bg-background pr-11 pl-3.5 text-[15px]"
+              {...register("password")}
+              aria-invalid={!!errors.password}
+            />
+            <button
+              type="button"
+              onClick={() => setPasswordVisible((v) => !v)}
+              aria-label={passwordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+              className="absolute right-2 flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
+            >
+              <EyeIcon hidden={!passwordVisible} />
+            </button>
+          </div>
+          {errors.password ? (
+            <p role="alert" className="text-sm text-destructive">
+              {errors.password.message}
+            </p>
+          ) : null}
+        </div>
+
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          aria-busy={isSubmitting}
+          className="h-12 rounded-lg bg-accent text-[15px] font-bold text-accent-foreground shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0 disabled:opacity-60"
+        >
+          {isSubmitting ? "Iniciando sesión…" : "Iniciar sesión"}
+        </Button>
+      </form>
+
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-grow bg-border" />
+        <span className="text-xs text-muted-foreground">o</span>
+        <div className="h-px flex-grow bg-border" />
+      </div>
+
+      <Link
+        href="/sign-up"
+        className="flex h-12 items-center justify-center rounded-lg border border-border text-[15px] font-semibold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-foreground active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+      >
+        Crear una cuenta nueva
+      </Link>
+    </div>
   );
 }
