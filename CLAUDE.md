@@ -122,18 +122,24 @@ administración (`/admin/**`, `/api/v1/admin/**`) exigen `admin` en tres capas (
 
 | Rol | Valor | Uso |
 |---|---|---|
-| `--color-primary` (navy) | `#0B1E3D` | Encabezados, texto sobre superficies claras, nav |
-| `--color-accent` (coral) | `#FF8A5B` | Únicamente CTA primario, estados activos |
-| `--color-background` | `#F7F7F5` (claro) / `#0B1E3D` (oscuro) | Fondo de página |
-| `--color-surface` | `#FFFFFF` (claro) / `#132A4E` (oscuro) | Tarjetas, paneles |
-| `--color-border` | `#E2E1DC` (claro) / `#24406E` (oscuro) | Divisores, inputs |
-| `--color-text` | `#0B1E3D` (claro) / `#FFFFFF` (oscuro) | Texto de cuerpo |
-| `--color-text-muted` | `#5B6B85` (claro) / `#9FB0CC` (oscuro) | Texto secundario |
+| `--color-primary` (navy) | `#0B1E39` | Encabezados, texto sobre superficies claras, nav |
+| `--color-accent` (coral) | `#FF7A45` | Únicamente CTA primario, estados activos |
+| `--color-background` | `#F7F6F2` (claro) / `#081527` (oscuro) | Fondo de página |
+| `--color-surface` | `#FFFFFF` (claro) / `#1B3151` (oscuro) | Tarjetas, paneles |
+| `--color-border` | `#E7E3DB` (claro) / `#3A5075` (oscuro) | Divisores, inputs |
+| `--color-text` | `#0B1E39` (claro) / `#FFFFFF` (oscuro) | Texto de cuerpo |
+| `--color-text-muted` | `#627289` (claro) / `#AAB8CC` (oscuro) | Texto secundario |
 | `--color-destructive` | `#B3261E` (claro) / `#F2938C` (oscuro) | Errores |
 | `--color-success` | `#146C43` (claro) / `#7CD992` (oscuro) | Confirmaciones |
 
-- **Tipografía:** Manrope (variable) para títulos y cuerpo — pesos 400/500/600/700. Sin segunda
-  familia display.
+Paleta actualizada 2026-09-25 (decisión #38, `blueprints/nodus/blueprint.md` §20.3) al diseño de un
+artifact aprobado por el dueño del producto — sigue siendo navy+coral, solo cambiaron los tonos
+exactos y `--color-text-muted` claro se oscureció ligeramente sobre el hex original del artifact
+(`#64748B` daba 4.40:1, bajo el mínimo AA de 4.5:1). El modo oscuro es una extensión propia, no del
+artifact (que es solo-claro), derivada de los tonos de su propio footer.
+
+- **Tipografía:** Space Grotesk (500/600/700) para títulos H1–H4, IBM Plex Sans (400/500/600/700)
+  para cuerpo y UI — dos familias, ya no una sola.
 - **Escala:** 12 / 14 / 16 / 20 / 24 / 32 / 48 px.
 - **Espaciado:** base 4px — 4, 8, 12, 16, 24, 32, 48, 64. Sin valores arbitrarios.
 - **Radio:** `rounded-lg` (12px) en tarjetas y botones; full en avatares.
