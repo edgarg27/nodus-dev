@@ -18,13 +18,20 @@ import { vi } from "vitest";
 // estática antes de invocar el `get` del Proxy, y falla con `[vitest] No "Geist" export is
 // defined on the "next/font/google" mock` sin importar qué trampas tenga el Proxy. Por eso este
 // mock enumera los nombres reales como propiedades planas — la única forma verificada que
-// funciona en Vitest 5 — cubriendo tanto `Geist`/`Geist_Mono` (el import que trae el scaffold
-// hasta el paso 2) como `Manrope` (el que el paso 2 deja en su lugar, ver su `Do`): si el import
+// funciona en Vitest 5 — cubriendo `Geist`/`Geist_Mono` (el import que trae el scaffold hasta el
+// paso 2), `Manrope` (el que el paso 2 deja en su lugar) e `IBM_Plex_Sans`/`Space_Grotesk` (el
+// remapeo de paleta al diseño del artifact, ver decisión #38 de blueprint.md §20.3): si el import
 // de fuente vuelve a cambiar, este archivo necesita una línea más aquí, un costo aceptado a
 // cambio de un mock que realmente pasa.
 vi.mock("next/font/google", () => {
   const font = () => ({ className: "", variable: "", style: { fontFamily: "" } });
-  return { Geist: font, Geist_Mono: font, Manrope: font };
+  return {
+    Geist: font,
+    Geist_Mono: font,
+    Manrope: font,
+    IBM_Plex_Sans: font,
+    Space_Grotesk: font,
+  };
 });
 vi.mock("next/font/local", () => {
   const font = () => ({ className: "", variable: "", style: { fontFamily: "" } });

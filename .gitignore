@@ -36,3 +36,5 @@ next-env.d.ts
 # Reportes de Playwright
 /playwright-report/
 /test-results/
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
