@@ -15,20 +15,23 @@ test.afterAll(async () => {
   await limpiarUsuariosAuth();
 });
 
-test("el admin abre /admin con 200, el encabezado Administración y los enlaces de navegación", async ({
+test("el admin abre /admin y cae en /admin/propiedades, con la navegación del panel", async ({
   page,
 }) => {
   const admin = await crearAdminDePrueba();
   await iniciarSesion(page, admin);
 
-  const respuesta = await page.goto("/admin");
-  expect(respuesta?.status()).toBe(200);
-  await expect(page.getByRole("heading", { name: "Administración" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Propiedades" })).toHaveAttribute(
+  await page.goto("/admin");
+  await expect(page).toHaveURL("/admin/propiedades");
+  await expect(page.getByRole("link", { name: "Propiedades pendientes" })).toHaveAttribute(
     "href",
     "/admin/propiedades",
   );
-  await expect(page.getByRole("link", { name: "Brokers" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Solicitudes de broker" })).toHaveAttribute(
+    "href",
+    "/admin/broker-requests",
+  );
+  await expect(page.getByRole("link", { name: "Brokers activos" })).toHaveAttribute(
     "href",
     "/admin/brokers",
   );

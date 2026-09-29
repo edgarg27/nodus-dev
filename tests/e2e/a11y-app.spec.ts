@@ -127,6 +127,7 @@ const RUTAS_AUTENTICADAS: Array<{
   { ruta: "/leads", login: async () => oferenteConLead },
   { ruta: "/broker", login: async () => brokerActivo },
   { ruta: "/admin/propiedades", login: async () => admin },
+  { ruta: "/admin/broker-requests", login: async () => admin },
   { ruta: "/admin/brokers", login: async () => admin },
 ];
 
@@ -307,8 +308,8 @@ test("un 409 al resolver una solicitud de broker se anuncia con role=alert o ari
   });
 
   await iniciarSesion(page, admin);
-  await page.goto("/admin/brokers");
-  const fila = page.locator("li").filter({ hasText: solicitante.email });
+  await page.goto("/admin/broker-requests");
+  const fila = page.locator("article").filter({ hasText: solicitante.email });
   await fila.getByRole("button", { name: "Aprobar" }).click();
 
   const anuncio = page.locator('[role="alert"], [aria-live]').filter({
@@ -352,10 +353,7 @@ test("el Dialog de revocación atrapa el foco y Escape lo cierra devolviendo el 
   await iniciarSesion(page, admin);
   await page.goto("/admin/brokers");
 
-  const seccionActivos = page
-    .locator("section")
-    .filter({ has: page.getByRole("heading", { name: "Brokers activos" }) });
-  const filaBroker = seccionActivos.locator("li").filter({ hasText: "BRK-A11YOK" });
+  const filaBroker = page.locator("article").filter({ hasText: "BRK-A11YOK" });
   const botonRevocar = filaBroker.getByRole("button", { name: "Revocar" });
   await botonRevocar.click();
 

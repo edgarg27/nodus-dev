@@ -131,6 +131,7 @@ administración (`/admin/**`, `/api/v1/admin/**`) exigen `admin` en tres capas (
 | `--color-text-muted` | `#627289` (claro) / `#AAB8CC` (oscuro) | Texto secundario |
 | `--color-destructive` | `#B3261E` (claro) / `#F2938C` (oscuro) | Errores |
 | `--color-success` | `#146C43` (claro) / `#7CD992` (oscuro) | Confirmaciones |
+| `--color-warning` | `#B54819` (claro) / `#FFB37C` (oscuro) | Estados pendientes (badges de revisión) |
 
 Paleta actualizada 2026-09-25 (decisión #38, `blueprints/nodus/blueprint.md` §20.3) al diseño de un
 artifact aprobado por el dueño del producto — sigue siendo navy+coral, solo cambiaron los tonos

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { iniciales } from "@/lib/initials";
 import { createClient } from "@/lib/supabase/client";
 
 export interface SiteHeaderActor {
@@ -12,15 +13,6 @@ export interface SiteHeaderActor {
 
 interface SiteHeaderProps {
   actor: SiteHeaderActor | null;
-}
-
-function iniciales(nombre: string): string {
-  const partes = nombre.trim().split(/\s+/);
-  const letras = partes.length > 1 ? [partes[0], partes[partes.length - 1]] : [partes[0]];
-  return letras
-    .map((parte) => parte?.[0] ?? "")
-    .join("")
-    .toUpperCase();
 }
 
 function enlacesPorRol(actor: SiteHeaderActor): { href: string; etiqueta: string }[] {

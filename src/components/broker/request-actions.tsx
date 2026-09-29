@@ -1,103 +1,108 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type ChangeEvent, useState } from "react";
+import { useState } from "react";
+import { useAdminToast } from "@/components/admin/admin-toast";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { iniciales } from "@/lib/initials";
 
-interface RequestActionsProps {
-  solicitudId: string;
+interface Solicitud {
+  id: string;
+  mensaje: string;
+  createdAt: Date;
+  usuario: {
+    nombre: string;
+    email: string;
+    telefono: string | null;
+  };
 }
 
-export function RequestActions({ solicitudId }: RequestActionsProps) {
+interface RequestActionsProps {
+  solicitud: Solicitud;
+}
+
+const FORMATO_FECHA = new Intl.DateTimeFormat("es-MX", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+export function RequestActions({ solicitud }: RequestActionsProps) {
   const router = useRouter();
-  const [mostrarMotivo, setMostrarMotivo] = useState(false);
-  const [motivo, setMotivo] = useState("");
+  const { showToast } = useAdminToast();
   const [enviando, setEnviando] = useState(false);
-  const [mensaje, setMensaje] = useState<string | null>(null);
 
   async function aprobar() {
     setEnviando(true);
-    setMensaje(null);
 
-    const respuesta = await fetch(`/api/v1/admin/broker-requests/${solicitudId}/approve`, {
+    const respuesta = await fetch(`/api/v1/admin/broker-requests/${solicitud.id}/approve`, {
       method: "POST",
     });
 
     setEnviando(false);
     if (respuesta.status === 409) {
-      setMensaje("Esta solicitud ya fue resuelta");
+      showToast("Esta solicitud ya fue resuelta.");
       router.refresh();
       return;
     }
 
     const cuerpo = await respuesta.json();
     if (respuesta.ok) {
-      setMensaje(`Broker aprobado con código ${cuerpo.data.broker_code}`);
+      showToast(`Solicitud aprobada — código ${cuerpo.data.broker_code} generado.`);
       router.refresh();
     }
   }
 
   async function denegar() {
     setEnviando(true);
-    setMensaje(null);
 
-    const respuesta = await fetch(`/api/v1/admin/broker-requests/${solicitudId}/deny`, {
+    const respuesta = await fetch(`/api/v1/admin/broker-requests/${solicitud.id}/deny`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(motivo.trim() ? { motivo } : {}),
+      body: JSON.stringify({}),
     });
 
     setEnviando(false);
     if (respuesta.status === 409) {
-      setMensaje("Esta solicitud ya fue resuelta");
+      showToast("Esta solicitud ya fue resuelta.");
       router.refresh();
       return;
     }
     if (respuesta.ok) {
+      showToast("Solicitud de broker denegada.");
       router.refresh();
     }
   }
 
-  function alCambiarMotivo(evento: ChangeEvent<HTMLTextAreaElement>) {
-    setMotivo(evento.target.value);
-  }
-
   return (
-    <div className="flex flex-col gap-2">
-      {mensaje ? (
-        <p aria-live="polite" className="text-sm text-text-muted">
-          {mensaje}
+    <article
+      className="flex items-center gap-5 rounded-2xl border border-border bg-surface p-4 aria-busy:opacity-70 max-md:flex-col max-md:items-start"
+      aria-busy={enviando}
+    >
+      <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-background font-display text-sm font-bold text-text">
+        {iniciales(solicitud.usuario.nombre)}
+      </span>
+
+      <div className="flex min-w-0 grow flex-col gap-0.5">
+        <h3 className="text-sm font-semibold text-text">{solicitud.usuario.nombre}</h3>
+        <p className="text-sm text-text-muted">
+          {solicitud.usuario.email}
+          {solicitud.usuario.telefono ? ` · ${solicitud.usuario.telefono}` : ""}
         </p>
-      ) : null}
-      <div className="flex flex-wrap gap-2">
+        <p className="text-sm text-text italic">“{solicitud.mensaje}”</p>
+        <p className="text-xs text-text-muted">
+          Solicitado el {FORMATO_FECHA.format(solicitud.createdAt)}
+        </p>
+      </div>
+
+      <div className="flex shrink-0 items-center gap-2 max-md:w-full max-md:flex-wrap">
+        <Button type="button" variant="outline" disabled={enviando} onClick={denegar}>
+          Denegar
+        </Button>
         <Button type="button" disabled={enviando} onClick={aprobar}>
           Aprobar
         </Button>
-        {mostrarMotivo ? (
-          <div className="flex w-full flex-col gap-1.5">
-            <Label htmlFor={`motivo-denegar-${solicitudId}`}>Motivo (opcional)</Label>
-            <Textarea
-              id={`motivo-denegar-${solicitudId}`}
-              value={motivo}
-              onChange={alCambiarMotivo}
-            />
-            <Button type="button" variant="outline" disabled={enviando} onClick={denegar}>
-              Confirmar denegación
-            </Button>
-          </div>
-        ) : (
-          <Button
-            type="button"
-            variant="outline"
-            disabled={enviando}
-            onClick={() => setMostrarMotivo(true)}
-          >
-            Denegar
-          </Button>
-        )}
       </div>
-    </div>
+    </article>
   );
 }

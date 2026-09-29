@@ -60,27 +60,21 @@ test("journey: solicitud, aprobación, atribución con ?ref= y revocación", asy
   await page.context().clearCookies();
   const admin = await crearAdminDePrueba();
   await iniciarSesion(page, admin);
-  await page.goto("/admin/brokers");
+  await page.goto("/admin/broker-requests");
 
-  const seccionPendientes = page
-    .locator("section")
-    .filter({ has: page.getByRole("heading", { name: "Solicitudes pendientes" }) });
-  const seccionActivos = page
-    .locator("section")
-    .filter({ has: page.getByRole("heading", { name: "Brokers activos" }) });
-
-  const filaSolicitud = seccionPendientes.locator("li").filter({ hasText: oferente.email });
+  const filaSolicitud = page.locator("article").filter({ hasText: oferente.email });
   await expect(filaSolicitud).toContainText("Inmobiliaria del Centro, 8 años en SLP");
   await filaSolicitud.getByRole("button", { name: "Aprobar" }).click();
-  await expect(page.getByText(/Broker aprobado con código/)).toBeVisible();
-  await expect(seccionPendientes.locator("li").filter({ hasText: oferente.email })).toHaveCount(0);
+  await expect(page.getByText(/Solicitud aprobada — código/)).toBeVisible();
+  await expect(page.locator("article").filter({ hasText: oferente.email })).toHaveCount(0);
 
   const [filaOferente] = await db.select().from(usuario).where(eq(usuario.id, oferente.id));
   const brokerCode = filaOferente?.brokerCode;
   expect(brokerCode).toMatch(/^BRK-[A-HJ-NP-Z2-9]{6}$/);
   if (!brokerCode) throw new Error("no se asignó broker_code");
 
-  await expect(seccionActivos.locator("li").filter({ hasText: brokerCode })).toBeVisible();
+  await page.goto("/admin/brokers");
+  await expect(page.locator("article").filter({ hasText: brokerCode })).toBeVisible();
 
   await page.context().clearCookies();
   await iniciarSesion(page, oferente);
@@ -124,17 +118,14 @@ test("journey: solicitud, aprobación, atribución con ?ref= y revocación", asy
   await page.context().clearCookies();
   await iniciarSesion(page, admin);
   await page.goto("/admin/brokers");
-  const seccionActivosRevoke = page
-    .locator("section")
-    .filter({ has: page.getByRole("heading", { name: "Brokers activos" }) });
-  const filaBroker = seccionActivosRevoke.locator("li").filter({ hasText: brokerCode });
+  const filaBroker = page.locator("article").filter({ hasText: brokerCode });
   await filaBroker.getByRole("button", { name: "Revocar" }).click();
   const confirmarRevocacion = filaBroker.getByRole("button", { name: "Confirmar revocación" });
   await expect(confirmarRevocacion).toBeDisabled();
   await filaBroker.getByLabel("Motivo (obligatorio)").fill("Bajo desempeño");
   await expect(confirmarRevocacion).toBeEnabled();
   await confirmarRevocacion.click();
-  await expect(seccionActivosRevoke.locator("li").filter({ hasText: brokerCode })).toHaveCount(0);
+  await expect(page.locator("article").filter({ hasText: brokerCode })).toHaveCount(0);
 
   await page.context().clearCookies();
   await iniciarSesion(page, oferente);
@@ -178,18 +169,16 @@ test("denegar con motivo deja la solicitud visible en /broker del oferente", asy
   await page.context().clearCookies();
   const admin = await crearAdminDePrueba();
   await iniciarSesion(page, admin);
-  await page.goto("/admin/brokers");
+  await page.goto("/admin/broker-requests");
 
-  const fila = page.locator("li").filter({ hasText: oferente.email });
+  const fila = page.locator("article").filter({ hasText: oferente.email });
   await fila.getByRole("button", { name: "Denegar" }).click();
-  await fila.getByLabel("Motivo (opcional)").fill("Falta información");
-  await fila.getByRole("button", { name: "Confirmar denegación" }).click();
+  await expect(page.getByText("Solicitud de broker denegada.")).toBeVisible();
   await expect(fila).toHaveCount(0);
 
   await page.context().clearCookies();
   await iniciarSesion(page, oferente);
   await page.goto("/broker");
-  await expect(page.getByText("Falta información")).toBeVisible();
   await expect(page.getByLabel("Empresa y nota para el equipo de Nodus")).toBeVisible();
 });
 
