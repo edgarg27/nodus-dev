@@ -38,3 +38,7 @@ next-env.d.ts
 /test-results/
 # Playwright CLI output (may contain credentials)
 .playwright-cli/
+
+# Copia de maplibre-gl-worker.mjs + maplibre-gl-shared.mjs (scripts/copy-maplibre-worker.ts, corrido
+# por `pnpm dev`/`pnpm build`) — regenerable desde node_modules, no es código fuente.
+/public/vendor/

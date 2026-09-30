@@ -84,6 +84,12 @@ for (const width of [640, 320]) {
 
 test("los controles del mapa de /buscar miden al menos 24x24 px", async ({ page }) => {
   await page.goto("/buscar");
+  // Debajo de `lg` el mapa nace oculto (hoja de pantalla completa vía "Ver mapa", como el
+  // artifact) — solo aparece tras abrirla.
+  const viewport = page.viewportSize();
+  if (viewport && viewport.width < 1024) {
+    await page.getByRole("button", { name: "Ver mapa de espacios" }).click();
+  }
   const marcador = page.getByRole("button", { name: /Ver .* en el mapa/ }).first();
   await expect(marcador).toBeVisible();
   const caja = await marcador.boundingBox();

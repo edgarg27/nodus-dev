@@ -37,6 +37,7 @@ const searchQuerySchema = z.object({
   // Un límite mayor a 50 no es un error: se recorta a 50 (ver buscarPropiedadesPublicas).
   limit: z.coerce.number().int().min(1).optional(),
   cursor: z.string().optional(),
+  orden: z.enum(["relevancia", "recientes"]).optional(),
 });
 
 function requestId(): string {
@@ -62,10 +63,10 @@ export async function GET(request: Request) {
     });
   }
 
-  const { modalidad, tipo, estado, ciudad, limit, cursor } = parsed.data;
+  const { modalidad, tipo, estado, ciudad, limit, cursor, orden } = parsed.data;
   const resultado = await buscarPropiedadesPublicas(
     { modalidad, tipo, estado, ciudad },
-    { limit, cursor },
+    { limit, cursor, orden },
   );
 
   return NextResponse.json({
