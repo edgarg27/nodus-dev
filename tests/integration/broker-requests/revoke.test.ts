@@ -360,7 +360,7 @@ describe("consecuencias en registro y reaprobación", () => {
     actuarComo({ ...broker, isBroker: false, brokerCode: null });
     const nuevaSolicitud = await crearSolicitudBroker(
       { ...broker, isBroker: false, brokerCode: null },
-      "Quiero volver a ser broker",
+      { mensaje: "Quiero volver a ser broker", empresa: "Broker de prueba SA" },
     );
     expect(nuevaSolicitud.ok).toBe(true);
     if (!nuevaSolicitud.ok) throw new Error("se esperaba ok");

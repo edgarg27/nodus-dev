@@ -6,6 +6,7 @@ import { crearSolicitudBroker } from "../../../../server/broker-requests/mutatio
 
 const brokerRequestSchema = z.object({
   mensaje: z.string().trim().min(1).max(500),
+  empresa: z.string().trim().min(1).max(200),
 });
 
 function requestId(): string {
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     });
   }
 
-  const resultado = await crearSolicitudBroker(actor, parsed.data.mensaje);
+  const resultado = await crearSolicitudBroker(actor, parsed.data);
   if (!resultado.ok) {
     return NextResponse.json(errorEnvelope(resultado.error.code, resultado.error.message), {
       status: resultado.error.status,
