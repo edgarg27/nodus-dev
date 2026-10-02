@@ -37,7 +37,12 @@ function Arnes({
 
   return (
     <form onSubmit={handleSubmit(onEnviar)}>
-      <PropertyFormBasicsFields register={register} errors={errors} onSalirDeDireccion={() => {}} />
+      <PropertyFormBasicsFields
+        register={register}
+        errors={errors}
+        onSalirDeDireccion={() => {}}
+        onSeleccionarDireccion={() => {}}
+      />
       <button type="submit">Enviar</button>
     </form>
   );

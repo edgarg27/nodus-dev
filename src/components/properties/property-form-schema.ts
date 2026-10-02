@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeAddress } from "@/lib/normalize-address";
 import type { PropertyFormPhoto } from "./property-photo-field";
 import type { EstadoPublicacion } from "./status-badge";
 
@@ -43,6 +44,16 @@ export interface PropertyFormInitialData {
   estadoPublicacion: EstadoPublicacion;
   motivoRechazo: string | null;
   fotos: PropertyFormPhoto[];
+}
+
+// MapTiler devuelve el nombre del estado ("San Luis Potosí", "León"); el formulario usa códigos.
+export function estadoDesdeGeocode(nombre: string | null): (typeof ESTADOS)[number] | null {
+  if (!nombre) return null;
+  const normalizado = normalizeAddress(nombre);
+  if (normalizado === "san luis potosi" || normalizado === "slp") return "SLP";
+  if (normalizado === "aguascalientes") return "Aguascalientes";
+  if (normalizado === "leon") return "Leon";
+  return null;
 }
 
 export const selectClassName =

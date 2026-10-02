@@ -8,9 +8,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import type { Sugerencia } from "./address-autocomplete";
 import { PropertyFormBasicsFields } from "./property-form-basics-fields";
 import { PropertyFormLocationField } from "./property-form-location-field";
 import {
+  estadoDesdeGeocode,
   type PropertyFormInitialData,
   type PropertyFormValues,
   propertyFormSchema,
@@ -86,6 +88,16 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
     setCoordenadasTocadas(true);
     setValue("lat", latNueva, { shouldValidate: true });
     setValue("lng", lngNueva, { shouldValidate: true });
+  }
+
+  function alSeleccionarSugerencia(sugerencia: Sugerencia) {
+    setCoordenadasTocadas(true);
+    setValue("direccion", sugerencia.direccion, { shouldValidate: true });
+    setValue("lat", sugerencia.lat, { shouldValidate: true });
+    setValue("lng", sugerencia.lng, { shouldValidate: true });
+    if (sugerencia.ciudad) setValue("ciudad", sugerencia.ciudad, { shouldValidate: true });
+    const estado = estadoDesdeGeocode(sugerencia.estado);
+    if (estado) setValue("estado", estado, { shouldValidate: true });
   }
 
   async function alSalirDeDireccion() {
@@ -243,6 +255,7 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
           onSalirDeDireccion={() => {
             void alSalirDeDireccion();
           }}
+          onSeleccionarDireccion={alSeleccionarSugerencia}
         />
 
         <PropertyFormLocationField
