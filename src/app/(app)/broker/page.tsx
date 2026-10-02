@@ -59,7 +59,7 @@ export default async function BrokerPage() {
           </AlertDescription>
         </Alert>
       ) : null}
-      <SolicitudForm />
+      <SolicitudForm nombre={actor.nombre} correo={actor.email} />
     </main>
   );
 }

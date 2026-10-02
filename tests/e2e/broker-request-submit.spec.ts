@@ -37,23 +37,22 @@ test("un oferente sin propiedades ve Solicitar ser broker y llega a /broker con 
   await enlace.click();
   await page.waitForURL("/broker");
 
-  await expect(page.getByLabel("Empresa y nota para el equipo de Nodus")).toBeVisible();
+  await expect(page.getByLabel("Nota para el equipo de Nodus")).toBeVisible();
 });
 
-test("enviar un mensaje válido muestra en revisión, y tras recargar sigue en revisión", async ({
+test("enviar un mensaje válido muestra la vista de éxito, y tras recargar sigue en revisión", async ({
   page,
 }) => {
   const oferente = await crearOferente("Oferente que solicita");
   await iniciarSesion(page, oferente);
   await page.goto("/broker");
 
-  await page
-    .getByLabel("Empresa y nota para el equipo de Nodus")
-    .fill("Inmobiliaria Norte, 12 años en SLP");
+  await page.getByLabel("Empresa", { exact: true }).fill("Inmobiliaria Norte");
+  await page.getByLabel("Nota para el equipo de Nodus").fill("12 años en SLP");
   await page.getByRole("button", { name: "Enviar solicitud" }).click();
 
-  await expect(page.getByText("Solicitud en revisión")).toBeVisible();
-  await expect(page.getByLabel("Empresa y nota para el equipo de Nodus")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Tu solicitud fue enviada" })).toBeVisible();
+  await expect(page.getByLabel("Nota para el equipo de Nodus")).toHaveCount(0);
 
   await page.reload();
   await expect(page.getByText("Solicitud en revisión")).toBeVisible();
@@ -75,7 +74,7 @@ test("con la última solicitud denegada muestra el motivo y el formulario", asyn
   await page.goto("/broker");
 
   await expect(page.getByText("Falta información")).toBeVisible();
-  await expect(page.getByLabel("Empresa y nota para el equipo de Nodus")).toBeVisible();
+  await expect(page.getByLabel("Nota para el equipo de Nodus")).toBeVisible();
 });
 
 test("un broker aprobado ve su código y el enlace de referido", async ({ page }) => {
@@ -127,7 +126,7 @@ test("un broker con solicitud aprobada y revocado ve el motivo y el formulario",
 
   await expect(page.getByText("Tu acceso de broker fue revocado")).toBeVisible();
   await expect(page.getByText("Bajo desempeño")).toBeVisible();
-  await expect(page.getByLabel("Empresa y nota para el equipo de Nodus")).toBeVisible();
+  await expect(page.getByLabel("Nota para el equipo de Nodus")).toBeVisible();
 });
 
 test("un broker sembrado sin ninguna solicitud y revocado también ve el motivo y el formulario", async ({
@@ -147,7 +146,7 @@ test("un broker sembrado sin ninguna solicitud y revocado también ve el motivo 
 
   await expect(page.getByText("Tu acceso de broker fue revocado")).toBeVisible();
   await expect(page.getByText("Reestructuración")).toBeVisible();
-  await expect(page.getByLabel("Empresa y nota para el equipo de Nodus")).toBeVisible();
+  await expect(page.getByLabel("Nota para el equipo de Nodus")).toBeVisible();
 });
 
 test("un buscador y un admin reciben 404 en /broker", async ({ page }) => {
@@ -175,8 +174,9 @@ test("una pendiente insertada mientras la página está abierta hace que el env�
     mensaje: "Insertada por SQL mientras la página estaba abierta",
   });
 
+  await page.getByLabel("Empresa", { exact: true }).fill("Empresa de prueba");
   await page
-    .getByLabel("Empresa y nota para el equipo de Nodus")
+    .getByLabel("Nota para el equipo de Nodus")
     .fill("Intento desde el formulario ya abierto");
   await page.getByRole("button", { name: "Enviar solicitud" }).click();
 

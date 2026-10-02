@@ -6,18 +6,27 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { SolicitudEnviada } from "./solicitud-enviada";
 
 const MENSAJE_MAXIMO = 500;
+const EMPRESA_MAXIMO = 200;
 
 const solicitudSchema = z.object({
+  empresa: z.string().trim().min(1, "La empresa es obligatoria").max(EMPRESA_MAXIMO),
   mensaje: z.string().trim().min(1, "El mensaje es obligatorio").max(MENSAJE_MAXIMO),
 });
 
 type SolicitudInput = z.infer<typeof solicitudSchema>;
 
-export function SolicitudForm() {
+interface SolicitudFormProps {
+  nombre: string;
+  correo: string;
+}
+
+export function SolicitudForm({ nombre, correo }: SolicitudFormProps) {
   const router = useRouter();
   const {
     register,
@@ -26,10 +35,11 @@ export function SolicitudForm() {
     formState: { errors, isSubmitting },
   } = useForm<SolicitudInput>({
     resolver: zodResolver(solicitudSchema),
-    defaultValues: { mensaje: "" },
+    defaultValues: { empresa: "", mensaje: "" },
   });
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [enviado, setEnviado] = useState(false);
 
   const mensaje = watch("mensaje") ?? "";
 
@@ -40,7 +50,7 @@ export function SolicitudForm() {
     const respuesta = await fetch("/api/v1/broker-requests", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(datos),
+      body: JSON.stringify({ mensaje: datos.mensaje, empresa: datos.empresa }),
     });
 
     setEnviando(false);
@@ -56,8 +66,10 @@ export function SolicitudForm() {
       return;
     }
 
-    router.refresh();
+    setEnviado(true);
   }
+
+  if (enviado) return <SolicitudEnviada />;
 
   return (
     <form
@@ -71,10 +83,39 @@ export function SolicitudForm() {
         </p>
       ) : null}
 
+      <dl className="grid gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1">
+          <dt className="text-[13px] font-semibold text-foreground">Nombre</dt>
+          <dd className="text-[15px] text-muted-foreground">{nombre}</dd>
+        </div>
+        <div className="flex flex-col gap-1">
+          <dt className="text-[13px] font-semibold text-foreground">Correo</dt>
+          <dd className="text-[15px] break-all text-muted-foreground">{correo}</dd>
+        </div>
+      </dl>
+
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="empresa" className="text-[13px] font-semibold text-foreground">
+          Empresa
+        </Label>
+        <Input
+          id="empresa"
+          maxLength={EMPRESA_MAXIMO}
+          className="h-[46px] rounded-lg border-input bg-background px-3.5 text-[15px]"
+          {...register("empresa")}
+          aria-invalid={!!errors.empresa}
+        />
+        {errors.empresa ? (
+          <p role="alert" className="text-sm text-destructive">
+            {errors.empresa.message}
+          </p>
+        ) : null}
+      </div>
+
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="mensaje" className="text-[13px] font-semibold text-foreground">
-            Empresa y nota para el equipo de Nodus
+            Nota para el equipo de Nodus
           </Label>
           <span className="text-xs text-muted-foreground">{mensaje.length}/500</span>
         </div>
