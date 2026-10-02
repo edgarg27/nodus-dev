@@ -30,11 +30,14 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
     return typeof valor === "string" ? valor : undefined;
   };
 
+  const financiamiento = filtroValido(leer("financiamiento"), ["true", "false"] as const);
+
   const filtros = {
     modalidad: filtroValido(leer("modalidad"), MODALIDADES),
     tipo: filtroValido(leer("tipo"), TIPOS),
     estado: filtroValido(leer("estado"), ESTADOS),
     ciudad: leer("ciudad"),
+    aceptaFinanciamiento: financiamiento === undefined ? undefined : financiamiento === "true",
   };
   const orden = filtroValido(leer("orden"), ORDENES) ?? "relevancia";
 
