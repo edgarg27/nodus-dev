@@ -22,6 +22,7 @@ export interface SearchResultsFiltros {
   tipo?: string;
   estado?: string;
   ciudad?: string;
+  financiamiento?: string;
 }
 
 interface SearchResultsProps {
@@ -86,6 +87,7 @@ export function SearchResults({
     if (filtros.tipo) params.set("tipo", filtros.tipo);
     if (filtros.estado) params.set("estado", filtros.estado);
     if (filtros.ciudad) params.set("ciudad", filtros.ciudad);
+    if (filtros.financiamiento) params.set("financiamiento", filtros.financiamiento);
     if (orden !== "relevancia") params.set("orden", orden);
     params.set("cursor", cursor);
 

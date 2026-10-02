@@ -38,10 +38,11 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
     tipo: filtroValido(leer("tipo"), TIPOS),
     estado,
     ciudad: leer("ciudad"),
+    financiamiento,
     aceptaFinanciamiento: financiamiento === undefined ? undefined : financiamiento === "true",
   };
   const orden = filtroValido(leer("orden"), ORDENES) ?? "relevancia";
-  const initial = { ...filtros, financiamiento, orden };
+  const initial = { ...filtros, orden };
 
   const [resultado, total] = await Promise.all([
     buscarPropiedadesPublicas(filtros, { orden }),
