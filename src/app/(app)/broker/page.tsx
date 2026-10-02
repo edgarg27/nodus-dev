@@ -1,8 +1,10 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { BrokerActiveCard } from "@/components/broker/broker-active-card";
+import { BrokerIntro } from "@/components/broker/broker-intro";
+import { BrokerPendingCard } from "@/components/broker/broker-pending-card";
 import { SolicitudForm } from "@/components/broker/solicitud-form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import { ultimaRevocacionDe, ultimaSolicitudDe } from "@/server/broker-requests/queries";
@@ -19,20 +21,8 @@ export default async function BrokerPage() {
     const enlaceReferido = `${protocolo}://${host}/sign-up?ref=${actor.brokerCode}`;
 
     return (
-      <main className="mx-auto flex w-full max-w-[480px] flex-col gap-4 px-4 py-8">
-        <h1 className="text-2xl font-semibold text-foreground">Ser broker</h1>
-        <div className="flex flex-col gap-1.5 rounded-lg bg-surface p-4 ring-1 ring-border shadow-sm">
-          <Badge variant="secondary" className="w-fit bg-success/10 text-success">
-            Eres broker afiliado
-          </Badge>
-          <p className="text-sm text-text">Tu código: {actor.brokerCode}</p>
-          <p className="text-sm text-text-muted">
-            Enlace de referido:{" "}
-            <a href={enlaceReferido} className="text-primary underline underline-offset-4">
-              {enlaceReferido}
-            </a>
-          </p>
-        </div>
+      <main className="mx-auto w-full max-w-[680px] px-4 py-10">
+        <BrokerActiveCard brokerCode={actor.brokerCode ?? ""} enlaceReferido={enlaceReferido} />
       </main>
     );
   }
@@ -40,52 +30,35 @@ export default async function BrokerPage() {
   const ultimaSolicitud = await ultimaSolicitudDe(actor.id);
   const ultimaRevocacion = await ultimaRevocacionDe(actor.id);
 
-  if (!ultimaSolicitud || ultimaSolicitud.estado === "aprobada") {
-    if (ultimaRevocacion) {
-      return (
-        <main className="mx-auto flex w-full max-w-[480px] flex-col gap-4 px-4 py-8">
-          <h1 className="text-2xl font-semibold text-foreground">Ser broker</h1>
-          <Alert variant="destructive">
-            <AlertDescription>
-              <p>Tu acceso de broker fue revocado</p>
-              <p>{ultimaRevocacion.motivo}</p>
-            </AlertDescription>
-          </Alert>
-          <SolicitudForm />
-        </main>
-      );
-    }
-
+  if (ultimaSolicitud?.estado === "pendiente") {
     return (
-      <main className="mx-auto flex w-full max-w-[480px] flex-col gap-4 px-4 py-8">
-        <h1 className="text-2xl font-semibold text-foreground">Ser broker</h1>
-        <SolicitudForm />
+      <main className="mx-auto w-full max-w-[680px] px-4 py-10">
+        <BrokerPendingCard mensaje={ultimaSolicitud.mensaje} />
       </main>
     );
   }
 
-  if (ultimaSolicitud.estado === "pendiente") {
-    return (
-      <main className="mx-auto flex w-full max-w-[480px] flex-col gap-4 px-4 py-8">
-        <h1 className="text-2xl font-semibold text-foreground">Ser broker</h1>
-        <div className="flex flex-col gap-1.5 rounded-lg bg-surface p-4 ring-1 ring-border shadow-sm">
-          <Badge variant="secondary" className="w-fit">
-            Solicitud en revisión
-          </Badge>
-          <p className="text-sm text-text-muted">{ultimaSolicitud.mensaje}</p>
-        </div>
-      </main>
-    );
+  let alerta: { motivo: string; detalle: string } | null = null;
+  if (ultimaSolicitud?.estado === "denegada") {
+    alerta = {
+      motivo: "Tu solicitud fue denegada",
+      detalle: ultimaSolicitud.motivoDenegacion ?? "Sin motivo indicado",
+    };
+  } else if (ultimaRevocacion) {
+    alerta = { motivo: "Tu acceso de broker fue revocado", detalle: ultimaRevocacion.motivo };
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-[480px] flex-col gap-4 px-4 py-8">
-      <h1 className="text-2xl font-semibold text-foreground">Ser broker</h1>
-      <Alert variant="destructive">
-        <AlertDescription>
-          {ultimaSolicitud.motivoDenegacion ?? "Sin motivo indicado"}
-        </AlertDescription>
-      </Alert>
+    <main className="mx-auto flex w-full max-w-[680px] flex-col gap-6 px-4 py-10">
+      <BrokerIntro />
+      {alerta ? (
+        <Alert variant="destructive">
+          <AlertDescription>
+            <p>{alerta.motivo}</p>
+            <p>{alerta.detalle}</p>
+          </AlertDescription>
+        </Alert>
+      ) : null}
       <SolicitudForm />
     </main>
   );
