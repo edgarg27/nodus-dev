@@ -2,6 +2,7 @@
 
 import { SlidersHorizontalIcon, XIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { ESTADOS } from "./property-form-schema";
 
 const MODALIDADES = [
   { value: "renta", etiqueta: "Renta" },
@@ -15,10 +16,18 @@ const TIPOS = [
   { value: "local_comercial", etiqueta: "Local comercial" },
 ] as const;
 
+const ESTADOS_ETIQUETA: Record<(typeof ESTADOS)[number], string> = {
+  SLP: "San Luis Potosí",
+  Aguascalientes: "Aguascalientes",
+  Leon: "León",
+};
+
 export interface SearchFiltersInitial {
   modalidad?: string;
   tipo?: string;
+  estado?: string;
   ciudad?: string;
+  financiamiento?: string;
   orden?: string;
 }
 
@@ -115,6 +124,25 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
               </div>
 
               <div className="flex flex-col gap-1.5">
+                <label htmlFor="filtro-estado" className="text-xs font-semibold text-text">
+                  Estado
+                </label>
+                <select
+                  id="filtro-estado"
+                  name="estado"
+                  defaultValue={initial.estado ?? ""}
+                  className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-sm text-text"
+                >
+                  <option value="">Cualquiera</option>
+                  {ESTADOS.map((opcion) => (
+                    <option key={opcion} value={opcion}>
+                      {ESTADOS_ETIQUETA[opcion]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
                 <label htmlFor="filtro-tipo" className="text-xs font-semibold text-text">
                   Tipo de inmueble
                 </label>
@@ -145,6 +173,32 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                   placeholder="Ciudad o zona"
                   className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-sm text-text placeholder:text-muted-foreground"
                 />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <span className="text-xs font-semibold text-text">¿Financiamiento?</span>
+                <div className="flex items-center gap-5">
+                  <label className="flex items-center gap-2 text-sm text-text">
+                    <input
+                      type="radio"
+                      name="financiamiento"
+                      value="true"
+                      defaultChecked={initial.financiamiento === "true"}
+                      className="accent-primary"
+                    />
+                    Sí
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-text">
+                    <input
+                      type="radio"
+                      name="financiamiento"
+                      value="false"
+                      defaultChecked={initial.financiamiento === "false"}
+                      className="accent-primary"
+                    />
+                    No
+                  </label>
+                </div>
               </div>
 
               <div className="flex flex-col gap-1.5 sm:hidden">

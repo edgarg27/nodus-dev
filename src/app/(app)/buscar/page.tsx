@@ -31,15 +31,17 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
   };
 
   const financiamiento = filtroValido(leer("financiamiento"), ["true", "false"] as const);
+  const estado = filtroValido(leer("estado"), ESTADOS);
 
   const filtros = {
     modalidad: filtroValido(leer("modalidad"), MODALIDADES),
     tipo: filtroValido(leer("tipo"), TIPOS),
-    estado: filtroValido(leer("estado"), ESTADOS),
+    estado,
     ciudad: leer("ciudad"),
     aceptaFinanciamiento: financiamiento === undefined ? undefined : financiamiento === "true",
   };
   const orden = filtroValido(leer("orden"), ORDENES) ?? "relevancia";
+  const initial = { ...filtros, financiamiento, orden };
 
   const [resultado, total] = await Promise.all([
     buscarPropiedadesPublicas(filtros, { orden }),
@@ -77,8 +79,8 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
               {total} {total === 1 ? "espacio encontrado" : "espacios encontrados"}
             </h1>
             <div className="flex items-center gap-3">
-              <SortSelect initial={{ ...filtros, orden }} />
-              <SearchFilters initial={{ ...filtros, orden }} />
+              <SortSelect initial={initial} />
+              <SearchFilters initial={initial} />
             </div>
           </div>
 
