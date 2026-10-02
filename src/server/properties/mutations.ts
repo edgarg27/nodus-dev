@@ -15,6 +15,7 @@ export interface CrearPropiedadInput {
   estado: string;
   ciudad: string;
   descripcion: string;
+  aceptaFinanciamiento?: boolean;
 }
 
 export type EditarPropiedadInput = Partial<CrearPropiedadInput>;
@@ -94,6 +95,7 @@ export async function crearPropiedad(
         estado: input.estado,
         ciudad: input.ciudad,
         descripcion: input.descripcion,
+        aceptaFinanciamiento: input.aceptaFinanciamiento ?? false,
       })
       .returning();
     if (!fila) throw new Error("insert de propiedad no devolvió fila");
@@ -161,6 +163,9 @@ export async function editarPropiedad(
         ...(parche.estado !== undefined ? { estado: parche.estado } : {}),
         ...(parche.ciudad !== undefined ? { ciudad: parche.ciudad } : {}),
         ...(parche.descripcion !== undefined ? { descripcion: parche.descripcion } : {}),
+        ...(parche.aceptaFinanciamiento !== undefined
+          ? { aceptaFinanciamiento: parche.aceptaFinanciamiento }
+          : {}),
         // Editar el contenido de una `publicada`/`rechazada` la devuelve a `pendiente` y limpia
         // la revisión, en la misma sentencia UPDATE (§14). Sin cambios de contenido, no toca el
         // ciclo de publicación.

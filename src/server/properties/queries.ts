@@ -9,6 +9,7 @@ export interface FiltrosBusquedaPropiedad {
   tipo?: string;
   estado?: string;
   ciudad?: string;
+  aceptaFinanciamiento?: boolean;
 }
 
 export type OrdenBusquedaPropiedad = "relevancia" | "recientes";
@@ -61,6 +62,9 @@ function condicionesBusquedaPublica(filtros: FiltrosBusquedaPropiedad) {
   if (filtros.tipo) condiciones.push(eq(propiedad.tipo, filtros.tipo));
   if (filtros.estado) condiciones.push(eq(propiedad.estado, filtros.estado));
   if (filtros.ciudad) condiciones.push(eq(propiedad.ciudad, filtros.ciudad));
+  if (filtros.aceptaFinanciamiento !== undefined) {
+    condiciones.push(eq(propiedad.aceptaFinanciamiento, filtros.aceptaFinanciamiento));
+  }
   return condiciones;
 }
 
