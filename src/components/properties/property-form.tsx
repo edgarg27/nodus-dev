@@ -67,8 +67,9 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
           estado: propiedad.estado,
           ciudad: propiedad.ciudad,
           descripcion: propiedad.descripcion,
+          aceptaFinanciamiento: propiedad.aceptaFinanciamiento ? "true" : "false",
         }
-      : undefined,
+      : { aceptaFinanciamiento: "false" },
   });
 
   const [archivosNuevos, setArchivosNuevos] = useState<File[]>([]);
@@ -105,16 +106,20 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
 
   const mutacion = useMutation({
     mutationFn: async (valores: PropertyFormValues) => {
+      const cuerpoEnvio = {
+        ...valores,
+        aceptaFinanciamiento: valores.aceptaFinanciamiento === "true",
+      };
       const respuesta = propiedad
         ? await fetch(`/api/v1/properties/${propiedad.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(valores),
+            body: JSON.stringify(cuerpoEnvio),
           })
         : await fetch("/api/v1/properties", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(valores),
+            body: JSON.stringify(cuerpoEnvio),
           });
       const cuerpo = await respuesta.json();
       if (!respuesta.ok) throw cuerpo.error as ErrorApi;

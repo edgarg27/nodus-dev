@@ -20,6 +20,11 @@ export const propertyFormSchema = z.object({
   estado: z.enum(ESTADOS),
   ciudad: z.string().trim().min(1, "La ciudad es obligatoria"),
   descripcion: z.string().trim().min(1, "La descripción es obligatoria"),
+  // Los radios de HTML solo pueden reportar el string de su atributo `value` — RHF nunca aplica
+  // `setValueAs` a inputs radio/checkbox (lee el DOM directo), así que el estado del formulario
+  // se queda en "true"/"false" y la conversión a boolean ocurre en el límite con la API
+  // (`property-form.tsx`, al armar el body del POST/PATCH).
+  aceptaFinanciamiento: z.enum(["true", "false"]),
 });
 
 export type PropertyFormValues = z.infer<typeof propertyFormSchema>;
@@ -34,6 +39,7 @@ export interface PropertyFormInitialData {
   estado: (typeof ESTADOS)[number];
   ciudad: string;
   descripcion: string;
+  aceptaFinanciamiento: boolean;
   estadoPublicacion: EstadoPublicacion;
   motivoRechazo: string | null;
   fotos: PropertyFormPhoto[];

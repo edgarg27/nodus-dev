@@ -36,6 +36,7 @@ export default async function EditarPropiedadPage({ params }: EditarPropiedadPag
           estado: propiedad.estado as "SLP" | "Aguascalientes" | "Leon",
           ciudad: propiedad.ciudad,
           descripcion: propiedad.descripcion,
+          aceptaFinanciamiento: propiedad.aceptaFinanciamiento,
           estadoPublicacion: propiedad.estadoPublicacion as EstadoPublicacion,
           motivoRechazo: propiedad.motivoRechazo,
           fotos: fotos.map((foto) => ({ id: foto.id, storageUrl: foto.storageUrl })),

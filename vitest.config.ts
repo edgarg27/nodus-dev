@@ -31,7 +31,12 @@ export default defineConfig({
     environment: "node",
     globals: false,
     setupFiles: ["./tests/setup.ts"],
-    include: ["tests/unit/**/*.test.ts", "tests/integration/**/*.test.ts", "src/**/*.test.ts"],
+    include: [
+      "tests/unit/**/*.test.ts",
+      "tests/integration/**/*.test.ts",
+      "src/**/*.test.ts",
+      "src/**/*.test.tsx",
+    ],
     exclude: ["blueprints/**", "node_modules/**", ".next/**", "tests/e2e/**"],
     // Integration tests hit the shared, REMOTE Supabase project `nodus-dev` (no local Docker stack):
     // every query crosses the network, hence the longer timeout than a local Postgres needs.

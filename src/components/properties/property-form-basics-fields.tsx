@@ -105,6 +105,37 @@ export function PropertyFormBasicsFields({
             ) : null}
           </div>
         </div>
+
+        <div className="flex flex-col gap-2">
+          <Label className="text-[13px] font-semibold text-foreground">
+            ¿Financiamiento disponible?
+          </Label>
+          <div className="flex items-center gap-5">
+            <label className="flex items-center gap-2 text-[15px] text-foreground">
+              <input
+                type="radio"
+                value="true"
+                className="accent-primary"
+                {...register("aceptaFinanciamiento")}
+              />
+              Sí
+            </label>
+            <label className="flex items-center gap-2 text-[15px] text-foreground">
+              <input
+                type="radio"
+                value="false"
+                className="accent-primary"
+                {...register("aceptaFinanciamiento")}
+              />
+              No
+            </label>
+          </div>
+          {errors.aceptaFinanciamiento ? (
+            <p role="alert" className="text-sm text-destructive">
+              {errors.aceptaFinanciamiento.message}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       <div className="flex flex-col gap-4 border-t border-border pt-7">
