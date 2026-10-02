@@ -1,8 +1,18 @@
 "use client";
 
-import { Map as MapaLibre, type MapMouseEvent, Marker } from "maplibre-gl";
+import { Map as MapaLibre, type MapMouseEvent, Marker, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef } from "react";
+
+// maplibre-gl-worker.mjs importa `./maplibre-gl-shared.mjs` con una ruta relativa. Bajo Turbopack,
+// referenciarlo vía `new URL("maplibre-gl/dist/...", import.meta.url)` lo copia como asset opaco
+// sin su vecino, así que ese import relativo cae en un 404 dentro del propio worker — que muere en
+// silencio sin lanzar ningún error visible, dejando el mapa sin estilo ni tiles para siempre.
+// `scripts/copy-maplibre-worker.ts` (corrido por `pnpm dev`/`pnpm build`) copia ambos archivos
+// juntos a `public/vendor/maplibre-gl/`, una ruta estática que el bundler no toca.
+if (typeof window !== "undefined") {
+  setWorkerUrl("/vendor/maplibre-gl/maplibre-gl-worker.mjs");
+}
 
 const PASO_TECLADO = 0.0005;
 const CENTRO_POR_DEFECTO: [number, number] = [-100.9789, 22.1564];
