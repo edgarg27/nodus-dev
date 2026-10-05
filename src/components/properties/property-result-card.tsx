@@ -15,6 +15,7 @@ export interface PropertyResultData {
   estado: string;
   ciudad: string;
   descripcion: string;
+  fotoUrl: string | null;
 }
 
 interface PropertyResultCardProps {
@@ -93,12 +94,17 @@ export function PropertyResultCard({
         selected ? "border-accent shadow-[0_0_0_3px_rgba(255,122,69,0.22)]" : "border-border"
       }`}
     >
-      <div className="relative flex h-[150px] shrink-0 items-center justify-center bg-gradient-to-br from-primary/70 to-primary">
-        <Icono
-          className="size-12 text-primary-foreground/50"
-          strokeWidth={1.5}
-          aria-hidden="true"
-        />
+      <div className="relative flex h-[150px] shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-primary/70 to-primary">
+        {propiedad.fotoUrl ? (
+          // biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático
+          <img src={propiedad.fotoUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <Icono
+            className="size-12 text-primary-foreground/50"
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
+        )}
         <span className="absolute top-3 left-3 rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground">
           {ETIQUETA_MODALIDAD[propiedad.modalidad] ?? propiedad.modalidad}
         </span>
@@ -116,7 +122,12 @@ export function PropertyResultCard({
           {propiedad.ciudad}, {propiedad.estado}
         </p>
 
-        {contacto ? (
+        {contacto && !contacto.telefono ? (
+          // El oferente aún no tiene teléfono registrado; la solicitud ya quedó en sus leads.
+          <p role="status" className="pt-1 text-sm text-text">
+            Listo, le enviamos tus datos al oferente. Te contactará pronto.
+          </p>
+        ) : contacto ? (
           <p className="pt-1 text-sm text-text">
             {contacto.telefono}
             {contacto.whatsappUrl ? (
