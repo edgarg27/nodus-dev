@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { resetTestDatabase } from "../../../tests/helpers/reset-db.ts";
 import { db } from "../../lib/db/client.ts";
 import { propiedad, usuario } from "../../lib/db/schema.ts";
-import { buscarPropiedadesPublicas } from "./queries.ts";
+import { buscarPropiedadesPublicas, listarPropiedadesSimilares } from "./queries.ts";
 
 async function crearFilaOferente(): Promise<string> {
   const id = randomUUID();
@@ -147,5 +147,29 @@ describe("buscarPropiedadesPublicas / precio, superficie y datos", () => {
     );
     expect(descripciones(segunda.data)).toEqual(["A", "D"]);
     expect(segunda.hasMore).toBe(false);
+  });
+});
+
+describe("listarPropiedadesSimilares", () => {
+  it("devuelve publicadas del mismo tipo y estado, sin la propia, primero la misma modalidad", async () => {
+    await resetTestDatabase();
+    const oferenteId = await crearFilaOferente();
+    const [base] = await db
+      .insert(propiedad)
+      .values(propiedadFixture(oferenteId, { descripcion: "base" }))
+      .returning();
+    await db
+      .insert(propiedad)
+      .values([
+        propiedadFixture(oferenteId, { descripcion: "venta", modalidad: "venta" }),
+        propiedadFixture(oferenteId, { descripcion: "renta" }),
+        propiedadFixture(oferenteId, { descripcion: "oficina", tipo: "oficina" }),
+        propiedadFixture(oferenteId, { descripcion: "otro estado", estado: "Leon" }),
+        propiedadFixture(oferenteId, { descripcion: "pendiente", estadoPublicacion: "pendiente" }),
+      ]);
+    if (!base) throw new Error("no se insertó la base");
+
+    const similares = await listarPropiedadesSimilares(base);
+    expect(similares.map((fila) => fila.descripcion)).toEqual(["renta", "venta"]);
   });
 });

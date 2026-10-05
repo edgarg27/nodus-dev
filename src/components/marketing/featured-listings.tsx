@@ -110,7 +110,7 @@ export function FeaturedListings({ propiedades }: FeaturedListingsProps) {
                     {formatearPrecio(extraerDetalles(propiedad), propiedad.modalidad)}
                   </span>
                   <Link
-                    href={`/buscar?ciudad=${encodeURIComponent(propiedad.ciudad)}`}
+                    href={`/espacios/${propiedad.id}`}
                     className="border-b-2 border-accent text-sm font-semibold text-foreground"
                   >
                     Ver detalles

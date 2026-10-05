@@ -9,6 +9,7 @@ import {
   inArray,
   lt,
   lte,
+  ne,
   or,
   type SQL,
   sql,
@@ -326,4 +327,27 @@ export async function listarPendientesDeRevision(): Promise<PropiedadPendienteDe
     fotos: fotosPorPropiedad.get(fila.id) ?? [],
     oferente: oferentePorId.get(fila.oferenteId) ?? null,
   }));
+}
+
+// "Espacios similares" de la ficha: públicos, mismo tipo y estado, sin la propiedad actual; primero
+// los de la misma modalidad y luego los más recientes.
+export async function listarPropiedadesSimilares(
+  base: Pick<PropiedadFila, "id" | "tipo" | "estado" | "modalidad">,
+  limite = 3,
+): Promise<PropiedadDestacada[]> {
+  const filas = await db
+    .select()
+    .from(propiedad)
+    .where(
+      and(
+        eq(propiedad.activo, true),
+        eq(propiedad.estadoPublicacion, "publicada"),
+        eq(propiedad.tipo, base.tipo),
+        eq(propiedad.estado, base.estado),
+        ne(propiedad.id, base.id),
+      ),
+    )
+    .orderBy(sql`${propiedad.modalidad} <> ${base.modalidad}`, desc(propiedad.createdAt))
+    .limit(limite);
+  return conPrimeraFoto(filas);
 }
