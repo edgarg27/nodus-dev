@@ -212,8 +212,7 @@ export function SearchHero() {
               Encuentra el espacio para hacer crecer tu negocio
             </h1>
             <p className="mt-3 text-[17px] text-primary-foreground/90 sm:text-lg">
-              Naves industriales, oficinas y locales comerciales en San Luis Potosí, Aguascalientes
-              y León.
+              Naves industriales, oficinas y locales comerciales a nivel nacional e internacional.
             </p>
           </div>
           <form

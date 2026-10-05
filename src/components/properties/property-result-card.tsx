@@ -58,30 +58,42 @@ export function PropertyResultCard({
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [contacto, setContacto] = useState<ContactoRevelado | null>(null);
   const [errorContacto, setErrorContacto] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
 
   const Icono = ICONO_POR_TIPO[propiedad.tipo as keyof typeof ICONO_POR_TIPO] ?? WarehouseIcon;
 
   async function contactar() {
+    if (enviando || contacto) return;
     setErrorContacto(null);
+    setEnviando(true);
 
-    const respuesta = await fetch("/api/v1/contact-requests", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ propiedad_id: propiedad.id }),
-    });
+    try {
+      const respuesta = await fetch("/api/v1/contact-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ propiedad_id: propiedad.id }),
+      });
 
-    if (respuesta.status === 401) {
-      router.push("/sign-in");
-      return;
+      if (respuesta.status === 401) {
+        router.push("/sign-in");
+        return;
+      }
+
+      const cuerpo = await respuesta.json().catch(() => null);
+      if (!respuesta.ok || !cuerpo?.data) {
+        setErrorContacto(cuerpo?.error?.message ?? "No se pudo contactar. Intenta de nuevo.");
+        return;
+      }
+
+      setContacto({
+        telefono: cuerpo.data.telefono_oferente,
+        whatsappUrl: cuerpo.data.whatsapp_url,
+      });
+    } catch {
+      setErrorContacto("No se pudo contactar. Revisa tu conexión e intenta de nuevo.");
+    } finally {
+      setEnviando(false);
     }
-
-    const cuerpo = await respuesta.json();
-    if (!respuesta.ok) {
-      setErrorContacto(cuerpo.error?.message ?? "No se pudo contactar");
-      return;
-    }
-
-    setContacto({ telefono: cuerpo.data.telefono_oferente, whatsappUrl: cuerpo.data.whatsapp_url });
   }
 
   return (
@@ -128,7 +140,7 @@ export function PropertyResultCard({
             Listo, le enviamos tus datos al oferente. Te contactará pronto.
           </p>
         ) : contacto ? (
-          <p className="pt-1 text-sm text-text">
+          <p role="status" className="pt-1 text-sm text-text">
             {contacto.telefono}
             {contacto.whatsappUrl ? (
               <a
@@ -140,31 +152,32 @@ export function PropertyResultCard({
               </a>
             ) : null}
           </p>
-        ) : (
-          <div className="flex gap-2 pt-1">
-            <Button
-              type="button"
-              className="h-9 flex-1 gap-0 rounded-lg bg-accent px-3 text-[13px] font-bold text-accent-foreground shadow-sm transition-transform duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md motion-reduce:transition-none"
-              onClick={(evento) => {
-                evento.stopPropagation();
-                void contactar();
-              }}
-            >
-              Contactar
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="h-9 flex-1 gap-0 rounded-lg border-input px-3 text-[13px] font-bold text-text transition-transform duration-150 ease-out hover:-translate-y-px hover:border-primary hover:text-primary motion-reduce:transition-none"
-              onClick={(evento) => {
-                evento.stopPropagation();
-                setDetailsOpen(true);
-              }}
-            >
-              Ver detalles
-            </Button>
-          </div>
-        )}
+        ) : null}
+
+        <div className="flex gap-2 pt-1">
+          <Button
+            type="button"
+            disabled={enviando || contacto !== null}
+            className="h-9 flex-1 gap-0 rounded-lg bg-accent px-3 text-[13px] font-bold text-accent-foreground shadow-sm transition-transform duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md disabled:translate-y-0 disabled:opacity-60 motion-reduce:transition-none"
+            onClick={(evento) => {
+              evento.stopPropagation();
+              void contactar();
+            }}
+          >
+            {contacto ? "Solicitud enviada" : enviando ? "Enviando…" : "Contactar"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-9 flex-1 gap-0 rounded-lg border-input px-3 text-[13px] font-bold text-text transition-transform duration-150 ease-out hover:-translate-y-px hover:border-primary hover:text-primary motion-reduce:transition-none"
+            onClick={(evento) => {
+              evento.stopPropagation();
+              setDetailsOpen(true);
+            }}
+          >
+            Ver detalles
+          </Button>
+        </div>
 
         {errorContacto ? (
           <Alert variant="destructive">
@@ -178,6 +191,8 @@ export function PropertyResultCard({
         onOpenChange={setDetailsOpen}
         propiedad={propiedad}
         onContact={contactar}
+        contactado={contacto !== null}
+        enviando={enviando}
       />
     </article>
   );
