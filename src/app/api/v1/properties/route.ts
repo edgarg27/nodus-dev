@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { detallesPropiedadSchema } from "../../../../lib/property-details.ts";
+import { leerBusqueda } from "../../../../lib/search-params.ts";
 import { getUsuarioActual } from "../../../../server/auth/session.ts";
 import { crearPropiedad } from "../../../../server/properties/mutations.ts";
 import {
@@ -34,16 +35,12 @@ const crearPropiedadSchema = z
   })
   .extend(detallesPropiedadSchema.shape);
 
-const searchQuerySchema = z.object({
-  modalidad: z.enum(MODALIDADES).optional(),
-  tipo: z.enum(TIPOS).optional(),
-  estado: z.enum(ESTADOS).optional(),
-  ciudad: z.string().trim().min(1).optional(),
-  financiamiento: z.enum(["true", "false"]).optional(),
+// Los filtros y el orden los lee `leerBusqueda` (fuente compartida con /buscar); aquí solo
+// se validan los parámetros propios de la paginación.
+const paginacionSchema = z.object({
   // Un límite mayor a 50 no es un error: se recorta a 50 (ver buscarPropiedadesPublicas).
   limit: z.coerce.number().int().min(1).optional(),
   cursor: z.string().optional(),
-  orden: z.enum(["relevancia", "recientes"]).optional(),
 });
 
 function requestId(): string {
@@ -58,22 +55,33 @@ function errorEnvelope(code: string, message: string, details?: unknown[]) {
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const parsed = searchQuerySchema.safeParse(Object.fromEntries(url.searchParams));
-  if (!parsed.success) {
-    const details = parsed.error.issues.map((issue) => ({
-      field: issue.path.join("."),
-      message: issue.message,
-    }));
+  const parsed = paginacionSchema.safeParse({
+    limit: url.searchParams.get("limit") ?? undefined,
+    cursor: url.searchParams.get("cursor") ?? undefined,
+  });
+  const lectura = leerBusqueda((clave) => url.searchParams.get(clave) ?? undefined);
+  if (!parsed.success || lectura.invalidos.length > 0) {
+    const details = [
+      ...(parsed.success
+        ? []
+        : parsed.error.issues.map((issue) => ({
+            field: issue.path.join("."),
+            message: issue.message,
+          }))),
+      ...lectura.invalidos.map((field) => ({ field, message: "Valor inválido" })),
+    ];
     return NextResponse.json(errorEnvelope("validation_error", "Filtros inválidos", details), {
       status: 422,
     });
   }
 
-  const { modalidad, tipo, estado, ciudad, financiamiento, limit, cursor, orden } = parsed.data;
-  const aceptaFinanciamiento = financiamiento === undefined ? undefined : financiamiento === "true";
+  const { financiamiento, ...filtros } = lectura.filtros;
   const resultado = await buscarPropiedadesPublicas(
-    { modalidad, tipo, estado, ciudad, aceptaFinanciamiento },
-    { limit, cursor, orden },
+    {
+      ...filtros,
+      aceptaFinanciamiento: financiamiento === undefined ? undefined : financiamiento === "true",
+    },
+    { limit: parsed.data.limit, cursor: parsed.data.cursor, orden: lectura.orden },
   );
 
   const primerasFotos = await obtenerPrimerasFotos(resultado.data.map((fila) => fila.id));

@@ -3,6 +3,7 @@
 import { MapIcon, SearchIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type DetallesPropiedad, extraerDetalles } from "@/lib/property-details";
+import { busquedaAParams, type FiltrosBusqueda, type OrdenBusqueda } from "@/lib/search-params";
 import { PropertyMap } from "../map/property-map";
 import { PropertyResultCard } from "./property-result-card";
 
@@ -19,20 +20,14 @@ export interface SearchResultProperty extends DetallesPropiedad {
   fotoUrl: string | null;
 }
 
-export interface SearchResultsFiltros {
-  modalidad?: string;
-  tipo?: string;
-  estado?: string;
-  ciudad?: string;
-  financiamiento?: string;
-}
+export type SearchResultsFiltros = FiltrosBusqueda;
 
 interface SearchResultsProps {
   propiedadesIniciales: SearchResultProperty[];
   hasMoreInicial: boolean;
   nextCursorInicial: string | null;
   filtros: SearchResultsFiltros;
-  orden: "relevancia" | "recientes";
+  orden: OrdenBusqueda;
 }
 
 interface ApiRow extends Partial<Record<keyof DetallesPropiedad, unknown>> {
@@ -85,13 +80,7 @@ export function SearchResults({
     if (!cursor || cargando) return;
     setCargando(true);
 
-    const params = new URLSearchParams();
-    if (filtros.modalidad) params.set("modalidad", filtros.modalidad);
-    if (filtros.tipo) params.set("tipo", filtros.tipo);
-    if (filtros.estado) params.set("estado", filtros.estado);
-    if (filtros.ciudad) params.set("ciudad", filtros.ciudad);
-    if (filtros.financiamiento) params.set("financiamiento", filtros.financiamiento);
-    if (orden !== "relevancia") params.set("orden", orden);
+    const params = busquedaAParams(filtros, orden);
     params.set("cursor", cursor);
 
     const respuesta = await fetch(`/api/v1/properties?${params.toString()}`);

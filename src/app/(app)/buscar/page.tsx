@@ -6,23 +6,12 @@ import type { SearchResultProperty } from "@/components/properties/search-result
 import { SearchResults } from "@/components/properties/search-results";
 import { SortSelect } from "@/components/properties/sort-select";
 import { extraerDetalles } from "@/lib/property-details";
+import { busquedaAParams, leerBusqueda } from "@/lib/search-params";
 import {
   buscarPropiedadesPublicas,
   contarPropiedadesPublicas,
   obtenerPrimerasFotos,
 } from "@/server/properties/queries";
-
-const MODALIDADES = ["renta", "venta", "desde_cero"] as const;
-const TIPOS = ["nave_industrial", "oficina", "local_comercial"] as const;
-const ESTADOS = ["SLP", "Aguascalientes", "Leon"] as const;
-const ORDENES = ["relevancia", "recientes"] as const;
-
-function filtroValido<T extends string>(
-  valor: string | undefined,
-  permitidos: readonly T[],
-): T | undefined {
-  return permitidos.includes(valor as T) ? (valor as T) : undefined;
-}
 
 interface BuscarPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -35,23 +24,17 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
     return typeof valor === "string" ? valor : undefined;
   };
 
-  const financiamiento = filtroValido(leer("financiamiento"), ["true", "false"] as const);
-  const estado = filtroValido(leer("estado"), ESTADOS);
-
-  const filtros = {
-    modalidad: filtroValido(leer("modalidad"), MODALIDADES),
-    tipo: filtroValido(leer("tipo"), TIPOS),
-    estado,
-    ciudad: leer("ciudad"),
-    financiamiento,
-    aceptaFinanciamiento: financiamiento === undefined ? undefined : financiamiento === "true",
+  // Un parámetro inválido en la URL se ignora (la API, en cambio, responde 422).
+  const { filtros, orden } = leerBusqueda(leer);
+  const filtrosServidor = {
+    ...filtros,
+    aceptaFinanciamiento:
+      filtros.financiamiento === undefined ? undefined : filtros.financiamiento === "true",
   };
-  const orden = filtroValido(leer("orden"), ORDENES) ?? "relevancia";
-  const initial = { ...filtros, orden };
 
   const [resultado, total] = await Promise.all([
-    buscarPropiedadesPublicas(filtros, { orden }),
-    contarPropiedadesPublicas(filtros),
+    buscarPropiedadesPublicas(filtrosServidor, { orden }),
+    contarPropiedadesPublicas(filtrosServidor),
   ]);
   const primerasFotos = await obtenerPrimerasFotos(resultado.data.map((fila) => fila.id));
 
@@ -88,12 +71,15 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
               {total} {total === 1 ? "espacio encontrado" : "espacios encontrados"}
             </h1>
             <div className="flex items-center gap-3">
-              <SortSelect initial={initial} />
-              <SearchFilters initial={initial} />
+              <SortSelect filtros={filtros} orden={orden} />
+              <SearchFilters initial={{ ...filtros, orden }} />
             </div>
           </div>
 
+          {/* La lista guarda sus filas en estado (para "Cargar más"); la `key` la reinicia cuando
+              cambian los filtros o el orden sin recargar la página (p. ej. desde SortSelect). */}
           <SearchResults
+            key={busquedaAParams(filtros, orden).toString()}
             propiedadesIniciales={propiedades}
             hasMoreInicial={resultado.hasMore}
             nextCursorInicial={resultado.nextCursor}

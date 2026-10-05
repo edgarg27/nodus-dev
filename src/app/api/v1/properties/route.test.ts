@@ -239,3 +239,28 @@ describe("GET /api/v1/properties / foto y datos del espacio", () => {
     expect(data[0].precio).toBe(38000);
   });
 });
+
+describe("GET /api/v1/properties / filtros de precio y orden", () => {
+  it("aplica precio_min y orden=precio_asc", async () => {
+    await resetTestDatabase();
+    const oferente = actorFixture("oferente");
+    await insertarUsuario(oferente);
+    await db
+      .insert(propiedad)
+      .values([
+        propiedadFixture(oferente.id, { precio: 80000 }),
+        propiedadFixture(oferente.id, { precio: 20000 }),
+        propiedadFixture(oferente.id, { precio: 50000 }),
+      ]);
+
+    const respuesta = await GET(requestSearch("precio_min=30000&orden=precio_asc"));
+    expect(respuesta.status).toBe(200);
+    const { data } = await respuesta.json();
+    expect(data.map((fila: { precio: number }) => fila.precio)).toEqual([50000, 80000]);
+  });
+
+  it("responde 422 con un precio_min no numérico o un orden desconocido", async () => {
+    expect((await GET(requestSearch("precio_min=barato"))).status).toBe(422);
+    expect((await GET(requestSearch("orden=azar"))).status).toBe(422);
+  });
+});
