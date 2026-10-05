@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { geocodificar } from "./client.ts";
+import { buscarCiudades, geocodificar } from "./client.ts";
 
 function respuestaMapTiler(features: unknown[]) {
   return new Response(JSON.stringify({ type: "FeatureCollection", features }), {
@@ -94,5 +94,46 @@ describe("geocodificar(q, { limit })", () => {
 
     const sugerencias = await geocodificar("Av.", { limit: 2 });
     expect(sugerencias).toHaveLength(2);
+  });
+});
+
+describe("buscarCiudades", () => {
+  it("filtra a los estados donde opera Nodus, deduplica y usa el estado del context", async () => {
+    fetchMock.mockResolvedValueOnce(
+      respuestaMapTiler([
+        {
+          center: [-101, 21],
+          place_name: "León, México",
+          context: [{ id: "region.1", text: "Guanajuato" }],
+        },
+        {
+          center: [-101, 21],
+          place_name: "León, México",
+          context: [
+            { id: "place.2", text: "León" },
+            { id: "region.1", text: "Guanajuato" },
+          ],
+        },
+        {
+          center: [-114, 32],
+          place_name: "San Luis Río Colorado, México",
+          context: [{ id: "region.9", text: "Sonora" }],
+        },
+        {
+          center: [-100, 22],
+          place_name: "San Luis Potosí, México",
+          context: [{ id: "region.3", text: "San Luis Potosí" }],
+        },
+      ]),
+    );
+
+    const ciudades = await buscarCiudades("le");
+    expect(ciudades).toEqual([
+      { ciudad: "León", estado: "Guanajuato" },
+      { ciudad: "San Luis Potosí", estado: "San Luis Potosí" },
+    ]);
+    const [url] = fetchMock.mock.calls[0] as [string];
+    expect(url).toContain("country=mx");
+    expect(url).toContain("types=municipality");
   });
 });

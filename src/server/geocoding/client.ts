@@ -88,3 +88,40 @@ export async function geocodificar(
   const [lng, lat] = feature.center;
   return { lat, lng, direccionSugerida: feature.place_name };
 }
+
+export interface CiudadSugerida {
+  ciudad: string;
+  estado: string;
+}
+
+// Estados donde opera Nodus (León pertenece a Guanajuato en MapTiler); el resto de México no
+// tiene propiedades y solo produciría búsquedas vacías.
+const REGIONES_OPERATIVAS = new Set(["San Luis Potosí", "Aguascalientes", "Guanajuato"]);
+const MAX_CIUDADES = 6;
+
+// Sugerencias de ciudad para el buscador público. MapTiler devuelve el estado en
+// `context[].id = "region.<id>"`; `place` y `municipality` suelen repetir la misma ciudad, así
+// que se deduplica por ciudad + estado.
+export async function buscarCiudades(q: string): Promise<CiudadSugerida[]> {
+  requireEnv(["MAPTILER_API_KEY"]);
+
+  const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(q)}.json?key=${env.MAPTILER_API_KEY}&country=mx&language=es&autocomplete=true&limit=10&types=municipality,joint_municipality,locality,place`;
+  const respuesta = await fetch(url);
+  if (!respuesta.ok) {
+    throw new Error(`MapTiler respondió ${respuesta.status}`);
+  }
+
+  const cuerpo = (await respuesta.json()) as FeatureCollectionMapTiler;
+  const vistas = new Set<string>();
+  const ciudades: CiudadSugerida[] = [];
+  for (const feature of cuerpo.features ?? []) {
+    const ciudad = feature.place_name.split(",")[0]?.trim();
+    const estado = feature.context?.find((entrada) => entrada.id.startsWith("region."))?.text;
+    if (!ciudad || !estado || !REGIONES_OPERATIVAS.has(estado)) continue;
+    const clave = `${ciudad}|${estado}`;
+    if (vistas.has(clave)) continue;
+    vistas.add(clave);
+    ciudades.push({ ciudad, estado });
+  }
+  return ciudades.slice(0, MAX_CIUDADES);
+}

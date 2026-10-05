@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { LocationAutocomplete } from "./location-autocomplete";
 
 const MODALIDADES = [
   { value: "renta", etiqueta: "Renta" },
@@ -114,18 +115,16 @@ function CampoFinanciamiento({ className }: { className: string }) {
   );
 }
 
-function CampoUbicacion({ id }: { id: string }) {
+function CampoUbicacion({ id, flotante }: { id: string; flotante: boolean }) {
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={id} className="text-[13px] font-semibold text-foreground">
         Ubicación
       </label>
-      <input
+      <LocationAutocomplete
         id={id}
-        name="ciudad"
-        type="text"
         placeholder="Ciudad, zona o código postal"
-        className="h-[46px] rounded-[10px] border border-input bg-background px-3.5 text-[15px] text-foreground placeholder:text-muted-foreground"
+        flotante={flotante}
       />
     </div>
   );
@@ -180,7 +179,7 @@ export function SearchHero() {
               <CampoTipo id="hero-tipo" />
             </div>
             <div className="lg:col-span-3">
-              <CampoUbicacion id="hero-ubicacion" />
+              <CampoUbicacion id="hero-ubicacion" flotante />
             </div>
             <div className="lg:col-span-2">
               <CampoFinanciamiento className="gap-3.5" />
@@ -237,12 +236,12 @@ export function SearchHero() {
                 </option>
               ))}
             </select>
-            <input
-              name="ciudad"
-              type="text"
+            <LocationAutocomplete
               placeholder="Ubicación"
-              aria-label="Ubicación"
-              className="h-[42px] max-w-[420px] flex-grow rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground"
+              ariaLabel="Ubicación"
+              compacto
+              flotante
+              className="max-w-[420px] flex-grow"
             />
             <button
               type="submit"
@@ -300,7 +299,7 @@ export function SearchHero() {
               <form action="/buscar" method="get" className="flex flex-col gap-4">
                 <CampoModalidad id="modal-modalidad" />
                 <CampoTipo id="modal-tipo" />
-                <CampoUbicacion id="modal-ubicacion" />
+                <CampoUbicacion id="modal-ubicacion" flotante={false} />
                 <CampoFinanciamiento className="gap-5" />
                 <button
                   type="submit"
