@@ -28,6 +28,9 @@ interface SearchResultsProps {
   nextCursorInicial: string | null;
   filtros: SearchResultsFiltros;
   orden: OrdenBusqueda;
+  // Ids de todos los favoritos del usuario (también cubren las filas de "Cargar más").
+  favoritos?: string[];
+  autenticado?: boolean;
 }
 
 interface ApiRow extends Partial<Record<keyof DetallesPropiedad, unknown>> {
@@ -58,7 +61,10 @@ export function SearchResults({
   nextCursorInicial,
   filtros,
   orden,
+  favoritos = [],
+  autenticado = false,
 }: SearchResultsProps) {
+  const favoritosSet = new Set(favoritos);
   const [propiedades, setPropiedades] = useState(propiedadesIniciales);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(hasMoreInicial);
@@ -152,6 +158,8 @@ export function SearchResults({
                   numero={indice + 1}
                   selected={propiedad.id === selectedId}
                   onSelect={() => setSelectedId(propiedad.id)}
+                  favorito={favoritosSet.has(propiedad.id)}
+                  autenticado={autenticado}
                 />
               ),
             )}

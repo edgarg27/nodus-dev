@@ -88,6 +88,8 @@ export const config = {
     "/propiedades/:path*",
     "/leads/:path*",
     "/broker/:path*",
+    "/favoritos/:path*",
+    "/mis-busquedas/:path*",
     "/admin/:path*",
     "/api/v1/admin/:path*",
   ],

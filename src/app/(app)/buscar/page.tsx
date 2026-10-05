@@ -1,17 +1,21 @@
 import { ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { SaveSearchButton } from "@/components/properties/save-search-button";
 import { SearchFilters } from "@/components/properties/search-filters";
 import type { SearchResultProperty } from "@/components/properties/search-results";
 import { SearchResults } from "@/components/properties/search-results";
 import { SortSelect } from "@/components/properties/sort-select";
 import { extraerDetalles } from "@/lib/property-details";
 import { busquedaAParams, leerBusqueda } from "@/lib/search-params";
+import { getUsuarioActual } from "@/server/auth/session";
+import { idsFavoritos } from "@/server/favorites/favorites";
 import {
   buscarPropiedadesPublicas,
   contarPropiedadesPublicas,
   obtenerPrimerasFotos,
 } from "@/server/properties/queries";
+import { estaGuardada } from "@/server/saved-searches/saved-searches";
 
 interface BuscarPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -32,9 +36,13 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
       filtros.financiamiento === undefined ? undefined : filtros.financiamiento === "true",
   };
 
-  const [resultado, total] = await Promise.all([
+  const consulta = busquedaAParams(filtros, orden).toString();
+  const actor = await getUsuarioActual();
+  const [resultado, total, favoritos, guardada] = await Promise.all([
     buscarPropiedadesPublicas(filtrosServidor, { orden }),
     contarPropiedadesPublicas(filtrosServidor),
+    actor ? idsFavoritos(actor.id) : Promise.resolve([]),
+    actor ? estaGuardada(actor.id, consulta) : Promise.resolve(false),
   ]);
   const primerasFotos = await obtenerPrimerasFotos(resultado.data.map((fila) => fila.id));
 
@@ -71,6 +79,11 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
               {total} {total === 1 ? "espacio encontrado" : "espacios encontrados"}
             </h1>
             <div className="flex items-center gap-3">
+              <SaveSearchButton
+                consulta={consulta}
+                guardadaInicial={guardada}
+                autenticado={actor !== null}
+              />
               <SortSelect filtros={filtros} orden={orden} />
               <SearchFilters initial={{ ...filtros, orden }} />
             </div>
@@ -79,7 +92,9 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
           {/* La lista guarda sus filas en estado (para "Cargar más"); la `key` la reinicia cuando
               cambian los filtros o el orden sin recargar la página (p. ej. desde SortSelect). */}
           <SearchResults
-            key={busquedaAParams(filtros, orden).toString()}
+            key={consulta}
+            favoritos={favoritos}
+            autenticado={actor !== null}
             propiedadesIniciales={propiedades}
             hasMoreInicial={resultado.hasMore}
             nextCursorInicial={resultado.nextCursor}

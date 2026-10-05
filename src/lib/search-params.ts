@@ -150,3 +150,56 @@ export function contarFiltrosActivos(filtros: FiltrosBusqueda): number {
   }
   return total;
 }
+
+const TIPO_PLURAL: Record<string, string> = {
+  nave_industrial: "Naves industriales",
+  oficina: "Oficinas",
+  local_comercial: "Locales comerciales",
+};
+const OPERACION: Record<string, string> = {
+  renta: "en renta",
+  venta: "en venta",
+  desde_cero: "desde cero",
+};
+const ESTADO_NOMBRE: Record<string, string> = {
+  SLP: "San Luis Potosí",
+  Aguascalientes: "Aguascalientes",
+  Leon: "León",
+};
+
+function cifra(valor: number): string {
+  return valor.toLocaleString("es-MX", { maximumFractionDigits: 2 });
+}
+
+// Nombre automático de una búsqueda guardada: "Naves industriales en renta en San Luis Potosí ·
+// hasta $40,000 MXN · desde 500 m²".
+export function describirBusqueda(filtros: FiltrosBusqueda): string {
+  const lugar = filtros.ciudad ?? (filtros.estado ? ESTADO_NOMBRE[filtros.estado] : undefined);
+  const base = [
+    filtros.tipo ? TIPO_PLURAL[filtros.tipo] : "Espacios",
+    filtros.modalidad ? OPERACION[filtros.modalidad] : undefined,
+    lugar ? `en ${lugar}` : undefined,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const extras: string[] = [];
+  const moneda = filtros.moneda ?? "MXN";
+  const prefijo = moneda === "USD" ? "USD " : "$";
+  const sufijo = moneda === "USD" ? "" : " MXN";
+  if (filtros.precioMin !== undefined && filtros.precioMax !== undefined) {
+    extras.push(
+      `${prefijo}${cifra(filtros.precioMin)} a ${prefijo}${cifra(filtros.precioMax)}${sufijo}`,
+    );
+  } else if (filtros.precioMax !== undefined) {
+    extras.push(`hasta ${prefijo}${cifra(filtros.precioMax)}${sufijo}`);
+  } else if (filtros.precioMin !== undefined) {
+    extras.push(`desde ${prefijo}${cifra(filtros.precioMin)}${sufijo}`);
+  }
+  if (filtros.superficieMin !== undefined) extras.push(`desde ${cifra(filtros.superficieMin)} m²`);
+  if (filtros.superficieMax !== undefined) extras.push(`hasta ${cifra(filtros.superficieMax)} m²`);
+  if (filtros.andenesMin !== undefined) extras.push(`${filtros.andenesMin}+ andenes`);
+  if (filtros.financiamiento === "true") extras.push("con financiamiento");
+
+  return [base, ...extras].join(" · ").slice(0, 120);
+}

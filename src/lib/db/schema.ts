@@ -137,6 +137,42 @@ export const propiedadFoto = pgTable(
   (t) => [index("idx_propiedad_foto_propiedad_id").on(t.propiedadId)],
 );
 
+// Espacios que un usuario marcó como favoritos. Un par usuario–propiedad aparece una sola vez.
+export const favorito = pgTable(
+  "favorito",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id, { onDelete: "cascade" }),
+    propiedadId: uuid("propiedad_id")
+      .notNull()
+      .references(() => propiedad.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("uq_favorito_usuario_propiedad").on(t.usuarioId, t.propiedadId)],
+);
+
+// Búsquedas guardadas: `consulta` es la query string canónica de /buscar (la arma
+// `busquedaAParams`). `ultima_vista_en` permite contar los espacios publicados desde entonces.
+export const busquedaGuardada = pgTable(
+  "busqueda_guardada",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id, { onDelete: "cascade" }),
+    nombre: text("nombre").notNull(),
+    consulta: text("consulta").notNull(),
+    ultimaVistaEn: timestamp("ultima_vista_en", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("uq_busqueda_guardada_usuario_consulta").on(t.usuarioId, t.consulta),
+    check("chk_busqueda_guardada_nombre", sql`length(btrim(${t.nombre})) between 1 and 120`),
+  ],
+);
+
 export const contactRequest = pgTable(
   "contact_request",
   {

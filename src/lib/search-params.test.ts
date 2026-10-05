@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { busquedaAParams, contarFiltrosActivos, leerBusqueda } from "./search-params";
+import {
+  busquedaAParams,
+  contarFiltrosActivos,
+  describirBusqueda,
+  leerBusqueda,
+} from "./search-params";
 
 function leerDe(query: string) {
   const params = new URLSearchParams(query);
@@ -68,5 +73,25 @@ describe("contarFiltrosActivos", () => {
         andenesMin: 1,
       }),
     ).toBe(4);
+  });
+});
+
+describe("describirBusqueda", () => {
+  it("arma un nombre legible con tipo, operación, lugar y rangos", () => {
+    expect(
+      describirBusqueda({
+        tipo: "nave_industrial",
+        modalidad: "renta",
+        estado: "SLP",
+        precioMin: 50000,
+        precioMax: 100000,
+        moneda: "MXN",
+        superficieMin: 1000,
+        andenesMin: 2,
+      }),
+    ).toBe(
+      "Naves industriales en renta en San Luis Potosí · $50,000 a $100,000 MXN · desde 1,000 m² · 2+ andenes",
+    );
+    expect(describirBusqueda({})).toBe("Espacios");
   });
 });
