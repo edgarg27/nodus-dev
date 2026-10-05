@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export function SiteFooter() {
@@ -6,7 +7,15 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-8 sm:grid-cols-3">
           <div className="flex flex-col gap-4 sm:col-span-3 lg:col-span-1">
-            <span className="font-display text-xl font-bold text-primary-foreground">Nodus</span>
+            <Link href="/" aria-label="NODUS Flex Center — inicio" className="w-fit">
+              <Image
+                src="/brand/flex-center-logo-blanco.png"
+                alt=""
+                width={151}
+                height={48}
+                className="h-12 w-auto"
+              />
+            </Link>
             <p className="max-w-xs text-sm leading-relaxed text-primary-foreground/55">
               Conectamos pymes y empresas emergentes con los espacios industriales, de oficina y
               comerciales que impulsan su crecimiento.
@@ -16,24 +25,24 @@ export function SiteFooter() {
             <span className="text-[13px] font-bold tracking-wide text-primary-foreground uppercase">
               Producto
             </span>
-            <a
-              href="#buscar"
+            <Link
+              href="/#buscar"
               className="text-sm text-primary-foreground/70 hover:text-primary-foreground"
             >
               Buscar espacios
-            </a>
-            <a
-              href="#propietarios"
+            </Link>
+            <Link
+              href="/#propietarios"
               className="text-sm text-primary-foreground/70 hover:text-primary-foreground"
             >
               Publicar un espacio
-            </a>
-            <a
-              href="#como-funciona"
+            </Link>
+            <Link
+              href="/#como-funciona"
               className="text-sm text-primary-foreground/70 hover:text-primary-foreground"
             >
               Cómo funciona
-            </a>
+            </Link>
           </div>
           <div className="flex flex-col gap-3.5">
             <span className="text-[13px] font-bold tracking-wide text-primary-foreground uppercase">

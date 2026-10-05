@@ -59,9 +59,19 @@ export function SmoothScroll() {
       if (cuadroAnimacion === null) cuadroAnimacion = requestAnimationFrame(animar);
     }
 
+    // Un salto que no viene de la rueda (enlace de ancla, teclado, barra de scroll) deja el objetivo
+    // atrás; sin resincronizarlo, el siguiente giro de la rueda regresaría a la posición anterior.
+    function alDesplazarse() {
+      if (cuadroAnimacion !== null) return;
+      objetivoY = window.scrollY;
+      actualY = window.scrollY;
+    }
+
     window.addEventListener("wheel", alHacerScroll, { passive: false });
+    window.addEventListener("scroll", alDesplazarse, { passive: true });
     return () => {
       window.removeEventListener("wheel", alHacerScroll);
+      window.removeEventListener("scroll", alDesplazarse);
       if (cuadroAnimacion !== null) cancelAnimationFrame(cuadroAnimacion);
     };
   }, []);

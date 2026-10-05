@@ -10,6 +10,8 @@ interface PropertyDetailsDialogProps {
   onOpenChange: (open: boolean) => void;
   propiedad: PropertyResultData;
   onContact: () => void | Promise<void>;
+  contactado?: boolean;
+  enviando?: boolean;
 }
 
 const ICONO_POR_TIPO = {
@@ -35,6 +37,8 @@ export function PropertyDetailsDialog({
   onOpenChange,
   propiedad,
   onContact,
+  contactado = false,
+  enviando = false,
 }: PropertyDetailsDialogProps) {
   const Icono = ICONO_POR_TIPO[propiedad.tipo as keyof typeof ICONO_POR_TIPO] ?? WarehouseIcon;
 
@@ -102,9 +106,10 @@ export function PropertyDetailsDialog({
             <Button
               type="button"
               className="bg-accent text-accent-foreground shadow-sm transition-transform duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md motion-reduce:transition-none"
+              disabled={contactado || enviando}
               onClick={alContactar}
             >
-              Contactar
+              {contactado ? "Solicitud enviada" : enviando ? "Enviando…" : "Contactar"}
             </Button>
           </div>
         </div>
