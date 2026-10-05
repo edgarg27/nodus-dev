@@ -141,3 +141,101 @@ describe("GET /api/v1/properties?financiamiento=", () => {
     expect(cuerpo.data).toHaveLength(2);
   });
 });
+
+describe("POST /api/v1/properties / datos del espacio", () => {
+  it("guarda precio, moneda, superficies y datos industriales de una nave", async () => {
+    await resetTestDatabase();
+    const oferente = actorFixture("oferente");
+    await insertarUsuario(oferente);
+    actuarComo(oferente);
+
+    const respuesta = await POST(
+      requestPost({
+        ...INPUT_VALIDO,
+        precio: 4.5,
+        moneda: "USD",
+        precioUnidad: "m2",
+        mantenimiento: 3500,
+        superficieConstruidaM2: 1856,
+        superficieTerrenoM2: 2400,
+        banos: 3,
+        estacionamientos: 136,
+        alturaLibreM: 10.5,
+        andenes: 4,
+        potenciaKva: 500,
+      }),
+    );
+    expect(respuesta.status).toBe(201);
+    const { data } = await respuesta.json();
+    expect(data).toMatchObject({
+      precio: 4.5,
+      moneda: "USD",
+      precioUnidad: "m2",
+      mantenimiento: 3500,
+      superficieConstruidaM2: 1856,
+      superficieTerrenoM2: 2400,
+      banos: 3,
+      estacionamientos: 136,
+      alturaLibreM: 10.5,
+      andenes: 4,
+      potenciaKva: 500,
+    });
+  });
+
+  it("sin datos del espacio crea la fila con precio nulo y MXN por defecto", async () => {
+    await resetTestDatabase();
+    const oferente = actorFixture("oferente");
+    await insertarUsuario(oferente);
+    actuarComo(oferente);
+
+    const respuesta = await POST(requestPost(INPUT_VALIDO));
+    expect(respuesta.status).toBe(201);
+    const { data } = await respuesta.json();
+    expect(data.precio).toBeNull();
+    expect(data.moneda).toBe("MXN");
+    expect(data.precioUnidad).toBe("total");
+  });
+
+  it("descarta los datos industriales si el espacio no es una nave", async () => {
+    await resetTestDatabase();
+    const oferente = actorFixture("oferente");
+    await insertarUsuario(oferente);
+    actuarComo(oferente);
+
+    const respuesta = await POST(
+      requestPost({ ...INPUT_VALIDO, tipo: "oficina", andenes: 2, alturaLibreM: 9 }),
+    );
+    expect(respuesta.status).toBe(201);
+    const { data } = await respuesta.json();
+    expect(data.andenes).toBeNull();
+    expect(data.alturaLibreM).toBeNull();
+  });
+
+  it("responde 422 con un precio negativo o una moneda no soportada", async () => {
+    await resetTestDatabase();
+    const oferente = actorFixture("oferente");
+    await insertarUsuario(oferente);
+    actuarComo(oferente);
+
+    const negativo = await POST(requestPost({ ...INPUT_VALIDO, precio: -1 }));
+    expect(negativo.status).toBe(422);
+    const moneda = await POST(requestPost({ ...INPUT_VALIDO, moneda: "EUR" }));
+    expect(moneda.status).toBe(422);
+  });
+});
+
+describe("GET /api/v1/properties / foto y datos del espacio", () => {
+  it("cada fila incluye fotoUrl y el precio guardado", async () => {
+    await resetTestDatabase();
+    const oferente = actorFixture("oferente");
+    await insertarUsuario(oferente);
+    await db.insert(propiedad).values(propiedadFixture(oferente.id, { precio: 38000 }));
+
+    const respuesta = await GET(requestSearch("estado=SLP"));
+    expect(respuesta.status).toBe(200);
+    const { data } = await respuesta.json();
+    expect(data).toHaveLength(1);
+    expect(data[0].fotoUrl).toBeNull();
+    expect(data[0].precio).toBe(38000);
+  });
+});

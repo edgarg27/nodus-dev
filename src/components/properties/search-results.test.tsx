@@ -2,6 +2,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { extraerDetalles } from "@/lib/property-details";
 
 vi.mock("../map/property-map", () => ({
   PropertyMap: () => null,
@@ -25,6 +26,7 @@ function propiedad(id: string) {
     lat: 22.15,
     lng: -100.97,
     fotoUrl: null,
+    ...extraerDetalles({}),
   };
 }
 

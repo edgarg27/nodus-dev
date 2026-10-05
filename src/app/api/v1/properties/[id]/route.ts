@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { detallesPropiedadSchema } from "../../../../../lib/property-details.ts";
 import { getUsuarioActual } from "../../../../../server/auth/session.ts";
 import { darDeBajaPropiedad, editarPropiedad } from "../../../../../server/properties/mutations.ts";
 import {
@@ -17,16 +18,19 @@ const LAT_MAX = 32.7;
 const LNG_MIN = -118.4;
 const LNG_MAX = -86.7;
 
-const editarPropiedadSchema = z.object({
-  tipo: z.enum(TIPOS).optional(),
-  modalidad: z.enum(MODALIDADES).optional(),
-  direccion: z.string().trim().min(1).optional(),
-  lat: z.number().min(LAT_MIN).max(LAT_MAX).optional(),
-  lng: z.number().min(LNG_MIN).max(LNG_MAX).optional(),
-  estado: z.enum(ESTADOS).optional(),
-  ciudad: z.string().trim().min(1).optional(),
-  descripcion: z.string().trim().min(1).optional(),
-});
+const editarPropiedadSchema = z
+  .object({
+    tipo: z.enum(TIPOS).optional(),
+    modalidad: z.enum(MODALIDADES).optional(),
+    direccion: z.string().trim().min(1).optional(),
+    lat: z.number().min(LAT_MIN).max(LAT_MAX).optional(),
+    lng: z.number().min(LNG_MIN).max(LNG_MAX).optional(),
+    estado: z.enum(ESTADOS).optional(),
+    ciudad: z.string().trim().min(1).optional(),
+    descripcion: z.string().trim().min(1).optional(),
+    aceptaFinanciamiento: z.boolean().optional(),
+  })
+  .extend(detallesPropiedadSchema.shape);
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

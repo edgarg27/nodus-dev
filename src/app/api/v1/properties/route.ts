@@ -1,9 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { detallesPropiedadSchema } from "../../../../lib/property-details.ts";
 import { getUsuarioActual } from "../../../../server/auth/session.ts";
 import { crearPropiedad } from "../../../../server/properties/mutations.ts";
-import { buscarPropiedadesPublicas } from "../../../../server/properties/queries.ts";
+import {
+  buscarPropiedadesPublicas,
+  obtenerPrimerasFotos,
+} from "../../../../server/properties/queries.ts";
 
 const TIPOS = ["nave_industrial", "oficina", "local_comercial"] as const;
 const MODALIDADES = ["renta", "venta", "desde_cero"] as const;
@@ -16,17 +20,19 @@ const LAT_MAX = 32.7;
 const LNG_MIN = -118.4;
 const LNG_MAX = -86.7;
 
-const crearPropiedadSchema = z.object({
-  tipo: z.enum(TIPOS),
-  modalidad: z.enum(MODALIDADES),
-  direccion: z.string().trim().min(1),
-  lat: z.number().min(LAT_MIN).max(LAT_MAX),
-  lng: z.number().min(LNG_MIN).max(LNG_MAX),
-  estado: z.enum(ESTADOS),
-  ciudad: z.string().trim().min(1),
-  descripcion: z.string().trim().min(1),
-  aceptaFinanciamiento: z.boolean().optional(),
-});
+const crearPropiedadSchema = z
+  .object({
+    tipo: z.enum(TIPOS),
+    modalidad: z.enum(MODALIDADES),
+    direccion: z.string().trim().min(1),
+    lat: z.number().min(LAT_MIN).max(LAT_MAX),
+    lng: z.number().min(LNG_MIN).max(LNG_MAX),
+    estado: z.enum(ESTADOS),
+    ciudad: z.string().trim().min(1),
+    descripcion: z.string().trim().min(1),
+    aceptaFinanciamiento: z.boolean().optional(),
+  })
+  .extend(detallesPropiedadSchema.shape);
 
 const searchQuerySchema = z.object({
   modalidad: z.enum(MODALIDADES).optional(),
@@ -70,8 +76,13 @@ export async function GET(request: Request) {
     { limit, cursor, orden },
   );
 
+  const primerasFotos = await obtenerPrimerasFotos(resultado.data.map((fila) => fila.id));
+
   return NextResponse.json({
-    data: resultado.data,
+    data: resultado.data.map((fila) => ({
+      ...fila,
+      fotoUrl: primerasFotos.get(fila.id)?.storageUrl ?? null,
+    })),
     meta: { has_more: resultado.hasMore, next_cursor: resultado.nextCursor },
   });
 }

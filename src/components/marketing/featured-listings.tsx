@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { extraerDetalles, formatearPrecio } from "@/lib/property-details";
 import type { PropiedadDestacada } from "@/server/properties/queries";
 import { Reveal } from "./reveal";
 
@@ -106,7 +107,7 @@ export function FeaturedListings({ propiedades }: FeaturedListingsProps) {
                 <p className="text-sm text-muted-foreground">{propiedad.ciudad}</p>
                 <div className="flex items-center justify-between pt-2">
                   <span className="font-display text-[17px] font-bold text-foreground">
-                    Cotización
+                    {formatearPrecio(extraerDetalles(propiedad), propiedad.modalidad)}
                   </span>
                   <Link
                     href={`/buscar?ciudad=${encodeURIComponent(propiedad.ciudad)}`}

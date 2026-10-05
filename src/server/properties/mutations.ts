@@ -2,11 +2,16 @@ import { eq } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
 import { propiedad } from "../../lib/db/schema.ts";
 import { normalizeAddress } from "../../lib/normalize-address.ts";
+import {
+  CAMPOS_DETALLE,
+  CAMPOS_INDUSTRIALES,
+  type DetallesPropiedadInput,
+} from "../../lib/property-details.ts";
 import { requireRol } from "../auth/guards.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
 import { buscarDuplicadoActivo } from "./duplicate-check.ts";
 
-export interface CrearPropiedadInput {
+export interface CrearPropiedadInput extends DetallesPropiedadInput {
   tipo: string;
   modalidad: string;
   direccion: string;
@@ -21,6 +26,19 @@ export interface CrearPropiedadInput {
 export type EditarPropiedadInput = Partial<CrearPropiedadInput>;
 
 export type PropiedadFila = typeof propiedad.$inferSelect;
+
+// Solo los datos del espacio que vienen en el input; los industriales se limpian si el espacio no
+// es una nave (un cambio de tipo no deja altura libre ni andenes colgando).
+function detallesParaGuardar(input: DetallesPropiedadInput, tipoFinal: string) {
+  const valores: Partial<Record<(typeof CAMPOS_DETALLE)[number], unknown>> = {};
+  for (const campo of CAMPOS_DETALLE) {
+    if (input[campo] !== undefined) valores[campo] = input[campo];
+  }
+  if (tipoFinal !== "nave_industrial") {
+    for (const campo of CAMPOS_INDUSTRIALES) valores[campo] = null;
+  }
+  return valores as Partial<Pick<PropiedadFila, (typeof CAMPOS_DETALLE)[number]>>;
+}
 
 export type ErrorPropiedad =
   | { code: "forbidden"; status: 403; message: string }
@@ -96,6 +114,7 @@ export async function crearPropiedad(
         ciudad: input.ciudad,
         descripcion: input.descripcion,
         aceptaFinanciamiento: input.aceptaFinanciamiento ?? false,
+        ...detallesParaGuardar(input, input.tipo),
       })
       .returning();
     if (!fila) throw new Error("insert de propiedad no devolvió fila");
@@ -166,6 +185,9 @@ export async function editarPropiedad(
         ...(parche.aceptaFinanciamiento !== undefined
           ? { aceptaFinanciamiento: parche.aceptaFinanciamiento }
           : {}),
+        // Precio y medidas no devuelven la propiedad a revisión: cambian seguido (una baja de
+        // renta, por ejemplo) y no alteran qué espacio es ni dónde está.
+        ...detallesParaGuardar(parche, parche.tipo ?? existente.tipo),
         // Editar el contenido de una `publicada`/`rechazada` la devuelve a `pendiente` y limpia
         // la revisión, en la misma sentencia UPDATE (§14). Sin cambios de contenido, no toca el
         // ciclo de publicación.

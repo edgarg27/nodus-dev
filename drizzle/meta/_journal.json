@@ -57,6 +57,13 @@
       "when": 1790968825169,
       "tag": "0007_mushy_tomorrow_man",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791237024635,
+      "tag": "0008_married_shatterstar",
+      "breakpoints": true
     }
   ]
 }

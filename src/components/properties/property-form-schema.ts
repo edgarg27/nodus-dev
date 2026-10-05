@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { normalizeAddress } from "@/lib/normalize-address";
+import { type DetallesPropiedad, MONEDAS, UNIDADES_PRECIO } from "@/lib/property-details";
 import type { PropertyFormPhoto } from "./property-photo-field";
 import type { EstadoPublicacion } from "./status-badge";
 
@@ -11,6 +12,24 @@ const LAT_MIN = 14.5;
 const LAT_MAX = 32.7;
 const LNG_MIN = -118.4;
 const LNG_MAX = -86.7;
+
+// Los inputs numéricos se manejan como texto (vacío = sin dato) y se convierten a número en el
+// límite con la API (`property-form.tsx`), igual que los radios de financiamiento.
+function campoNumerico(opciones: { entero?: boolean; maximo: number }) {
+  return z
+    .string()
+    .trim()
+    .optional()
+    .refine(
+      (valor) => {
+        if (!valor) return true;
+        const numero = Number(valor.replace(/,/g, ""));
+        if (!Number.isFinite(numero) || numero < 0 || numero > opciones.maximo) return false;
+        return !opciones.entero || Number.isInteger(numero);
+      },
+      opciones.entero ? "Escribe un número entero" : "Escribe un número válido",
+    );
+}
 
 export const propertyFormSchema = z.object({
   tipo: z.enum(TIPOS),
@@ -26,11 +45,39 @@ export const propertyFormSchema = z.object({
   // se queda en "true"/"false" y la conversión a boolean ocurre en el límite con la API
   // (`property-form.tsx`, al armar el body del POST/PATCH).
   aceptaFinanciamiento: z.enum(["true", "false"]),
+  precio: campoNumerico({ maximo: 999_999_999_999 }),
+  moneda: z.enum(MONEDAS).optional(),
+  precioUnidad: z.enum(UNIDADES_PRECIO).optional(),
+  mantenimiento: campoNumerico({ maximo: 999_999_999_999 }),
+  superficieConstruidaM2: campoNumerico({ maximo: 9_999_999_999 }),
+  superficieTerrenoM2: campoNumerico({ maximo: 9_999_999_999 }),
+  banos: campoNumerico({ entero: true, maximo: 9_999 }),
+  estacionamientos: campoNumerico({ entero: true, maximo: 9_999 }),
+  alturaLibreM: campoNumerico({ maximo: 999 }),
+  andenes: campoNumerico({ entero: true, maximo: 9_999 }),
+  potenciaKva: campoNumerico({ entero: true, maximo: 9_999_999 }),
 });
+
+export const CAMPOS_NUMERICOS_FORMULARIO = [
+  "precio",
+  "mantenimiento",
+  "superficieConstruidaM2",
+  "superficieTerrenoM2",
+  "banos",
+  "estacionamientos",
+  "alturaLibreM",
+  "andenes",
+  "potenciaKva",
+] as const;
+
+export function textoANumero(valor: string | undefined): number | null {
+  if (!valor?.trim()) return null;
+  return Number(valor.replace(/,/g, ""));
+}
 
 export type PropertyFormValues = z.infer<typeof propertyFormSchema>;
 
-export interface PropertyFormInitialData {
+export interface PropertyFormInitialData extends DetallesPropiedad {
   id: string;
   tipo: (typeof TIPOS)[number];
   modalidad: (typeof MODALIDADES)[number];

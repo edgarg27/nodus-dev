@@ -151,7 +151,7 @@ export function PropertyFormBasicsFields({
           <Textarea
             id="descripcion"
             rows={5}
-            placeholder="Altura libre, andenes de carga, oficinas incluidas, condiciones de acceso, etc."
+            placeholder="Oficinas incluidas, uso de suelo, condiciones de acceso, etc."
             className="resize-y rounded-lg border-input bg-background px-3.5 py-3 text-[15px]"
             {...register("descripcion")}
             aria-invalid={!!errors.descripcion}

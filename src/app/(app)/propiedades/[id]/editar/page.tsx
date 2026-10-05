@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { PropertyForm } from "@/components/properties/property-form";
 import type { EstadoPublicacion } from "@/components/properties/status-badge";
+import { extraerDetalles } from "@/lib/property-details";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import {
@@ -37,6 +38,7 @@ export default async function EditarPropiedadPage({ params }: EditarPropiedadPag
           ciudad: propiedad.ciudad,
           descripcion: propiedad.descripcion,
           aceptaFinanciamiento: propiedad.aceptaFinanciamiento,
+          ...extraerDetalles(propiedad),
           estadoPublicacion: propiedad.estadoPublicacion as EstadoPublicacion,
           motivoRechazo: propiedad.motivoRechazo,
           fotos: fotos.map((foto) => ({ id: foto.id, storageUrl: foto.storageUrl })),

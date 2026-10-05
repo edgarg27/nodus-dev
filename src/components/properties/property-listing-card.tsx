@@ -1,8 +1,9 @@
 import { Building2Icon, StoreIcon, WarehouseIcon } from "lucide-react";
 import Link from "next/link";
+import { type DetallesPropiedad, formatearPrecio } from "@/lib/property-details";
 import { type EstadoPublicacion, StatusBadge } from "./status-badge";
 
-export interface PropertyListingData {
+export interface PropertyListingData extends DetallesPropiedad {
   id: string;
   direccion: string;
   tipo: string;
@@ -72,6 +73,9 @@ export function PropertyListingCard({ propiedad }: PropertyListingCardProps) {
           <StatusBadge estado={propiedad.estadoPublicacion} />
         </div>
         <p className="text-[13px] text-muted-foreground">{meta}</p>
+        <p className="text-sm font-semibold text-foreground">
+          {formatearPrecio(propiedad, propiedad.modalidad)}
+        </p>
 
         {propiedad.estadoPublicacion === "pendiente" ? (
           <p className="text-xs text-muted-foreground/80">

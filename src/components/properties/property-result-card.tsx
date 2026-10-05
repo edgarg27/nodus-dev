@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { type DetallesPropiedad, formatearPrecio, resumenDetalles } from "@/lib/property-details";
 import { PropertyDetailsDialog } from "./property-details-dialog";
 
-export interface PropertyResultData {
+export interface PropertyResultData extends DetallesPropiedad {
   id: string;
   direccion: string;
   tipo: string;
@@ -61,6 +62,7 @@ export function PropertyResultCard({
   const [enviando, setEnviando] = useState(false);
 
   const Icono = ICONO_POR_TIPO[propiedad.tipo as keyof typeof ICONO_POR_TIPO] ?? WarehouseIcon;
+  const etiquetas = resumenDetalles(propiedad, propiedad.tipo);
 
   async function contactar() {
     if (enviando || contacto) return;
@@ -129,6 +131,21 @@ export function PropertyResultCard({
         <span className="text-[11px] font-semibold tracking-wide text-warning uppercase">
           {ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo}
         </span>
+        <p className="font-display text-lg font-bold text-text">
+          {formatearPrecio(propiedad, propiedad.modalidad)}
+        </p>
+        {etiquetas.length > 0 ? (
+          <ul className="flex flex-wrap gap-1.5" aria-label="Datos del espacio">
+            {etiquetas.map((etiqueta) => (
+              <li
+                key={etiqueta}
+                className="rounded-full bg-background px-2.5 py-0.5 text-xs font-medium text-text-muted"
+              >
+                {etiqueta}
+              </li>
+            ))}
+          </ul>
+        ) : null}
         <h3 className="text-base font-semibold text-text">{propiedad.direccion}</h3>
         <p className="text-[13px] text-text-muted">
           {propiedad.ciudad}, {propiedad.estado}
