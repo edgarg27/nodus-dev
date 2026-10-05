@@ -46,12 +46,17 @@ export function PropertyDetailsDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[88dvh] max-w-xl gap-0 overflow-y-auto p-0 sm:max-w-xl">
-        <div className="flex h-[200px] shrink-0 items-center justify-center rounded-t-xl bg-gradient-to-br from-primary/70 to-primary">
-          <Icono
-            className="size-16 text-primary-foreground/50"
-            strokeWidth={1.4}
-            aria-hidden="true"
-          />
+        <div className="flex h-[200px] shrink-0 items-center justify-center overflow-hidden rounded-t-xl bg-gradient-to-br from-primary/70 to-primary">
+          {propiedad.fotoUrl ? (
+            // biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático
+            <img src={propiedad.fotoUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <Icono
+              className="size-16 text-primary-foreground/50"
+              strokeWidth={1.4}
+              aria-hidden="true"
+            />
+          )}
         </div>
 
         <div className="flex flex-col gap-5 p-6">

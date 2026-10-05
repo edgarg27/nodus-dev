@@ -57,6 +57,8 @@ export async function GET(request: Request) {
       lat: resultado.lat,
       lng: resultado.lng,
       direccion_sugerida: resultado.direccionSugerida,
+      estado: resultado.estado,
+      ciudad: resultado.ciudad,
     },
   });
 }

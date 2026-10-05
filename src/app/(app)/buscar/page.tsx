@@ -5,7 +5,11 @@ import { SearchFilters } from "@/components/properties/search-filters";
 import type { SearchResultProperty } from "@/components/properties/search-results";
 import { SearchResults } from "@/components/properties/search-results";
 import { SortSelect } from "@/components/properties/sort-select";
-import { buscarPropiedadesPublicas, contarPropiedadesPublicas } from "@/server/properties/queries";
+import {
+  buscarPropiedadesPublicas,
+  contarPropiedadesPublicas,
+  obtenerPrimerasFotos,
+} from "@/server/properties/queries";
 
 const MODALIDADES = ["renta", "venta", "desde_cero"] as const;
 const TIPOS = ["nave_industrial", "oficina", "local_comercial"] as const;
@@ -42,6 +46,7 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
     buscarPropiedadesPublicas(filtros, { orden }),
     contarPropiedadesPublicas(filtros),
   ]);
+  const primerasFotos = await obtenerPrimerasFotos(resultado.data.map((fila) => fila.id));
 
   const propiedades: SearchResultProperty[] = resultado.data.map((fila) => ({
     id: fila.id,
@@ -53,6 +58,7 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
     descripcion: fila.descripcion,
     lat: Number(fila.lat),
     lng: Number(fila.lng),
+    fotoUrl: primerasFotos.get(fila.id)?.storageUrl ?? null,
   }));
 
   return (

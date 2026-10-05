@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { PropertyFormBasicsFields } from "./property-form-basics-fields";
 import { PropertyFormLocationField } from "./property-form-location-field";
+import { PropertyFormReviewDialog } from "./property-form-review-dialog";
 import {
   type PropertyFormInitialData,
   type PropertyFormValues,
@@ -76,13 +77,23 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
   const [mensajeDuplicado, setMensajeDuplicado] = useState<{ id: string } | null>(null);
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
   const [coordenadasTocadas, setCoordenadasTocadas] = useState(Boolean(propiedad));
+  // El geocode solo aproxima (MapTiler no conoce muchas colonias): una ubicación calculada no se
+  // envía hasta que el oferente confirma el pin o lo coloca él mismo.
+  const [ubicacionConfirmada, setUbicacionConfirmada] = useState(Boolean(propiedad));
   const [mostrarExito, setMostrarExito] = useState(false);
+  // Valores ya validados en espera de que el oferente acepte devolver la propiedad a revisión.
+  const [valoresPorConfirmar, setValoresPorConfirmar] = useState<PropertyFormValues | null>(null);
 
   const lat = watch("lat");
   const lng = watch("lng");
 
-  function alMoverPin(latNueva: number, lngNueva: number) {
+  function alTocarCoordenadas() {
     setCoordenadasTocadas(true);
+    setUbicacionConfirmada(true);
+  }
+
+  function alMoverPin(latNueva: number, lngNueva: number) {
+    alTocarCoordenadas();
     setValue("lat", latNueva, { shouldValidate: true });
     setValue("lng", lngNueva, { shouldValidate: true });
   }
@@ -98,6 +109,9 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
       const cuerpo = await respuesta.json();
       setValue("lat", cuerpo.data.lat, { shouldValidate: true });
       setValue("lng", cuerpo.data.lng, { shouldValidate: true });
+      setUbicacionConfirmada(false);
+      if (cuerpo.data.estado) setValue("estado", cuerpo.data.estado, { shouldValidate: true });
+      if (cuerpo.data.ciudad) setValue("ciudad", cuerpo.data.ciudad, { shouldValidate: true });
     } catch {
       // El geocode es solo una sugerencia editable; un fallo no bloquea el formulario.
     }
@@ -133,16 +147,23 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
     }
   }
 
-  async function onSubmit(valores: PropertyFormValues) {
+  function onSubmit(valores: PropertyFormValues) {
+    if (propiedad?.estadoPublicacion === "publicada") {
+      setValoresPorConfirmar(valores);
+      return;
+    }
+    return guardar(valores);
+  }
+
+  function confirmarRevision() {
+    const valores = valoresPorConfirmar;
+    setValoresPorConfirmar(null);
+    if (valores) void guardar(valores);
+  }
+
+  async function guardar(valores: PropertyFormValues) {
     setErrorEnvio(null);
     setMensajeDuplicado(null);
-
-    if (propiedad?.estadoPublicacion === "publicada") {
-      const continuar = window.confirm(
-        "Este cambio hará que la propiedad vuelva a revisión. ¿Deseas continuar?",
-      );
-      if (!continuar) return;
-    }
 
     try {
       const data = await mutacion.mutateAsync(valores);
@@ -171,8 +192,13 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
     reset();
     setArchivosNuevos([]);
     setCoordenadasTocadas(false);
+    setUbicacionConfirmada(false);
     setMostrarExito(false);
   }
+
+  // Sin coordenadas el botón sigue activo para que la validación del esquema muestre el error.
+  const faltaConfirmarUbicacion =
+    !ubicacionConfirmada && Number.isFinite(lat) && Number.isFinite(lng);
 
   if (mostrarExito) {
     return <PropertyFormSuccess onReset={reiniciarFormulario} />;
@@ -245,8 +271,10 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
           errors={errors}
           lat={lat}
           lng={lng}
-          onCoordenadaTocada={() => setCoordenadasTocadas(true)}
+          onCoordenadaTocada={alTocarCoordenadas}
           onMoverPin={alMoverPin}
+          faltaConfirmar={faltaConfirmarUbicacion}
+          onConfirmar={() => setUbicacionConfirmada(true)}
         />
 
         <div className="flex flex-col gap-4 border-t border-border pt-7">
@@ -265,10 +293,16 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-7">
-          <p className="max-w-[320px] text-[13px] text-muted-foreground">{mensajeEstado}</p>
+          {faltaConfirmarUbicacion ? (
+            <p className="max-w-[320px] text-[13px] font-semibold text-warning">
+              Confirma la ubicación en el mapa para poder enviar.
+            </p>
+          ) : (
+            <p className="max-w-[320px] text-[13px] text-muted-foreground">{mensajeEstado}</p>
+          )}
           <Button
             type="submit"
-            disabled={mutacion.isPending}
+            disabled={mutacion.isPending || faltaConfirmarUbicacion}
             aria-busy={mutacion.isPending}
             className="h-[50px] rounded-lg bg-accent px-7 text-[15px] font-bold text-accent-foreground shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none disabled:opacity-60"
           >
@@ -280,6 +314,14 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
           </Button>
         </div>
       </form>
+
+      <PropertyFormReviewDialog
+        open={valoresPorConfirmar !== null}
+        onOpenChange={(abierto) => {
+          if (!abierto) setValoresPorConfirmar(null);
+        }}
+        onConfirmar={confirmarRevision}
+      />
     </div>
   );
 }

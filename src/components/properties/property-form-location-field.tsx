@@ -1,4 +1,5 @@
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PinPicker } from "../map/pin-picker";
@@ -11,6 +12,8 @@ interface PropertyFormLocationFieldProps {
   lng: number | undefined;
   onCoordenadaTocada: () => void;
   onMoverPin: (lat: number, lng: number) => void;
+  faltaConfirmar: boolean;
+  onConfirmar: () => void;
 }
 
 export function PropertyFormLocationField({
@@ -20,6 +23,8 @@ export function PropertyFormLocationField({
   lng,
   onCoordenadaTocada,
   onMoverPin,
+  faltaConfirmar,
+  onConfirmar,
 }: PropertyFormLocationFieldProps) {
   return (
     <div className="flex flex-col gap-4 border-t border-border pt-7">
@@ -64,7 +69,29 @@ export function PropertyFormLocationField({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-input">
+      {faltaConfirmar ? (
+        <div
+          role="status"
+          className="flex flex-col gap-3 rounded-lg border border-warning/40 bg-warning/10 p-4 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p className="text-sm text-foreground">
+            Ubicamos el pin con tu dirección, pero puede no ser exacto.{" "}
+            <strong>Verifica que esté sobre tu propiedad</strong>; si no, arrástralo o haz clic en
+            el lugar correcto del mapa.
+          </p>
+          <Button
+            type="button"
+            onClick={onConfirmar}
+            className="h-10 shrink-0 rounded-lg bg-accent px-4 text-[14px] font-bold text-accent-foreground hover:bg-accent/90"
+          >
+            Sí, está en el lugar correcto
+          </Button>
+        </div>
+      ) : null}
+
+      <div
+        className={`overflow-hidden rounded-lg border ${faltaConfirmar ? "border-warning" : "border-input"}`}
+      >
         <PinPicker lat={lat} lng={lng} onChange={onMoverPin} />
       </div>
     </div>
