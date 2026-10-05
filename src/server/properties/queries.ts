@@ -1,18 +1,45 @@
-import { and, asc, count, desc, eq, gt, inArray, lt, or } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gt,
+  gte,
+  inArray,
+  lt,
+  lte,
+  or,
+  type SQL,
+  sql,
+} from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
 import { propiedad, propiedadFoto, usuario } from "../../lib/db/schema.ts";
+import type { FiltrosBusqueda, OrdenBusqueda } from "../../lib/search-params.ts";
 
 const LIMITE_MAXIMO_BUSQUEDA = 50;
 
-export interface FiltrosBusquedaPropiedad {
+export interface FiltrosBusquedaPropiedad
+  extends Omit<FiltrosBusqueda, "modalidad" | "tipo" | "estado" | "financiamiento"> {
   modalidad?: string;
   tipo?: string;
   estado?: string;
-  ciudad?: string;
   aceptaFinanciamiento?: boolean;
 }
 
-export type OrdenBusquedaPropiedad = "relevancia" | "recientes";
+export type OrdenBusquedaPropiedad = OrdenBusqueda;
+
+// Superficie de referencia: la construida y, si no hay, la de terreno.
+const superficieReferencia = sql<
+  number | null
+>`coalesce(${propiedad.superficieConstruidaM2}, ${propiedad.superficieTerrenoM2})`;
+
+// Precio comparable del espacio completo: un precio por m² se multiplica por la superficie. Sin
+// superficie, un precio por m² no se puede comparar y queda nulo (fuera del filtro, al final del
+// orden).
+const precioTotal = sql<
+  number | null
+>`case when ${propiedad.precioUnidad} = 'm2' then ${propiedad.precio} * ${superficieReferencia} else ${propiedad.precio} end`;
 
 export interface OpcionesBusquedaPropiedad {
   limit?: number;
@@ -90,6 +117,27 @@ function condicionesBusquedaPublica(filtros: FiltrosBusquedaPropiedad) {
   if (filtros.aceptaFinanciamiento !== undefined) {
     condiciones.push(eq(propiedad.aceptaFinanciamiento, filtros.aceptaFinanciamiento));
   }
+  if (filtros.precioMin !== undefined || filtros.precioMax !== undefined) {
+    condiciones.push(eq(propiedad.moneda, filtros.moneda ?? "MXN"));
+    if (filtros.precioMin !== undefined) condiciones.push(gte(precioTotal, filtros.precioMin));
+    if (filtros.precioMax !== undefined) condiciones.push(lte(precioTotal, filtros.precioMax));
+  }
+  if (filtros.superficieMin !== undefined) {
+    condiciones.push(gte(superficieReferencia, filtros.superficieMin));
+  }
+  if (filtros.superficieMax !== undefined) {
+    condiciones.push(lte(superficieReferencia, filtros.superficieMax));
+  }
+  const minimos = [
+    [propiedad.banos, filtros.banosMin],
+    [propiedad.estacionamientos, filtros.estacionamientosMin],
+    [propiedad.alturaLibreM, filtros.alturaLibreMin],
+    [propiedad.andenes, filtros.andenesMin],
+    [propiedad.potenciaKva, filtros.potenciaKvaMin],
+  ] as const;
+  for (const [columna, minimo] of minimos) {
+    if (minimo !== undefined) condiciones.push(gte(columna, minimo));
+  }
   return condiciones;
 }
 
@@ -105,6 +153,26 @@ export async function buscarPropiedadesPublicas(
   const ordenRecientes = opciones.orden === "recientes";
 
   const condiciones = condicionesBusquedaPublica(filtros);
+
+  const ordenPorValor = ordenPorValorDe(opciones.orden);
+  if (ordenPorValor) {
+    // Precio y superficie admiten nulos y empates, así que estos órdenes paginan por posición
+    // (cursor = "o:<desplazamiento>") en lugar de por clave.
+    const desplazamiento = Number(/^o:(\d+)$/.exec(opciones.cursor ?? "")?.[1] ?? 0);
+    const filas = await db
+      .select()
+      .from(propiedad)
+      .where(and(...condiciones))
+      .orderBy(...ordenPorValor, asc(propiedad.id))
+      .limit(limite + 1)
+      .offset(desplazamiento);
+    const hasMore = filas.length > limite;
+    return {
+      data: hasMore ? filas.slice(0, limite) : filas,
+      hasMore,
+      nextCursor: hasMore ? `o:${desplazamiento + limite}` : null,
+    };
+  }
   if (opciones.cursor) {
     if (ordenRecientes) {
       const [cursorCreatedAt, cursorId] = opciones.cursor.split("|");
@@ -141,6 +209,23 @@ export async function buscarPropiedadesPublicas(
       : null;
 
   return { data: pagina, hasMore, nextCursor };
+}
+
+// Los precios en MXN y en USD no se comparan entre sí: al ordenar por precio, los de MXN van
+// primero y después los de USD, cada grupo en su orden. Los espacios sin dato van al final.
+function ordenPorValorDe(orden: OrdenBusquedaPropiedad | undefined): SQL[] | null {
+  if (orden === "precio_asc" || orden === "precio_desc") {
+    const direccion = orden === "precio_asc" ? sql`asc` : sql`desc`;
+    return [
+      sql`${precioTotal} is null`,
+      sql`${propiedad.moneda} <> 'MXN'`,
+      sql`${precioTotal} ${direccion}`,
+    ];
+  }
+  if (orden === "superficie_desc") {
+    return [sql`${superficieReferencia} is null`, sql`${superficieReferencia} desc`];
+  }
+  return null;
 }
 
 // Total de resultados para el mismo filtro (sin cursor) — usado solo para el encabezado "N

@@ -66,3 +66,86 @@ describe("buscarPropiedadesPublicas / aceptaFinanciamiento", () => {
     expect(data).toHaveLength(2);
   });
 });
+
+describe("buscarPropiedadesPublicas / precio, superficie y datos", () => {
+  async function sembrar() {
+    await resetTestDatabase();
+    const oferenteId = await crearFilaOferente();
+    const filas = await db
+      .insert(propiedad)
+      .values([
+        // A: $30,000 MXN al mes, 300 m², 2 baños
+        propiedadFixture(oferenteId, {
+          descripcion: "A",
+          precio: 30000,
+          superficieConstruidaM2: 300,
+          banos: 2,
+        }),
+        // B: $100 MXN por m² × 1,000 m² = $100,000 MXN, nave con 4 andenes
+        propiedadFixture(oferenteId, {
+          descripcion: "B",
+          precio: 100,
+          precioUnidad: "m2",
+          superficieConstruidaM2: 1000,
+          andenes: 4,
+        }),
+        // C: USD 2,000; no entra a filtros en MXN
+        propiedadFixture(oferenteId, {
+          descripcion: "C",
+          precio: 2000,
+          moneda: "USD",
+          superficieTerrenoM2: 5000,
+        }),
+        // D: sin precio ni superficie
+        propiedadFixture(oferenteId, { descripcion: "D" }),
+      ])
+      .returning();
+    return filas;
+  }
+
+  const descripciones = (data: { descripcion: string }[]) => data.map((fila) => fila.descripcion);
+
+  it("el rango de precio usa el total (precio por m² × superficie) y solo la moneda pedida", async () => {
+    await sembrar();
+    const { data } = await buscarPropiedadesPublicas({ precioMin: 50000, moneda: "MXN" });
+    expect(descripciones(data)).toEqual(["B"]);
+
+    const enUsd = await buscarPropiedadesPublicas({ precioMax: 5000, moneda: "USD" });
+    expect(descripciones(enUsd.data)).toEqual(["C"]);
+  });
+
+  it("la superficie usa la construida y, si no hay, la de terreno", async () => {
+    await sembrar();
+    const { data } = await buscarPropiedadesPublicas({ superficieMin: 900 });
+    expect(descripciones(data).sort()).toEqual(["B", "C"]);
+  });
+
+  it("los mínimos de baños y andenes excluyen los espacios sin dato", async () => {
+    await sembrar();
+    expect(descripciones((await buscarPropiedadesPublicas({ banosMin: 1 })).data)).toEqual(["A"]);
+    expect(descripciones((await buscarPropiedadesPublicas({ andenesMin: 2 })).data)).toEqual(["B"]);
+  });
+
+  it("ordena por precio: MXN primero, luego USD y al final sin precio", async () => {
+    await sembrar();
+    const asc = await buscarPropiedadesPublicas({}, { orden: "precio_asc" });
+    expect(descripciones(asc.data)).toEqual(["A", "B", "C", "D"]);
+    const desc = await buscarPropiedadesPublicas({}, { orden: "precio_desc" });
+    expect(descripciones(desc.data)).toEqual(["B", "A", "C", "D"]);
+  });
+
+  it("ordena por superficie de mayor a menor y pagina por posición sin repetir", async () => {
+    await sembrar();
+    const primera = await buscarPropiedadesPublicas({}, { orden: "superficie_desc", limit: 2 });
+    expect(descripciones(primera.data)).toEqual(["C", "B"]);
+    expect(primera.hasMore).toBe(true);
+    expect(primera.nextCursor).toBe("o:2");
+
+    const segunda = await buscarPropiedadesPublicas(
+      {},
+      { orden: "superficie_desc", limit: 2, cursor: primera.nextCursor ?? undefined },
+    );
+    expect(descripciones(segunda.data)).toEqual(["A", "D"]);
+    expect(segunda.hasMore).toBe(false);
+  });
+});

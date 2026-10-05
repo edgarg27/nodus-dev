@@ -2,6 +2,12 @@
 
 import { SlidersHorizontalIcon, XIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import {
+  contarFiltrosActivos,
+  ETIQUETAS_ORDEN,
+  type FiltrosBusqueda,
+  ORDENES_BUSQUEDA,
+} from "@/lib/search-params";
 import { ESTADOS } from "./property-form-schema";
 
 const MODALIDADES = [
@@ -22,13 +28,54 @@ const ESTADOS_ETIQUETA: Record<(typeof ESTADOS)[number], string> = {
   Leon: "León",
 };
 
-export interface SearchFiltersInitial {
-  modalidad?: string;
-  tipo?: string;
-  estado?: string;
-  ciudad?: string;
-  financiamiento?: string;
-  orden?: string;
+export type SearchFiltersInitial = FiltrosBusqueda & { orden?: string };
+
+const claseCampo =
+  "h-[46px] w-full min-w-0 rounded-lg border border-input bg-background px-3.5 text-sm text-text placeholder:text-muted-foreground";
+
+const OPCIONES_BANOS = [1, 2, 3, 4];
+const OPCIONES_ESTACIONAMIENTOS = [1, 2, 5, 10, 20];
+
+function valorInicial(valor: number | undefined): string {
+  return valor === undefined ? "" : String(valor);
+}
+
+function Rango({
+  etiqueta,
+  nombreMin,
+  nombreMax,
+  min,
+  max,
+}: {
+  etiqueta: string;
+  nombreMin: string;
+  nombreMax: string;
+  min: number | undefined;
+  max: number | undefined;
+}) {
+  return (
+    <fieldset className="flex flex-col gap-1.5">
+      <legend className="pb-1.5 text-xs font-semibold text-text">{etiqueta}</legend>
+      <div className="grid grid-cols-2 gap-2">
+        <input
+          name={nombreMin}
+          inputMode="decimal"
+          aria-label={`${etiqueta}: mínimo`}
+          placeholder="Mínimo"
+          defaultValue={valorInicial(min)}
+          className={claseCampo}
+        />
+        <input
+          name={nombreMax}
+          inputMode="decimal"
+          aria-label={`${etiqueta}: máximo`}
+          placeholder="Máximo"
+          defaultValue={valorInicial(max)}
+          className={claseCampo}
+        />
+      </div>
+    </fieldset>
+  );
 }
 
 interface SearchFiltersProps {
@@ -39,6 +86,7 @@ interface SearchFiltersProps {
 // formulario, sin duplicar los campos por breakpoint.
 export function SearchFilters({ initial }: SearchFiltersProps) {
   const [open, setOpen] = useState(false);
+  const activos = contarFiltrosActivos(initial);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -74,6 +122,11 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
       >
         <SlidersHorizontalIcon className="size-[17px]" strokeWidth={2} aria-hidden="true" />
         <span className="hidden sm:inline">Filtros</span>
+        {activos > 0 ? (
+          <span className="flex size-5 items-center justify-center rounded-full bg-accent text-[11px] font-bold text-accent-foreground">
+            {activos}
+          </span>
+        ) : null}
       </button>
 
       {open ? (
@@ -201,6 +254,131 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                 </div>
               </div>
 
+              <div className="flex flex-col gap-1.5">
+                <Rango
+                  etiqueta="Precio"
+                  nombreMin="precio_min"
+                  nombreMax="precio_max"
+                  min={initial.precioMin}
+                  max={initial.precioMax}
+                />
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs text-text-muted">En renta, por mes.</span>
+                  <select
+                    name="moneda"
+                    aria-label="Moneda del precio"
+                    defaultValue={initial.moneda ?? "MXN"}
+                    className="h-9 rounded-lg border border-input bg-background px-2.5 text-sm text-text"
+                  >
+                    <option value="MXN">MXN</option>
+                    <option value="USD">USD</option>
+                  </select>
+                </div>
+              </div>
+
+              <Rango
+                etiqueta="Superficie (m²)"
+                nombreMin="m2_min"
+                nombreMax="m2_max"
+                min={initial.superficieMin}
+                max={initial.superficieMax}
+              />
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="filtro-banos" className="text-xs font-semibold text-text">
+                    Baños
+                  </label>
+                  <select
+                    id="filtro-banos"
+                    name="banos"
+                    defaultValue={valorInicial(initial.banosMin)}
+                    className={claseCampo}
+                  >
+                    <option value="">Cualquiera</option>
+                    {OPCIONES_BANOS.map((n) => (
+                      <option key={n} value={n}>
+                        {n}+
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label
+                    htmlFor="filtro-estacionamientos"
+                    className="text-xs font-semibold text-text"
+                  >
+                    Estacionamientos
+                  </label>
+                  <select
+                    id="filtro-estacionamientos"
+                    name="estacionamientos"
+                    defaultValue={valorInicial(initial.estacionamientosMin)}
+                    className={claseCampo}
+                  >
+                    <option value="">Cualquiera</option>
+                    {OPCIONES_ESTACIONAMIENTOS.map((n) => (
+                      <option key={n} value={n}>
+                        {n}+
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <details
+                className="rounded-xl bg-background px-3.5 py-3"
+                open={
+                  initial.alturaLibreMin !== undefined ||
+                  initial.andenesMin !== undefined ||
+                  initial.potenciaKvaMin !== undefined
+                }
+              >
+                <summary className="cursor-pointer text-xs font-semibold text-text">
+                  Datos de nave industrial
+                </summary>
+                <div className="mt-3 flex flex-col gap-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-1.5">
+                      <label htmlFor="filtro-altura" className="text-xs text-text">
+                        Altura libre mín. (m)
+                      </label>
+                      <input
+                        id="filtro-altura"
+                        name="altura_min"
+                        inputMode="decimal"
+                        defaultValue={valorInicial(initial.alturaLibreMin)}
+                        className={claseCampo}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label htmlFor="filtro-andenes" className="text-xs text-text">
+                        Andenes mín.
+                      </label>
+                      <input
+                        id="filtro-andenes"
+                        name="andenes"
+                        inputMode="numeric"
+                        defaultValue={valorInicial(initial.andenesMin)}
+                        className={claseCampo}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label htmlFor="filtro-kva" className="text-xs text-text">
+                      Carga eléctrica mín. (kVA)
+                    </label>
+                    <input
+                      id="filtro-kva"
+                      name="kva_min"
+                      inputMode="numeric"
+                      defaultValue={valorInicial(initial.potenciaKvaMin)}
+                      className={claseCampo}
+                    />
+                  </div>
+                </div>
+              </details>
+
               <div className="flex flex-col gap-1.5 sm:hidden">
                 <label htmlFor="filtro-orden" className="text-xs font-semibold text-text">
                   Ordenar por
@@ -211,8 +389,11 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                   defaultValue={initial.orden ?? "relevancia"}
                   className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-sm text-text"
                 >
-                  <option value="relevancia">Relevancia</option>
-                  <option value="recientes">Más recientes</option>
+                  {ORDENES_BUSQUEDA.map((opcion) => (
+                    <option key={opcion} value={opcion}>
+                      {ETIQUETAS_ORDEN[opcion]}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -222,6 +403,14 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
               >
                 Buscar espacios
               </button>
+              {activos > 0 ? (
+                <a
+                  href="/buscar"
+                  className="text-center text-sm font-semibold text-text-muted underline-offset-4 hover:text-text hover:underline"
+                >
+                  Limpiar filtros
+                </a>
+              ) : null}
             </form>
           </div>
         </>
