@@ -2,18 +2,21 @@ import type { FieldErrors, UseFormRegister } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AddressAutocomplete, type Sugerencia } from "./address-autocomplete";
 import { inputClassName, type PropertyFormValues, selectClassName } from "./property-form-schema";
 
 interface PropertyFormBasicsFieldsProps {
   register: UseFormRegister<PropertyFormValues>;
   errors: FieldErrors<PropertyFormValues>;
   onSalirDeDireccion: () => void;
+  onSeleccionarDireccion: (sugerencia: Sugerencia) => void;
 }
 
 export function PropertyFormBasicsFields({
   register,
   errors,
   onSalirDeDireccion,
+  onSeleccionarDireccion,
 }: PropertyFormBasicsFieldsProps) {
   return (
     <>
@@ -58,11 +61,12 @@ export function PropertyFormBasicsFields({
           <Label htmlFor="direccion" className="text-[13px] font-semibold text-foreground">
             Dirección
           </Label>
-          <Input
+          <AddressAutocomplete
             id="direccion"
             className={inputClassName}
             {...register("direccion", { onBlur: onSalirDeDireccion })}
             aria-invalid={!!errors.direccion}
+            onSeleccionar={onSeleccionarDireccion}
           />
           {errors.direccion ? (
             <p role="alert" className="text-sm text-destructive">
@@ -104,6 +108,37 @@ export function PropertyFormBasicsFields({
               </p>
             ) : null}
           </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <Label className="text-[13px] font-semibold text-foreground">
+            ¿Financiamiento disponible?
+          </Label>
+          <div className="flex items-center gap-5">
+            <label className="flex items-center gap-2 text-[15px] text-foreground">
+              <input
+                type="radio"
+                value="true"
+                className="accent-primary"
+                {...register("aceptaFinanciamiento")}
+              />
+              Sí
+            </label>
+            <label className="flex items-center gap-2 text-[15px] text-foreground">
+              <input
+                type="radio"
+                value="false"
+                className="accent-primary"
+                {...register("aceptaFinanciamiento")}
+              />
+              No
+            </label>
+          </div>
+          {errors.aceptaFinanciamiento ? (
+            <p role="alert" className="text-sm text-destructive">
+              {errors.aceptaFinanciamiento.message}
+            </p>
+          ) : null}
         </div>
       </div>
 

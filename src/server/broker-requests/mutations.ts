@@ -53,7 +53,7 @@ function esErrorPendiente(err: unknown): boolean {
 // (doble request simultánea) — nunca un 500, siempre el mismo `conflict_pending_broker_request`.
 export async function crearSolicitudBroker(
   actor: ActorAutenticado | null,
-  mensaje: string,
+  input: { mensaje: string; empresa: string },
 ): Promise<ResultadoSolicitudBroker> {
   const permiso = requireRol(actor, "oferente");
   if (!permiso.ok || !actor) return errorForbidden();
@@ -66,7 +66,7 @@ export async function crearSolicitudBroker(
   try {
     const [fila] = await db
       .insert(brokerSolicitud)
-      .values({ usuarioId: actor.id, mensaje })
+      .values({ usuarioId: actor.id, mensaje: input.mensaje, empresa: input.empresa })
       .returning();
     if (!fila) throw new Error("insert de broker_solicitud no devolvió fila");
     return { ok: true, data: fila };

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeAddress } from "@/lib/normalize-address";
 import type { PropertyFormPhoto } from "./property-photo-field";
 import type { EstadoPublicacion } from "./status-badge";
 
@@ -20,6 +21,11 @@ export const propertyFormSchema = z.object({
   estado: z.enum(ESTADOS),
   ciudad: z.string().trim().min(1, "La ciudad es obligatoria"),
   descripcion: z.string().trim().min(1, "La descripción es obligatoria"),
+  // Los radios de HTML solo pueden reportar el string de su atributo `value` — RHF nunca aplica
+  // `setValueAs` a inputs radio/checkbox (lee el DOM directo), así que el estado del formulario
+  // se queda en "true"/"false" y la conversión a boolean ocurre en el límite con la API
+  // (`property-form.tsx`, al armar el body del POST/PATCH).
+  aceptaFinanciamiento: z.enum(["true", "false"]),
 });
 
 export type PropertyFormValues = z.infer<typeof propertyFormSchema>;
@@ -34,9 +40,26 @@ export interface PropertyFormInitialData {
   estado: (typeof ESTADOS)[number];
   ciudad: string;
   descripcion: string;
+  aceptaFinanciamiento: boolean;
   estadoPublicacion: EstadoPublicacion;
   motivoRechazo: string | null;
   fotos: PropertyFormPhoto[];
+}
+
+// MapTiler devuelve la región por nombre ("San Luis Potosí", "Guanajuato"); el formulario usa
+// códigos. León es el único mercado de Guanajuato (mismo criterio que `mapearEstado` en el
+// servidor de geocoding), así que la región sola no basta: hace falta la ciudad.
+export function estadoDesdeGeocode(
+  region: string | null | undefined,
+  ciudad?: string | null,
+): (typeof ESTADOS)[number] | null {
+  if (!region) return null;
+  const normalizado = normalizeAddress(region);
+  if (normalizado === "san luis potosi" || normalizado === "slp") return "SLP";
+  if (normalizado === "aguascalientes") return "Aguascalientes";
+  if (normalizado === "leon") return "Leon";
+  if (normalizado === "guanajuato" && ciudad && normalizeAddress(ciudad) === "leon") return "Leon";
+  return null;
 }
 
 export const selectClassName =

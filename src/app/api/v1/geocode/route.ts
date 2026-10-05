@@ -7,6 +7,7 @@ import { obtenerIpCliente, verificarLimite } from "../../../../server/rate-limit
 
 const geocodeQuerySchema = z.object({
   q: z.string().trim().min(3),
+  suggest: z.enum(["true"]).optional(),
 });
 
 function requestId(): string {
@@ -36,7 +37,10 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const parsed = geocodeQuerySchema.safeParse({ q: url.searchParams.get("q") ?? "" });
+  const parsed = geocodeQuerySchema.safeParse({
+    q: url.searchParams.get("q") ?? "",
+    suggest: url.searchParams.get("suggest") ?? undefined,
+  });
   if (!parsed.success) {
     const details = parsed.error.issues.map((issue) => ({
       field: issue.path.join("."),
@@ -44,6 +48,22 @@ export async function GET(request: Request) {
     }));
     return NextResponse.json(errorEnvelope("validation_error", "Consulta inválida", details), {
       status: 422,
+    });
+  }
+
+  if (parsed.data.suggest === "true") {
+    const sugerencias = await geocodificar(parsed.data.q, { limit: 5 });
+    return NextResponse.json({
+      data: {
+        sugerencias: sugerencias.map((sugerencia) => ({
+          lat: sugerencia.lat,
+          lng: sugerencia.lng,
+          direccion_sugerida: sugerencia.direccionSugerida,
+          ciudad: sugerencia.ciudad ?? null,
+          estado: sugerencia.estado ?? null,
+          codigo_postal: sugerencia.codigoPostal ?? null,
+        })),
+      },
     });
   }
 

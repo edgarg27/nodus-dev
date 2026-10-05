@@ -25,6 +25,7 @@ const crearPropiedadSchema = z.object({
   estado: z.enum(ESTADOS),
   ciudad: z.string().trim().min(1),
   descripcion: z.string().trim().min(1),
+  aceptaFinanciamiento: z.boolean().optional(),
 });
 
 const searchQuerySchema = z.object({
@@ -32,8 +33,7 @@ const searchQuerySchema = z.object({
   tipo: z.enum(TIPOS).optional(),
   estado: z.enum(ESTADOS).optional(),
   ciudad: z.string().trim().min(1).optional(),
-  // `financiamiento` se acepta en la query string pero no filtra (§ contrato del paso 19).
-  financiamiento: z.string().optional(),
+  financiamiento: z.enum(["true", "false"]).optional(),
   // Un límite mayor a 50 no es un error: se recorta a 50 (ver buscarPropiedadesPublicas).
   limit: z.coerce.number().int().min(1).optional(),
   cursor: z.string().optional(),
@@ -63,9 +63,10 @@ export async function GET(request: Request) {
     });
   }
 
-  const { modalidad, tipo, estado, ciudad, limit, cursor, orden } = parsed.data;
+  const { modalidad, tipo, estado, ciudad, financiamiento, limit, cursor, orden } = parsed.data;
+  const aceptaFinanciamiento = financiamiento === undefined ? undefined : financiamiento === "true";
   const resultado = await buscarPropiedadesPublicas(
-    { modalidad, tipo, estado, ciudad },
+    { modalidad, tipo, estado, ciudad, aceptaFinanciamiento },
     { limit, cursor, orden },
   );
 

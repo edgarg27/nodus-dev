@@ -4,15 +4,17 @@ import { cn } from "cn";
 import { useEffect, useRef, useState } from "react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { LocationAutocomplete } from "./location-autocomplete";
 
 const MODALIDADES = [
   { value: "renta", etiqueta: "Renta" },
-  { value: "venta", etiqueta: "Venta" },
+  { value: "venta", etiqueta: "Compra" },
   { value: "desde_cero", etiqueta: "Proyecto desde cero" },
 ] as const;
 
@@ -56,7 +58,7 @@ function CampoModalidad({ id }: { id: string }) {
         id={id}
         name="modalidad"
         defaultValue=""
-        className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-[15px] text-foreground"
+        className="h-[46px] rounded-[10px] border border-input bg-background px-3.5 text-[15px] text-foreground"
       >
         <option value="">Cualquiera</option>
         {MODALIDADES.map((opcion) => (
@@ -79,7 +81,7 @@ function CampoTipo({ id }: { id: string }) {
         id={id}
         name="tipo"
         defaultValue=""
-        className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-[15px] text-foreground"
+        className="h-[46px] rounded-[10px] border border-input bg-background px-3.5 text-[15px] text-foreground"
       >
         <option value="">Cualquiera</option>
         {TIPOS.map((opcion) => (
@@ -92,18 +94,42 @@ function CampoTipo({ id }: { id: string }) {
   );
 }
 
-function CampoUbicacion({ id }: { id: string }) {
+function CampoFinanciamiento({ className }: { className: string }) {
+  return (
+    <fieldset className="m-0 flex min-w-0 flex-col border-0 p-0">
+      <legend className="mb-2 p-0 text-[13px] font-semibold text-foreground">
+        ¿Financiamiento?
+      </legend>
+      <div className={cn("flex h-[46px] items-center", className)}>
+        <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <input type="radio" name="financiamiento" value="true" className="accent-primary" />
+          Sí
+        </label>
+        <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <input
+            type="radio"
+            name="financiamiento"
+            value="false"
+            defaultChecked
+            className="accent-primary"
+          />
+          No
+        </label>
+      </div>
+    </fieldset>
+  );
+}
+
+function CampoUbicacion({ id, flotante }: { id: string; flotante: boolean }) {
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={id} className="text-[13px] font-semibold text-foreground">
         Ubicación
       </label>
-      <input
+      <LocationAutocomplete
         id={id}
-        name="ciudad"
-        type="text"
-        placeholder="Ciudad o zona"
-        className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-[15px] text-foreground placeholder:text-muted-foreground"
+        placeholder="Ciudad, zona o código postal"
+        flotante={flotante}
       />
     </div>
   );
@@ -195,17 +221,25 @@ export function SearchHero() {
             method="get"
             className="w-full rounded-2xl border border-white/30 bg-card/85 p-4 shadow-lg backdrop-blur-md sm:p-5"
           >
-            <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.3fr_auto]">
-              <CampoModalidad id="hero-modalidad" />
-              <CampoTipo id="hero-tipo" />
-              <CampoUbicacion id="hero-ubicacion" />
+            <div className="grid grid-cols-1 items-end gap-x-5 gap-y-5 min-[480px]:grid-cols-2 min-[480px]:gap-y-4 lg:grid-cols-12 lg:gap-y-[18px]">
+              <div className="lg:col-span-3">
+                <CampoModalidad id="hero-modalidad" />
+              </div>
+              <div className="lg:col-span-3">
+                <CampoTipo id="hero-tipo" />
+              </div>
+              <div className="lg:col-span-3">
+                <CampoUbicacion id="hero-ubicacion" flotante />
+              </div>
+              <div className="lg:col-span-2">
+                <CampoFinanciamiento className="gap-3.5" />
+              </div>
               <button
                 type="submit"
                 aria-label="Buscar espacios"
-                className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent px-6 font-bold text-accent-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:col-span-2 lg:col-span-1 lg:w-auto"
+                className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-accent font-bold text-accent-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0 min-[480px]:col-span-2 lg:col-span-1"
               >
                 <SearchIcon />
-                <span className="lg:hidden">Buscar</span>
               </button>
             </div>
           </form>
@@ -222,12 +256,16 @@ export function SearchHero() {
         style={{ top: headerHeight }}
       >
         <div className="mx-auto hidden max-w-7xl items-center justify-center px-4 py-3 sm:px-6 md:flex lg:px-8">
-          <form action="/buscar" method="get" className="flex w-full max-w-3xl items-center gap-3">
+          <form
+            action="/buscar"
+            method="get"
+            className="flex w-full max-w-[860px] items-center gap-4"
+          >
             <select
               name="modalidad"
               defaultValue=""
               aria-label="Modalidad"
-              className="h-[42px] w-40 shrink-0 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
+              className="h-[42px] w-[170px] shrink-0 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
             >
               <option value="">Cualquiera</option>
               {MODALIDADES.map((opcion) => (
@@ -240,7 +278,7 @@ export function SearchHero() {
               name="tipo"
               defaultValue=""
               aria-label="Tipo de inmueble"
-              className="h-[42px] w-40 shrink-0 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
+              className="h-[42px] w-[170px] shrink-0 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
             >
               <option value="">Cualquiera</option>
               {TIPOS.map((opcion) => (
@@ -249,16 +287,16 @@ export function SearchHero() {
                 </option>
               ))}
             </select>
-            <input
-              name="ciudad"
-              type="text"
+            <LocationAutocomplete
               placeholder="Ubicación"
-              aria-label="Ubicación"
-              className="h-[42px] max-w-md flex-grow rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground"
+              ariaLabel="Ubicación"
+              compacto
+              flotante
+              className="max-w-[420px] flex-grow"
             />
             <button
               type="submit"
-              className="flex h-[42px] shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground transition-all duration-150 ease-out hover:bg-accent/90"
+              className="flex h-[42px] shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg bg-accent px-6 text-sm font-bold text-accent-foreground transition-all duration-150 ease-out hover:bg-accent/90"
             >
               Buscar
             </button>
@@ -278,17 +316,45 @@ export function SearchHero() {
                 Buscar espacios
               </button>
             </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Buscar espacios</DialogTitle>
+            <DialogContent
+              showCloseButton={false}
+              className="top-auto bottom-0 max-h-[88dvh] max-w-[480px] translate-y-0 gap-0 overflow-y-auto rounded-t-[20px] rounded-b-none bg-card px-5 pt-6 pb-7 shadow-[0_-16px_40px_rgba(11,30,59,0.25)] sm:max-w-[480px]"
+            >
+              <DialogHeader className="mb-5 flex-row items-center justify-between gap-2">
+                <DialogTitle className="font-display text-lg font-bold text-foreground">
+                  Buscar espacios
+                </DialogTitle>
+                <DialogClose asChild>
+                  <button
+                    type="button"
+                    aria-label="Cerrar buscador"
+                    className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-border bg-background transition-transform duration-150 ease-out hover:-translate-y-px active:scale-[0.94] motion-reduce:transition-none"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </DialogClose>
               </DialogHeader>
               <form action="/buscar" method="get" className="flex flex-col gap-4">
                 <CampoModalidad id="modal-modalidad" />
                 <CampoTipo id="modal-tipo" />
-                <CampoUbicacion id="modal-ubicacion" />
+                <CampoUbicacion id="modal-ubicacion" flotante={false} />
+                <CampoFinanciamiento className="gap-5" />
                 <button
                   type="submit"
-                  className="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent font-bold text-accent-foreground transition-colors hover:bg-accent/90"
+                  className="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-accent font-bold text-accent-foreground transition-colors hover:bg-accent/90"
                 >
                   <SearchIcon />
                   Buscar espacios

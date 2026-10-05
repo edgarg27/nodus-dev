@@ -58,6 +58,7 @@ export const propiedad = pgTable(
     ciudad: text("ciudad").notNull(),
     descripcion: text("descripcion").notNull(),
     activo: boolean("activo").notNull().default(true),
+    aceptaFinanciamiento: boolean("acepta_financiamiento").notNull().default(false),
     estadoPublicacion: text("estado_publicacion").notNull().default("pendiente"),
     motivoRechazo: text("motivo_rechazo"),
     revisadaPor: uuid("revisada_por").references(() => usuario.id),
@@ -141,6 +142,7 @@ export const brokerSolicitud = pgTable(
       .notNull()
       .references(() => usuario.id),
     mensaje: text("mensaje").notNull(),
+    empresa: text("empresa").notNull().default(""),
     estado: text("estado").notNull().default("pendiente"),
     motivoDenegacion: text("motivo_denegacion"),
     resueltaPor: uuid("resuelta_por").references(() => usuario.id),

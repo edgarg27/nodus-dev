@@ -8,10 +8,12 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import type { Sugerencia } from "./address-autocomplete";
 import { PropertyFormBasicsFields } from "./property-form-basics-fields";
 import { PropertyFormLocationField } from "./property-form-location-field";
 import { PropertyFormReviewDialog } from "./property-form-review-dialog";
 import {
+  estadoDesdeGeocode,
   type PropertyFormInitialData,
   type PropertyFormValues,
   propertyFormSchema,
@@ -68,8 +70,9 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
           estado: propiedad.estado,
           ciudad: propiedad.ciudad,
           descripcion: propiedad.descripcion,
+          aceptaFinanciamiento: propiedad.aceptaFinanciamiento ? "true" : "false",
         }
-      : undefined,
+      : { aceptaFinanciamiento: "false" },
   });
 
   const [archivosNuevos, setArchivosNuevos] = useState<File[]>([]);
@@ -98,6 +101,18 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
     setValue("lng", lngNueva, { shouldValidate: true });
   }
 
+  function alSeleccionarSugerencia(sugerencia: Sugerencia) {
+    // Una sugerencia sigue siendo una ubicación calculada: el pin se vuelve a confirmar.
+    setCoordenadasTocadas(true);
+    setUbicacionConfirmada(false);
+    setValue("direccion", sugerencia.direccion, { shouldValidate: true });
+    setValue("lat", sugerencia.lat, { shouldValidate: true });
+    setValue("lng", sugerencia.lng, { shouldValidate: true });
+    if (sugerencia.ciudad) setValue("ciudad", sugerencia.ciudad, { shouldValidate: true });
+    const estado = estadoDesdeGeocode(sugerencia.estado, sugerencia.ciudad);
+    if (estado) setValue("estado", estado, { shouldValidate: true });
+  }
+
   async function alSalirDeDireccion() {
     if (coordenadasTocadas) return;
     const direccion = getValues("direccion")?.trim();
@@ -119,16 +134,20 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
 
   const mutacion = useMutation({
     mutationFn: async (valores: PropertyFormValues) => {
+      const cuerpoEnvio = {
+        ...valores,
+        aceptaFinanciamiento: valores.aceptaFinanciamiento === "true",
+      };
       const respuesta = propiedad
         ? await fetch(`/api/v1/properties/${propiedad.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(valores),
+            body: JSON.stringify(cuerpoEnvio),
           })
         : await fetch("/api/v1/properties", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(valores),
+            body: JSON.stringify(cuerpoEnvio),
           });
       const cuerpo = await respuesta.json();
       if (!respuesta.ok) throw cuerpo.error as ErrorApi;
@@ -264,6 +283,7 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
           onSalirDeDireccion={() => {
             void alSalirDeDireccion();
           }}
+          onSeleccionarDireccion={alSeleccionarSugerencia}
         />
 
         <PropertyFormLocationField

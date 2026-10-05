@@ -61,7 +61,9 @@ describe("POST /api/v1/broker-requests — alta", () => {
     await insertarUsuario(oferente);
     actuarComo(oferente);
 
-    const respuesta = await POST(request({ mensaje: "Inmobiliaria Norte, 12 años en SLP" }));
+    const respuesta = await POST(
+      request({ mensaje: "Inmobiliaria Norte, 12 años en SLP", empresa: "Inmobiliaria Norte" }),
+    );
     expect(respuesta.status).toBe(201);
     const cuerpo = await respuesta.json();
     expect(cuerpo.data.estado).toBe("pendiente");
@@ -81,10 +83,14 @@ describe("POST /api/v1/broker-requests — 409 pendiente", () => {
     await insertarUsuario(oferente);
     actuarComo(oferente);
 
-    const primera = await POST(request({ mensaje: "Primera solicitud" }));
+    const primera = await POST(
+      request({ mensaje: "Primera solicitud", empresa: "Empresa de prueba" }),
+    );
     expect(primera.status).toBe(201);
 
-    const segunda = await POST(request({ mensaje: "Segunda solicitud" }));
+    const segunda = await POST(
+      request({ mensaje: "Segunda solicitud", empresa: "Empresa de prueba" }),
+    );
     expect(segunda.status).toBe(409);
     const cuerpo = await segunda.json();
     expect(cuerpo.error.code).toBe("conflict_pending_broker_request");
@@ -103,8 +109,8 @@ describe("POST /api/v1/broker-requests — 409 pendiente", () => {
     actuarComo(oferente);
 
     const [resultadoA, resultadoB] = await Promise.all([
-      POST(request({ mensaje: "Solicitud A" })),
-      POST(request({ mensaje: "Solicitud B" })),
+      POST(request({ mensaje: "Solicitud A", empresa: "Empresa de prueba" })),
+      POST(request({ mensaje: "Solicitud B", empresa: "Empresa de prueba" })),
     ]);
     const estados = [resultadoA.status, resultadoB.status].sort();
     expect(estados).toEqual([201, 409]);
@@ -135,7 +141,9 @@ describe("POST /api/v1/broker-requests — tras denegada", () => {
     });
 
     actuarComo(oferente);
-    const respuesta = await POST(request({ mensaje: "Solicitud nueva" }));
+    const respuesta = await POST(
+      request({ mensaje: "Solicitud nueva", empresa: "Empresa de prueba" }),
+    );
     expect(respuesta.status).toBe(201);
   });
 });
@@ -145,13 +153,13 @@ describe("POST /api/v1/broker-requests — autorización", () => {
     await resetTestDatabase();
 
     actuarComo(null);
-    expect((await POST(request({ mensaje: "x" }))).status).toBe(401);
+    expect((await POST(request({ mensaje: "x", empresa: "x" }))).status).toBe(401);
 
     for (const rol of ["buscador", "admin"] as const) {
       const actor = actorFixture(rol);
       await insertarUsuario(actor);
       actuarComo(actor);
-      expect((await POST(request({ mensaje: "x" }))).status).toBe(403);
+      expect((await POST(request({ mensaje: "x", empresa: "x" }))).status).toBe(403);
     }
   });
 });
@@ -166,7 +174,9 @@ describe("POST /api/v1/broker-requests — ya es broker", () => {
     await insertarUsuario(broker);
     actuarComo(broker);
 
-    const respuesta = await POST(request({ mensaje: "Quiero seguir siendo broker" }));
+    const respuesta = await POST(
+      request({ mensaje: "Quiero seguir siendo broker", empresa: "Empresa de prueba" }),
+    );
     expect(respuesta.status).toBe(409);
     const cuerpo = await respuesta.json();
     expect(cuerpo.error.code).toBe("conflict_already_broker");
@@ -181,9 +191,11 @@ describe("POST /api/v1/broker-requests — validación del mensaje", () => {
     actuarComo(oferente);
 
     expect((await POST(request({}))).status).toBe(422);
-    expect((await POST(request({ mensaje: "" }))).status).toBe(422);
-    expect((await POST(request({ mensaje: "   " }))).status).toBe(422);
-    expect((await POST(request({ mensaje: "a".repeat(501) }))).status).toBe(422);
+    expect((await POST(request({ mensaje: "", empresa: "Empresa" }))).status).toBe(422);
+    expect((await POST(request({ mensaje: "   ", empresa: "Empresa" }))).status).toBe(422);
+    expect((await POST(request({ mensaje: "a".repeat(501), empresa: "Empresa" }))).status).toBe(
+      422,
+    );
 
     const filas = await db
       .select()
