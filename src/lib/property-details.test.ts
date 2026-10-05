@@ -4,6 +4,7 @@ import {
   extraerDetalles,
   formatearPrecio,
   resumenDetalles,
+  tituloEspacio,
 } from "./property-details";
 
 describe("formatearPrecio", () => {
@@ -80,5 +81,17 @@ describe("extraerDetalles", () => {
       banos: null,
       moneda: "USD",
     });
+  });
+});
+
+describe("tituloEspacio", () => {
+  it("arma el título según tipo y operación", () => {
+    expect(tituloEspacio("nave_industrial", "renta", "San Luis Potosí")).toBe(
+      "Nave industrial en renta en San Luis Potosí",
+    );
+    expect(tituloEspacio("oficina", "venta", "León")).toBe("Oficina en venta en León");
+    expect(tituloEspacio("local_comercial", "desde_cero", "Aguascalientes")).toBe(
+      "Local comercial como proyecto desde cero en Aguascalientes",
+    );
   });
 });

@@ -162,3 +162,33 @@ export function extraerDetalles(fila: Partial<Record<keyof DetallesPropiedad, un
     potenciaKva: numero(fila.potenciaKva),
   } satisfies DetallesPropiedad;
 }
+
+export const ETIQUETA_TIPO: Record<string, string> = {
+  nave_industrial: "Nave industrial",
+  oficina: "Oficina",
+  local_comercial: "Local comercial",
+};
+
+export const ETIQUETA_MODALIDAD: Record<string, string> = {
+  renta: "Renta",
+  venta: "Venta",
+  desde_cero: "Proyecto desde cero",
+};
+
+export const ETIQUETA_ESTADO: Record<string, string> = {
+  SLP: "San Luis Potosí",
+  Aguascalientes: "Aguascalientes",
+  Leon: "León",
+};
+
+// "Nave industrial en renta en San Luis Potosí" — título de la ficha y de su metadata.
+export function tituloEspacio(tipo: string, modalidad: string, ciudad: string): string {
+  const nombre = ETIQUETA_TIPO[tipo] ?? tipo;
+  const operacion =
+    modalidad === "renta"
+      ? "en renta"
+      : modalidad === "venta"
+        ? "en venta"
+        : "como proyecto desde cero";
+  return `${nombre} ${operacion} en ${ciudad}`;
+}

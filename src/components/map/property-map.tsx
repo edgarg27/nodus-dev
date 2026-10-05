@@ -28,6 +28,8 @@ interface PropertyMapProps {
   onSelect: (id: string) => void;
   onVisibleIdsChange?: (ids: string[]) => void;
   className?: string;
+  // El aviso "N de M espacios visibles" solo tiene sentido con varios pines.
+  mostrarConteo?: boolean;
 }
 
 const CENTRO_POR_DEFECTO: [number, number] = [-100.9789, 22.1564];
@@ -77,6 +79,7 @@ export function PropertyMap({
   selectedId,
   onSelect,
   onVisibleIdsChange,
+  mostrarConteo = true,
   className,
 }: PropertyMapProps) {
   const contenedorRef = useRef<HTMLDivElement>(null);
@@ -217,7 +220,7 @@ export function PropertyMap({
           <RotateCcwIcon className="size-[15px]" strokeWidth={2.2} aria-hidden="true" />
         </button>
       </div>
-      {propiedades.length > 0 && visibleCount !== null ? (
+      {mostrarConteo && propiedades.length > 0 && visibleCount !== null ? (
         <p className="pointer-events-none absolute right-3 bottom-3 left-3 m-0 rounded-lg bg-surface/90 px-3 py-2 text-center text-xs text-text">
           {visibleCount === 0
             ? "Ningún espacio en esta zona. Aleja el zoom o desplaza el mapa."

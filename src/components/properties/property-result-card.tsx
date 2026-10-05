@@ -1,12 +1,17 @@
 "use client";
 
 import { Building2Icon, StoreIcon, WarehouseIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import Link from "next/link";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { type DetallesPropiedad, formatearPrecio, resumenDetalles } from "@/lib/property-details";
-import { PropertyDetailsDialog } from "./property-details-dialog";
+import {
+  type DetallesPropiedad,
+  ETIQUETA_MODALIDAD,
+  ETIQUETA_TIPO,
+  formatearPrecio,
+  resumenDetalles,
+} from "@/lib/property-details";
+import { useContactarPropiedad } from "./use-contactar-propiedad";
 
 export interface PropertyResultData extends DetallesPropiedad {
   id: string;
@@ -32,74 +37,24 @@ const ICONO_POR_TIPO = {
   local_comercial: StoreIcon,
 } as const;
 
-const ETIQUETA_MODALIDAD: Record<string, string> = {
-  renta: "Renta",
-  venta: "Venta",
-  desde_cero: "Proyecto desde cero",
-};
-
-const ETIQUETA_TIPO: Record<string, string> = {
-  nave_industrial: "Nave industrial",
-  oficina: "Oficina",
-  local_comercial: "Local comercial",
-};
-
-interface ContactoRevelado {
-  telefono: string | null;
-  whatsappUrl: string | null;
-}
-
 export function PropertyResultCard({
   propiedad,
   numero,
   selected,
   onSelect,
 }: PropertyResultCardProps) {
-  const router = useRouter();
-  const [detailsOpen, setDetailsOpen] = useState(false);
-  const [contacto, setContacto] = useState<ContactoRevelado | null>(null);
-  const [errorContacto, setErrorContacto] = useState<string | null>(null);
-  const [enviando, setEnviando] = useState(false);
+  const {
+    contacto,
+    error: errorContacto,
+    enviando,
+    contactar,
+  } = useContactarPropiedad(propiedad.id);
 
   const Icono = ICONO_POR_TIPO[propiedad.tipo as keyof typeof ICONO_POR_TIPO] ?? WarehouseIcon;
   const etiquetas = resumenDetalles(propiedad, propiedad.tipo);
 
-  async function contactar() {
-    if (enviando || contacto) return;
-    setErrorContacto(null);
-    setEnviando(true);
-
-    try {
-      const respuesta = await fetch("/api/v1/contact-requests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ propiedad_id: propiedad.id }),
-      });
-
-      if (respuesta.status === 401) {
-        router.push("/sign-in");
-        return;
-      }
-
-      const cuerpo = await respuesta.json().catch(() => null);
-      if (!respuesta.ok || !cuerpo?.data) {
-        setErrorContacto(cuerpo?.error?.message ?? "No se pudo contactar. Intenta de nuevo.");
-        return;
-      }
-
-      setContacto({
-        telefono: cuerpo.data.telefono_oferente,
-        whatsappUrl: cuerpo.data.whatsapp_url,
-      });
-    } catch {
-      setErrorContacto("No se pudo contactar. Revisa tu conexión e intenta de nuevo.");
-    } finally {
-      setEnviando(false);
-    }
-  }
-
   return (
-    // biome-ignore lint/a11y/useKeyWithClickEvents: onClick aquí es solo conveniencia de mouse (resalta la tarjeta y su pin en el mapa); Contactar y Ver detalles, los controles realmente accionables, ya son botones con su propio foco y activación por teclado.
+    // biome-ignore lint/a11y/useKeyWithClickEvents: onClick aquí es solo conveniencia de mouse (resalta la tarjeta y su pin en el mapa); Contactar (botón) y Ver detalles (liga a la ficha) ya tienen su propio foco y activación por teclado.
     <article
       id={`listing-${propiedad.id}`}
       onClick={onSelect}
@@ -184,15 +139,13 @@ export function PropertyResultCard({
             {contacto ? "Solicitud enviada" : enviando ? "Enviando…" : "Contactar"}
           </Button>
           <Button
-            type="button"
+            asChild
             variant="outline"
             className="h-9 flex-1 gap-0 rounded-lg border-input px-3 text-[13px] font-bold text-text transition-transform duration-150 ease-out hover:-translate-y-px hover:border-primary hover:text-primary motion-reduce:transition-none"
-            onClick={(evento) => {
-              evento.stopPropagation();
-              setDetailsOpen(true);
-            }}
           >
-            Ver detalles
+            <Link href={`/espacios/${propiedad.id}`} onClick={(evento) => evento.stopPropagation()}>
+              Ver detalles
+            </Link>
           </Button>
         </div>
 
@@ -202,15 +155,6 @@ export function PropertyResultCard({
           </Alert>
         ) : null}
       </div>
-
-      <PropertyDetailsDialog
-        open={detailsOpen}
-        onOpenChange={setDetailsOpen}
-        propiedad={propiedad}
-        onContact={contactar}
-        contactado={contacto !== null}
-        enviando={enviando}
-      />
     </article>
   );
 }
