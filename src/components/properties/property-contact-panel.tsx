@@ -4,16 +4,25 @@ import { CheckIcon, LinkIcon, Share2Icon } from "lucide-react";
 import { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { FavoriteButton } from "./favorite-button";
 import { useContactarPropiedad } from "./use-contactar-propiedad";
 
 interface PropertyContactPanelProps {
   propiedadId: string;
   precio: string;
   titulo: string;
+  favorito: boolean;
+  autenticado: boolean;
 }
 
 // Columna fija de la ficha: precio, Contactar (revela el teléfono del oferente) y compartir.
-export function PropertyContactPanel({ propiedadId, precio, titulo }: PropertyContactPanelProps) {
+export function PropertyContactPanel({
+  propiedadId,
+  precio,
+  titulo,
+  favorito,
+  autenticado,
+}: PropertyContactPanelProps) {
   const { contacto, error, enviando, contactar } = useContactarPropiedad(propiedadId);
   const [copiado, setCopiado] = useState(false);
 
@@ -90,6 +99,13 @@ export function PropertyContactPanel({ propiedadId, precio, titulo }: PropertyCo
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
+
+      <FavoriteButton
+        propiedadId={propiedadId}
+        inicial={favorito}
+        autenticado={autenticado}
+        variante="boton"
+      />
 
       <div className="flex gap-2 border-t border-border pt-4">
         <button

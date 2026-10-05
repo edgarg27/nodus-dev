@@ -17,6 +17,8 @@ import {
   resumenDetalles,
   tituloEspacio,
 } from "@/lib/property-details";
+import { getUsuarioActual } from "@/server/auth/session";
+import { idsFavoritos } from "@/server/favorites/favorites";
 import {
   listarPropiedadesSimilares,
   obtenerFotosDePropiedad,
@@ -77,7 +79,12 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
     ...especificaciones(detalles, propiedad.tipo),
     { etiqueta: "Financiamiento", valor: propiedad.aceptaFinanciamiento ? "Disponible" : "No" },
   ];
-  const similares = await listarPropiedadesSimilares(propiedad);
+  const actor = await getUsuarioActual();
+  const [similares, favoritos] = await Promise.all([
+    listarPropiedadesSimilares(propiedad),
+    actor ? idsFavoritos(actor.id, [propiedad.id]) : Promise.resolve([]),
+  ]);
+  const esFavorito = favoritos.length > 0;
   const estadoEtiqueta = ETIQUETA_ESTADO[propiedad.estado] ?? propiedad.estado;
   const lugar =
     propiedad.ciudad === estadoEtiqueta
@@ -153,7 +160,13 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
             </header>
 
             <div className="lg:hidden">
-              <PropertyContactPanel propiedadId={propiedad.id} precio={precio} titulo={titulo} />
+              <PropertyContactPanel
+                propiedadId={propiedad.id}
+                precio={precio}
+                titulo={titulo}
+                favorito={esFavorito}
+                autenticado={actor !== null}
+              />
             </div>
 
             <section className="flex flex-col gap-3">
@@ -226,7 +239,13 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
 
           <aside className="hidden lg:block">
             <div className="sticky top-24">
-              <PropertyContactPanel propiedadId={propiedad.id} precio={precio} titulo={titulo} />
+              <PropertyContactPanel
+                propiedadId={propiedad.id}
+                precio={precio}
+                titulo={titulo}
+                favorito={esFavorito}
+                autenticado={actor !== null}
+              />
             </div>
           </aside>
         </div>

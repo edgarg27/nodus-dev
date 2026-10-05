@@ -231,13 +231,19 @@ function ordenPorValorDe(orden: OrdenBusquedaPropiedad | undefined): SQL[] | nul
 
 // Total de resultados para el mismo filtro (sin cursor) — usado solo para el encabezado "N
 // espacios encontrados"; la paginación en sí no depende de este número.
+// `publicadasDesde` cuenta solo las aprobadas después de esa fecha (los "nuevos" de una
+// búsqueda guardada).
 export async function contarPropiedadesPublicas(
   filtros: FiltrosBusquedaPropiedad,
+  opciones: { publicadasDesde?: Date } = {},
 ): Promise<number> {
+  const condiciones = condicionesBusquedaPublica(filtros);
+  if (opciones.publicadasDesde)
+    condiciones.push(gt(propiedad.revisadaEn, opciones.publicadasDesde));
   const [fila] = await db
     .select({ total: count() })
     .from(propiedad)
-    .where(and(...condicionesBusquedaPublica(filtros)));
+    .where(and(...condiciones));
   return fila?.total ?? 0;
 }
 

@@ -28,13 +28,18 @@ function enlacesPorRol(actor: SiteHeaderActor): { href: string; etiqueta: string
   if (actor.rol === "admin") {
     return [{ href: "/admin/propiedades", etiqueta: "Panel de administración" }];
   }
+  const guardados = [
+    { href: "/favoritos", etiqueta: "Mis favoritos" },
+    { href: "/mis-busquedas", etiqueta: "Mis búsquedas" },
+  ];
   if (actor.rol === "oferente") {
     return [
       { href: "/propiedades", etiqueta: "Mis propiedades" },
       { href: "/leads", etiqueta: "Mis leads" },
+      ...guardados,
     ];
   }
-  return [{ href: "/buscar", etiqueta: "Buscar espacios" }];
+  return [{ href: "/buscar", etiqueta: "Buscar espacios" }, ...guardados];
 }
 
 export function SiteHeader({ actor }: SiteHeaderProps) {

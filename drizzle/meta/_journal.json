@@ -64,6 +64,20 @@
       "when": 1791237024635,
       "tag": "0008_married_shatterstar",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791240513588,
+      "tag": "0009_magical_catseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791240514682,
+      "tag": "0010_favoritos_busquedas_lockdown",
+      "breakpoints": true
     }
   ]
 }

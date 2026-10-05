@@ -11,6 +11,7 @@ import {
   formatearPrecio,
   resumenDetalles,
 } from "@/lib/property-details";
+import { FavoriteButton } from "./favorite-button";
 import { useContactarPropiedad } from "./use-contactar-propiedad";
 
 export interface PropertyResultData extends DetallesPropiedad {
@@ -29,6 +30,8 @@ interface PropertyResultCardProps {
   numero: number;
   selected: boolean;
   onSelect: () => void;
+  favorito?: boolean;
+  autenticado?: boolean;
 }
 
 const ICONO_POR_TIPO = {
@@ -42,6 +45,8 @@ export function PropertyResultCard({
   numero,
   selected,
   onSelect,
+  favorito = false,
+  autenticado = false,
 }: PropertyResultCardProps) {
   const {
     contacto,
@@ -80,6 +85,9 @@ export function PropertyResultCard({
         <span className="absolute top-3 right-3 flex size-6 items-center justify-center rounded-full bg-primary font-display text-xs font-bold text-primary-foreground">
           {numero}
         </span>
+        <div className="absolute right-3 bottom-3">
+          <FavoriteButton propiedadId={propiedad.id} inicial={favorito} autenticado={autenticado} />
+        </div>
       </div>
 
       <div className="flex flex-col gap-2 p-[18px]">
