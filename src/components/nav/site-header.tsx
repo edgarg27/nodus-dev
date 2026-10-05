@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "cn";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -109,12 +110,32 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
       >
         <Link
           href="/"
-          className={cn(
-            "font-display text-xl font-bold transition-[transform,color] duration-200 ease-out hover:-translate-y-px hover:scale-[1.03] active:scale-[0.97] motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:hover:translate-y-0",
-            inmersivo ? "text-primary-foreground" : "text-foreground",
-          )}
+          aria-label="Captive by Nodus — inicio"
+          className="relative block h-8 w-[110px] shrink-0 transition-transform duration-200 ease-out hover:-translate-y-px hover:scale-[1.03] active:scale-[0.97] motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:hover:translate-y-0 sm:h-10 sm:w-[137px]"
         >
-          Nodus
+          {/* Dos versiones del logo apiladas: la blanca sobre el video, la de color en la barra sólida. */}
+          <Image
+            src="/brand/captive-logo-blanco.png"
+            alt=""
+            fill
+            priority
+            sizes="137px"
+            className={cn(
+              "object-contain transition-opacity duration-300",
+              inmersivo ? "opacity-100" : "opacity-0",
+            )}
+          />
+          <Image
+            src="/brand/captive-logo.png"
+            alt=""
+            fill
+            priority
+            sizes="137px"
+            className={cn(
+              "object-contain transition-opacity duration-300",
+              inmersivo ? "opacity-0" : "opacity-100",
+            )}
+          />
         </Link>
 
         {actor ? (
