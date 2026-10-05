@@ -19,7 +19,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Nodus",
+  title: "Captive by Nodus",
   description:
     "Marketplace inmobiliario de dos lados para naves industriales, oficinas y locales comerciales.",
 };

@@ -12,7 +12,7 @@ import { getUsuarioActual } from "@/server/auth/session";
 import { listarPropiedadesPublicadasRecientes } from "@/server/properties/queries";
 
 export const metadata: Metadata = {
-  title: "Nodus — Naves, oficinas y locales en SLP, Aguascalientes y León",
+  title: "Captive by Nodus — Naves, oficinas y locales en SLP, Aguascalientes y León",
   description:
     "Encuentra o publica naves industriales, oficinas y locales comerciales en San Luis Potosí, Aguascalientes y León. Nodus conecta pymes con oferentes verificados.",
 };
