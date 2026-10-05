@@ -89,21 +89,26 @@ function CampoTipo({ id }: { id: string }) {
 
 function CampoFinanciamiento({ id }: { id: string }) {
   return (
-    <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-[13px] font-semibold text-foreground">
+    <fieldset className="flex items-center gap-5 border-0 p-0">
+      <legend className="sr-only">¿Financiamiento?</legend>
+      <span id={id} className="text-[13px] font-semibold text-foreground">
         ¿Financiamiento?
+      </span>
+      <label className="flex items-center gap-2 text-[15px] text-foreground">
+        <input
+          type="radio"
+          name="financiamiento"
+          value="true"
+          aria-labelledby={id}
+          className="accent-primary"
+        />
+        Sí
       </label>
-      <select
-        id={id}
-        name="financiamiento"
-        defaultValue=""
-        className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-[15px] text-foreground"
-      >
-        <option value="">Cualquiera</option>
-        <option value="true">Sí</option>
-        <option value="false">No</option>
-      </select>
-    </div>
+      <label className="flex items-center gap-2 text-[15px] text-foreground">
+        <input type="radio" name="financiamiento" value="false" className="accent-primary" />
+        No
+      </label>
+    </fieldset>
   );
 }
 
@@ -163,12 +168,11 @@ export function SearchHero() {
         <form
           action="/buscar"
           method="get"
-          className="w-full max-w-4xl rounded-2xl border border-border bg-card p-7 shadow-[0_24px_48px_-12px_rgba(11,30,61,0.10)] sm:p-8"
+          className="w-full max-w-3xl rounded-2xl border border-border bg-card p-7 shadow-[0_24px_48px_-12px_rgba(11,30,61,0.10)] sm:p-8"
         >
-          <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.3fr_auto]">
+          <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.3fr_auto]">
             <CampoModalidad id="hero-modalidad" />
             <CampoTipo id="hero-tipo" />
-            <CampoFinanciamiento id="hero-financiamiento" />
             <CampoUbicacion id="hero-ubicacion" />
             <button
               type="submit"
@@ -178,6 +182,9 @@ export function SearchHero() {
               <SearchIcon />
               <span className="lg:hidden">Buscar</span>
             </button>
+          </div>
+          <div className="mt-5">
+            <CampoFinanciamiento id="hero-financiamiento" />
           </div>
         </form>
       </section>
@@ -192,7 +199,7 @@ export function SearchHero() {
         style={{ top: headerHeight }}
       >
         <div className="mx-auto hidden max-w-7xl items-center justify-center px-4 py-3 sm:px-6 md:flex lg:px-8">
-          <form action="/buscar" method="get" className="flex w-full max-w-4xl items-center gap-3">
+          <form action="/buscar" method="get" className="flex w-full max-w-3xl items-center gap-3">
             <select
               name="modalidad"
               defaultValue=""
@@ -218,16 +225,6 @@ export function SearchHero() {
                   {opcion.etiqueta}
                 </option>
               ))}
-            </select>
-            <select
-              name="financiamiento"
-              defaultValue=""
-              aria-label="¿Financiamiento?"
-              className="h-[42px] w-40 shrink-0 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
-            >
-              <option value="">Financiamiento</option>
-              <option value="true">Sí</option>
-              <option value="false">No</option>
             </select>
             <input
               name="ciudad"
@@ -265,8 +262,8 @@ export function SearchHero() {
               <form action="/buscar" method="get" className="flex flex-col gap-4">
                 <CampoModalidad id="modal-modalidad" />
                 <CampoTipo id="modal-tipo" />
-                <CampoFinanciamiento id="modal-financiamiento" />
                 <CampoUbicacion id="modal-ubicacion" />
+                <CampoFinanciamiento id="modal-financiamiento" />
                 <button
                   type="submit"
                   className="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent font-bold text-accent-foreground transition-colors hover:bg-accent/90"
