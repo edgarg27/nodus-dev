@@ -5,6 +5,7 @@ import { SearchFilters } from "@/components/properties/search-filters";
 import type { SearchResultProperty } from "@/components/properties/search-results";
 import { SearchResults } from "@/components/properties/search-results";
 import { SortSelect } from "@/components/properties/sort-select";
+import { extraerDetalles } from "@/lib/property-details";
 import {
   buscarPropiedadesPublicas,
   contarPropiedadesPublicas,
@@ -65,6 +66,7 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
     lat: Number(fila.lat),
     lng: Number(fila.lng),
     fotoUrl: primerasFotos.get(fila.id)?.storageUrl ?? null,
+    ...extraerDetalles(fila),
   }));
 
   return (

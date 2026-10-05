@@ -59,6 +59,28 @@ export const propiedad = pgTable(
     descripcion: text("descripcion").notNull(),
     activo: boolean("activo").notNull().default(true),
     aceptaFinanciamiento: boolean("acepta_financiamiento").notNull().default(false),
+    // Datos del espacio (todos opcionales: las propiedades anteriores no los tienen). Un precio
+    // nulo se muestra como "Precio a consultar". En renta el precio es mensual.
+    precio: numeric("precio", { precision: 14, scale: 2, mode: "number" }),
+    moneda: text("moneda").notNull().default("MXN"),
+    precioUnidad: text("precio_unidad").notNull().default("total"),
+    mantenimiento: numeric("mantenimiento", { precision: 12, scale: 2, mode: "number" }),
+    superficieConstruidaM2: numeric("superficie_construida_m2", {
+      precision: 12,
+      scale: 2,
+      mode: "number",
+    }),
+    superficieTerrenoM2: numeric("superficie_terreno_m2", {
+      precision: 12,
+      scale: 2,
+      mode: "number",
+    }),
+    banos: integer("banos"),
+    estacionamientos: integer("estacionamientos"),
+    // Solo aplican a naves industriales.
+    alturaLibreM: numeric("altura_libre_m", { precision: 5, scale: 2, mode: "number" }),
+    andenes: integer("andenes"),
+    potenciaKva: integer("potencia_kva"),
     estadoPublicacion: text("estado_publicacion").notNull().default("pendiente"),
     motivoRechazo: text("motivo_rechazo"),
     revisadaPor: uuid("revisada_por").references(() => usuario.id),
@@ -92,6 +114,12 @@ export const propiedad = pgTable(
     check("chk_propiedad_tipo", sql`${t.tipo} in ('nave_industrial','oficina','local_comercial')`),
     check("chk_propiedad_modalidad", sql`${t.modalidad} in ('renta','venta','desde_cero')`),
     check("chk_propiedad_estado", sql`${t.estado} in ('SLP','Aguascalientes','Leon')`),
+    check("chk_propiedad_moneda", sql`${t.moneda} in ('MXN','USD')`),
+    check("chk_propiedad_precio_unidad", sql`${t.precioUnidad} in ('total','m2')`),
+    check(
+      "chk_propiedad_detalles_no_negativos",
+      sql`coalesce(${t.precio}, 0) >= 0 and coalesce(${t.mantenimiento}, 0) >= 0 and coalesce(${t.superficieConstruidaM2}, 0) >= 0 and coalesce(${t.superficieTerrenoM2}, 0) >= 0 and coalesce(${t.banos}, 0) >= 0 and coalesce(${t.estacionamientos}, 0) >= 0 and coalesce(${t.alturaLibreM}, 0) >= 0 and coalesce(${t.andenes}, 0) >= 0 and coalesce(${t.potenciaKva}, 0) >= 0`,
+    ),
   ],
 );
 

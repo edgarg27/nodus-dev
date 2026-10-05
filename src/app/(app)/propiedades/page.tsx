@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { MyListingsPage } from "@/components/properties/my-listings-page";
 import type { EstadoPublicacion } from "@/components/properties/status-badge";
+import { extraerDetalles } from "@/lib/property-details";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import { listarPropiedadesDelDueno } from "@/server/properties/queries";
@@ -28,6 +29,7 @@ export default async function PropiedadesPage() {
           createdAt: propiedad.createdAt.toISOString(),
           revisadaEn: propiedad.revisadaEn?.toISOString() ?? null,
           fotoUrl: propiedad.foto?.storageUrl ?? null,
+          ...extraerDetalles(propiedad),
         }))}
       />
     </main>

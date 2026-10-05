@@ -3,6 +3,7 @@
 import { Building2Icon, StoreIcon, WarehouseIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { especificaciones, formatearPrecio } from "@/lib/property-details";
 import type { PropertyResultData } from "./property-result-card";
 
 interface PropertyDetailsDialogProps {
@@ -41,6 +42,7 @@ export function PropertyDetailsDialog({
   enviando = false,
 }: PropertyDetailsDialogProps) {
   const Icono = ICONO_POR_TIPO[propiedad.tipo as keyof typeof ICONO_POR_TIPO] ?? WarehouseIcon;
+  const filas = especificaciones(propiedad, propiedad.tipo);
 
   async function alContactar() {
     await onContact();
@@ -76,6 +78,9 @@ export function PropertyDetailsDialog({
             <p className="text-sm text-text-muted">
               {propiedad.ciudad}, {propiedad.estado}
             </p>
+            <p className="pt-2 font-display text-xl font-bold text-text">
+              {formatearPrecio(propiedad, propiedad.modalidad)}
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 rounded-xl bg-background p-4">
@@ -95,6 +100,14 @@ export function PropertyDetailsDialog({
                 {ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo}
               </span>
             </div>
+            {filas.map((fila) => (
+              <div key={fila.etiqueta} className="flex flex-col gap-0.5">
+                <span className="text-xs font-bold tracking-wide text-text-muted uppercase">
+                  {fila.etiqueta}
+                </span>
+                <span className="text-sm font-semibold text-text">{fila.valor}</span>
+              </div>
+            ))}
           </div>
 
           <div className="flex flex-col gap-1.5">

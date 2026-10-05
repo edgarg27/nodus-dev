@@ -10,13 +10,16 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import type { Sugerencia } from "./address-autocomplete";
 import { PropertyFormBasicsFields } from "./property-form-basics-fields";
+import { PropertyFormDetailsFields } from "./property-form-details-fields";
 import { PropertyFormLocationField } from "./property-form-location-field";
 import { PropertyFormReviewDialog } from "./property-form-review-dialog";
 import {
+  CAMPOS_NUMERICOS_FORMULARIO,
   estadoDesdeGeocode,
   type PropertyFormInitialData,
   type PropertyFormValues,
   propertyFormSchema,
+  textoANumero,
 } from "./property-form-schema";
 import { PropertyFormSuccess } from "./property-form-success";
 import { PropertyPhotoField } from "./property-photo-field";
@@ -71,8 +74,16 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
           ciudad: propiedad.ciudad,
           descripcion: propiedad.descripcion,
           aceptaFinanciamiento: propiedad.aceptaFinanciamiento ? "true" : "false",
+          moneda: propiedad.moneda === "USD" ? "USD" : "MXN",
+          precioUnidad: propiedad.precioUnidad === "m2" ? "m2" : "total",
+          ...Object.fromEntries(
+            CAMPOS_NUMERICOS_FORMULARIO.map((campo) => [
+              campo,
+              propiedad[campo] === null ? "" : String(propiedad[campo]),
+            ]),
+          ),
         }
-      : { aceptaFinanciamiento: "false" },
+      : { aceptaFinanciamiento: "false", moneda: "MXN", precioUnidad: "total" },
   });
 
   const [archivosNuevos, setArchivosNuevos] = useState<File[]>([]);
@@ -88,6 +99,8 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
   const [valoresPorConfirmar, setValoresPorConfirmar] = useState<PropertyFormValues | null>(null);
 
   const lat = watch("lat");
+  const tipo = watch("tipo");
+  const modalidad = watch("modalidad");
   const lng = watch("lng");
 
   function alTocarCoordenadas() {
@@ -137,6 +150,11 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
       const cuerpoEnvio = {
         ...valores,
         aceptaFinanciamiento: valores.aceptaFinanciamiento === "true",
+        moneda: valores.moneda ?? "MXN",
+        precioUnidad: valores.precioUnidad ?? "total",
+        ...Object.fromEntries(
+          CAMPOS_NUMERICOS_FORMULARIO.map((campo) => [campo, textoANumero(valores[campo])]),
+        ),
       };
       const respuesta = propiedad
         ? await fetch(`/api/v1/properties/${propiedad.id}`, {
@@ -284,6 +302,13 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
             void alSalirDeDireccion();
           }}
           onSeleccionarDireccion={alSeleccionarSugerencia}
+        />
+
+        <PropertyFormDetailsFields
+          register={register}
+          errors={errors}
+          tipo={tipo}
+          modalidad={modalidad}
         />
 
         <PropertyFormLocationField

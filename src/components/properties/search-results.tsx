@@ -2,10 +2,11 @@
 
 import { MapIcon, SearchIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { type DetallesPropiedad, extraerDetalles } from "@/lib/property-details";
 import { PropertyMap } from "../map/property-map";
 import { PropertyResultCard } from "./property-result-card";
 
-export interface SearchResultProperty {
+export interface SearchResultProperty extends DetallesPropiedad {
   id: string;
   direccion: string;
   tipo: string;
@@ -34,7 +35,7 @@ interface SearchResultsProps {
   orden: "relevancia" | "recientes";
 }
 
-interface ApiRow {
+interface ApiRow extends Partial<Record<keyof DetallesPropiedad, unknown>> {
   id: string;
   direccion: string;
   tipo: string;
@@ -44,6 +45,7 @@ interface ApiRow {
   descripcion: string;
   lat: string;
   lng: string;
+  fotoUrl?: string | null;
 }
 
 // Contenedor que sincroniza lista y mapa por un `selectedId` compartido — única fuente de
@@ -107,6 +109,8 @@ export function SearchResults({
       descripcion: fila.descripcion,
       lat: Number(fila.lat),
       lng: Number(fila.lng),
+      fotoUrl: fila.fotoUrl ?? null,
+      ...extraerDetalles(fila),
     }));
     setPropiedades((prev) => [...prev, ...nuevas]);
     setHasMore(cuerpo.meta.has_more);
