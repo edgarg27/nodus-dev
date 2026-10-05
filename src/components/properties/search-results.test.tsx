@@ -24,6 +24,7 @@ function propiedad(id: string) {
     descripcion: "Descripción",
     lat: 22.15,
     lng: -100.97,
+    fotoUrl: null,
   };
 }
 

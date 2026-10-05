@@ -24,6 +24,11 @@ const TIPOS = [
   { value: "local_comercial", etiqueta: "Local comercial" },
 ] as const;
 
+// Grano fino sobre el video de fondo: disimula que la fuente es de baja resolución.
+const GRANO = `url("data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="100%" height="100%" filter="url(#g)"/></svg>',
+)}")`;
+
 function SearchIcon() {
   return (
     <svg
@@ -134,6 +139,21 @@ export function SearchHero() {
   const [headerHeight, setHeaderHeight] = useState(0);
   const [stuck, setStuck] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const reducirMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)");
+    function aplicar() {
+      if (!video) return;
+      if (reducirMovimiento.matches) video.pause();
+      else void video.play().catch(() => {});
+    }
+    aplicar();
+    reducirMovimiento.addEventListener("change", aplicar);
+    return () => reducirMovimiento.removeEventListener("change", aplicar);
+  }, []);
 
   useEffect(() => {
     function medir() {
@@ -163,36 +183,67 @@ export function SearchHero() {
     <>
       <section
         id="buscar"
-        className="flex items-center justify-center border-b border-border bg-gradient-to-b from-card to-background px-4 py-14 sm:px-6 lg:px-8"
-        style={{ minHeight: `calc(100dvh - ${headerHeight}px)` }}
+        className="relative isolate flex items-end justify-center overflow-hidden border-b border-border bg-primary px-4 pb-10 sm:px-6 sm:pb-14 lg:px-8"
+        // El header de la portada es fijo y transparente: el hero ocupa toda la pantalla por debajo de él.
+        style={{ minHeight: "100dvh", paddingTop: `calc(${headerHeight}px + 3.5rem)` }}
       >
-        <form
-          action="/buscar"
-          method="get"
-          className="w-full max-w-[880px] rounded-[20px] border border-border bg-card px-6 py-7 shadow-[0_24px_48px_-12px_rgba(11,30,61,0.10)] min-[480px]:px-8"
-        >
-          <div className="grid grid-cols-1 items-end gap-x-5 gap-y-5 min-[480px]:grid-cols-2 min-[480px]:gap-y-4 lg:grid-cols-12 lg:gap-y-[18px]">
-            <div className="lg:col-span-3">
-              <CampoModalidad id="hero-modalidad" />
-            </div>
-            <div className="lg:col-span-3">
-              <CampoTipo id="hero-tipo" />
-            </div>
-            <div className="lg:col-span-3">
-              <CampoUbicacion id="hero-ubicacion" flotante />
-            </div>
-            <div className="lg:col-span-2">
-              <CampoFinanciamiento className="gap-3.5" />
-            </div>
-            <button
-              type="submit"
-              aria-label="Buscar espacios"
-              className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-accent font-bold text-accent-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0 min-[480px]:col-span-2 lg:col-span-1"
-            >
-              <SearchIcon />
-            </button>
+        <div aria-hidden="true" className="absolute inset-0 -z-10">
+          <video
+            ref={videoRef}
+            className="h-full w-full object-cover"
+            src="/videos/hero.mp4"
+            poster="/videos/hero-poster.jpg"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+          />
+          <div
+            className="absolute inset-0 opacity-[0.12] mix-blend-overlay"
+            style={{ backgroundImage: GRANO, backgroundSize: "160px 160px" }}
+          />
+          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/45 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black/60 via-black/25 to-transparent" />
+        </div>
+        <div className="flex w-full max-w-3xl flex-col gap-6 sm:gap-8">
+          <div className="text-primary-foreground [text-shadow:0_2px_16px_rgb(0_0_0/0.35)]">
+            <h1 className="text-[34px] leading-tight font-bold sm:text-[44px]">
+              Encuentra el espacio para hacer crecer tu negocio
+            </h1>
+            <p className="mt-3 text-[17px] text-primary-foreground/90 sm:text-lg">
+              Naves industriales, oficinas y locales comerciales en San Luis Potosí, Aguascalientes
+              y León.
+            </p>
           </div>
-        </form>
+          <form
+            action="/buscar"
+            method="get"
+            className="w-full rounded-2xl border border-white/30 bg-card/85 p-4 shadow-lg backdrop-blur-md sm:p-5"
+          >
+            <div className="grid grid-cols-1 items-end gap-x-5 gap-y-5 min-[480px]:grid-cols-2 min-[480px]:gap-y-4 lg:grid-cols-12 lg:gap-y-[18px]">
+              <div className="lg:col-span-3">
+                <CampoModalidad id="hero-modalidad" />
+              </div>
+              <div className="lg:col-span-3">
+                <CampoTipo id="hero-tipo" />
+              </div>
+              <div className="lg:col-span-3">
+                <CampoUbicacion id="hero-ubicacion" flotante />
+              </div>
+              <div className="lg:col-span-2">
+                <CampoFinanciamiento className="gap-3.5" />
+              </div>
+              <button
+                type="submit"
+                aria-label="Buscar espacios"
+                className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-accent font-bold text-accent-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0 min-[480px]:col-span-2 lg:col-span-1"
+              >
+                <SearchIcon />
+              </button>
+            </div>
+          </form>
+        </div>
       </section>
 
       <div ref={sentinelRef} aria-hidden="true" />

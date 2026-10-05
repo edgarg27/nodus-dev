@@ -22,11 +22,36 @@ export interface OpcionesBusquedaPropiedad {
 
 // Listado del dueño ("mis propiedades") — todas sus filas activas, en cualquier estado de
 // publicación (con `estadoPublicacion` y `motivoRechazo` incluidos, ya son columnas de la fila).
-export async function listarPropiedadesDelDueno(oferenteId: string) {
-  return db
+export async function listarPropiedadesDelDueno(oferenteId: string): Promise<PropiedadDestacada[]> {
+  const filas = await db
     .select()
     .from(propiedad)
     .where(and(eq(propiedad.oferenteId, oferenteId), eq(propiedad.activo, true)));
+  return conPrimeraFoto(filas);
+}
+
+// Primera foto (por `orden`) de cada propiedad; las que no tienen fotos no aparecen en el Map devuelto.
+export async function obtenerPrimerasFotos(idsPropiedad: string[]) {
+  const primeraFotoPorPropiedad = new Map<string, typeof propiedadFoto.$inferSelect>();
+  if (idsPropiedad.length === 0) return primeraFotoPorPropiedad;
+
+  const fotos = await db
+    .select()
+    .from(propiedadFoto)
+    .where(inArray(propiedadFoto.propiedadId, idsPropiedad))
+    .orderBy(asc(propiedadFoto.orden));
+
+  for (const foto of fotos) {
+    if (!primeraFotoPorPropiedad.has(foto.propiedadId)) {
+      primeraFotoPorPropiedad.set(foto.propiedadId, foto);
+    }
+  }
+  return primeraFotoPorPropiedad;
+}
+
+async function conPrimeraFoto(filas: PropiedadFila[]): Promise<PropiedadDestacada[]> {
+  const primeraFotoPorPropiedad = await obtenerPrimerasFotos(filas.map((fila) => fila.id));
+  return filas.map((fila) => ({ ...fila, foto: primeraFotoPorPropiedad.get(fila.id) ?? null }));
 }
 
 // Detalle público: solo `activo` y `publicada`. Un id que existe pero no es público responde
@@ -146,23 +171,7 @@ export async function listarPropiedadesPublicadasRecientes(
     .orderBy(desc(propiedad.createdAt))
     .limit(limite);
 
-  if (filas.length === 0) return [];
-
-  const idsPropiedad = filas.map((fila) => fila.id);
-  const fotos = await db
-    .select()
-    .from(propiedadFoto)
-    .where(inArray(propiedadFoto.propiedadId, idsPropiedad))
-    .orderBy(asc(propiedadFoto.orden));
-
-  const primeraFotoPorPropiedad = new Map<string, typeof propiedadFoto.$inferSelect>();
-  for (const foto of fotos) {
-    if (!primeraFotoPorPropiedad.has(foto.propiedadId)) {
-      primeraFotoPorPropiedad.set(foto.propiedadId, foto);
-    }
-  }
-
-  return filas.map((fila) => ({ ...fila, foto: primeraFotoPorPropiedad.get(fila.id) ?? null }));
+  return conPrimeraFoto(filas);
 }
 
 // Fotos de una propiedad, en el orden en que se subieron — usado por el formulario de edición.

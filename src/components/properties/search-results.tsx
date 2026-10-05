@@ -15,6 +15,7 @@ export interface SearchResultProperty {
   descripcion: string;
   lat: number;
   lng: number;
+  fotoUrl: string | null;
 }
 
 export interface SearchResultsFiltros {

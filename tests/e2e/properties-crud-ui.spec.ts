@@ -254,9 +254,9 @@ test("editar el contenido de una propiedad publicada avisa que vuelve a revisió
   await iniciarSesion(page, oferente);
   await page.goto(`/propiedades/${publicada.id}/editar`);
 
-  page.once("dialog", (dialog) => dialog.accept());
   await page.getByLabel("Descripción").fill("Descripción actualizada");
   await page.getByRole("button", { name: "Guardar cambios" }).click();
+  await page.getByRole("button", { name: "Sí, enviar a revisión" }).click();
 
   await page.waitForURL("/propiedades");
   await expect(page.getByText("En revisión")).toBeVisible();

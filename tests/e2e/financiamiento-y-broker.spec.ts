@@ -95,6 +95,9 @@ test("publicar eligiendo una sugerencia de dirección y marcando Sí en financia
   await expect(page.getByLabel("Latitud")).toHaveValue("22.1564");
   await expect(page.getByLabel("Longitud")).toHaveValue("-100.9789");
 
+  // Una sugerencia sigue siendo una ubicación calculada: el flujo exige confirmar el pin.
+  await page.getByRole("button", { name: "Sí, está en el lugar correcto" }).click();
+
   await page.getByRole("radio", { name: "Sí" }).check();
   await page
     .getByLabel("Cuéntale a los buscadores sobre tu espacio")

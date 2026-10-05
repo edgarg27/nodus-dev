@@ -2,6 +2,7 @@
 
 import { cn } from "cn";
 import { type KeyboardEvent, useCallback, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useDebouncedValue } from "@/components/properties/use-debounced-value";
 
 interface Ciudad {
@@ -124,6 +125,38 @@ export function LocationAutocomplete({
     }
   }
 
+  const lista = listaVisible ? (
+    <div
+      id={idListbox}
+      role="listbox"
+      aria-label="Sugerencias de ubicación"
+      style={flotante && rect ? { top: rect.top, left: rect.left, width: rect.width } : undefined}
+      className={cn(
+        "z-[70] flex max-h-[220px] flex-col overflow-y-auto rounded-[10px] border border-border bg-card p-1.5 shadow-[0_12px_28px_rgba(11,30,59,0.14)]",
+        flotante ? "fixed" : "absolute top-[calc(100%+6px)] right-0 left-0",
+      )}
+    >
+      {sugerencias.map((ciudad, indice) => (
+        <button
+          key={`${ciudad.ciudad}|${ciudad.estado}`}
+          type="button"
+          id={`${idListbox}-${indice}`}
+          role="option"
+          aria-selected={indice === indiceActivo}
+          tabIndex={-1}
+          onMouseDown={(evento) => evento.preventDefault()}
+          onClick={() => seleccionar(ciudad)}
+          className={cn(
+            "block w-full cursor-pointer rounded-lg border-0 px-2.5 py-[9px] text-left text-sm text-foreground transition-colors duration-150 ease-out hover:bg-muted motion-reduce:transition-none",
+            indice === indiceActivo && "bg-muted",
+          )}
+        >
+          {etiqueta(ciudad)}
+        </button>
+      ))}
+    </div>
+  ) : null;
+
   return (
     <div className={cn("relative", className)}>
       <input
@@ -153,39 +186,8 @@ export function LocationAutocomplete({
           compacto ? "h-[42px] rounded-lg px-3 text-sm" : "h-[46px] px-3.5 text-[15px]",
         )}
       />
-      {listaVisible ? (
-        <div
-          id={idListbox}
-          role="listbox"
-          aria-label="Sugerencias de ubicación"
-          style={
-            flotante && rect ? { top: rect.top, left: rect.left, width: rect.width } : undefined
-          }
-          className={cn(
-            "z-[70] flex max-h-[220px] flex-col overflow-y-auto rounded-[10px] border border-border bg-card p-1.5 shadow-[0_12px_28px_rgba(11,30,59,0.14)]",
-            flotante ? "fixed" : "absolute top-[calc(100%+6px)] right-0 left-0",
-          )}
-        >
-          {sugerencias.map((ciudad, indice) => (
-            <button
-              key={`${ciudad.ciudad}|${ciudad.estado}`}
-              type="button"
-              id={`${idListbox}-${indice}`}
-              role="option"
-              aria-selected={indice === indiceActivo}
-              tabIndex={-1}
-              onMouseDown={(evento) => evento.preventDefault()}
-              onClick={() => seleccionar(ciudad)}
-              className={cn(
-                "block w-full cursor-pointer rounded-lg border-0 px-2.5 py-[9px] text-left text-sm text-foreground transition-colors duration-150 ease-out hover:bg-muted motion-reduce:transition-none",
-                indice === indiceActivo && "bg-muted",
-              )}
-            >
-              {etiqueta(ciudad)}
-            </button>
-          ))}
-        </div>
-      ) : null}
+      {/* Portal: el hero tiene overflow-hidden y backdrop-blur, que recortan o desplazan un `fixed`. */}
+      {flotante && lista ? createPortal(lista, document.body) : lista}
     </div>
   );
 }

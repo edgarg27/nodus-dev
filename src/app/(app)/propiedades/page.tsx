@@ -27,6 +27,7 @@ export default async function PropiedadesPage() {
           motivoRechazo: propiedad.motivoRechazo,
           createdAt: propiedad.createdAt.toISOString(),
           revisadaEn: propiedad.revisadaEn?.toISOString() ?? null,
+          fotoUrl: propiedad.foto?.storageUrl ?? null,
         }))}
       />
     </main>

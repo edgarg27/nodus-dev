@@ -13,6 +13,7 @@ export interface PropertyListingData {
   motivoRechazo: string | null;
   createdAt: string;
   revisadaEn: string | null;
+  fotoUrl: string | null;
 }
 
 const ICONO_POR_TIPO = {
@@ -52,8 +53,17 @@ export function PropertyListingCard({ propiedad }: PropertyListingCardProps) {
 
   return (
     <article className="flex animate-in flex-col items-start gap-5 rounded-2xl border border-border bg-surface p-5 fade-in slide-in-from-bottom-1 duration-300 ease-out motion-reduce:animate-none sm:flex-row">
-      <div className="flex h-[72px] w-24 shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-primary/80 to-primary">
-        <Icono className="size-8 text-primary-foreground/60" strokeWidth={1.5} aria-hidden="true" />
+      <div className="flex h-[72px] w-24 shrink-0 items-center justify-center overflow-hidden rounded-[10px] bg-gradient-to-br from-primary/80 to-primary">
+        {propiedad.fotoUrl ? (
+          // biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático
+          <img src={propiedad.fotoUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <Icono
+            className="size-8 text-primary-foreground/60"
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
+        )}
       </div>
 
       <div className="flex min-w-0 grow flex-col gap-1.5">

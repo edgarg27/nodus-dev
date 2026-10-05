@@ -87,7 +87,7 @@ describe("GET /api/v1/geocode?suggest=true", () => {
 });
 
 describe("GET /api/v1/geocode sin suggest", () => {
-  it("responde exactamente como hoy", async () => {
+  it("responde con lat, lng, dirección sugerida, estado y ciudad", async () => {
     actuarComo(actorFixture());
     fetchMock.mockResolvedValueOnce(
       respuestaMapTiler([
@@ -102,6 +102,8 @@ describe("GET /api/v1/geocode sin suggest", () => {
       lat: 22.1564,
       lng: -100.9789,
       direccion_sugerida: "Av. Industrias 100, San Luis Potosí",
+      estado: null,
+      ciudad: null,
     });
   });
 });

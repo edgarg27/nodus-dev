@@ -46,13 +46,19 @@ export interface PropertyFormInitialData {
   fotos: PropertyFormPhoto[];
 }
 
-// MapTiler devuelve el nombre del estado ("San Luis Potosí", "León"); el formulario usa códigos.
-export function estadoDesdeGeocode(nombre: string | null): (typeof ESTADOS)[number] | null {
-  if (!nombre) return null;
-  const normalizado = normalizeAddress(nombre);
+// MapTiler devuelve la región por nombre ("San Luis Potosí", "Guanajuato"); el formulario usa
+// códigos. León es el único mercado de Guanajuato (mismo criterio que `mapearEstado` en el
+// servidor de geocoding), así que la región sola no basta: hace falta la ciudad.
+export function estadoDesdeGeocode(
+  region: string | null | undefined,
+  ciudad?: string | null,
+): (typeof ESTADOS)[number] | null {
+  if (!region) return null;
+  const normalizado = normalizeAddress(region);
   if (normalizado === "san luis potosi" || normalizado === "slp") return "SLP";
   if (normalizado === "aguascalientes") return "Aguascalientes";
   if (normalizado === "leon") return "Leon";
+  if (normalizado === "guanajuato" && ciudad && normalizeAddress(ciudad) === "leon") return "Leon";
   return null;
 }
 

@@ -21,7 +21,7 @@ afterEach(() => {
 });
 
 describe("geocodificar sin opciones", () => {
-  it("devuelve el mismo shape que hoy (lat, lng, direccionSugerida) o null", async () => {
+  it("devuelve el mejor resultado (con estado y ciudad, null si MapTiler no los da) o null", async () => {
     fetchMock.mockResolvedValueOnce(
       respuestaMapTiler([
         { center: [-100.9789, 22.1564], place_name: "Av. Industrias 100, San Luis Potosí" },
@@ -33,6 +33,8 @@ describe("geocodificar sin opciones", () => {
       lat: 22.1564,
       lng: -100.9789,
       direccionSugerida: "Av. Industrias 100, San Luis Potosí",
+      estado: null,
+      ciudad: null,
     });
 
     fetchMock.mockResolvedValueOnce(respuestaMapTiler([]));

@@ -82,7 +82,68 @@ describe("GET /api/v1/geocode", () => {
       lat: 22.1564,
       lng: -100.9789,
       direccion_sugerida: "Av. Industrias 100, San Luis Potosí",
+      estado: null,
+      ciudad: null,
     });
+  });
+
+  it("extrae estado y ciudad del contexto de MapTiler", async () => {
+    actuarComo(actorFixture());
+    fetchMock.mockResolvedValueOnce(
+      respuestaMapTiler([
+        {
+          center: [-100.97, 22.15],
+          place_name: "Avenida Venustiano Carranza, San Luis Potosí",
+          place_type: ["address"],
+          text: "Avenida Venustiano Carranza",
+          context: [
+            { id: "municipality.272855", text: "Municipio de San Luis Potosí" },
+            { id: "region.2241", text: "San Luis Potosí" },
+            { id: "country.215", text: "México" },
+          ],
+        },
+      ]),
+    );
+
+    const cuerpo = await (await GET(request("Av. Venustiano Carranza 2000"))).json();
+    expect(cuerpo.data.estado).toBe("SLP");
+    expect(cuerpo.data.ciudad).toBe("San Luis Potosí");
+  });
+
+  it("León solo cuenta como estado si la región es Guanajuato y el municipio es León", async () => {
+    actuarComo(actorFixture());
+    fetchMock
+      .mockResolvedValueOnce(
+        respuestaMapTiler([
+          {
+            center: [-101.68, 21.12],
+            place_name: "Boulevard Adolfo López Mateos, León",
+            place_type: ["address"],
+            context: [
+              { id: "municipality.271886", text: "León" },
+              { id: "region.2183", text: "Guanajuato" },
+            ],
+          },
+        ]),
+      )
+      .mockResolvedValueOnce(
+        respuestaMapTiler([
+          {
+            center: [-101.25, 20.52],
+            place_name: "Calle Hidalgo, Irapuato",
+            place_type: ["address"],
+            context: [
+              { id: "municipality.1", text: "Irapuato" },
+              { id: "region.2183", text: "Guanajuato" },
+            ],
+          },
+        ]),
+      );
+
+    expect((await (await GET(request("López Mateos León"))).json()).data.estado).toBe("Leon");
+    const irapuato = (await (await GET(request("Calle Hidalgo Irapuato"))).json()).data;
+    expect(irapuato.estado).toBeNull();
+    expect(irapuato.ciudad).toBe("Irapuato");
   });
 
   it("sin resultados de MapTiler responde 404", async () => {

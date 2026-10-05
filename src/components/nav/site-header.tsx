@@ -1,6 +1,9 @@
 "use client";
 
+import { cn } from "cn";
+import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { iniciales } from "@/lib/initials";
 import { createClient } from "@/lib/supabase/client";
@@ -14,6 +17,12 @@ export interface SiteHeaderActor {
 interface SiteHeaderProps {
   actor: SiteHeaderActor | null;
 }
+
+// Distancia de scroll a partir de la cual el header deja de ser transparente en la portada.
+const UMBRAL_SCROLL = 40;
+
+const ENLACE_BASE =
+  "relative rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ease-out after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-accent after:transition-transform after:duration-200 after:ease-out after:content-[''] hover:after:scale-x-100 focus-visible:after:scale-x-100 motion-reduce:after:transition-none md:px-0 md:py-0 md:after:inset-x-0";
 
 function enlacesPorRol(actor: SiteHeaderActor): { href: string; etiqueta: string }[] {
   if (actor.rol === "admin") {
@@ -32,6 +41,27 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const esPortada = usePathname() === "/";
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    if (!esPortada) return;
+    function medir() {
+      setScrolled(window.scrollY > UMBRAL_SCROLL);
+    }
+    medir();
+    window.addEventListener("scroll", medir, { passive: true });
+    return () => window.removeEventListener("scroll", medir);
+  }, [esPortada]);
+
+  // En la portada el header flota transparente sobre el video del hero y se vuelve sólido al bajar.
+  const inmersivo = esPortada && !scrolled && !open;
+  const enlaceClase = cn(
+    ENLACE_BASE,
+    inmersivo
+      ? "text-primary-foreground/85 hover:text-primary-foreground focus-visible:text-primary-foreground"
+      : "text-muted-foreground hover:text-foreground focus-visible:text-foreground",
+  );
 
   useEffect(() => {
     if (!open && !userMenuOpen) return;
@@ -68,7 +98,11 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
   return (
     <header
       id="site-header"
-      className="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur"
+      className={cn(
+        "top-0 z-40 border-b transition-[background-color,border-color,backdrop-filter] duration-300 ease-out motion-reduce:transition-none",
+        esPortada ? "fixed inset-x-0" : "sticky",
+        inmersivo ? "border-transparent bg-transparent" : "border-border bg-card/90 backdrop-blur",
+      )}
     >
       <nav
         aria-label="Principal"
@@ -76,9 +110,32 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
       >
         <Link
           href="/"
-          className="font-display text-xl font-bold text-foreground transition-transform duration-200 ease-out hover:-translate-y-px hover:scale-[1.03] active:scale-[0.97] motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:hover:translate-y-0"
+          aria-label="Captive by Nodus — inicio"
+          className="relative block h-8 w-[110px] shrink-0 transition-transform duration-200 ease-out hover:-translate-y-px hover:scale-[1.03] active:scale-[0.97] motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:hover:translate-y-0 sm:h-10 sm:w-[137px]"
         >
-          Nodus
+          {/* Dos versiones del logo apiladas: la blanca sobre el video, la de color en la barra sólida. */}
+          <Image
+            src="/brand/captive-logo-blanco.png"
+            alt=""
+            fill
+            priority
+            sizes="137px"
+            className={cn(
+              "object-contain transition-opacity duration-300",
+              inmersivo ? "opacity-100" : "opacity-0",
+            )}
+          />
+          <Image
+            src="/brand/captive-logo.png"
+            alt=""
+            fill
+            priority
+            sizes="137px"
+            className={cn(
+              "object-contain transition-opacity duration-300",
+              inmersivo ? "opacity-0" : "opacity-100",
+            )}
+          />
         </Link>
 
         {actor ? (
@@ -88,12 +145,20 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
               aria-haspopup="true"
               aria-expanded={userMenuOpen}
               onClick={() => setUserMenuOpen((prev) => !prev)}
-              className="flex h-11 cursor-pointer items-center gap-2.5 rounded-full py-1 pr-2.5 pl-1 transition-colors hover:bg-muted"
+              className={cn(
+                "flex h-11 cursor-pointer items-center gap-2.5 rounded-full py-1 pr-2.5 pl-1 transition-colors",
+                inmersivo ? "hover:bg-primary-foreground/10" : "hover:bg-muted",
+              )}
             >
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary font-display text-[13px] font-bold text-primary-foreground">
                 {iniciales(actor.nombre)}
               </span>
-              <span className="hidden text-sm font-semibold text-foreground sm:inline">
+              <span
+                className={cn(
+                  "hidden text-sm font-semibold transition-colors sm:inline",
+                  inmersivo ? "text-primary-foreground" : "text-foreground",
+                )}
+              >
                 {actor.nombre}
               </span>
               <svg
@@ -105,7 +170,11 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className={`shrink-0 text-muted-foreground transition-transform duration-200 ease-out ${userMenuOpen ? "rotate-180" : ""}`}
+                className={cn(
+                  "shrink-0 transition-transform duration-200 ease-out",
+                  inmersivo ? "text-primary-foreground/70" : "text-muted-foreground",
+                  userMenuOpen && "rotate-180",
+                )}
                 aria-hidden="true"
               >
                 <polyline points="6 9 12 15 18 9" />
@@ -151,7 +220,12 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
               aria-expanded={open}
               aria-controls="site-nav-menu"
               onClick={() => setOpen((prev) => !prev)}
-              className="cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted md:hidden"
+              className={cn(
+                "cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold transition-colors md:hidden",
+                inmersivo
+                  ? "text-primary-foreground hover:bg-primary-foreground/10"
+                  : "text-foreground hover:bg-muted",
+              )}
             >
               Menú
             </button>
@@ -164,16 +238,10 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
                   : "hidden md:flex md:items-center md:gap-6"
               }
             >
-              <Link
-                href="/buscar"
-                className="relative rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-150 ease-out after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-accent after:transition-transform after:duration-200 after:ease-out after:content-[''] hover:text-foreground hover:after:scale-x-100 focus-visible:text-foreground focus-visible:after:scale-x-100 motion-reduce:after:transition-none md:px-0 md:py-0 md:after:inset-x-0"
-              >
+              <Link href="/buscar" className={enlaceClase}>
                 Buscar
               </Link>
-              <Link
-                href="/sign-in"
-                className="relative rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-150 ease-out after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-accent after:transition-transform after:duration-200 after:ease-out after:content-[''] hover:text-foreground hover:after:scale-x-100 focus-visible:text-foreground focus-visible:after:scale-x-100 motion-reduce:after:transition-none md:px-0 md:py-0 md:after:inset-x-0"
-              >
+              <Link href="/sign-in" className={enlaceClase}>
                 Iniciar sesión
               </Link>
               <Link
