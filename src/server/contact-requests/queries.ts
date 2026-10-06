@@ -9,6 +9,7 @@ export interface LeadOferente {
   nombreBuscador: string;
   emailBuscador: string;
   quiereFinanciamiento: boolean;
+  mensaje: string | null;
   createdAt: Date;
 }
 
@@ -36,6 +37,7 @@ export async function listarLeadsDelOferente(
       nombreBuscador: usuario.nombre,
       emailBuscador: usuario.email,
       quiereFinanciamiento: contactRequest.quiereFinanciamiento,
+      mensaje: contactRequest.mensaje,
       createdAt: contactRequest.createdAt,
     })
     .from(contactRequest)

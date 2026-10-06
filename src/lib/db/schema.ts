@@ -188,9 +188,15 @@ export const contactRequest = pgTable(
       .references(() => usuario.id),
     brokerId: uuid("broker_id").references(() => usuario.id),
     quiereFinanciamiento: boolean("quiere_financiamiento").notNull().default(false),
+    // Mensaje opcional del buscador (preguntas rápidas o texto libre), máximo 1000 caracteres.
+    mensaje: text("mensaje"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
+    check(
+      "chk_contact_request_mensaje",
+      sql`${t.mensaje} is null or length(${t.mensaje}) between 1 and 1000`,
+    ),
     index("idx_contact_request_oferente_id").on(t.oferenteId),
     index("idx_contact_request_broker_id").on(t.brokerId).where(sql`${t.brokerId} is not null`),
     index("idx_contact_request_propiedad_id").on(t.propiedadId),

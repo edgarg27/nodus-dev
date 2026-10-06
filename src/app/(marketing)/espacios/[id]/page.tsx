@@ -166,6 +166,9 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
                 titulo={titulo}
                 favorito={esFavorito}
                 autenticado={actor !== null}
+                tipo={propiedad.tipo}
+                aceptaFinanciamiento={propiedad.aceptaFinanciamiento}
+                haySimilares={similares.length > 0}
               />
             </div>
 
@@ -202,7 +205,7 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
             </section>
 
             {similares.length > 0 ? (
-              <section className="flex flex-col gap-4">
+              <section id="similares" className="flex scroll-mt-24 flex-col gap-4">
                 <h2 className="text-lg font-bold text-text">Espacios similares</h2>
                 <ul className="grid gap-4 sm:grid-cols-3">
                   {similares.map((similar) => (
@@ -245,6 +248,9 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
                 titulo={titulo}
                 favorito={esFavorito}
                 autenticado={actor !== null}
+                tipo={propiedad.tipo}
+                aceptaFinanciamiento={propiedad.aceptaFinanciamiento}
+                haySimilares={similares.length > 0}
               />
             </div>
           </aside>

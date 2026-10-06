@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckIcon, LinkIcon, Share2Icon } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FavoriteButton } from "./favorite-button";
@@ -13,18 +13,49 @@ interface PropertyContactPanelProps {
   titulo: string;
   favorito: boolean;
   autenticado: boolean;
+  tipo: string;
+  aceptaFinanciamiento: boolean;
+  haySimilares: boolean;
 }
 
-// Columna fija de la ficha: precio, Contactar (revela el teléfono del oferente) y compartir.
+const PREGUNTAS_GENERALES = [
+  "¿Sigue disponible?",
+  "¿Cuándo puedo visitarlo?",
+  "¿Qué incluye el precio?",
+];
+const PREGUNTAS_NAVE = ["¿Cuál es el uso de suelo?", "¿Tiene patio de maniobras?"];
+const MAXIMO_MENSAJE = 1000;
+
+// Columna fija de la ficha: precio, mensaje con preguntas rápidas, Contactar (crea el lead con el
+// mensaje y revela el teléfono del oferente) y compartir.
 export function PropertyContactPanel({
   propiedadId,
   precio,
   titulo,
   favorito,
   autenticado,
+  tipo,
+  aceptaFinanciamiento,
+  haySimilares,
 }: PropertyContactPanelProps) {
   const { contacto, error, enviando, contactar } = useContactarPropiedad(propiedadId);
   const [copiado, setCopiado] = useState(false);
+  const [mensaje, setMensaje] = useState("");
+  const [quiereFinanciamiento, setQuiereFinanciamiento] = useState(false);
+  const idMensaje = useId();
+  const preguntas =
+    tipo === "nave_industrial" ? [...PREGUNTAS_GENERALES, ...PREGUNTAS_NAVE] : PREGUNTAS_GENERALES;
+
+  function agregarPregunta(pregunta: string) {
+    setMensaje((actual) => {
+      if (actual.includes(pregunta)) return actual;
+      const siguiente = actual.trim()
+        ? `${actual.trim()}
+${pregunta}`
+        : pregunta;
+      return siguiente.slice(0, MAXIMO_MENSAJE);
+    });
+  }
 
   async function compartir() {
     const url = window.location.href;
@@ -82,16 +113,59 @@ export function PropertyContactPanel({
           ) : (
             <span>Listo, le enviamos tus datos al oferente. Te contactará pronto.</span>
           )}
+          {haySimilares ? (
+            <a href="#similares" className="pt-1 text-primary underline underline-offset-4">
+              Ver espacios similares
+            </a>
+          ) : null}
         </div>
-      ) : null}
+      ) : (
+        <div className="flex flex-col gap-2.5">
+          <label htmlFor={idMensaje} className="text-sm font-semibold text-text">
+            Mensaje para el oferente <span className="font-normal text-text-muted">(opcional)</span>
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {preguntas.map((pregunta) => (
+              <button
+                key={pregunta}
+                type="button"
+                onClick={() => agregarPregunta(pregunta)}
+                aria-pressed={mensaje.includes(pregunta)}
+                className="cursor-pointer rounded-full border border-input bg-background px-2.5 py-1 text-xs font-medium text-text transition-colors hover:border-primary aria-pressed:border-accent aria-pressed:bg-accent/10"
+              >
+                {pregunta}
+              </button>
+            ))}
+          </div>
+          <textarea
+            id={idMensaje}
+            value={mensaje}
+            onChange={(evento) => setMensaje(evento.target.value.slice(0, MAXIMO_MENSAJE))}
+            rows={3}
+            placeholder="Cuéntale qué necesitas: fechas, uso, dudas…"
+            className="resize-y rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-text placeholder:text-muted-foreground"
+          />
+          {aceptaFinanciamiento ? (
+            <label className="flex items-center gap-2 text-sm text-text">
+              <input
+                type="checkbox"
+                checked={quiereFinanciamiento}
+                onChange={(evento) => setQuiereFinanciamiento(evento.target.checked)}
+                className="accent-primary"
+              />
+              Me interesa el financiamiento
+            </label>
+          ) : null}
+        </div>
+      )}
 
       <Button
         type="button"
         disabled={enviando || contacto !== null}
-        onClick={() => void contactar()}
+        onClick={() => void contactar({ mensaje, quiereFinanciamiento })}
         className="h-12 rounded-lg bg-accent text-[15px] font-bold text-accent-foreground shadow-sm transition-transform duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md disabled:translate-y-0 disabled:opacity-60 motion-reduce:transition-none"
       >
-        {contacto ? "Solicitud enviada" : enviando ? "Enviando…" : "Contactar"}
+        {contacto ? "Solicitud enviada" : enviando ? "Enviando…" : "Enviar y ver contacto"}
       </Button>
 
       {error ? (

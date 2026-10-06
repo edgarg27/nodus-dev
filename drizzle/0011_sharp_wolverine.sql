@@ -1,0 +1,2 @@
+ALTER TABLE "contact_request" ADD COLUMN "mensaje" text;--> statement-breakpoint
+ALTER TABLE "contact_request" ADD CONSTRAINT "chk_contact_request_mensaje" CHECK ("contact_request"."mensaje" is null or length("contact_request"."mensaje") between 1 and 1000);

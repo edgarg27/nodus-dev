@@ -44,6 +44,11 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
               {lead.quiereFinanciamiento ? (
                 <p className="text-sm text-text-muted">Quiere financiamiento</p>
               ) : null}
+              {lead.mensaje ? (
+                <p className="mt-1 rounded-md bg-background px-3 py-2 text-sm whitespace-pre-line text-text">
+                  {lead.mensaje}
+                </p>
+              ) : null}
             </li>
           ))}
         </ul>

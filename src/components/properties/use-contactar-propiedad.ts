@@ -17,7 +17,7 @@ export function useContactarPropiedad(propiedadId: string) {
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
-  async function contactar() {
+  async function contactar(opciones: { mensaje?: string; quiereFinanciamiento?: boolean } = {}) {
     if (enviando || contacto) return;
     setError(null);
     setEnviando(true);
@@ -26,7 +26,11 @@ export function useContactarPropiedad(propiedadId: string) {
       const respuesta = await fetch("/api/v1/contact-requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ propiedad_id: propiedadId }),
+        body: JSON.stringify({
+          propiedad_id: propiedadId,
+          ...(opciones.mensaje?.trim() ? { mensaje: opciones.mensaje.trim() } : {}),
+          ...(opciones.quiereFinanciamiento ? { quiere_financiamiento: true } : {}),
+        }),
       });
 
       if (respuesta.status === 401) {
