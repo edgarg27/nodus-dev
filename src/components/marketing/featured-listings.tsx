@@ -1,19 +1,8 @@
 import Link from "next/link";
+import { type Idioma, textosDe } from "@/lib/i18n";
 import { extraerDetalles, formatearPrecio } from "@/lib/property-details";
 import type { PropiedadDestacada } from "@/server/properties/queries";
 import { Reveal } from "./reveal";
-
-const ETIQUETAS_TIPO: Record<string, string> = {
-  nave_industrial: "Nave industrial",
-  oficina: "Oficina",
-  local_comercial: "Local comercial",
-};
-
-const ETIQUETAS_MODALIDAD: Record<string, string> = {
-  renta: "Renta",
-  venta: "Venta",
-  desde_cero: "Proyecto desde cero",
-};
 
 function PropertyIcon({ tipo }: { tipo: string }) {
   if (tipo === "oficina") {
@@ -42,27 +31,28 @@ function PropertyIcon({ tipo }: { tipo: string }) {
 
 interface FeaturedListingsProps {
   propiedades: PropiedadDestacada[];
+  idioma: Idioma;
 }
 
-export function FeaturedListings({ propiedades }: FeaturedListingsProps) {
+export function FeaturedListings({ propiedades, idioma }: FeaturedListingsProps) {
   if (propiedades.length === 0) return null;
+  const textos = textosDe(idioma);
+  const t = textos.destacados;
 
   return (
     <section id="listados" className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
       <Reveal className="flex flex-wrap items-end justify-between gap-6">
         <div className="flex max-w-xl flex-col gap-3">
           <span className="text-[13px] font-bold tracking-wide text-primary uppercase">
-            Espacios destacados
+            {t.etiqueta}
           </span>
-          <h2 className="text-[34px] leading-tight font-bold text-foreground">
-            Naves, oficinas y locales listos para tu próxima etapa
-          </h2>
+          <h2 className="text-[34px] leading-tight font-bold text-foreground">{t.titulo}</h2>
         </div>
         <Link
           href="/buscar"
           className="flex items-center gap-1.5 text-[15px] font-semibold whitespace-nowrap text-foreground"
         >
-          Ver todos los espacios
+          {t.verTodos}
           <svg
             width="16"
             height="16"
@@ -96,24 +86,24 @@ export function FeaturedListings({ propiedades }: FeaturedListingsProps) {
                   <PropertyIcon tipo={propiedad.tipo} />
                 )}
                 <span className="absolute top-3.5 left-3.5 rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground">
-                  {ETIQUETAS_MODALIDAD[propiedad.modalidad] ?? propiedad.modalidad}
+                  {textos.etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad}
                 </span>
               </div>
               <div className="flex flex-col gap-2 p-5">
                 <span className="text-xs font-semibold tracking-wide text-primary uppercase">
-                  {ETIQUETAS_TIPO[propiedad.tipo] ?? propiedad.tipo}
+                  {textos.etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo}
                 </span>
                 <h3 className="text-lg font-semibold text-foreground">{propiedad.direccion}</h3>
                 <p className="text-sm text-muted-foreground">{propiedad.ciudad}</p>
                 <div className="flex items-center justify-between pt-2">
                   <span className="font-display text-[17px] font-bold text-foreground">
-                    {formatearPrecio(extraerDetalles(propiedad), propiedad.modalidad)}
+                    {formatearPrecio(extraerDetalles(propiedad), propiedad.modalidad, idioma)}
                   </span>
                   <Link
                     href={`/espacios/${propiedad.id}`}
                     className="border-b-2 border-accent text-sm font-semibold text-foreground"
                   >
-                    Ver detalles
+                    {t.verDetalles}
                   </Link>
                 </div>
               </div>

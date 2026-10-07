@@ -4,6 +4,7 @@ import { BookmarkCheckIcon, BookmarkIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 
 interface SaveSearchButtonProps {
   consulta: string;
@@ -18,6 +19,7 @@ export function SaveSearchButton({
   guardadaInicial,
   autenticado,
 }: SaveSearchButtonProps) {
+  const { idioma, t } = useIdioma();
   const router = useRouter();
   const [guardada, setGuardada] = useState(guardadaInicial);
   const [enviando, setEnviando] = useState(false);
@@ -39,9 +41,16 @@ export function SaveSearchButton({
       });
       const cuerpo = await respuesta.json().catch(() => null);
       if (respuesta.ok) setGuardada(true);
-      else setError(cuerpo?.error?.message ?? "No se pudo guardar la búsqueda.");
+      else {
+        // Los mensajes de la API están en español; en inglés se muestra el genérico.
+        setError(
+          idioma === "es" && cuerpo?.error?.message
+            ? cuerpo.error.message
+            : t.guardarBusqueda.error,
+        );
+      }
     } catch {
-      setError("No se pudo guardar la búsqueda.");
+      setError(t.guardarBusqueda.error);
     } finally {
       setEnviando(false);
     }
@@ -55,18 +64,20 @@ export function SaveSearchButton({
       {guardada ? (
         <Link href="/mis-busquedas" className={clase}>
           <BookmarkCheckIcon className="size-[17px] text-accent" aria-hidden="true" />
-          <span className="hidden sm:inline">Búsqueda guardada</span>
+          <span className="hidden sm:inline">{t.guardarBusqueda.guardada}</span>
         </Link>
       ) : (
         <button
           type="button"
           disabled={enviando}
           onClick={() => void guardar()}
-          aria-label="Guardar búsqueda"
+          aria-label={t.guardarBusqueda.guardar}
           className={clase}
         >
           <BookmarkIcon className="size-[17px]" aria-hidden="true" />
-          <span className="hidden sm:inline">{enviando ? "Guardando…" : "Guardar búsqueda"}</span>
+          <span className="hidden sm:inline">
+            {enviando ? t.guardarBusqueda.guardando : t.guardarBusqueda.guardar}
+          </span>
         </button>
       )}
       {error ? (

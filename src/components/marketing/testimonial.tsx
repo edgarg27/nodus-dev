@@ -1,6 +1,8 @@
+import { type Idioma, textosDe } from "@/lib/i18n";
 import { Reveal } from "./reveal";
 
-export function Testimonial() {
+export function Testimonial({ idioma }: { idioma: Idioma }) {
+  const t = textosDe(idioma).testimonio;
   return (
     <section className="mx-auto flex max-w-7xl justify-center px-4 py-24 sm:px-6 lg:px-8">
       <Reveal>
@@ -12,14 +14,11 @@ export function Testimonial() {
             />
           </svg>
           <blockquote className="font-display text-[26px] leading-snug font-medium text-foreground">
-            Publicamos nuestra nave en menos de diez minutos y en la primera semana ya teníamos tres
-            empresas interesadas contactándonos directamente.
+            {t.cita}
           </blockquote>
           <figcaption className="flex flex-col gap-0.5">
             <span className="text-[15px] font-semibold text-foreground">Mariana Cordero</span>
-            <span className="text-sm text-muted-foreground">
-              Directora de operaciones, Grupo Cordero Logística
-            </span>
+            <span className="text-sm text-muted-foreground">{t.cargo}</span>
           </figcaption>
         </figure>
       </Reveal>

@@ -8,6 +8,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 const { SolicitudForm } = await import("./solicitud-form");
+const { IdiomaProvider } = await import("../i18n/idioma-provider");
 
 const fetchMock = vi.fn();
 
@@ -81,5 +82,23 @@ describe("SolicitudForm", () => {
     const inicio = screen.getByRole("link", { name: "Volver al inicio" });
     expect(publicaciones.getAttribute("href")).toBe("/propiedades");
     expect(inicio.getAttribute("href")).toBe("/");
+  });
+});
+
+describe("SolicitudForm en inglés", () => {
+  it("muestra etiquetas, botón y mensajes de validación en inglés", async () => {
+    vi.stubGlobal("fetch", fetchMock);
+    render(
+      <IdiomaProvider idioma="en">
+        <SolicitudForm nombre="Ana Pérez" correo="ana@example.com" />
+      </IdiomaProvider>,
+    );
+
+    expect(screen.getByText("Name")).toBeTruthy();
+    await userEvent.type(screen.getByLabelText("Note for the Nodus team"), "Hello");
+    await userEvent.click(screen.getByRole("button", { name: "Submit application" }));
+
+    expect(await screen.findByText("Company is required")).toBeTruthy();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });

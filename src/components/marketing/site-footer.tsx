@@ -1,15 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
+import { type Idioma, textosDe } from "@/lib/i18n";
 
 // Ligas a las páginas por tipo (todas las ciudades), para visitantes y para Google.
 const EXPLORAR = [
-  { href: "/renta/naves-industriales", texto: "Naves industriales en renta" },
-  { href: "/renta/oficinas", texto: "Oficinas en renta" },
-  { href: "/renta/locales-comerciales", texto: "Locales comerciales en renta" },
-  { href: "/venta/naves-industriales", texto: "Naves industriales en venta" },
+  { href: "/renta/naves-industriales", tipo: "nave_industrial", modalidad: "renta" },
+  { href: "/renta/oficinas", tipo: "oficina", modalidad: "renta" },
+  { href: "/renta/locales-comerciales", tipo: "local_comercial", modalidad: "renta" },
+  { href: "/venta/naves-industriales", tipo: "nave_industrial", modalidad: "venta" },
 ];
 
-export function SiteFooter() {
+// Sin idioma (páginas internas en español), usa español.
+export function SiteFooter({ idioma = "es" }: { idioma?: Idioma }) {
+  const textos = textosDe(idioma);
+  const t = textos.footer;
   return (
     <footer className="bg-primary">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -29,36 +33,35 @@ export function SiteFooter() {
               />
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-primary-foreground/55">
-              Conectamos pymes y empresas emergentes con los espacios industriales, de oficina y
-              comerciales que impulsan su crecimiento.
+              {t.descripcion}
             </p>
           </div>
           <div className="flex flex-col gap-3.5">
             <span className="text-[13px] font-bold tracking-wide text-primary-foreground uppercase">
-              Producto
+              {t.producto}
             </span>
             <Link
               href="/#buscar"
               className="text-sm text-primary-foreground/70 hover:text-primary-foreground"
             >
-              Buscar espacios
+              {t.buscarEspacios}
             </Link>
             <Link
               href="/#propietarios"
               className="text-sm text-primary-foreground/70 hover:text-primary-foreground"
             >
-              Publicar un espacio
+              {t.publicar}
             </Link>
             <Link
               href="/#como-funciona"
               className="text-sm text-primary-foreground/70 hover:text-primary-foreground"
             >
-              Cómo funciona
+              {t.comoFunciona}
             </Link>
           </div>
           <div className="flex flex-col gap-3.5">
             <span className="text-[13px] font-bold tracking-wide text-primary-foreground uppercase">
-              Explorar
+              {t.explorar}
             </span>
             {EXPLORAR.map((liga) => (
               <Link
@@ -66,35 +69,35 @@ export function SiteFooter() {
                 href={liga.href}
                 className="text-sm text-primary-foreground/70 hover:text-primary-foreground"
               >
-                {liga.texto}
+                {textos.landing.titulo(
+                  textos.etiquetas.tipoPlural[liga.tipo] ?? liga.tipo,
+                  textos.etiquetas.operacion[liga.modalidad] ?? liga.modalidad,
+                  null,
+                )}
               </Link>
             ))}
           </div>
           <div className="flex flex-col gap-3.5">
             <span className="text-[13px] font-bold tracking-wide text-primary-foreground uppercase">
-              Legal
+              {t.legal}
             </span>
             <Link
               href="/terminos"
               className="text-sm text-primary-foreground/70 hover:text-primary-foreground"
             >
-              Términos y condiciones
+              {t.terminos}
             </Link>
             <Link
               href="/aviso-privacidad"
               className="text-sm text-primary-foreground/70 hover:text-primary-foreground"
             >
-              Aviso de privacidad
+              {t.aviso}
             </Link>
           </div>
         </div>
         <div className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-primary-foreground/10 pt-6">
-          <span className="text-[13px] text-primary-foreground/50">
-            © 2026 Nodus. Todos los derechos reservados.
-          </span>
-          <span className="text-[13px] text-primary-foreground/50">
-            Hecho para empresas que están construyendo su próxima etapa.
-          </span>
+          <span className="text-[13px] text-primary-foreground/50">{t.derechos}</span>
+          <span className="text-[13px] text-primary-foreground/50">{t.lema}</span>
         </div>
       </div>
     </footer>

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ESTADOS_MX } from "./estados.ts";
+import { type Idioma, localeDe, textosDe } from "./i18n/index.ts";
 
 // Datos del espacio (precio, superficies, servicios y datos industriales). Fuente única de las
 // reglas para la API, el formulario de publicar y las tarjetas que los muestran.
@@ -63,49 +64,51 @@ export interface DetallesPropiedad {
   potenciaKva: number | null;
 }
 
-function formatoNumero(valor: number, decimales = 0): string {
-  return valor.toLocaleString("es-MX", {
+function formatoNumero(valor: number, decimales = 0, idioma: Idioma = "es"): string {
+  return valor.toLocaleString(localeDe(idioma), {
     minimumFractionDigits: decimales,
     maximumFractionDigits: Number.isInteger(valor) ? 0 : 2,
   });
 }
 
 // "$38,000 MXN /mes", "USD 4.50 /m² /mes", "$12,500,000 MXN" o "Precio a consultar".
+// El idioma solo cambia "/mes" y "Precio a consultar" (los paneles internos usan el default).
 export function formatearPrecio(
   detalles: Pick<DetallesPropiedad, "precio" | "moneda" | "precioUnidad">,
   modalidad: string,
+  idioma: Idioma = "es",
 ): string {
-  if (detalles.precio === null) return "Precio a consultar";
+  const t = textosDe(idioma).detalles;
+  if (detalles.precio === null) return t.precioAConsultar;
   const prefijo = detalles.moneda === "USD" ? "USD " : "$";
   const sufijoMoneda = detalles.moneda === "USD" ? "" : " MXN";
   const decimales = Number.isInteger(detalles.precio) ? 0 : 2;
   const porM2 = detalles.precioUnidad === "m2" ? " /m²" : "";
-  const porMes = modalidad === "renta" ? " /mes" : "";
-  return `${prefijo}${formatoNumero(detalles.precio, decimales)}${sufijoMoneda}${porM2}${porMes}`;
+  const porMes = modalidad === "renta" ? t.porMes : "";
+  return `${prefijo}${formatoNumero(detalles.precio, decimales, idioma)}${sufijoMoneda}${porM2}${porMes}`;
 }
 
 // Etiquetas cortas para tarjetas: "1,856 m²", "5 baños", "3 estacionamientos", "8 m de altura libre"…
-export function resumenDetalles(detalles: DetallesPropiedad, tipo: string): string[] {
+export function resumenDetalles(
+  detalles: DetallesPropiedad,
+  tipo: string,
+  idioma: Idioma = "es",
+): string[] {
+  const t = textosDe(idioma).detalles;
   const etiquetas: string[] = [];
   const superficie = detalles.superficieConstruidaM2 ?? detalles.superficieTerrenoM2;
-  if (superficie !== null) etiquetas.push(`${formatoNumero(superficie)} m²`);
-  if (detalles.banos !== null) {
-    etiquetas.push(`${detalles.banos} ${detalles.banos === 1 ? "baño" : "baños"}`);
-  }
+  if (superficie !== null) etiquetas.push(`${formatoNumero(superficie, 0, idioma)} m²`);
+  if (detalles.banos !== null) etiquetas.push(t.banos(detalles.banos));
   if (detalles.estacionamientos !== null) {
-    etiquetas.push(
-      `${detalles.estacionamientos} ${detalles.estacionamientos === 1 ? "estacionamiento" : "estacionamientos"}`,
-    );
+    etiquetas.push(t.estacionamientos(detalles.estacionamientos));
   }
   if (tipo === "nave_industrial") {
     if (detalles.alturaLibreM !== null) {
-      etiquetas.push(`${formatoNumero(detalles.alturaLibreM)} m de altura libre`);
+      etiquetas.push(t.alturaLibre(formatoNumero(detalles.alturaLibreM, 0, idioma)));
     }
-    if (detalles.andenes !== null) {
-      etiquetas.push(`${detalles.andenes} ${detalles.andenes === 1 ? "andén" : "andenes"}`);
-    }
+    if (detalles.andenes !== null) etiquetas.push(t.andenes(detalles.andenes));
     if (detalles.potenciaKva !== null) {
-      etiquetas.push(`${formatoNumero(detalles.potenciaKva)} kVA`);
+      etiquetas.push(`${formatoNumero(detalles.potenciaKva, 0, idioma)} kVA`);
     }
   }
   return etiquetas;
@@ -115,28 +118,33 @@ export function resumenDetalles(detalles: DetallesPropiedad, tipo: string): stri
 export function especificaciones(
   detalles: DetallesPropiedad,
   tipo: string,
+  idioma: Idioma = "es",
 ): { etiqueta: string; valor: string }[] {
+  const t = textosDe(idioma).detalles;
   const filas: { etiqueta: string; valor: string }[] = [];
   const agregar = (etiqueta: string, valor: number | null, sufijo = "") => {
-    if (valor !== null) filas.push({ etiqueta, valor: `${formatoNumero(valor)}${sufijo}` });
+    if (valor !== null) {
+      filas.push({ etiqueta, valor: `${formatoNumero(valor, 0, idioma)}${sufijo}` });
+    }
   };
   if (detalles.mantenimiento !== null) {
     filas.push({
-      etiqueta: "Mantenimiento",
+      etiqueta: t.etiquetaMantenimiento,
       valor: formatearPrecio(
         { precio: detalles.mantenimiento, moneda: detalles.moneda, precioUnidad: "total" },
         "renta",
+        idioma,
       ),
     });
   }
-  agregar("Superficie construida", detalles.superficieConstruidaM2, " m²");
-  agregar("Superficie de terreno", detalles.superficieTerrenoM2, " m²");
-  agregar("Baños", detalles.banos);
-  agregar("Estacionamientos", detalles.estacionamientos);
+  agregar(t.etiquetaSuperficieConstruida, detalles.superficieConstruidaM2, " m²");
+  agregar(t.etiquetaSuperficieTerreno, detalles.superficieTerrenoM2, " m²");
+  agregar(t.etiquetaBanos, detalles.banos);
+  agregar(t.etiquetaEstacionamientos, detalles.estacionamientos);
   if (tipo === "nave_industrial") {
-    agregar("Altura libre", detalles.alturaLibreM, " m");
-    agregar("Andenes", detalles.andenes);
-    agregar("Carga eléctrica", detalles.potenciaKva, " kVA");
+    agregar(t.etiquetaAlturaLibre, detalles.alturaLibreM, " m");
+    agregar(t.etiquetaAndenes, detalles.andenes);
+    agregar(t.etiquetaCargaElectrica, detalles.potenciaKva, " kVA");
   }
   return filas;
 }
@@ -181,13 +189,16 @@ export const ETIQUETA_ESTADO: Record<string, string> = Object.fromEntries(
 );
 
 // "Nave industrial en renta en San Luis Potosí" — título de la ficha y de su metadata.
-export function tituloEspacio(tipo: string, modalidad: string, ciudad: string): string {
-  const nombre = ETIQUETA_TIPO[tipo] ?? tipo;
-  const operacion =
-    modalidad === "renta"
-      ? "en renta"
-      : modalidad === "venta"
-        ? "en venta"
-        : "como proyecto desde cero";
-  return `${nombre} ${operacion} en ${ciudad}`;
+export function tituloEspacio(
+  tipo: string,
+  modalidad: string,
+  ciudad: string,
+  idioma: Idioma = "es",
+): string {
+  const t = textosDe(idioma);
+  return t.ficha.titulo(
+    t.etiquetas.tipo[tipo] ?? tipo,
+    t.etiquetas.operacion[modalidad] ?? modalidad,
+    ciudad,
+  );
 }

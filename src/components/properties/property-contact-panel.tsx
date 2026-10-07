@@ -2,6 +2,7 @@
 
 import { CheckIcon, LinkIcon, Share2Icon } from "lucide-react";
 import { useId, useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FavoriteButton } from "./favorite-button";
@@ -18,12 +19,6 @@ interface PropertyContactPanelProps {
   haySimilares: boolean;
 }
 
-const PREGUNTAS_GENERALES = [
-  "¿Sigue disponible?",
-  "¿Cuándo puedo visitarlo?",
-  "¿Qué incluye el precio?",
-];
-const PREGUNTAS_NAVE = ["¿Cuál es el uso de suelo?", "¿Tiene patio de maniobras?"];
 const MAXIMO_MENSAJE = 1000;
 
 // Columna fija de la ficha: precio, mensaje con preguntas rápidas, Contactar (crea el lead con el
@@ -38,13 +33,16 @@ export function PropertyContactPanel({
   aceptaFinanciamiento,
   haySimilares,
 }: PropertyContactPanelProps) {
+  const { t } = useIdioma();
   const { contacto, error, enviando, contactar } = useContactarPropiedad(propiedadId);
   const [copiado, setCopiado] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [quiereFinanciamiento, setQuiereFinanciamiento] = useState(false);
   const idMensaje = useId();
   const preguntas =
-    tipo === "nave_industrial" ? [...PREGUNTAS_GENERALES, ...PREGUNTAS_NAVE] : PREGUNTAS_GENERALES;
+    tipo === "nave_industrial"
+      ? [...t.ficha.preguntas, ...t.ficha.preguntasNave]
+      : t.ficha.preguntas;
 
   function agregarPregunta(pregunta: string) {
     setMensaje((actual) => {
@@ -85,7 +83,7 @@ ${pregunta}`
     <div className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5 shadow-[0_16px_40px_-12px_rgba(11,30,61,0.15)]">
       <div className="flex flex-col gap-0.5">
         <span className="text-xs font-semibold tracking-wide text-text-muted uppercase">
-          Precio
+          {t.ficha.precio}
         </span>
         <span className="font-display text-2xl font-bold text-text">{precio}</span>
       </div>
@@ -97,7 +95,7 @@ ${pregunta}`
         >
           {contacto.telefono ? (
             <>
-              <span className="font-semibold">Teléfono del oferente</span>
+              <span className="font-semibold">{t.contacto.telefonoOferente}</span>
               <a href={`tel:${contacto.telefono}`} className="text-lg font-bold text-primary">
                 {contacto.telefono}
               </a>
@@ -106,23 +104,24 @@ ${pregunta}`
                   href={contacto.whatsappUrl}
                   className="text-primary underline underline-offset-4"
                 >
-                  Escribir por WhatsApp
+                  {t.contacto.escribirWhatsApp}
                 </a>
               ) : null}
             </>
           ) : (
-            <span>Listo, le enviamos tus datos al oferente. Te contactará pronto.</span>
+            <span>{t.contacto.listo}</span>
           )}
           {haySimilares ? (
             <a href="#similares" className="pt-1 text-primary underline underline-offset-4">
-              Ver espacios similares
+              {t.ficha.verSimilares}
             </a>
           ) : null}
         </div>
       ) : (
         <div className="flex flex-col gap-2.5">
           <label htmlFor={idMensaje} className="text-sm font-semibold text-text">
-            Mensaje para el oferente <span className="font-normal text-text-muted">(opcional)</span>
+            {t.ficha.mensajeOferente}{" "}
+            <span className="font-normal text-text-muted">{t.ficha.opcional}</span>
           </label>
           <div className="flex flex-wrap gap-1.5">
             {preguntas.map((pregunta) => (
@@ -142,7 +141,7 @@ ${pregunta}`
             value={mensaje}
             onChange={(evento) => setMensaje(evento.target.value.slice(0, MAXIMO_MENSAJE))}
             rows={3}
-            placeholder="Cuéntale qué necesitas: fechas, uso, dudas…"
+            placeholder={t.ficha.placeholderMensaje}
             className="resize-y rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-text placeholder:text-muted-foreground"
           />
           {aceptaFinanciamiento ? (
@@ -153,7 +152,7 @@ ${pregunta}`
                 onChange={(evento) => setQuiereFinanciamiento(evento.target.checked)}
                 className="accent-primary"
               />
-              Me interesa el financiamiento
+              {t.ficha.meInteresaFinanciamiento}
             </label>
           ) : null}
         </div>
@@ -165,7 +164,11 @@ ${pregunta}`
         onClick={() => void contactar({ mensaje, quiereFinanciamiento })}
         className="h-12 rounded-lg bg-accent text-[15px] font-bold text-accent-foreground shadow-sm transition-transform duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md disabled:translate-y-0 disabled:opacity-60 motion-reduce:transition-none"
       >
-        {contacto ? "Solicitud enviada" : enviando ? "Enviando…" : "Enviar y ver contacto"}
+        {contacto
+          ? t.contacto.solicitudEnviada
+          : enviando
+            ? t.contacto.enviando
+            : t.ficha.enviarYVer}
       </Button>
 
       {error ? (
@@ -190,23 +193,23 @@ ${pregunta}`
           {copiado ? (
             <>
               <CheckIcon className="size-4" aria-hidden="true" />
-              Liga copiada
+              {t.ficha.ligaCopiada}
             </>
           ) : (
             <>
               <Share2Icon className="size-4" aria-hidden="true" />
-              Compartir
+              {t.ficha.compartir}
             </>
           )}
         </button>
         <button
           type="button"
           onClick={compartirPorWhatsApp}
-          aria-label="Compartir por WhatsApp"
+          aria-label={t.ficha.compartirWhatsApp}
           className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-text transition-colors hover:border-primary hover:text-primary"
         >
           <LinkIcon className="size-4" aria-hidden="true" />
-          WhatsApp
+          {t.ficha.whatsapp}
         </button>
       </div>
     </div>

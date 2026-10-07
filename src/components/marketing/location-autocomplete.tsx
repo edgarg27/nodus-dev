@@ -3,6 +3,7 @@
 import { cn } from "cn";
 import { type KeyboardEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { useDebouncedValue } from "@/components/properties/use-debounced-value";
 
 interface Ciudad {
@@ -55,6 +56,7 @@ export function LocationAutocomplete({
 }: LocationAutocompleteProps) {
   const idListbox = useId();
   const inputRef = useRef<HTMLInputElement>(null);
+  const { t } = useIdioma();
   const [valor, setValor] = useState("");
   const [abierto, setAbierto] = useState(false);
   const [indiceActivo, setIndiceActivo] = useState(-1);
@@ -133,7 +135,7 @@ export function LocationAutocomplete({
     <div
       id={idListbox}
       role="listbox"
-      aria-label="Sugerencias de ubicación"
+      aria-label={t.hero.sugerencias}
       style={flotante && rect ? { top: rect.top, left: rect.left, width: rect.width } : undefined}
       className={cn(
         "z-[70] flex max-h-[220px] flex-col overflow-y-auto rounded-[10px] border border-border bg-card p-1.5 shadow-[0_12px_28px_rgba(11,30,59,0.14)]",

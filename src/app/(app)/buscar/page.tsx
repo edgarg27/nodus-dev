@@ -6,6 +6,7 @@ import { SearchFilters } from "@/components/properties/search-filters";
 import { SearchResults } from "@/components/properties/search-results";
 import { SortSelect } from "@/components/properties/sort-select";
 import { leerBusqueda } from "@/lib/search-params";
+import { obtenerTextos } from "@/server/i18n";
 import { cargarResultados } from "../../_shared/cargar-resultados";
 
 interface BuscarPageProps {
@@ -23,16 +24,17 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
   const { filtros, orden } = leerBusqueda(leer);
   const { consulta, autenticado, total, favoritos, guardada, propiedades, hasMore, nextCursor } =
     await cargarResultados(filtros, orden);
+  const { idioma, t } = await obtenerTextos();
 
   return (
     <>
       <div className="flex justify-center border-b border-border bg-background">
         <div className="flex w-full max-w-7xl items-center gap-2 px-4 py-4 text-[13px] text-text-muted sm:px-6 lg:px-8">
           <Link href="/" className="text-text-muted hover:text-text">
-            Inicio
+            {t.resultados.inicio}
           </Link>
           <ChevronRightIcon className="size-3 text-text-muted/60" aria-hidden="true" />
-          <span className="font-semibold text-text">Resultados de búsqueda</span>
+          <span className="font-semibold text-text">{t.resultados.resultadosDeBusqueda}</span>
         </div>
       </div>
 
@@ -40,7 +42,7 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
         <div className="flex w-full max-w-7xl flex-col gap-7 px-4 py-7 pb-24 sm:px-6 lg:px-8">
           <div className="sticky top-16 z-30 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface px-4 py-3 sm:px-5 sm:py-4">
             <h1 className="text-base font-bold text-text sm:text-xl">
-              {total} {total === 1 ? "espacio encontrado" : "espacios encontrados"}
+              {t.resultados.encontrados(total)}
             </h1>
             <div className="flex items-center gap-3">
               <SaveSearchButton
@@ -68,7 +70,7 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
         </div>
       </main>
 
-      <SiteFooter />
+      <SiteFooter idioma={idioma} />
     </>
   );
 }

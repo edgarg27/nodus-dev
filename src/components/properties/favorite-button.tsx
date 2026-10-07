@@ -4,6 +4,7 @@ import { cn } from "cn";
 import { HeartIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 
 interface FavoriteButtonProps {
   propiedadId: string;
@@ -21,6 +22,7 @@ export function FavoriteButton({
   autenticado,
   variante = "icono",
 }: FavoriteButtonProps) {
+  const { t } = useIdioma();
   const router = useRouter();
   const [favorito, setFavorito] = useState(inicial);
   const [enviando, setEnviando] = useState(false);
@@ -54,7 +56,7 @@ export function FavoriteButton({
     }
   }
 
-  const etiqueta = favorito ? "Quitar de favoritos" : "Guardar en favoritos";
+  const etiqueta = favorito ? t.favorito.quitar : t.favorito.guardar;
 
   if (variante === "boton") {
     return (
@@ -68,7 +70,7 @@ export function FavoriteButton({
           className={cn("size-4", favorito && "fill-accent text-accent")}
           aria-hidden="true"
         />
-        {favorito ? "En favoritos" : "Favorito"}
+        {favorito ? t.favorito.enFavoritos : t.favorito.favorito}
       </button>
     );
   }
