@@ -10,15 +10,6 @@ export const ESTADOS_LEAD = [
 ] as const;
 export type EstadoLead = (typeof ESTADOS_LEAD)[number];
 
-export const ETIQUETA_ESTADO_LEAD: Record<EstadoLead, string> = {
-  nueva: "Nueva",
-  contactada: "Contactada",
-  visita: "Visita",
-  propuesta: "Propuesta",
-  ganada: "Ganada",
-  descartada: "Descartada",
-};
-
 export const POR_PAGINA_LEADS = 25;
 
 export interface ParamsBandeja {

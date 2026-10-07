@@ -1,6 +1,6 @@
 import { aCsv, respuestaCsv } from "../../../../../lib/csv.ts";
+import { idiomaDeCookies, textosDe } from "../../../../../lib/i18n/index.ts";
 import { leerMisPropiedades } from "../../../../../lib/mis-propiedades-params.ts";
-import { ETIQUETA_MODALIDAD, ETIQUETA_TIPO } from "../../../../../lib/property-details.ts";
 import { requireRol } from "../../../../../server/auth/guards.ts";
 import { getUsuarioActual } from "../../../../../server/auth/session.ts";
 import { esUuid, respuestaError, sinSesion } from "../../../../../server/http/envelope.ts";
@@ -15,6 +15,12 @@ export async function GET(request: Request) {
     return respuestaError(403, "forbidden", "Se requiere el rol oferente");
   }
 
+  // Encabezados y etiquetas en el idioma del sitio (cookie `idioma`).
+  const t = textosDe(idiomaDeCookies(request.headers.get("cookie")));
+  const etiquetas = t.etiquetas as {
+    tipo: Record<string, string>;
+    modalidad: Record<string, string>;
+  };
   const url = new URL(request.url);
   const params = leerMisPropiedades((clave) => url.searchParams.get(clave) ?? undefined);
   // `ids` limita el CSV a la selección de la tabla; los que no son uuid se descartan.
@@ -28,36 +34,22 @@ export async function GET(request: Request) {
   });
 
   const csv = aCsv(
-    [
-      "Referencia",
-      "Título",
-      "Tipo",
-      "Operación",
-      "Dirección",
-      "Ciudad",
-      "Precio",
-      "Moneda",
-      "Publicación",
-      "Impresiones",
-      "Visitas",
-      "Solicitudes",
-      "Alta",
-    ],
+    t.csv.propiedades.encabezados,
     listado.filas.map((fila) => [
       fila.referencia,
       fila.titulo,
-      ETIQUETA_TIPO[fila.tipo] ?? fila.tipo,
-      ETIQUETA_MODALIDAD[fila.modalidad] ?? fila.modalidad,
+      etiquetas.tipo[fila.tipo] ?? fila.tipo,
+      etiquetas.modalidad[fila.modalidad] ?? fila.modalidad,
       fila.direccion,
       fila.ciudad,
       fila.precio,
       fila.moneda,
-      fila.estadoPublicacion,
+      t.panel.estado[fila.estadoPublicacion] ?? fila.estadoPublicacion,
       fila.metricas.impresiones,
       fila.metricas.visitas,
       fila.metricas.solicitudes,
       fila.createdAt.toISOString().slice(0, 10),
     ]),
   );
-  return respuestaCsv("propiedades.csv", csv);
+  return respuestaCsv(t.csv.propiedades.archivo, csv);
 }
