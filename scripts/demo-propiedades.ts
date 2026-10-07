@@ -9,8 +9,7 @@ import { normalizeAddress } from "../src/lib/normalize-address.ts";
 //   correrlo se reemplazan sus espacios (útil después de `pnpm test`, que vacía la base).
 // - Solo corre contra el proyecto de desarrollo (misma guardia que el seed y las pruebas).
 // - Fotos de ejemplo en public/demo/: oficinas (cuadros del video de la portada y dos interiores),
-//   una nave y un edificio en obra para los proyectos desde cero. Los locales aún no tienen foto y
-//   se muestran con su ícono.
+//   una nave, un local comercial y un edificio en obra para los proyectos desde cero.
 
 const OFERENTE_DEMO = {
   id: "11111111-1111-4111-8111-000000000001",
@@ -31,6 +30,7 @@ const FOTOS_OFICINA = [
 ];
 const FOTOS_NAVE = ["/demo/nave-1.jpg"];
 const FOTOS_PROYECTO = ["/demo/proyecto-1.jpg"];
+const FOTOS_LOCAL = ["/demo/local-1.jpg"];
 
 type Espacio = Omit<
   typeof propiedad.$inferInsert,
@@ -302,6 +302,8 @@ async function main() {
       fotos = FOTOS_PROYECTO;
     } else if (espacio.tipo === "nave_industrial") {
       fotos = FOTOS_NAVE;
+    } else if (espacio.tipo === "local_comercial") {
+      fotos = FOTOS_LOCAL;
     } else if (espacio.tipo === "oficina") {
       fotos = [0, 1].map(
         (orden) => FOTOS_OFICINA[(fotoSiguiente + orden) % FOTOS_OFICINA.length] as string,
