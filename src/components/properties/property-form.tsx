@@ -4,8 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import type { Sugerencia } from "./address-autocomplete";
@@ -15,10 +16,10 @@ import { PropertyFormLocationField } from "./property-form-location-field";
 import { PropertyFormReviewDialog } from "./property-form-review-dialog";
 import {
   CAMPOS_NUMERICOS_FORMULARIO,
+  crearPropertyFormSchema,
   estadoDesdeGeocode,
   type PropertyFormInitialData,
   type PropertyFormValues,
-  propertyFormSchema,
   textoANumero,
 } from "./property-form-schema";
 import { PropertyFormSuccess } from "./property-form-success";
@@ -34,6 +35,7 @@ interface ErrorApi {
   code?: string;
   message?: string;
   details?: Array<{ existing_property_id?: string }>;
+  foto?: boolean;
 }
 
 async function subirFoto(propiedadId: string, archivo: File): Promise<void> {
@@ -45,11 +47,14 @@ async function subirFoto(propiedadId: string, archivo: File): Promise<void> {
   });
   if (!respuesta.ok) {
     const cuerpo = await respuesta.json().catch(() => null);
-    throw (cuerpo?.error as ErrorApi) ?? { message: "No se pudo subir la foto" };
+    throw { ...(cuerpo?.error as ErrorApi | undefined), foto: true } satisfies ErrorApi;
   }
 }
 
 export function PropertyForm({ propiedad }: PropertyFormProps) {
+  const { idioma, t: textos } = useIdioma();
+  const f = textos.panel.formulario;
+  const esquema = useMemo(() => crearPropertyFormSchema(f), [f]);
   const router = useRouter();
   const modo = propiedad ? "editar" : "nueva";
 
@@ -62,7 +67,7 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
     reset,
     formState: { errors },
   } = useForm<PropertyFormValues>({
-    resolver: zodResolver(propertyFormSchema),
+    resolver: zodResolver(esquema),
     defaultValues: propiedad
       ? {
           tipo: propiedad.tipo,
@@ -221,7 +226,9 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
         if (existingId) setMensajeDuplicado({ id: existingId });
         return;
       }
-      setErrorEnvio(error.message ?? "No se pudo guardar la propiedad");
+      // Los mensajes de la API están en español; en inglés se muestra el genérico.
+      const generico = error.foto ? f.errorFoto : f.errorGuardar;
+      setErrorEnvio(idioma === "es" && error.message ? error.message : generico);
     }
   }
 
@@ -244,27 +251,24 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
   const mensajeEstado =
     modo === "nueva" ? (
       <>
-        Al enviar, tu propiedad queda en estado <strong className="text-warning">Pendiente</strong>{" "}
-        hasta que un administrador la revise.
+        {f.estadoNuevaAntes} <strong className="text-warning">{f.pendiente}</strong>{" "}
+        {f.estadoNuevaDespues}
       </>
     ) : (
-      <>Al guardar, los cambios pueden requerir una nueva revisión antes de ser públicos.</>
+      f.estadoEditar
     );
 
   return (
     <div className="mx-auto flex w-full max-w-[820px] flex-col gap-6 px-4">
       <div className="flex flex-col gap-2 px-1">
         <span className="text-[13px] font-bold tracking-wide text-warning uppercase">
-          {modo === "nueva" ? "Publicar un espacio" : "Editar propiedad"}
+          {modo === "nueva" ? f.etiquetaNueva : f.etiquetaEditar}
         </span>
         <h1 className="font-display text-[28px] font-bold text-foreground">
-          {modo === "nueva" ? "Cuéntanos sobre tu inmueble" : "Actualiza los datos de tu inmueble"}
+          {modo === "nueva" ? f.tituloNueva : f.tituloEditar}
         </h1>
         {modo === "nueva" ? (
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            Un administrador de Nodus revisará tu publicación antes de que sea pública. Este proceso
-            normalmente toma entre 24 y 48 horas.
-          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">{f.introNueva}</p>
         ) : null}
       </div>
 
@@ -281,18 +285,20 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
         {mensajeDuplicado ? (
           <Alert variant="destructive">
             <AlertDescription className="flex flex-col gap-1">
-              <p>Ya existe una propiedad activa en esta dirección.</p>
+              <p>{f.duplicada}</p>
               <Link
                 href={`/propiedades/${mensajeDuplicado.id}`}
                 className="text-primary underline underline-offset-4"
               >
-                Ver propiedad existente
+                {f.verExistente}
               </Link>
             </AlertDescription>
           </Alert>
         ) : null}
         {propiedad?.estadoPublicacion === "rechazada" && propiedad.motivoRechazo ? (
-          <p className="text-sm text-destructive">Motivo de rechazo: {propiedad.motivoRechazo}</p>
+          <p className="text-sm text-destructive">
+            {f.motivoRechazo} {propiedad.motivoRechazo}
+          </p>
         ) : null}
 
         <PropertyFormBasicsFields
@@ -340,7 +346,7 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-border pt-7">
           {faltaConfirmarUbicacion ? (
             <p className="max-w-[320px] text-[13px] font-semibold text-warning">
-              Confirma la ubicación en el mapa para poder enviar.
+              {f.confirmaUbicacion}
             </p>
           ) : (
             <p className="max-w-[320px] text-[13px] text-muted-foreground">{mensajeEstado}</p>
@@ -352,10 +358,10 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
             className="h-[50px] rounded-lg bg-accent px-7 text-[15px] font-bold text-accent-foreground shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none disabled:opacity-60"
           >
             {mutacion.isPending
-              ? "Guardando…"
+              ? f.guardando
               : modo === "nueva"
-                ? "Enviar a revisión"
-                : "Guardar cambios"}
+                ? f.enviarRevision
+                : f.guardarCambios}
           </Button>
         </div>
       </form>

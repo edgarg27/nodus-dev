@@ -3,6 +3,7 @@
 import { Map as MapaLibre, type MapMouseEvent, Marker, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 
 // maplibre-gl-worker.mjs importa `./maplibre-gl-shared.mjs` con una ruta relativa. Bajo Turbopack,
 // referenciarlo vía `new URL("maplibre-gl/dist/...", import.meta.url)` lo copia como asset opaco
@@ -26,6 +27,7 @@ interface PinPickerProps {
 // Selector de ubicación con MapLibre, junto a los inputs manuales de lat/lng (WCAG 2.5.7: nunca
 // los reemplaza). El pin es arrastrable y operable con las flechas del teclado.
 export function PinPicker({ lat, lng, onChange }: PinPickerProps) {
+  const f = useIdioma().t.panel.formulario;
   const contenedorRef = useRef<HTMLDivElement>(null);
   const mapaRef = useRef<MapaLibre | null>(null);
   const marcadorRef = useRef<Marker | null>(null);
@@ -60,10 +62,7 @@ export function PinPicker({ lat, lng, onChange }: PinPickerProps) {
     const elementoMarcador = marcador.getElement();
     elementoMarcador.tabIndex = 0;
     elementoMarcador.setAttribute("role", "button");
-    elementoMarcador.setAttribute(
-      "aria-label",
-      "Ubicación de la propiedad: arrastra el pin o usa las flechas del teclado para moverlo",
-    );
+    elementoMarcador.setAttribute("aria-label", f.pinMapa);
     elementoMarcador.addEventListener("keydown", (evento: KeyboardEvent) => {
       const posicion = marcador.getLngLat();
       let latActual = posicion.lat;

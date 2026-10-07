@@ -1,7 +1,9 @@
 "use client";
 
 import { type ChangeEvent, type DragEvent, useEffect, useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Label } from "@/components/ui/label";
+import { type Textos, textosDe } from "@/lib/i18n";
 
 const TIPOS_FOTO_PERMITIDOS = ["image/jpeg", "image/png", "image/webp"];
 const TAMANO_MAXIMO_FOTO = 4_000_000;
@@ -11,12 +13,15 @@ export interface PropertyFormPhoto {
   storageUrl: string;
 }
 
-export function validarArchivoFoto(archivo: File): string | null {
+export function validarArchivoFoto(
+  archivo: File,
+  m: Textos["panel"]["formulario"] = textosDe("es").panel.formulario,
+): string | null {
   if (!TIPOS_FOTO_PERMITIDOS.includes(archivo.type)) {
-    return `${archivo.name}: usa una foto JPEG, PNG o WebP`;
+    return m.fotoTipo(archivo.name);
   }
   if (archivo.size > TAMANO_MAXIMO_FOTO) {
-    return `${archivo.name}: pesa más de 4 MB`;
+    return m.fotoPeso(archivo.name);
   }
   return null;
 }
@@ -81,6 +86,7 @@ export function PropertyPhotoField({
   onAgregarArchivos,
   onQuitarArchivoNuevo,
 }: PropertyPhotoFieldProps) {
+  const f = useIdioma().t.panel.formulario;
   const [arrastrando, setArrastrando] = useState(false);
   const [errorArchivos, setErrorArchivos] = useState<string | null>(null);
   const vistasPrevias = useVistasPrevias(archivosNuevos);
@@ -88,7 +94,7 @@ export function PropertyPhotoField({
 
   function procesarArchivos(lista: File[]) {
     for (const archivo of lista) {
-      const error = validarArchivoFoto(archivo);
+      const error = validarArchivoFoto(archivo, f);
       if (error) {
         setErrorArchivos(error);
         return;
@@ -101,7 +107,7 @@ export function PropertyPhotoField({
   return (
     <div className="flex flex-col gap-3">
       <Label htmlFor="fotos" className="sr-only">
-        Fotos
+        {f.fotos}
       </Label>
 
       <label
@@ -138,12 +144,10 @@ export function PropertyPhotoField({
           <polyline points="17 8 12 3 7 8" />
           <line x1="12" y1="3" x2="12" y2="15" />
         </svg>
-        <span className="text-sm font-semibold text-foreground">
-          Arrastra tus fotos aquí o haz clic para seleccionarlas
-        </span>
+        <span className="text-sm font-semibold text-foreground">{f.arrastraFotos}</span>
         <span className="text-xs text-muted-foreground">
-          JPG, PNG o WebP · máx. 4 MB cada una
-          {total > 0 ? ` · ${total} agregada${total === 1 ? "" : "s"}` : ""}
+          {f.formatosFotos}
+          {total > 0 ? f.fotosAgregadas(total) : ""}
         </span>
       </label>
       <input
@@ -175,7 +179,7 @@ export function PropertyPhotoField({
               <img src={foto.storageUrl} alt="" className="h-full w-full object-cover" />
               <button
                 type="button"
-                aria-label="Quitar foto"
+                aria-label={f.quitarFoto}
                 onClick={() => onQuitarFotoExistente(foto.id)}
                 className="absolute top-1 right-1 flex size-6 cursor-pointer items-center justify-center rounded-full bg-primary/75 text-primary-foreground transition-transform duration-150 ease-out hover:scale-110 hover:bg-primary"
               >
@@ -192,7 +196,7 @@ export function PropertyPhotoField({
               <img src={vistasPrevias.get(archivo)} alt="" className="h-full w-full object-cover" />
               <button
                 type="button"
-                aria-label="Quitar foto"
+                aria-label={f.quitarFoto}
                 onClick={() => onQuitarArchivoNuevo(indice)}
                 className="absolute top-1 right-1 flex size-6 cursor-pointer items-center justify-center rounded-full bg-primary/75 text-primary-foreground transition-transform duration-150 ease-out hover:scale-110 hover:bg-primary"
               >

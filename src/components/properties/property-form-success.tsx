@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
 
 interface PropertyFormSuccessProps {
@@ -8,6 +9,7 @@ interface PropertyFormSuccessProps {
 }
 
 export function PropertyFormSuccess({ onReset }: PropertyFormSuccessProps) {
+  const f = useIdioma().t.panel.formulario;
   const router = useRouter();
   return (
     <div className="mx-auto w-full max-w-[820px] px-4">
@@ -30,13 +32,8 @@ export function PropertyFormSuccess({ onReset }: PropertyFormSuccessProps) {
           </svg>
         </span>
         <div className="flex max-w-[420px] flex-col gap-2.5">
-          <h1 className="font-display text-2xl font-bold text-foreground">
-            Tu propiedad fue enviada a revisión
-          </h1>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            Un administrador de Nodus la revisará pronto. Te avisaremos por correo en cuanto sea
-            aprobada y visible para otros usuarios.
-          </p>
+          <h1 className="font-display text-2xl font-bold text-foreground">{f.exitoTitulo}</h1>
+          <p className="text-sm leading-relaxed text-muted-foreground">{f.exitoTexto}</p>
         </div>
         <div className="flex flex-wrap justify-center gap-3 pt-2">
           <Button
@@ -45,7 +42,7 @@ export function PropertyFormSuccess({ onReset }: PropertyFormSuccessProps) {
             onClick={onReset}
             className="h-[46px] rounded-lg border-input px-6 text-sm font-bold text-foreground"
           >
-            Publicar otra propiedad
+            {f.publicarOtra}
           </Button>
           <Button
             type="button"
@@ -55,7 +52,7 @@ export function PropertyFormSuccess({ onReset }: PropertyFormSuccessProps) {
             }}
             className="h-[46px] rounded-lg bg-accent px-6 text-sm font-bold text-accent-foreground hover:bg-accent/90"
           >
-            Ver mis propiedades
+            {f.verMisPropiedades}
           </Button>
         </div>
       </div>

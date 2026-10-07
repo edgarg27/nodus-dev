@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { BrokerPromoBanner } from "./broker-promo-banner";
 import type { PropertyListingData } from "./property-listing-card";
 import { PropertyListingCard } from "./property-listing-card";
@@ -13,6 +14,7 @@ interface MyListingsPageProps {
 }
 
 export function MyListingsPage({ propiedades, isBroker }: MyListingsPageProps) {
+  const p = useIdioma().t.panel.publicaciones;
   const [filtro, setFiltro] = useState<FiltroPublicacion>("todas");
 
   const conteos = useMemo(
@@ -32,10 +34,8 @@ export function MyListingsPage({ propiedades, isBroker }: MyListingsPageProps) {
     <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-7 px-4">
       <div className="flex flex-wrap items-center justify-between gap-5">
         <div className="flex flex-col gap-1.5">
-          <h1 className="font-display text-[26px] font-bold text-foreground">Mis publicaciones</h1>
-          <p className="text-sm text-muted-foreground">
-            Todas las propiedades que has enviado, con su estado de revisión.
-          </p>
+          <h1 className="font-display text-[26px] font-bold text-foreground">{p.titulo}</h1>
+          <p className="text-sm text-muted-foreground">{p.descripcion}</p>
         </div>
         <Link
           href="/propiedades/nueva"
@@ -55,7 +55,7 @@ export function MyListingsPage({ propiedades, isBroker }: MyListingsPageProps) {
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-          Publicar un espacio
+          {p.publicarEspacio}
         </Link>
       </div>
 
@@ -63,12 +63,12 @@ export function MyListingsPage({ propiedades, isBroker }: MyListingsPageProps) {
 
       {propiedades.length === 0 ? (
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-border bg-surface px-6 py-10">
-          <p className="text-sm text-muted-foreground">Aún no tienes propiedades</p>
+          <p className="text-sm text-muted-foreground">{p.sinPropiedades}</p>
           <Link
             href="/propiedades/nueva"
             className="flex h-[46px] items-center rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground hover:bg-accent/90"
           >
-            Publicar una propiedad
+            {p.publicarPropiedad}
           </Link>
         </div>
       ) : (
@@ -98,7 +98,7 @@ export function MyListingsPage({ propiedades, isBroker }: MyListingsPageProps) {
                 <path d="M5 21V7l7-4 7 4v14" />
                 <path d="M9 21v-6h6v6" />
               </svg>
-              <span className="text-sm">No hay propiedades en esta categoría.</span>
+              <span className="text-sm">{p.sinCategoria}</span>
             </div>
           )}
         </>

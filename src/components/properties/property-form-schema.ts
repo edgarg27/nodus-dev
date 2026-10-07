@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { CODIGOS_ESTADO, type CodigoEstado, estadoDesdeNombre } from "@/lib/estados";
+import { type Textos, textosDe } from "@/lib/i18n";
 import { type DetallesPropiedad, MONEDAS, UNIDADES_PRECIO } from "@/lib/property-details";
 import type { PropertyFormPhoto } from "./property-photo-field";
 import type { EstadoPublicacion } from "./status-badge";
@@ -15,7 +16,9 @@ const LNG_MAX = -86.7;
 
 // Los inputs numéricos se manejan como texto (vacío = sin dato) y se convierten a número en el
 // límite con la API (`property-form.tsx`), igual que los radios de financiamiento.
-function campoNumerico(opciones: { entero?: boolean; maximo: number }) {
+type MensajesFormulario = Textos["panel"]["formulario"];
+
+function campoNumerico(opciones: { entero?: boolean; maximo: number }, m: MensajesFormulario) {
   return z
     .string()
     .trim()
@@ -27,36 +30,42 @@ function campoNumerico(opciones: { entero?: boolean; maximo: number }) {
         if (!Number.isFinite(numero) || numero < 0 || numero > opciones.maximo) return false;
         return !opciones.entero || Number.isInteger(numero);
       },
-      opciones.entero ? "Escribe un número entero" : "Escribe un número válido",
+      opciones.entero ? m.errorEntero : m.errorNumero,
     );
 }
 
-export const propertyFormSchema = z.object({
-  tipo: z.enum(TIPOS),
-  modalidad: z.enum(MODALIDADES),
-  direccion: z.string().trim().min(1, "La dirección es obligatoria"),
-  lat: z.number().min(LAT_MIN).max(LAT_MAX),
-  lng: z.number().min(LNG_MIN).max(LNG_MAX),
-  estado: z.enum(ESTADOS),
-  ciudad: z.string().trim().min(1, "La ciudad es obligatoria"),
-  descripcion: z.string().trim().min(1, "La descripción es obligatoria"),
-  // Los radios de HTML solo pueden reportar el string de su atributo `value` — RHF nunca aplica
-  // `setValueAs` a inputs radio/checkbox (lee el DOM directo), así que el estado del formulario
-  // se queda en "true"/"false" y la conversión a boolean ocurre en el límite con la API
-  // (`property-form.tsx`, al armar el body del POST/PATCH).
-  aceptaFinanciamiento: z.enum(["true", "false"]),
-  precio: campoNumerico({ maximo: 999_999_999_999 }),
-  moneda: z.enum(MONEDAS).optional(),
-  precioUnidad: z.enum(UNIDADES_PRECIO).optional(),
-  mantenimiento: campoNumerico({ maximo: 999_999_999_999 }),
-  superficieConstruidaM2: campoNumerico({ maximo: 9_999_999_999 }),
-  superficieTerrenoM2: campoNumerico({ maximo: 9_999_999_999 }),
-  banos: campoNumerico({ entero: true, maximo: 9_999 }),
-  estacionamientos: campoNumerico({ entero: true, maximo: 9_999 }),
-  alturaLibreM: campoNumerico({ maximo: 999 }),
-  andenes: campoNumerico({ entero: true, maximo: 9_999 }),
-  potenciaKva: campoNumerico({ entero: true, maximo: 9_999_999 }),
-});
+// El esquema se arma con los mensajes del idioma activo (el formulario usa crearPropertyFormSchema);
+// propertyFormSchema es la versión en español.
+export function crearPropertyFormSchema(m: MensajesFormulario) {
+  return z.object({
+    tipo: z.enum(TIPOS),
+    modalidad: z.enum(MODALIDADES),
+    direccion: z.string().trim().min(1, m.errorDireccion),
+    lat: z.number().min(LAT_MIN).max(LAT_MAX),
+    lng: z.number().min(LNG_MIN).max(LNG_MAX),
+    estado: z.enum(ESTADOS),
+    ciudad: z.string().trim().min(1, m.errorCiudad),
+    descripcion: z.string().trim().min(1, m.errorDescripcion),
+    // Los radios de HTML solo pueden reportar el string de su atributo `value` — RHF nunca aplica
+    // `setValueAs` a inputs radio/checkbox (lee el DOM directo), así que el estado del formulario
+    // se queda en "true"/"false" y la conversión a boolean ocurre en el límite con la API
+    // (`property-form.tsx`, al armar el body del POST/PATCH).
+    aceptaFinanciamiento: z.enum(["true", "false"]),
+    precio: campoNumerico({ maximo: 999_999_999_999 }, m),
+    moneda: z.enum(MONEDAS).optional(),
+    precioUnidad: z.enum(UNIDADES_PRECIO).optional(),
+    mantenimiento: campoNumerico({ maximo: 999_999_999_999 }, m),
+    superficieConstruidaM2: campoNumerico({ maximo: 9_999_999_999 }, m),
+    superficieTerrenoM2: campoNumerico({ maximo: 9_999_999_999 }, m),
+    banos: campoNumerico({ entero: true, maximo: 9_999 }, m),
+    estacionamientos: campoNumerico({ entero: true, maximo: 9_999 }, m),
+    alturaLibreM: campoNumerico({ maximo: 999 }, m),
+    andenes: campoNumerico({ entero: true, maximo: 9_999 }, m),
+    potenciaKva: campoNumerico({ entero: true, maximo: 9_999_999 }, m),
+  });
+}
+
+export const propertyFormSchema = crearPropertyFormSchema(textosDe("es").panel.formulario);
 
 export const CAMPOS_NUMERICOS_FORMULARIO = [
   "precio",

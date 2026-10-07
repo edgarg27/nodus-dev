@@ -1,5 +1,10 @@
+"use client";
+
 import { Building2Icon, StoreIcon, WarehouseIcon } from "lucide-react";
 import Link from "next/link";
+import { useIdioma } from "@/components/i18n/idioma-provider";
+import { nombreEstado } from "@/lib/estados";
+import { localeDe } from "@/lib/i18n";
 import { type DetallesPropiedad, formatearPrecio } from "@/lib/property-details";
 import { type EstadoPublicacion, StatusBadge } from "./status-badge";
 
@@ -23,33 +28,24 @@ const ICONO_POR_TIPO = {
   local_comercial: StoreIcon,
 } as const;
 
-const ETIQUETA_MODALIDAD: Record<string, string> = {
-  renta: "Renta",
-  venta: "Venta",
-  desde_cero: "Proyecto desde cero",
-};
-
-const ETIQUETA_TIPO: Record<string, string> = {
-  nave_industrial: "Nave industrial",
-  oficina: "Oficina",
-  local_comercial: "Local comercial",
-};
-
-const formateadorFecha = new Intl.DateTimeFormat("es-MX", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-
 interface PropertyListingCardProps {
   propiedad: PropertyListingData;
 }
 
 export function PropertyListingCard({ propiedad }: PropertyListingCardProps) {
+  const { idioma, t } = useIdioma();
+  const p = t.panel.publicaciones;
+  const formateadorFecha = new Intl.DateTimeFormat(localeDe(idioma), {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
   const Icono = ICONO_POR_TIPO[propiedad.tipo as keyof typeof ICONO_POR_TIPO] ?? WarehouseIcon;
-  const etiquetaLugar = [propiedad.ciudad, propiedad.estado].filter(Boolean).join(", ");
-  const meta = `${ETIQUETA_MODALIDAD[propiedad.modalidad] ?? propiedad.modalidad} · ${
-    ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo
+  const etiquetaLugar = [propiedad.ciudad, nombreEstado(propiedad.estado)]
+    .filter(Boolean)
+    .join(", ");
+  const meta = `${t.etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad} · ${
+    t.etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo
   } · ${etiquetaLugar}`;
 
   return (
@@ -74,19 +70,18 @@ export function PropertyListingCard({ propiedad }: PropertyListingCardProps) {
         </div>
         <p className="text-[13px] text-muted-foreground">{meta}</p>
         <p className="text-sm font-semibold text-foreground">
-          {formatearPrecio(propiedad, propiedad.modalidad)}
+          {formatearPrecio(propiedad, propiedad.modalidad, idioma)}
         </p>
 
         {propiedad.estadoPublicacion === "pendiente" ? (
           <p className="text-xs text-muted-foreground/80">
-            Enviada el {formateadorFecha.format(new Date(propiedad.createdAt))} · normalmente toma
-            24–48 horas en revisarse
+            {p.enviada(formateadorFecha.format(new Date(propiedad.createdAt)))}
           </p>
         ) : null}
 
         {propiedad.estadoPublicacion === "publicada" && propiedad.revisadaEn ? (
           <p className="text-xs text-muted-foreground/80">
-            Pública desde el {formateadorFecha.format(new Date(propiedad.revisadaEn))}
+            {p.publicaDesde(formateadorFecha.format(new Date(propiedad.revisadaEn)))}
           </p>
         ) : null}
 
@@ -109,7 +104,7 @@ export function PropertyListingCard({ propiedad }: PropertyListingCardProps) {
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
             <p className="text-[12.5px] leading-relaxed text-destructive">
-              <strong>Motivo del administrador:</strong> {propiedad.motivoRechazo}
+              <strong>{p.motivoAdmin}</strong> {propiedad.motivoRechazo}
             </p>
           </div>
         ) : null}
@@ -117,21 +112,21 @@ export function PropertyListingCard({ propiedad }: PropertyListingCardProps) {
 
       <div className="flex shrink-0 gap-2 sm:flex-col md:flex-row">
         {propiedad.estadoPublicacion === "pendiente" ? (
-          <span className="text-[13px] font-semibold text-muted-foreground">En revisión</span>
+          <span className="text-[13px] font-semibold text-muted-foreground">{p.enRevision}</span>
         ) : null}
         {propiedad.estadoPublicacion === "publicada" ? (
           <>
             <Link
-              href={`/buscar#listing-${propiedad.id}`}
+              href={`/espacios/${propiedad.id}`}
               className="flex h-9 items-center rounded-lg border border-input px-3.5 text-[13px] font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
             >
-              Ver publicación
+              {p.verPublicacion}
             </Link>
             <Link
               href={`/propiedades/${propiedad.id}/editar`}
               className="flex h-9 items-center rounded-lg border border-input px-3.5 text-[13px] font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
             >
-              Editar
+              {p.editar}
             </Link>
           </>
         ) : null}
@@ -140,7 +135,7 @@ export function PropertyListingCard({ propiedad }: PropertyListingCardProps) {
             href={`/propiedades/${propiedad.id}/editar`}
             className="flex h-9 items-center rounded-lg bg-accent px-3.5 text-[13px] font-bold whitespace-nowrap text-accent-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 motion-reduce:transition-none"
           >
-            Corregir y reenviar
+            {p.corregir}
           </Link>
         ) : null}
       </div>

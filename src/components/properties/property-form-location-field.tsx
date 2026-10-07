@@ -1,4 +1,5 @@
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,13 +27,14 @@ export function PropertyFormLocationField({
   faltaConfirmar,
   onConfirmar,
 }: PropertyFormLocationFieldProps) {
+  const f = useIdioma().t.panel.formulario;
   return (
     <div className="flex flex-col gap-4 border-t border-border pt-7">
-      <h2 className="text-[15px] font-bold text-foreground">Ubicación en el mapa</h2>
+      <h2 className="text-[15px] font-bold text-foreground">{f.ubicacion}</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor="lat" className="text-[13px] font-semibold text-foreground">
-            Latitud
+            {f.latitud}
           </Label>
           <Input
             id="lat"
@@ -51,7 +53,7 @@ export function PropertyFormLocationField({
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="lng" className="text-[13px] font-semibold text-foreground">
-            Longitud
+            {f.longitud}
           </Label>
           <Input
             id="lng"
@@ -75,16 +77,15 @@ export function PropertyFormLocationField({
           className="flex flex-col gap-3 rounded-lg border border-warning/40 bg-warning/10 p-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <p className="text-sm text-foreground">
-            Ubicamos el pin con tu dirección, pero puede no ser exacto.{" "}
-            <strong>Verifica que esté sobre tu propiedad</strong>; si no, arrástralo o haz clic en
-            el lugar correcto del mapa.
+            {f.pinAviso} <strong>{f.pinVerifica}</strong>
+            {f.pinInstruccion}
           </p>
           <Button
             type="button"
             onClick={onConfirmar}
             className="h-10 shrink-0 rounded-lg bg-accent px-4 text-[14px] font-bold text-accent-foreground hover:bg-accent/90"
           >
-            Sí, está en el lugar correcto
+            {f.pinConfirmar}
           </Button>
         </div>
       ) : null}

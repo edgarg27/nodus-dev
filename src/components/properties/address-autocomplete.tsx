@@ -8,6 +8,7 @@ import {
   useId,
   useState,
 } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useDebouncedValue } from "./use-debounced-value";
@@ -50,6 +51,7 @@ export function AddressAutocomplete({
   ...inputProps
 }: AddressAutocompleteProps) {
   const idListbox = useId();
+  const f = useIdioma().t.panel.formulario;
   const [texto, setTexto] = useState("");
   const [sugerencias, setSugerencias] = useState<Sugerencia[]>([]);
   const [abierto, setAbierto] = useState(false);
@@ -147,7 +149,7 @@ export function AddressAutocomplete({
         <div
           id={idListbox}
           role="listbox"
-          aria-label="Sugerencias de dirección"
+          aria-label={f.sugerenciasDireccion}
           className="absolute inset-x-0 top-[calc(100%+4px)] z-20 flex max-h-64 flex-col overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-sm"
         >
           {sugerencias.map((sugerencia, indice) => (

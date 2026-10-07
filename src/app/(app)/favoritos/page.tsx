@@ -4,41 +4,37 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { FavoriteButton } from "@/components/properties/favorite-button";
 import { Button } from "@/components/ui/button";
-import {
-  ETIQUETA_MODALIDAD,
-  ETIQUETA_TIPO,
-  extraerDetalles,
-  formatearPrecio,
-  resumenDetalles,
-} from "@/lib/property-details";
+import { extraerDetalles, formatearPrecio, resumenDetalles } from "@/lib/property-details";
 import { getUsuarioActual } from "@/server/auth/session";
 import { listarFavoritos } from "@/server/favorites/favorites";
+import { obtenerTextos } from "@/server/i18n";
 
-export const metadata: Metadata = { title: "Mis favoritos — Captive by Nodus" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await obtenerTextos();
+  return { title: t.panel.favoritos.metaTitulo };
+}
 
 export default async function FavoritosPage() {
   const actor = await getUsuarioActual();
   if (!actor) redirect("/sign-in?next=/favoritos");
 
   const favoritos = await listarFavoritos(actor.id);
+  const { idioma, t: textos } = await obtenerTextos();
+  const t = textos.panel.favoritos;
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold text-text">Mis favoritos</h1>
-        <p className="text-sm text-text-muted">
-          Los espacios que guardaste. Si uno deja de estar publicado, desaparece de aquí.
-        </p>
+        <h1 className="text-2xl font-bold text-text">{t.titulo}</h1>
+        <p className="text-sm text-text-muted">{t.descripcion}</p>
       </div>
 
       {favoritos.length === 0 ? (
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-border p-8">
           <HeartIcon className="size-8 text-text-muted" aria-hidden="true" />
-          <p className="text-sm text-text-muted">
-            Aún no tienes favoritos. Toca el corazón en cualquier espacio para guardarlo.
-          </p>
+          <p className="text-sm text-text-muted">{t.vacio}</p>
           <Button asChild>
-            <Link href="/buscar">Buscar espacios</Link>
+            <Link href="/buscar">{t.buscar}</Link>
           </Button>
         </div>
       ) : (
@@ -59,15 +55,15 @@ export default async function FavoritosPage() {
                   </div>
                   <div className="flex flex-col gap-1.5 p-4">
                     <span className="text-[11px] font-semibold tracking-wide text-warning uppercase">
-                      {ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo} ·{" "}
-                      {ETIQUETA_MODALIDAD[propiedad.modalidad] ?? propiedad.modalidad}
+                      {textos.etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo} ·{" "}
+                      {textos.etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad}
                     </span>
                     <span className="font-display text-lg font-bold text-text">
-                      {formatearPrecio(detalles, propiedad.modalidad)}
+                      {formatearPrecio(detalles, propiedad.modalidad, idioma)}
                     </span>
                     <span className="text-sm text-text">{propiedad.direccion}</span>
                     <span className="text-[13px] text-text-muted">
-                      {resumenDetalles(detalles, propiedad.tipo).join(" · ")}
+                      {resumenDetalles(detalles, propiedad.tipo, idioma).join(" · ")}
                     </span>
                   </div>
                 </Link>
