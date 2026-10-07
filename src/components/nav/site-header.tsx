@@ -132,27 +132,27 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
       >
         <Link
           href="/"
-          aria-label={`Captive by Nodus — ${t.inicio}`}
-          className="relative block h-8 w-[110px] shrink-0 transition-transform duration-200 ease-out hover:-translate-y-px hover:scale-[1.03] active:scale-[0.97] motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:hover:translate-y-0 sm:h-10 sm:w-[137px]"
+          aria-label={`Captive Center by Nodus Flex Center — ${t.inicio}`}
+          className="relative block h-9 w-[109px] shrink-0 transition-transform duration-200 ease-out hover:-translate-y-px hover:scale-[1.03] active:scale-[0.97] motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:hover:translate-y-0 sm:h-11 sm:w-[134px]"
         >
-          {/* Dos versiones del logo apiladas: la blanca sobre el video, la de color en la barra sólida. */}
+          {/* Dos versiones del logo apiladas: la de texto blanco sobre el video, la de texto azul en la barra sólida. */}
           <Image
-            src="/brand/captive-logo-blanco.png"
+            src="/brand/captive-center-logo-oscuro.png"
             alt=""
             fill
             priority
-            sizes="137px"
+            sizes="134px"
             className={cn(
               "object-contain transition-opacity duration-300",
               inmersivo ? "opacity-100" : "opacity-0",
             )}
           />
           <Image
-            src="/brand/captive-logo.png"
+            src="/brand/captive-center-logo-claro.png"
             alt=""
             fill
             priority
-            sizes="137px"
+            sizes="134px"
             className={cn(
               "object-contain transition-opacity duration-300",
               inmersivo ? "opacity-0" : "opacity-100",
