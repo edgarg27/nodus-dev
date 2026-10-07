@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { localeDe } from "@/lib/i18n";
+import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
 
 export interface MensajeVista {
   id: string;
@@ -63,8 +64,7 @@ export function ChatThread({ conversacionId, mensajes }: ChatThreadProps) {
       });
       if (!respuesta.ok) {
         const cuerpo = await respuesta.json().catch(() => null);
-        // Los mensajes de la API están en español; en inglés se muestra el genérico.
-        throw new Error((idioma === "es" && cuerpo?.error?.message) || m.errorEnviar);
+        throw new Error(mensajeDeErrorApi(cuerpo, idioma, m.errorEnviar));
       }
       setTexto("");
       router.refresh();

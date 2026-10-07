@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
+import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
 
 export interface ContactoRevelado {
   telefono: string | null;
@@ -43,12 +44,7 @@ export function useContactarPropiedad(propiedadId: string) {
 
       const cuerpo = await respuesta.json().catch(() => null);
       if (!respuesta.ok || !cuerpo?.data) {
-        // Los mensajes de la API están en español; en inglés se muestra el genérico.
-        setError(
-          idioma === "es" && cuerpo?.error?.message
-            ? cuerpo.error.message
-            : t.contacto.errorGeneral,
-        );
+        setError(mensajeDeErrorApi(cuerpo, idioma, t.contacto.errorGeneral));
         return;
       }
 

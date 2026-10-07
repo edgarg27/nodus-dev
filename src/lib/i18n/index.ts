@@ -1,8 +1,8 @@
 import { en } from "./en.ts";
 import { es, type Textos } from "./es.ts";
 
-// Idioma del sitio. Se guarda en la cookie `idioma`; sin cookie, español. Los mensajes de error
-// de la API siguen en español.
+// Idioma del sitio. Se guarda en la cookie `idioma`; sin cookie, español. La API responde en
+// español; las pantallas traducen sus errores con `errores-api.ts`.
 export const IDIOMAS = ["es", "en"] as const;
 export type Idioma = (typeof IDIOMAS)[number];
 export const COOKIE_IDIOMA = "idioma";
