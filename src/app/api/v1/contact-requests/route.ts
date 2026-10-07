@@ -8,6 +8,13 @@ import { obtenerIpCliente, verificarLimite } from "../../../../server/rate-limit
 const contactRequestSchema = z.object({
   propiedad_id: z.uuid(),
   quiere_financiamiento: z.boolean().optional().default(false),
+  // Vacío o solo espacios cuenta como "sin mensaje".
+  mensaje: z
+    .string()
+    .trim()
+    .max(1000)
+    .optional()
+    .transform((valor) => (valor ? valor : undefined)),
 });
 
 function requestId(): string {
@@ -51,6 +58,7 @@ export async function POST(request: Request) {
   const resultado = await crearContactRequest(actor, {
     propiedadId: parsed.data.propiedad_id,
     quiereFinanciamiento: parsed.data.quiere_financiamiento,
+    mensaje: parsed.data.mensaje,
   });
   if (!resultado.ok) {
     return NextResponse.json(errorEnvelope(resultado.error.code, resultado.error.message), {

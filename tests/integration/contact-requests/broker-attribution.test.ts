@@ -249,3 +249,52 @@ describe("POST /api/v1/contact-requests", () => {
     expect(cuerpo.data.whatsapp_url).toContain("4441234567");
   });
 });
+
+describe("POST /api/v1/contact-requests — mensaje", () => {
+  async function preparar() {
+    await resetTestDatabase();
+    const oferente = actorFixture("oferente");
+    await insertarUsuario(oferente, { telefono: "444 123 4567" });
+    const [propia] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+    if (!propia) throw new Error("fixture no se creó");
+    const buscador = actorFixture("buscador");
+    await insertarUsuario(buscador);
+    actuarComo(buscador);
+    return propia;
+  }
+
+  it("guarda el mensaje en el lead y lo precarga en el enlace de WhatsApp", async () => {
+    const propia = await preparar();
+    const mensaje = "¿Sigue disponible?\n¿Cuándo puedo visitarlo?";
+    const respuesta = await POST(request({ propiedad_id: propia.id, mensaje: `  ${mensaje}  ` }));
+    expect(respuesta.status).toBe(201);
+    const cuerpo = await respuesta.json();
+    expect(cuerpo.data.whatsapp_url).toContain(`?text=${encodeURIComponent(mensaje)}`);
+
+    const [lead] = await db
+      .select()
+      .from(contactRequest)
+      .where(eq(contactRequest.propiedadId, propia.id));
+    expect(lead?.mensaje).toBe(mensaje);
+  });
+
+  it("sin mensaje (o solo espacios) guarda null y usa un texto que identifica el espacio", async () => {
+    const propia = await preparar();
+    const respuesta = await POST(request({ propiedad_id: propia.id, mensaje: "   " }));
+    expect(respuesta.status).toBe(201);
+    const cuerpo = await respuesta.json();
+    expect(decodeURIComponent(cuerpo.data.whatsapp_url)).toContain(propia.direccion);
+
+    const [lead] = await db
+      .select()
+      .from(contactRequest)
+      .where(eq(contactRequest.propiedadId, propia.id));
+    expect(lead?.mensaje).toBeNull();
+  });
+
+  it("responde 422 con un mensaje de más de 1000 caracteres", async () => {
+    const propia = await preparar();
+    const respuesta = await POST(request({ propiedad_id: propia.id, mensaje: "a".repeat(1001) }));
+    expect(respuesta.status).toBe(422);
+  });
+});

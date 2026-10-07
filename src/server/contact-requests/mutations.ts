@@ -7,6 +7,7 @@ import type { ActorAutenticado } from "../auth/session.ts";
 export interface CrearContactRequestInput {
   propiedadId: string;
   quiereFinanciamiento: boolean;
+  mensaje?: string;
 }
 
 export type ErrorContactRequest =
@@ -37,10 +38,11 @@ function errorNotFound(): ResultadoContactRequest {
   };
 }
 
-function construirWhatsappUrl(telefono: string | null): string | null {
+// El chat de WhatsApp abre con el mensaje del buscador, o con uno que identifica el espacio.
+function construirWhatsappUrl(telefono: string | null, texto: string): string | null {
   if (!telefono) return null;
   const digitos = telefono.replace(/\D/g, "");
-  return digitos.length > 0 ? `https://wa.me/${digitos}` : null;
+  return digitos.length > 0 ? `https://wa.me/${digitos}?text=${encodeURIComponent(texto)}` : null;
 }
 
 // Lee `propiedad.oferente_id` (solo de propiedades activo y publicada) y el
@@ -72,6 +74,7 @@ export async function crearContactRequest(
       oferenteId: prop.oferenteId,
       brokerId,
       quiereFinanciamiento: input.quiereFinanciamiento,
+      mensaje: input.mensaje ?? null,
     })
     .returning();
   if (!fila) throw new Error("insert de contact_request no devolvió fila");
@@ -82,7 +85,11 @@ export async function crearContactRequest(
     data: {
       id: fila.id,
       telefonoOferente,
-      whatsappUrl: construirWhatsappUrl(telefonoOferente),
+      whatsappUrl: construirWhatsappUrl(
+        telefonoOferente,
+        input.mensaje ??
+          `Hola, me interesa el espacio en ${prop.direccion} que vi en Captive by Nodus.`,
+      ),
     },
   };
 }
