@@ -4,6 +4,7 @@ import { LngLatBounds, Map as MapaLibre, Marker, setWorkerUrl } from "maplibre-g
 import "maplibre-gl/dist/maplibre-gl.css";
 import { RotateCcwIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 
 // maplibre-gl-worker.mjs importa `./maplibre-gl-shared.mjs` con una ruta relativa. Bajo Turbopack,
 // referenciarlo vía `new URL("maplibre-gl/dist/...", import.meta.url)` lo copia como asset opaco
@@ -82,6 +83,9 @@ export function PropertyMap({
   mostrarConteo = true,
   className,
 }: PropertyMapProps) {
+  const { t } = useIdioma();
+  const tRef = useRef(t);
+  tRef.current = t;
   const contenedorRef = useRef<HTMLDivElement>(null);
   const mapaRef = useRef<MapaLibre | null>(null);
   const marcadoresRef = useRef<globalThis.Map<string, Marker>>(new globalThis.Map());
@@ -153,7 +157,7 @@ export function PropertyMap({
 
     propiedades.forEach((punto, indice) => {
       const pin = crearElementoPin(indice + 1);
-      pin.boton.setAttribute("aria-label", `Ver ${punto.direccion} en el mapa`);
+      pin.boton.setAttribute("aria-label", tRef.current.mapa.verEnMapa(punto.direccion));
       pin.boton.addEventListener("click", () => onSelectRef.current(punto.id));
       const marcador = new Marker({ element: pin.boton, anchor: "bottom" })
         .setLngLat([punto.lng, punto.lat])
@@ -197,7 +201,7 @@ export function PropertyMap({
       <div className="absolute top-3 right-3 z-10 flex flex-col gap-1.5">
         <button
           type="button"
-          aria-label="Acercar mapa"
+          aria-label={t.mapa.acercar}
           onClick={() => mapaRef.current?.zoomIn()}
           className="flex size-[34px] cursor-pointer items-center justify-center rounded-lg border border-border bg-surface text-lg font-bold text-text shadow-sm transition-transform duration-150 ease-out hover:-translate-y-px motion-reduce:transition-none"
         >
@@ -205,7 +209,7 @@ export function PropertyMap({
         </button>
         <button
           type="button"
-          aria-label="Alejar mapa"
+          aria-label={t.mapa.alejar}
           onClick={() => mapaRef.current?.zoomOut()}
           className="flex size-[34px] cursor-pointer items-center justify-center rounded-lg border border-border bg-surface text-lg font-bold text-text shadow-sm transition-transform duration-150 ease-out hover:-translate-y-px motion-reduce:transition-none"
         >
@@ -213,7 +217,7 @@ export function PropertyMap({
         </button>
         <button
           type="button"
-          aria-label="Restablecer vista del mapa"
+          aria-label={t.mapa.restablecer}
           onClick={restablecerVista}
           className="flex size-[34px] cursor-pointer items-center justify-center rounded-lg border border-border bg-surface text-text shadow-sm transition-transform duration-150 ease-out hover:-translate-y-px motion-reduce:transition-none"
         >
@@ -223,8 +227,8 @@ export function PropertyMap({
       {mostrarConteo && propiedades.length > 0 && visibleCount !== null ? (
         <p className="pointer-events-none absolute right-3 bottom-3 left-3 m-0 rounded-lg bg-surface/90 px-3 py-2 text-center text-xs text-text">
           {visibleCount === 0
-            ? "Ningún espacio en esta zona. Aleja el zoom o desplaza el mapa."
-            : `${visibleCount} de ${propiedades.length} espacios visibles en esta zona del mapa.`}
+            ? t.mapa.ningunoEnZona
+            : t.mapa.visibles(visibleCount, propiedades.length)}
         </p>
       ) : null}
     </div>

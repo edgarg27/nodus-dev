@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import { cookies } from "next/headers";
+import { IdiomaProvider } from "@/components/i18n/idioma-provider";
 import { SiteHeader } from "@/components/nav/site-header";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { COOKIE_IDIOMA, idiomaValido } from "@/lib/i18n";
 import { urlDelSitio } from "@/lib/landing-pages";
 import { getUsuarioActual } from "@/server/auth/session";
 import "./globals.css";
@@ -32,22 +34,25 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const theme = cookieStore.get("theme")?.value;
   const dataTheme = theme === "dark" ? "dark" : theme === "light" ? "light" : undefined;
   const actor = await getUsuarioActual();
+  const idioma = idiomaValido(cookieStore.get(COOKIE_IDIOMA)?.value);
 
   return (
     <html
-      lang="es"
+      lang={idioma}
       data-theme={dataTheme}
       className={`${ibmPlexSans.variable} ${spaceGrotesk.variable} antialiased motion-safe:scroll-smooth`}
     >
       <body>
-        <QueryProvider>
-          <SiteHeader
-            actor={
-              actor ? { nombre: actor.nombre, rol: actor.rol, isBroker: actor.isBroker } : null
-            }
-          />
-          {children}
-        </QueryProvider>
+        <IdiomaProvider idioma={idioma}>
+          <QueryProvider>
+            <SiteHeader
+              actor={
+                actor ? { nombre: actor.nombre, rol: actor.rol, isBroker: actor.isBroker } : null
+              }
+            />
+            {children}
+          </QueryProvider>
+        </IdiomaProvider>
       </body>
     </html>
   );

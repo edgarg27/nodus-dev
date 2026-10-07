@@ -1,5 +1,6 @@
 import { env } from "./env.ts";
 import { ESTADOS_MX } from "./estados.ts";
+import { type Idioma, textosDe } from "./i18n/index.ts";
 import type { FiltrosBusqueda } from "./search-params.ts";
 
 // Páginas de aterrizaje para Google: /<operación>/<tipo>[/<lugar>], por ejemplo
@@ -56,17 +57,20 @@ export function resolverLanding(
   modalidadSlug: string,
   tipoSlug: string,
   lugarSlug?: string,
+  idioma: Idioma = "es",
 ): Landing | null {
   const modalidad = MODALIDADES_LANDING.find((m) => m.slug === modalidadSlug);
   const tipo = TIPOS_LANDING.find((t) => t.slug === tipoSlug);
   const lugar = lugarSlug ? LUGARES_LANDING.find((l) => l.slug === lugarSlug) : null;
   if (!modalidad || !tipo || lugar === undefined) return null;
 
-  const donde = lugar ? ` en ${lugar.nombre}` : "";
-  const titulo = `${tipo.plural} ${modalidad.texto}${donde}`;
+  const t = textosDe(idioma);
+  const tipoPlural = t.etiquetas.tipoPlural[tipo.valor] ?? tipo.plural;
+  const operacion = t.etiquetas.operacion[modalidad.valor] ?? modalidad.texto;
+  const titulo = t.landing.titulo(tipoPlural, operacion, lugar?.nombre ?? null);
   const descripcion = lugar
-    ? `Encuentra ${tipo.plural.toLowerCase()} ${modalidad.texto} en ${lugar.nombre}: precios, metros cuadrados, fotos y ubicación. Contacta directo al oferente en Captive by Nodus.`
-    : `${tipo.plural} ${modalidad.texto} en todo México: precios, metros cuadrados, fotos y ubicación en Captive by Nodus.`;
+    ? t.landing.descripcionLugar(tipoPlural, operacion, lugar.nombre)
+    : t.landing.descripcionTodo(tipoPlural, operacion);
 
   return {
     modalidad,

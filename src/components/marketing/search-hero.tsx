@@ -2,6 +2,7 @@
 
 import { cn } from "cn";
 import { useEffect, useRef, useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import {
   Dialog,
   DialogClose,
@@ -10,19 +11,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import type { Textos } from "@/lib/i18n";
 import { LocationAutocomplete } from "./location-autocomplete";
 
-const MODALIDADES = [
-  { value: "renta", etiqueta: "Renta" },
-  { value: "venta", etiqueta: "Compra" },
-  { value: "desde_cero", etiqueta: "Proyecto desde cero" },
-] as const;
+// Las etiquetas salen del diccionario del idioma activo; aquí solo los valores y su orden.
+function opcionesModalidad(t: Textos) {
+  return [
+    { value: "renta", etiqueta: t.hero.renta },
+    { value: "venta", etiqueta: t.hero.compra },
+    { value: "desde_cero", etiqueta: t.hero.desdeCero },
+  ];
+}
 
-const TIPOS = [
-  { value: "nave_industrial", etiqueta: "Nave industrial" },
-  { value: "oficina", etiqueta: "Oficina" },
-  { value: "local_comercial", etiqueta: "Local comercial" },
-] as const;
+function opcionesTipo(t: Textos) {
+  return ["nave_industrial", "oficina", "local_comercial"].map((value) => ({
+    value,
+    etiqueta: t.etiquetas.tipo[value] ?? value,
+  }));
+}
 
 // Grano fino sobre el video de fondo: disimula que la fuente es de baja resolución.
 const GRANO = `url("data:image/svg+xml,${encodeURIComponent(
@@ -49,10 +55,11 @@ function SearchIcon() {
 }
 
 function CampoModalidad({ id }: { id: string }) {
+  const { t } = useIdioma();
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={id} className="text-[13px] font-semibold text-foreground">
-        Modalidad
+        {t.hero.modalidad}
       </label>
       <select
         id={id}
@@ -60,8 +67,8 @@ function CampoModalidad({ id }: { id: string }) {
         defaultValue=""
         className="h-[46px] rounded-[10px] border border-input bg-background px-3.5 text-[15px] text-foreground"
       >
-        <option value="">Cualquiera</option>
-        {MODALIDADES.map((opcion) => (
+        <option value="">{t.hero.cualquiera}</option>
+        {opcionesModalidad(t).map((opcion) => (
           <option key={opcion.value} value={opcion.value}>
             {opcion.etiqueta}
           </option>
@@ -72,10 +79,11 @@ function CampoModalidad({ id }: { id: string }) {
 }
 
 function CampoTipo({ id }: { id: string }) {
+  const { t } = useIdioma();
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={id} className="text-[13px] font-semibold text-foreground">
-        Tipo de inmueble
+        {t.hero.tipo}
       </label>
       <select
         id={id}
@@ -83,8 +91,8 @@ function CampoTipo({ id }: { id: string }) {
         defaultValue=""
         className="h-[46px] rounded-[10px] border border-input bg-background px-3.5 text-[15px] text-foreground"
       >
-        <option value="">Cualquiera</option>
-        {TIPOS.map((opcion) => (
+        <option value="">{t.hero.cualquiera}</option>
+        {opcionesTipo(t).map((opcion) => (
           <option key={opcion.value} value={opcion.value}>
             {opcion.etiqueta}
           </option>
@@ -95,15 +103,16 @@ function CampoTipo({ id }: { id: string }) {
 }
 
 function CampoFinanciamiento({ className }: { className: string }) {
+  const { t } = useIdioma();
   return (
     <fieldset className="m-0 flex min-w-0 flex-col border-0 p-0">
       <legend className="mb-2 p-0 text-[13px] font-semibold text-foreground">
-        ¿Financiamiento?
+        {t.hero.financiamiento}
       </legend>
       <div className={cn("flex h-[46px] items-center", className)}>
         <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <input type="radio" name="financiamiento" value="true" className="accent-primary" />
-          Sí
+          {t.hero.si}
         </label>
         <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <input
@@ -113,7 +122,7 @@ function CampoFinanciamiento({ className }: { className: string }) {
             defaultChecked
             className="accent-primary"
           />
-          No
+          {t.hero.no}
         </label>
       </div>
     </fieldset>
@@ -121,21 +130,19 @@ function CampoFinanciamiento({ className }: { className: string }) {
 }
 
 function CampoUbicacion({ id, flotante }: { id: string; flotante: boolean }) {
+  const { t } = useIdioma();
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={id} className="text-[13px] font-semibold text-foreground">
-        Ubicación
+        {t.hero.ubicacion}
       </label>
-      <LocationAutocomplete
-        id={id}
-        placeholder="Ciudad, zona o código postal"
-        flotante={flotante}
-      />
+      <LocationAutocomplete id={id} placeholder={t.hero.placeholderUbicacion} flotante={flotante} />
     </div>
   );
 }
 
 export function SearchHero() {
+  const { t } = useIdioma();
   const [headerHeight, setHeaderHeight] = useState(0);
   const [stuck, setStuck] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -208,11 +215,9 @@ export function SearchHero() {
         </div>
         <div className="flex w-full max-w-3xl flex-col gap-6 sm:gap-8">
           <div className="text-primary-foreground [text-shadow:0_2px_16px_rgb(0_0_0/0.35)]">
-            <h1 className="text-[34px] leading-tight font-bold sm:text-[44px]">
-              Encuentra el espacio para hacer crecer tu negocio
-            </h1>
+            <h1 className="text-[34px] leading-tight font-bold sm:text-[44px]">{t.hero.titulo}</h1>
             <p className="mt-3 text-[17px] text-primary-foreground/90 sm:text-lg">
-              Naves industriales, oficinas y locales comerciales a nivel nacional e internacional.
+              {t.hero.subtitulo}
             </p>
           </div>
           <form
@@ -235,7 +240,7 @@ export function SearchHero() {
               </div>
               <button
                 type="submit"
-                aria-label="Buscar espacios"
+                aria-label={t.hero.buscarEspacios}
                 className="flex h-[46px] w-full cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-accent font-bold text-accent-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0 min-[480px]:col-span-2 lg:col-span-1"
               >
                 <SearchIcon />
@@ -263,11 +268,11 @@ export function SearchHero() {
             <select
               name="modalidad"
               defaultValue=""
-              aria-label="Modalidad"
+              aria-label={t.hero.modalidad}
               className="h-[42px] w-[170px] shrink-0 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
             >
-              <option value="">Cualquiera</option>
-              {MODALIDADES.map((opcion) => (
+              <option value="">{t.hero.cualquiera}</option>
+              {opcionesModalidad(t).map((opcion) => (
                 <option key={opcion.value} value={opcion.value}>
                   {opcion.etiqueta}
                 </option>
@@ -276,19 +281,19 @@ export function SearchHero() {
             <select
               name="tipo"
               defaultValue=""
-              aria-label="Tipo de inmueble"
+              aria-label={t.hero.tipo}
               className="h-[42px] w-[170px] shrink-0 rounded-lg border border-input bg-background px-3 text-sm text-foreground"
             >
-              <option value="">Cualquiera</option>
-              {TIPOS.map((opcion) => (
+              <option value="">{t.hero.cualquiera}</option>
+              {opcionesTipo(t).map((opcion) => (
                 <option key={opcion.value} value={opcion.value}>
                   {opcion.etiqueta}
                 </option>
               ))}
             </select>
             <LocationAutocomplete
-              placeholder="Ubicación"
-              ariaLabel="Ubicación"
+              placeholder={t.hero.ubicacion}
+              ariaLabel={t.hero.ubicacion}
               compacto
               flotante
               className="max-w-[420px] flex-grow"
@@ -297,7 +302,7 @@ export function SearchHero() {
               type="submit"
               className="flex h-[42px] shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-lg bg-accent px-6 text-sm font-bold text-accent-foreground transition-all duration-150 ease-out hover:bg-accent/90"
             >
-              Buscar
+              {t.hero.buscar}
             </button>
           </form>
         </div>
@@ -312,7 +317,7 @@ export function SearchHero() {
                 <span className="text-accent">
                   <SearchIcon />
                 </span>
-                Buscar espacios
+                {t.hero.buscarEspacios}
               </button>
             </DialogTrigger>
             <DialogContent
@@ -321,12 +326,12 @@ export function SearchHero() {
             >
               <DialogHeader className="mb-5 flex-row items-center justify-between gap-2">
                 <DialogTitle className="font-display text-lg font-bold text-foreground">
-                  Buscar espacios
+                  {t.hero.buscarEspacios}
                 </DialogTitle>
                 <DialogClose asChild>
                   <button
                     type="button"
-                    aria-label="Cerrar buscador"
+                    aria-label={t.hero.cerrarBuscador}
                     className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-[10px] border border-border bg-background transition-transform duration-150 ease-out hover:-translate-y-px active:scale-[0.94] motion-reduce:transition-none"
                   >
                     <svg
@@ -356,7 +361,7 @@ export function SearchHero() {
                   className="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-[10px] bg-accent font-bold text-accent-foreground transition-colors hover:bg-accent/90"
                 >
                   <SearchIcon />
-                  Buscar espacios
+                  {t.hero.buscarEspacios}
                 </button>
               </form>
             </DialogContent>

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 
 export interface ContactoRevelado {
   telefono: string | null;
@@ -12,6 +13,7 @@ export interface ContactoRevelado {
 // lead en POST /api/v1/contact-requests y revela el teléfono del oferente. Sin sesión, manda a
 // iniciar sesión y regresa a la página actual.
 export function useContactarPropiedad(propiedadId: string) {
+  const { idioma, t } = useIdioma();
   const router = useRouter();
   const [contacto, setContacto] = useState<ContactoRevelado | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +43,12 @@ export function useContactarPropiedad(propiedadId: string) {
 
       const cuerpo = await respuesta.json().catch(() => null);
       if (!respuesta.ok || !cuerpo?.data) {
-        setError(cuerpo?.error?.message ?? "No se pudo contactar. Intenta de nuevo.");
+        // Los mensajes de la API están en español; en inglés se muestra el genérico.
+        setError(
+          idioma === "es" && cuerpo?.error?.message
+            ? cuerpo.error.message
+            : t.contacto.errorGeneral,
+        );
         return;
       }
 
@@ -50,7 +57,7 @@ export function useContactarPropiedad(propiedadId: string) {
         whatsappUrl: cuerpo.data.whatsapp_url,
       });
     } catch {
-      setError("No se pudo contactar. Revisa tu conexión e intenta de nuevo.");
+      setError(t.contacto.errorConexion);
     } finally {
       setEnviando(false);
     }

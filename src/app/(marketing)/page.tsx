@@ -9,18 +9,19 @@ import { Testimonial } from "@/components/marketing/testimonial";
 import { TwoPaths } from "@/components/marketing/two-paths";
 import { WhyNodus } from "@/components/marketing/why-nodus";
 import { getUsuarioActual } from "@/server/auth/session";
+import { obtenerIdioma, obtenerTextos } from "@/server/i18n";
 import { listarPropiedadesPublicadasRecientes } from "@/server/properties/queries";
 
-export const metadata: Metadata = {
-  title: "Captive by Nodus — Naves, oficinas y locales a nivel nacional e internacional",
-  description:
-    "Encuentra o publica naves industriales, oficinas y locales comerciales a nivel nacional e internacional. Nodus conecta pymes con oferentes verificados.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await obtenerTextos();
+  return { title: t.meta.tituloInicio, description: t.meta.descripcionInicio };
+}
 
 export default async function MarketingPage() {
-  const [actor, propiedades] = await Promise.all([
+  const [actor, propiedades, idioma] = await Promise.all([
     getUsuarioActual(),
     listarPropiedadesPublicadasRecientes(3),
+    obtenerIdioma(),
   ]);
 
   const buscarHref = actor ? "/buscar" : "/sign-up";
@@ -30,13 +31,18 @@ export default async function MarketingPage() {
     <main className="bg-background">
       <SmoothScroll />
       <SearchHero />
-      <HowItWorks />
-      <TwoPaths buscarHref={buscarHref} publicarHref={publicarHref} />
-      <FeaturedListings propiedades={propiedades} />
-      <WhyNodus />
-      <Testimonial />
-      <FinalCta autenticado={!!actor} buscarHref={buscarHref} publicarHref={publicarHref} />
-      <SiteFooter />
+      <HowItWorks idioma={idioma} />
+      <TwoPaths buscarHref={buscarHref} publicarHref={publicarHref} idioma={idioma} />
+      <FeaturedListings propiedades={propiedades} idioma={idioma} />
+      <WhyNodus idioma={idioma} />
+      <Testimonial idioma={idioma} />
+      <FinalCta
+        autenticado={!!actor}
+        buscarHref={buscarHref}
+        publicarHref={publicarHref}
+        idioma={idioma}
+      />
+      <SiteFooter idioma={idioma} />
     </main>
   );
 }

@@ -2,6 +2,7 @@
 
 import { MapIcon, SearchIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { type DetallesPropiedad, extraerDetalles } from "@/lib/property-details";
 import { busquedaAParams, type FiltrosBusqueda, type OrdenBusqueda } from "@/lib/search-params";
 import { PropertyMap } from "../map/property-map";
@@ -64,6 +65,7 @@ export function SearchResults({
   favoritos = [],
   autenticado = false,
 }: SearchResultsProps) {
+  const { t } = useIdioma();
   const favoritosSet = new Set(favoritos);
   const [propiedades, setPropiedades] = useState(propiedadesIniciales);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -130,7 +132,7 @@ export function SearchResults({
     return (
       <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border bg-surface px-6 py-16 text-center text-text-muted">
         <SearchIcon className="size-8" strokeWidth={1.6} aria-hidden="true" />
-        <span className="text-sm">No encontramos espacios con esos filtros.</span>
+        <span className="text-sm">{t.resultados.sinResultados}</span>
       </div>
     );
   }
@@ -143,10 +145,8 @@ export function SearchResults({
         {ningunoVisibleEnMapa ? (
           <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border bg-surface px-5 py-14 text-center text-text-muted sm:col-span-2">
             <SearchIcon className="size-8" strokeWidth={1.6} aria-hidden="true" />
-            <span className="text-sm">Ningún espacio en esta zona del mapa.</span>
-            <span className="text-[13px]">
-              Aleja el zoom o desplaza el mapa para ver más resultados.
-            </span>
+            <span className="text-sm">{t.resultados.ningunoEnZona}</span>
+            <span className="text-[13px]">{t.resultados.alejaZoom}</span>
           </div>
         ) : (
           <>
@@ -172,7 +172,7 @@ export function SearchResults({
                   onClick={cargarMas}
                   className="cursor-pointer rounded-[10px] border border-input bg-surface px-7 py-3 text-sm font-semibold text-text transition-transform duration-150 ease-out hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none"
                 >
-                  {cargando ? "Cargando…" : "Cargar más espacios"}
+                  {cargando ? t.resultados.cargando : t.resultados.cargarMas}
                 </button>
               </div>
             ) : null}
@@ -198,10 +198,12 @@ export function SearchResults({
         }
       >
         <div className="flex items-center justify-between lg:hidden">
-          <span className="font-display text-base font-bold text-text">Mapa de espacios</span>
+          <span className="font-display text-base font-bold text-text">
+            {t.resultados.mapaDeEspacios}
+          </span>
           <button
             type="button"
-            aria-label="Cerrar mapa"
+            aria-label={t.resultados.cerrarMapa}
             onClick={() => setMapaAbierto(false)}
             className="flex size-9 cursor-pointer items-center justify-center rounded-lg border border-border bg-background"
           >
@@ -220,13 +222,13 @@ export function SearchResults({
 
       <button
         type="button"
-        aria-label="Ver mapa de espacios"
+        aria-label={t.resultados.verMapaDeEspacios}
         aria-haspopup="dialog"
         onClick={() => setMapaAbierto(true)}
         className="fixed right-5 bottom-6 z-30 flex cursor-pointer items-center gap-2 rounded-full bg-primary px-5 py-3.5 text-sm font-bold text-primary-foreground shadow-[0_10px_24px_rgba(11,30,59,0.3)] transition-transform duration-150 ease-out hover:-translate-y-px motion-reduce:transition-none lg:hidden"
       >
         <MapIcon className="size-[18px]" strokeWidth={2} aria-hidden="true" />
-        Ver mapa
+        {t.resultados.verMapa}
       </button>
     </div>
   );

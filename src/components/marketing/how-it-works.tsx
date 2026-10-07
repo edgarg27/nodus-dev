@@ -1,38 +1,20 @@
+import { type Idioma, textosDe } from "@/lib/i18n";
 import { Reveal } from "./reveal";
 
-const PASOS = [
-  {
-    numero: 1,
-    titulo: "Crea tu cuenta",
-    descripcion: "Regístrate e indica qué buscas: modalidad, tipo de inmueble y ubicación.",
-  },
-  {
-    numero: 2,
-    titulo: "Explora resultados filtrados",
-    descripcion:
-      "Compara espacios disponibles con fotos, descripción, ubicación y condiciones, todo en un solo lugar.",
-  },
-  {
-    numero: 3,
-    titulo: "Contacta al oferente",
-    descripcion: "Envía tu solicitud de contacto directo, sin intermediarios, y agenda tu visita.",
-  },
-];
-
-export function HowItWorks() {
+export function HowItWorks({ idioma }: { idioma: Idioma }) {
+  const t = textosDe(idioma).comoFunciona;
+  const pasos = t.pasos.map((paso, indice) => ({ ...paso, numero: indice + 1 }));
   return (
     <section id="como-funciona" className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
       <Reveal className="flex max-w-xl flex-col gap-3">
         <span className="text-[13px] font-bold tracking-wide text-primary uppercase">
-          Cómo funciona
+          {t.etiqueta}
         </span>
-        <h2 className="text-[34px] leading-tight font-bold text-foreground">
-          Tres pasos para encontrar tu próximo espacio
-        </h2>
+        <h2 className="text-[34px] leading-tight font-bold text-foreground">{t.titulo}</h2>
       </Reveal>
 
       <div className="mt-12 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-        {PASOS.map((paso, indice) => (
+        {pasos.map((paso, indice) => (
           <Reveal
             key={paso.numero}
             delayMs={indice * 90}

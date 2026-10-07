@@ -9,8 +9,6 @@ import { PropertyDetailMap } from "@/components/properties/property-detail-map";
 import { PropertyGallery } from "@/components/properties/property-gallery";
 import {
   ETIQUETA_ESTADO,
-  ETIQUETA_MODALIDAD,
-  ETIQUETA_TIPO,
   especificaciones,
   extraerDetalles,
   formatearPrecio,
@@ -19,6 +17,7 @@ import {
 } from "@/lib/property-details";
 import { getUsuarioActual } from "@/server/auth/session";
 import { idsFavoritos } from "@/server/favorites/favorites";
+import { obtenerTextos } from "@/server/i18n";
 import {
   listarPropiedadesSimilares,
   obtenerFotosDePropiedad,
@@ -44,11 +43,12 @@ const cargarEspacio = cache(async (id: string) => {
 export async function generateMetadata({ params }: EspacioPageProps): Promise<Metadata> {
   const { id } = await params;
   const espacio = await cargarEspacio(id);
-  if (!espacio) return { title: "Espacio no encontrado — Captive by Nodus" };
+  const { idioma, t } = await obtenerTextos();
+  if (!espacio) return { title: t.ficha.noEncontrado };
 
   const { propiedad, fotos } = espacio;
-  const titulo = tituloEspacio(propiedad.tipo, propiedad.modalidad, propiedad.ciudad);
-  const precio = formatearPrecio(extraerDetalles(propiedad), propiedad.modalidad);
+  const titulo = tituloEspacio(propiedad.tipo, propiedad.modalidad, propiedad.ciudad, idioma);
+  const precio = formatearPrecio(extraerDetalles(propiedad), propiedad.modalidad, idioma);
   const descripcion = `${precio}. ${propiedad.descripcion}`.slice(0, 160);
   return {
     title: `${titulo} — Captive by Nodus`,
@@ -68,16 +68,20 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
 
   const { propiedad, fotos } = espacio;
   const detalles = extraerDetalles(propiedad);
-  const titulo = tituloEspacio(propiedad.tipo, propiedad.modalidad, propiedad.ciudad);
-  const precio = formatearPrecio(detalles, propiedad.modalidad);
+  const { idioma, t } = await obtenerTextos();
+  const titulo = tituloEspacio(propiedad.tipo, propiedad.modalidad, propiedad.ciudad, idioma);
+  const precio = formatearPrecio(detalles, propiedad.modalidad, idioma);
   const filas = [
-    { etiqueta: "Tipo", valor: ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo },
+    { etiqueta: t.ficha.tipo, valor: t.etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo },
     {
-      etiqueta: "Operación",
-      valor: ETIQUETA_MODALIDAD[propiedad.modalidad] ?? propiedad.modalidad,
+      etiqueta: t.ficha.operacion,
+      valor: t.etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad,
     },
-    ...especificaciones(detalles, propiedad.tipo),
-    { etiqueta: "Financiamiento", valor: propiedad.aceptaFinanciamiento ? "Disponible" : "No" },
+    ...especificaciones(detalles, propiedad.tipo, idioma),
+    {
+      etiqueta: t.ficha.financiamiento,
+      valor: propiedad.aceptaFinanciamiento ? t.ficha.disponible : t.ficha.no,
+    },
   ];
   const actor = await getUsuarioActual();
   const [similares, favoritos] = await Promise.all([
@@ -91,6 +95,7 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
       ? propiedad.ciudad
       : `${propiedad.ciudad}, ${estadoEtiqueta}`;
   const busquedaRelacionada = new URLSearchParams({
+    modalidad: propiedad.modalidad,
     tipo: propiedad.tipo,
     estado: propiedad.estado,
   }).toString();
@@ -98,13 +103,13 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
   return (
     <>
       <nav
-        aria-label="Migas de pan"
+        aria-label={t.resultados.migas}
         className="flex justify-center border-b border-border bg-background"
       >
         <ol className="flex w-full max-w-7xl flex-wrap items-center gap-2 px-4 py-4 text-[13px] text-text-muted sm:px-6 lg:px-8">
           <li>
             <Link href="/" className="hover:text-text">
-              Inicio
+              {t.resultados.inicio}
             </Link>
             <ChevronRightIcon
               className="ml-2 inline size-3 text-text-muted/60"
@@ -113,7 +118,11 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
           </li>
           <li>
             <Link href={`/buscar?${busquedaRelacionada}`} className="hover:text-text">
-              {ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo} en {estadoEtiqueta}
+              {t.landing.titulo(
+                t.etiquetas.tipoPlural[propiedad.tipo] ?? propiedad.tipo,
+                t.etiquetas.operacion[propiedad.modalidad] ?? propiedad.modalidad,
+                estadoEtiqueta,
+              )}
             </Link>
             <ChevronRightIcon
               className="ml-2 inline size-3 text-text-muted/60"
@@ -134,10 +143,10 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
             <header className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-bold text-accent-foreground">
-                  {ETIQUETA_MODALIDAD[propiedad.modalidad] ?? propiedad.modalidad}
+                  {t.etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad}
                 </span>
                 <span className="text-xs font-semibold tracking-wide text-warning uppercase">
-                  {ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo}
+                  {t.etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo}
                 </span>
               </div>
               <h1 className="text-[26px] leading-tight font-bold text-text sm:text-[32px]">
@@ -147,8 +156,8 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
                 <MapPinIcon className="size-4 shrink-0" aria-hidden="true" />
                 {propiedad.direccion} · {lugar}
               </p>
-              <ul className="flex flex-wrap gap-1.5 pt-1" aria-label="Datos principales">
-                {resumenDetalles(detalles, propiedad.tipo).map((etiqueta) => (
+              <ul className="flex flex-wrap gap-1.5 pt-1" aria-label={t.ficha.datosPrincipales}>
+                {resumenDetalles(detalles, propiedad.tipo, idioma).map((etiqueta) => (
                   <li
                     key={etiqueta}
                     className="rounded-full bg-surface px-3 py-1 text-[13px] font-medium text-text"
@@ -173,7 +182,7 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
             </div>
 
             <section className="flex flex-col gap-3">
-              <h2 className="text-lg font-bold text-text">Especificaciones</h2>
+              <h2 className="text-lg font-bold text-text">{t.ficha.especificaciones}</h2>
               <dl className="grid grid-cols-1 overflow-hidden rounded-2xl border border-border bg-surface sm:grid-cols-2">
                 {filas.map((fila) => (
                   <div
@@ -188,14 +197,14 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
             </section>
 
             <section className="flex flex-col gap-3">
-              <h2 className="text-lg font-bold text-text">Descripción</h2>
+              <h2 className="text-lg font-bold text-text">{t.ficha.descripcion}</h2>
               <p className="text-[15px] leading-relaxed whitespace-pre-line text-text">
                 {propiedad.descripcion}
               </p>
             </section>
 
             <section className="flex flex-col gap-3">
-              <h2 className="text-lg font-bold text-text">Ubicación</h2>
+              <h2 className="text-lg font-bold text-text">{t.ficha.ubicacion}</h2>
               <PropertyDetailMap
                 id={propiedad.id}
                 direccion={propiedad.direccion}
@@ -206,7 +215,7 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
 
             {similares.length > 0 ? (
               <section id="similares" className="flex scroll-mt-24 flex-col gap-4">
-                <h2 className="text-lg font-bold text-text">Espacios similares</h2>
+                <h2 className="text-lg font-bold text-text">{t.ficha.similares}</h2>
                 <ul className="grid gap-4 sm:grid-cols-3">
                   {similares.map((similar) => (
                     <li key={similar.id}>
@@ -226,7 +235,7 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
                         </div>
                         <div className="flex flex-col gap-1 p-3.5">
                           <span className="text-sm font-bold text-text">
-                            {formatearPrecio(extraerDetalles(similar), similar.modalidad)}
+                            {formatearPrecio(extraerDetalles(similar), similar.modalidad, idioma)}
                           </span>
                           <span className="line-clamp-2 text-[13px] text-text-muted">
                             {similar.direccion}
@@ -257,7 +266,7 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
         </div>
       </main>
 
-      <SiteFooter />
+      <SiteFooter idioma={idioma} />
     </>
   );
 }

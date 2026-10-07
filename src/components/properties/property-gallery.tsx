@@ -9,6 +9,7 @@ import {
   WarehouseIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 
 const ICONO_POR_TIPO = {
   nave_industrial: WarehouseIcon,
@@ -24,6 +25,7 @@ interface PropertyGalleryProps {
 
 // Galería de la ficha: foto grande con flechas, contador "3/12" y miniaturas.
 export function PropertyGallery({ fotos, tipo, descripcionAlt }: PropertyGalleryProps) {
+  const { t } = useIdioma();
   const [indice, setIndice] = useState(0);
   const Icono = ICONO_POR_TIPO[tipo as keyof typeof ICONO_POR_TIPO] ?? WarehouseIcon;
 
@@ -44,13 +46,13 @@ export function PropertyGallery({ fotos, tipo, descripcionAlt }: PropertyGallery
   const ir = (siguiente: number) => setIndice((siguiente + total) % total);
 
   return (
-    <section aria-label="Fotos del espacio" className="flex flex-col gap-3">
+    <section aria-label={t.ficha.fotos} className="flex flex-col gap-3">
       <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-primary">
         {actual ? (
           // biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático
           <img
             src={actual.storageUrl}
-            alt={`${descripcionAlt}, foto ${indice + 1} de ${total}`}
+            alt={t.ficha.fotoDe(descripcionAlt, indice + 1, total)}
             className="h-full w-full object-cover"
           />
         ) : null}
@@ -58,7 +60,7 @@ export function PropertyGallery({ fotos, tipo, descripcionAlt }: PropertyGallery
           <>
             <button
               type="button"
-              aria-label="Foto anterior"
+              aria-label={t.ficha.fotoAnterior}
               onClick={() => ir(indice - 1)}
               className="absolute top-1/2 left-3 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-primary/60 text-primary-foreground backdrop-blur transition-colors hover:bg-primary/80"
             >
@@ -66,7 +68,7 @@ export function PropertyGallery({ fotos, tipo, descripcionAlt }: PropertyGallery
             </button>
             <button
               type="button"
-              aria-label="Foto siguiente"
+              aria-label={t.ficha.fotoSiguiente}
               onClick={() => ir(indice + 1)}
               className="absolute top-1/2 right-3 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-primary/60 text-primary-foreground backdrop-blur transition-colors hover:bg-primary/80"
             >
@@ -86,7 +88,7 @@ export function PropertyGallery({ fotos, tipo, descripcionAlt }: PropertyGallery
             <li key={foto.id} className="shrink-0">
               <button
                 type="button"
-                aria-label={`Ver foto ${i + 1}`}
+                aria-label={t.ficha.verFoto(i + 1)}
                 aria-current={i === indice ? "true" : undefined}
                 onClick={() => setIndice(i)}
                 className={`block h-16 w-24 cursor-pointer overflow-hidden rounded-lg border-2 transition-opacity ${

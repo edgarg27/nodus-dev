@@ -2,15 +2,11 @@
 
 import { Building2Icon, StoreIcon, WarehouseIcon } from "lucide-react";
 import Link from "next/link";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  type DetallesPropiedad,
-  ETIQUETA_MODALIDAD,
-  ETIQUETA_TIPO,
-  formatearPrecio,
-  resumenDetalles,
-} from "@/lib/property-details";
+import { nombreEstado } from "@/lib/estados";
+import { type DetallesPropiedad, formatearPrecio, resumenDetalles } from "@/lib/property-details";
 import { FavoriteButton } from "./favorite-button";
 import { useContactarPropiedad } from "./use-contactar-propiedad";
 
@@ -48,6 +44,7 @@ export function PropertyResultCard({
   favorito = false,
   autenticado = false,
 }: PropertyResultCardProps) {
+  const { idioma, t } = useIdioma();
   const {
     contacto,
     error: errorContacto,
@@ -56,7 +53,7 @@ export function PropertyResultCard({
   } = useContactarPropiedad(propiedad.id);
 
   const Icono = ICONO_POR_TIPO[propiedad.tipo as keyof typeof ICONO_POR_TIPO] ?? WarehouseIcon;
-  const etiquetas = resumenDetalles(propiedad, propiedad.tipo);
+  const etiquetas = resumenDetalles(propiedad, propiedad.tipo, idioma);
 
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: onClick aquí es solo conveniencia de mouse (resalta la tarjeta y su pin en el mapa); Contactar (botón) y Ver detalles (liga a la ficha) ya tienen su propio foco y activación por teclado.
@@ -80,7 +77,7 @@ export function PropertyResultCard({
           />
         )}
         <span className="absolute top-3 left-3 rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground">
-          {ETIQUETA_MODALIDAD[propiedad.modalidad] ?? propiedad.modalidad}
+          {t.etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad}
         </span>
         <span className="absolute top-3 right-3 flex size-6 items-center justify-center rounded-full bg-primary font-display text-xs font-bold text-primary-foreground">
           {numero}
@@ -92,13 +89,13 @@ export function PropertyResultCard({
 
       <div className="flex flex-col gap-2 p-[18px]">
         <span className="text-[11px] font-semibold tracking-wide text-warning uppercase">
-          {ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo}
+          {t.etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo}
         </span>
         <p className="font-display text-lg font-bold text-text">
-          {formatearPrecio(propiedad, propiedad.modalidad)}
+          {formatearPrecio(propiedad, propiedad.modalidad, idioma)}
         </p>
         {etiquetas.length > 0 ? (
-          <ul className="flex flex-wrap gap-1.5" aria-label="Datos del espacio">
+          <ul className="flex flex-wrap gap-1.5" aria-label={t.contacto.datosDelEspacio}>
             {etiquetas.map((etiqueta) => (
               <li
                 key={etiqueta}
@@ -111,13 +108,15 @@ export function PropertyResultCard({
         ) : null}
         <h3 className="text-base font-semibold text-text">{propiedad.direccion}</h3>
         <p className="text-[13px] text-text-muted">
-          {propiedad.ciudad}, {propiedad.estado}
+          {propiedad.ciudad === nombreEstado(propiedad.estado)
+            ? propiedad.ciudad
+            : `${propiedad.ciudad}, ${nombreEstado(propiedad.estado)}`}
         </p>
 
         {contacto && !contacto.telefono ? (
           // El oferente aún no tiene teléfono registrado; la solicitud ya quedó en sus leads.
           <p role="status" className="pt-1 text-sm text-text">
-            Listo, le enviamos tus datos al oferente. Te contactará pronto.
+            {t.contacto.listo}
           </p>
         ) : contacto ? (
           <p role="status" className="pt-1 text-sm text-text">
@@ -128,7 +127,7 @@ export function PropertyResultCard({
                 onClick={(evento) => evento.stopPropagation()}
                 className="ml-1.5 text-primary underline underline-offset-4"
               >
-                Escribir por WhatsApp
+                {t.contacto.escribirWhatsApp}
               </a>
             ) : null}
           </p>
@@ -144,7 +143,11 @@ export function PropertyResultCard({
               void contactar();
             }}
           >
-            {contacto ? "Solicitud enviada" : enviando ? "Enviando…" : "Contactar"}
+            {contacto
+              ? t.contacto.solicitudEnviada
+              : enviando
+                ? t.contacto.enviando
+                : t.contacto.contactar}
           </Button>
           <Button
             asChild
@@ -152,7 +155,7 @@ export function PropertyResultCard({
             className="h-9 flex-1 gap-0 rounded-lg border-input px-3 text-[13px] font-bold text-text transition-transform duration-150 ease-out hover:-translate-y-px hover:border-primary hover:text-primary motion-reduce:transition-none"
           >
             <Link href={`/espacios/${propiedad.id}`} onClick={(evento) => evento.stopPropagation()}>
-              Ver detalles
+              {t.contacto.verDetalles}
             </Link>
           </Button>
         </div>

@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import {
   busquedaAParams,
-  ETIQUETAS_ORDEN,
   type FiltrosBusqueda,
   ORDENES_BUSQUEDA,
   type OrdenBusqueda,
@@ -18,6 +18,7 @@ interface SortSelectProps {
 // inmediato, preservando todos los filtros activos. El mismo campo también vive dentro de
 // `SearchFilters` para quien esté en la hoja/popover de filtros.
 export function SortSelect({ filtros, orden }: SortSelectProps) {
+  const { t } = useIdioma();
   const router = useRouter();
 
   function alCambiar(valor: OrdenBusqueda) {
@@ -28,7 +29,7 @@ export function SortSelect({ filtros, orden }: SortSelectProps) {
   return (
     <div className="hidden items-center gap-2 sm:flex">
       <label htmlFor="orden-desktop" className="text-sm whitespace-nowrap text-text-muted">
-        Ordenar por
+        {t.filtros.ordenarPor}
       </label>
       <select
         id="orden-desktop"
@@ -38,7 +39,7 @@ export function SortSelect({ filtros, orden }: SortSelectProps) {
       >
         {ORDENES_BUSQUEDA.map((opcion) => (
           <option key={opcion} value={opcion}>
-            {ETIQUETAS_ORDEN[opcion]}
+            {t.orden[opcion]}
           </option>
         ))}
       </select>

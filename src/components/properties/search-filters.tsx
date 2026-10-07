@@ -2,25 +2,12 @@
 
 import { SlidersHorizontalIcon, XIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { ESTADOS_MX } from "@/lib/estados";
-import {
-  contarFiltrosActivos,
-  ETIQUETAS_ORDEN,
-  type FiltrosBusqueda,
-  ORDENES_BUSQUEDA,
-} from "@/lib/search-params";
+import { contarFiltrosActivos, type FiltrosBusqueda, ORDENES_BUSQUEDA } from "@/lib/search-params";
 
-const MODALIDADES = [
-  { value: "renta", etiqueta: "Renta" },
-  { value: "venta", etiqueta: "Venta" },
-  { value: "desde_cero", etiqueta: "Proyecto desde cero" },
-] as const;
-
-const TIPOS = [
-  { value: "nave_industrial", etiqueta: "Nave industrial" },
-  { value: "oficina", etiqueta: "Oficina" },
-  { value: "local_comercial", etiqueta: "Local comercial" },
-] as const;
+const MODALIDADES = ["renta", "venta", "desde_cero"] as const;
+const TIPOS = ["nave_industrial", "oficina", "local_comercial"] as const;
 
 export type SearchFiltersInitial = FiltrosBusqueda & { orden?: string };
 
@@ -40,12 +27,16 @@ function Rango({
   nombreMax,
   min,
   max,
+  textoMinimo,
+  textoMaximo,
 }: {
   etiqueta: string;
   nombreMin: string;
   nombreMax: string;
   min: number | undefined;
   max: number | undefined;
+  textoMinimo: string;
+  textoMaximo: string;
 }) {
   return (
     <fieldset className="flex flex-col gap-1.5">
@@ -54,16 +45,16 @@ function Rango({
         <input
           name={nombreMin}
           inputMode="decimal"
-          aria-label={`${etiqueta}: mínimo`}
-          placeholder="Mínimo"
+          aria-label={`${etiqueta}: ${textoMinimo}`}
+          placeholder={textoMinimo}
           defaultValue={valorInicial(min)}
           className={claseCampo}
         />
         <input
           name={nombreMax}
           inputMode="decimal"
-          aria-label={`${etiqueta}: máximo`}
-          placeholder="Máximo"
+          aria-label={`${etiqueta}: ${textoMaximo}`}
+          placeholder={textoMaximo}
           defaultValue={valorInicial(max)}
           className={claseCampo}
         />
@@ -79,6 +70,8 @@ interface SearchFiltersProps {
 // Popover anclado en pantallas grandes, hoja inferior a pantalla completa en el resto — un solo
 // formulario, sin duplicar los campos por breakpoint.
 export function SearchFilters({ initial }: SearchFiltersProps) {
+  const { t } = useIdioma();
+  const f = t.filtros;
   const [open, setOpen] = useState(false);
   const activos = contarFiltrosActivos(initial);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -110,12 +103,12 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
         type="button"
         aria-haspopup="true"
         aria-expanded={open}
-        aria-label="Filtros"
+        aria-label={f.filtros}
         onClick={() => setOpen((prev) => !prev)}
         className="flex h-[42px] cursor-pointer items-center gap-2 rounded-lg border border-input bg-background px-4 text-sm font-semibold text-text transition-transform duration-150 ease-out hover:-translate-y-px motion-reduce:transition-none"
       >
         <SlidersHorizontalIcon className="size-[17px]" strokeWidth={2} aria-hidden="true" />
-        <span className="hidden sm:inline">Filtros</span>
+        <span className="hidden sm:inline">{f.filtros}</span>
         {activos > 0 ? (
           <span className="flex size-5 items-center justify-center rounded-full bg-accent text-[11px] font-bold text-accent-foreground">
             {activos}
@@ -135,14 +128,14 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
           <div
             ref={panelRef}
             role="dialog"
-            aria-label="Filtros de búsqueda"
+            aria-label={f.filtrosDeBusqueda}
             className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85dvh] flex-col gap-4 overflow-y-auto rounded-t-2xl bg-surface p-5 shadow-[0_-16px_40px_rgba(11,30,59,0.25)] lg:absolute lg:inset-x-auto lg:top-[calc(100%+10px)] lg:right-0 lg:bottom-auto lg:w-80 lg:rounded-2xl lg:border lg:border-border lg:p-5 lg:shadow-[0_16px_40px_rgba(11,30,59,0.18)]"
           >
             <div className="flex items-center justify-between lg:hidden">
-              <span className="font-display text-lg font-bold text-text">Filtros</span>
+              <span className="font-display text-lg font-bold text-text">{f.filtros}</span>
               <button
                 type="button"
-                aria-label="Cerrar filtros"
+                aria-label={f.cerrar}
                 onClick={() => setOpen(false)}
                 className="flex size-9 cursor-pointer items-center justify-center rounded-lg border border-border bg-background"
               >
@@ -153,7 +146,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
             <form action="/buscar" method="get" className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="filtro-modalidad" className="text-xs font-semibold text-text">
-                  Modalidad
+                  {f.modalidad}
                 </label>
                 <select
                   id="filtro-modalidad"
@@ -161,10 +154,10 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                   defaultValue={initial.modalidad ?? ""}
                   className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-sm text-text"
                 >
-                  <option value="">Cualquiera</option>
+                  <option value="">{f.cualquiera}</option>
                   {MODALIDADES.map((opcion) => (
-                    <option key={opcion.value} value={opcion.value}>
-                      {opcion.etiqueta}
+                    <option key={opcion} value={opcion}>
+                      {t.etiquetas.modalidad[opcion]}
                     </option>
                   ))}
                 </select>
@@ -172,7 +165,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
 
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="filtro-estado" className="text-xs font-semibold text-text">
-                  Estado
+                  {f.estado}
                 </label>
                 <select
                   id="filtro-estado"
@@ -180,7 +173,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                   defaultValue={initial.estado ?? ""}
                   className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-sm text-text"
                 >
-                  <option value="">Cualquiera</option>
+                  <option value="">{f.cualquiera}</option>
                   {ESTADOS_MX.map((opcion) => (
                     <option key={opcion.codigo} value={opcion.codigo}>
                       {opcion.nombre}
@@ -191,7 +184,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
 
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="filtro-tipo" className="text-xs font-semibold text-text">
-                  Tipo de inmueble
+                  {f.tipo}
                 </label>
                 <select
                   id="filtro-tipo"
@@ -199,10 +192,10 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                   defaultValue={initial.tipo ?? ""}
                   className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-sm text-text"
                 >
-                  <option value="">Cualquiera</option>
+                  <option value="">{f.cualquiera}</option>
                   {TIPOS.map((opcion) => (
-                    <option key={opcion.value} value={opcion.value}>
-                      {opcion.etiqueta}
+                    <option key={opcion} value={opcion}>
+                      {t.etiquetas.tipo[opcion]}
                     </option>
                   ))}
                 </select>
@@ -210,20 +203,20 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
 
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="filtro-ciudad" className="text-xs font-semibold text-text">
-                  Ubicación
+                  {f.ubicacion}
                 </label>
                 <input
                   id="filtro-ciudad"
                   name="ciudad"
                   type="text"
                   defaultValue={initial.ciudad ?? ""}
-                  placeholder="Ciudad o zona"
+                  placeholder={f.ciudadZona}
                   className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-sm text-text placeholder:text-muted-foreground"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold text-text">¿Financiamiento?</span>
+                <span className="text-xs font-semibold text-text">{f.financiamiento}</span>
                 <div className="flex items-center gap-5">
                   <label className="flex items-center gap-2 text-sm text-text">
                     <input
@@ -233,7 +226,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                       defaultChecked={initial.financiamiento === "true"}
                       className="accent-primary"
                     />
-                    Sí
+                    {f.si}
                   </label>
                   <label className="flex items-center gap-2 text-sm text-text">
                     <input
@@ -243,24 +236,26 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                       defaultChecked={initial.financiamiento === "false"}
                       className="accent-primary"
                     />
-                    No
+                    {f.no}
                   </label>
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <Rango
-                  etiqueta="Precio"
+                  etiqueta={f.precio}
+                  textoMinimo={f.minimo}
+                  textoMaximo={f.maximo}
                   nombreMin="precio_min"
                   nombreMax="precio_max"
                   min={initial.precioMin}
                   max={initial.precioMax}
                 />
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-text-muted">En renta, por mes.</span>
+                  <span className="text-xs text-text-muted">{f.enRentaPorMes}</span>
                   <select
                     name="moneda"
-                    aria-label="Moneda del precio"
+                    aria-label={f.monedaDelPrecio}
                     defaultValue={initial.moneda ?? "MXN"}
                     className="h-9 rounded-lg border border-input bg-background px-2.5 text-sm text-text"
                   >
@@ -271,7 +266,9 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
               </div>
 
               <Rango
-                etiqueta="Superficie (m²)"
+                etiqueta={f.superficie}
+                textoMinimo={f.minimo}
+                textoMaximo={f.maximo}
                 nombreMin="m2_min"
                 nombreMax="m2_max"
                 min={initial.superficieMin}
@@ -281,7 +278,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
               <div className="grid grid-cols-2 gap-2">
                 <div className="flex flex-col gap-1.5">
                   <label htmlFor="filtro-banos" className="text-xs font-semibold text-text">
-                    Baños
+                    {f.banos}
                   </label>
                   <select
                     id="filtro-banos"
@@ -289,7 +286,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                     defaultValue={valorInicial(initial.banosMin)}
                     className={claseCampo}
                   >
-                    <option value="">Cualquiera</option>
+                    <option value="">{f.cualquiera}</option>
                     {OPCIONES_BANOS.map((n) => (
                       <option key={n} value={n}>
                         {n}+
@@ -302,7 +299,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                     htmlFor="filtro-estacionamientos"
                     className="text-xs font-semibold text-text"
                   >
-                    Estacionamientos
+                    {f.estacionamientos}
                   </label>
                   <select
                     id="filtro-estacionamientos"
@@ -310,7 +307,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                     defaultValue={valorInicial(initial.estacionamientosMin)}
                     className={claseCampo}
                   >
-                    <option value="">Cualquiera</option>
+                    <option value="">{f.cualquiera}</option>
                     {OPCIONES_ESTACIONAMIENTOS.map((n) => (
                       <option key={n} value={n}>
                         {n}+
@@ -329,13 +326,13 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                 }
               >
                 <summary className="cursor-pointer text-xs font-semibold text-text">
-                  Datos de nave industrial
+                  {f.datosNave}
                 </summary>
                 <div className="mt-3 flex flex-col gap-3">
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex flex-col gap-1.5">
                       <label htmlFor="filtro-altura" className="text-xs text-text">
-                        Altura libre mín. (m)
+                        {f.alturaMin}
                       </label>
                       <input
                         id="filtro-altura"
@@ -347,7 +344,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <label htmlFor="filtro-andenes" className="text-xs text-text">
-                        Andenes mín.
+                        {f.andenesMin}
                       </label>
                       <input
                         id="filtro-andenes"
@@ -360,7 +357,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                   </div>
                   <div className="flex flex-col gap-1.5">
                     <label htmlFor="filtro-kva" className="text-xs text-text">
-                      Carga eléctrica mín. (kVA)
+                      {f.kvaMin}
                     </label>
                     <input
                       id="filtro-kva"
@@ -375,7 +372,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
 
               <div className="flex flex-col gap-1.5 sm:hidden">
                 <label htmlFor="filtro-orden" className="text-xs font-semibold text-text">
-                  Ordenar por
+                  {f.ordenarPor}
                 </label>
                 <select
                   id="filtro-orden"
@@ -385,7 +382,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                 >
                   {ORDENES_BUSQUEDA.map((opcion) => (
                     <option key={opcion} value={opcion}>
-                      {ETIQUETAS_ORDEN[opcion]}
+                      {t.orden[opcion]}
                     </option>
                   ))}
                 </select>
@@ -395,14 +392,14 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                 type="submit"
                 className="flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-accent text-sm font-bold text-accent-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
-                Buscar espacios
+                {f.buscarEspacios}
               </button>
               {activos > 0 ? (
                 <a
                   href="/buscar"
                   className="text-center text-sm font-semibold text-text-muted underline-offset-4 hover:text-text hover:underline"
                 >
-                  Limpiar filtros
+                  {f.limpiar}
                 </a>
               ) : null}
             </form>

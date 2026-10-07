@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/marketing/site-footer";
 import { SaveSearchButton } from "@/components/properties/save-search-button";
 import { SearchResults } from "@/components/properties/search-results";
 import { SortSelect } from "@/components/properties/sort-select";
+import { type Idioma, textosDe } from "@/lib/i18n";
 import {
   type Landing,
   LUGARES_LANDING,
@@ -27,35 +28,43 @@ export function metadataDeLanding(landing: Landing): Metadata {
 // Página de aterrizaje por tipo, operación y lugar: los mismos resultados de /buscar con un
 // título y texto propios para Google, y ligas a búsquedas relacionadas. Refinar o reordenar lleva
 // a /buscar con estos filtros ya puestos.
-export async function LandingView({ landing }: { landing: Landing }) {
+export async function LandingView({ landing, idioma }: { landing: Landing; idioma: Idioma }) {
   const datos = await cargarResultados(landing.filtros, "relevancia");
   const { modalidad, tipo, lugar } = landing;
+  const t = textosDe(idioma);
+  const plural = (valor: string) => t.etiquetas.tipoPlural[valor] ?? valor;
+  const operacion = (valor: string) => t.etiquetas.operacion[valor] ?? valor;
 
+  // Primero otros tipos y operaciones del mismo lugar; después el mismo tipo en otros estados.
   const relacionadas = [
-    ...LUGARES_LANDING.filter((otro) => otro.slug !== lugar?.slug).map((otro) => ({
-      ruta: rutaLanding(modalidad.slug, tipo.slug, otro.slug),
-      texto: `${tipo.plural} ${modalidad.texto} en ${otro.nombre}`,
-    })),
     ...TIPOS_LANDING.filter((otro) => otro.slug !== tipo.slug).map((otro) => ({
       ruta: rutaLanding(modalidad.slug, otro.slug, lugar?.slug),
-      texto: `${otro.plural} ${modalidad.texto}${lugar ? ` en ${lugar.nombre}` : ""}`,
+      texto: t.landing.titulo(
+        plural(otro.valor),
+        operacion(modalidad.valor),
+        lugar?.nombre ?? null,
+      ),
     })),
     ...MODALIDADES_LANDING.filter((otra) => otra.slug !== modalidad.slug).map((otra) => ({
       ruta: rutaLanding(otra.slug, tipo.slug, lugar?.slug),
-      texto: `${tipo.plural} ${otra.texto}${lugar ? ` en ${lugar.nombre}` : ""}`,
+      texto: t.landing.titulo(plural(tipo.valor), operacion(otra.valor), lugar?.nombre ?? null),
+    })),
+    ...LUGARES_LANDING.filter((otro) => otro.slug !== lugar?.slug).map((otro) => ({
+      ruta: rutaLanding(modalidad.slug, tipo.slug, otro.slug),
+      texto: t.landing.titulo(plural(tipo.valor), operacion(modalidad.valor), otro.nombre),
     })),
   ];
 
   return (
     <>
       <nav
-        aria-label="Migas de pan"
+        aria-label={t.resultados.migas}
         className="flex justify-center border-b border-border bg-background"
       >
         <ol className="flex w-full max-w-7xl flex-wrap items-center gap-2 px-4 py-4 text-[13px] text-text-muted sm:px-6 lg:px-8">
           <li>
             <Link href="/" className="hover:text-text">
-              Inicio
+              {t.resultados.inicio}
             </Link>
             <ChevronRightIcon
               className="ml-2 inline size-3 text-text-muted/60"
@@ -65,7 +74,7 @@ export async function LandingView({ landing }: { landing: Landing }) {
           {lugar ? (
             <li>
               <Link href={rutaLanding(modalidad.slug, tipo.slug)} className="hover:text-text">
-                {tipo.plural} {modalidad.texto}
+                {t.landing.titulo(plural(tipo.valor), operacion(modalidad.valor), null)}
               </Link>
               <ChevronRightIcon
                 className="ml-2 inline size-3 text-text-muted/60"
@@ -74,7 +83,9 @@ export async function LandingView({ landing }: { landing: Landing }) {
             </li>
           ) : null}
           <li aria-current="page" className="font-semibold text-text">
-            {lugar ? lugar.nombre : `${tipo.plural} ${modalidad.texto}`}
+            {lugar
+              ? lugar.nombre
+              : t.landing.titulo(plural(tipo.valor), operacion(modalidad.valor), null)}
           </li>
         </ol>
       </nav>
@@ -90,7 +101,7 @@ export async function LandingView({ landing }: { landing: Landing }) {
 
           <div className="sticky top-16 z-30 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-surface px-4 py-3 sm:px-5 sm:py-4">
             <p className="text-base font-bold text-text sm:text-xl">
-              {datos.total} {datos.total === 1 ? "espacio encontrado" : "espacios encontrados"}
+              {t.resultados.encontrados(datos.total)}
             </p>
             <div className="flex items-center gap-3">
               <SaveSearchButton
@@ -104,7 +115,7 @@ export async function LandingView({ landing }: { landing: Landing }) {
                 className="flex h-[42px] items-center gap-2 rounded-lg border border-input bg-background px-4 text-sm font-semibold text-text transition-colors hover:border-primary hover:text-primary"
               >
                 <SlidersHorizontalIcon className="size-[17px]" aria-hidden="true" />
-                <span className="hidden sm:inline">Refinar búsqueda</span>
+                <span className="hidden sm:inline">{t.resultados.refinar}</span>
               </Link>
             </div>
           </div>
@@ -121,7 +132,7 @@ export async function LandingView({ landing }: { landing: Landing }) {
           />
 
           <section className="flex flex-col gap-3 border-t border-border pt-7">
-            <h2 className="text-lg font-bold text-text">Búsquedas relacionadas</h2>
+            <h2 className="text-lg font-bold text-text">{t.resultados.relacionadas}</h2>
             <ul className="flex flex-wrap gap-2">
               {relacionadas.map((relacionada) => (
                 <li key={relacionada.ruta}>
@@ -138,7 +149,7 @@ export async function LandingView({ landing }: { landing: Landing }) {
         </div>
       </main>
 
-      <SiteFooter />
+      <SiteFooter idioma={idioma} />
     </>
   );
 }
