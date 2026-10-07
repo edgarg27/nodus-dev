@@ -7,13 +7,17 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-8 sm:grid-cols-3">
           <div className="flex flex-col gap-4 sm:col-span-3 lg:col-span-1">
-            <Link href="/" aria-label="NODUS Flex Center — inicio" className="w-fit">
+            <Link
+              href="/"
+              aria-label="Captive Center by Nodus Flex Center — inicio"
+              className="w-fit"
+            >
               <Image
-                src="/brand/flex-center-logo-blanco.png"
+                src="/brand/captive-center-logo-oscuro.png"
                 alt=""
-                width={151}
-                height={48}
-                className="h-12 w-auto"
+                width={170}
+                height={56}
+                className="h-14 w-auto"
               />
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-primary-foreground/55">
