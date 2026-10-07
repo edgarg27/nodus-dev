@@ -4,6 +4,7 @@ import { Trash2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
+import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
 
 type TipoContacto = "email" | "telefono" | "whatsapp";
 
@@ -52,10 +53,7 @@ function SeccionContactos({
       });
       if (!respuesta.ok) {
         const cuerpo = await respuesta.json().catch(() => null);
-        // Los mensajes de la API están en español; en inglés se muestra el genérico.
-        throw new Error(
-          (idioma === "es" && cuerpo?.error?.details?.[0]?.message) || a.errorAgregar,
-        );
+        throw new Error(mensajeDeErrorApi(cuerpo, idioma, a.errorAgregar, { detalle: true }));
       }
       setValor("");
       router.refresh();

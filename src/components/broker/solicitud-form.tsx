@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Textos } from "@/lib/i18n";
+import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
 import { SolicitudEnviada } from "./solicitud-enviada";
 
 const MENSAJE_MAXIMO = 500;
@@ -70,8 +71,7 @@ export function SolicitudForm({ nombre, correo }: SolicitudFormProps) {
 
     const cuerpo = await respuesta.json();
     if (!respuesta.ok) {
-      // Los mensajes de la API están en español; en inglés se muestra el genérico.
-      setErrorEnvio(idioma === "es" && cuerpo.error?.message ? cuerpo.error.message : t.errorEnvio);
+      setErrorEnvio(mensajeDeErrorApi(cuerpo, idioma, t.errorEnvio));
       return;
     }
 

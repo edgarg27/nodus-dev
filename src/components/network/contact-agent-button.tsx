@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
+import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
 
 interface ContactAgentButtonProps {
   propiedadId: string;
@@ -34,8 +35,7 @@ export function ContactAgentButton({ propiedadId, agenciaNombre }: ContactAgentB
       });
       const cuerpo = await respuesta.json().catch(() => null);
       if (!respuesta.ok) {
-        // Los mensajes de la API están en español; en inglés se muestra el genérico.
-        throw new Error((idioma === "es" && cuerpo?.error?.message) || r.errorEnviar);
+        throw new Error(mensajeDeErrorApi(cuerpo, idioma, r.errorEnviar));
       }
       router.push(`/mensajes/${cuerpo.data.conversacion_id}`);
     } catch (err) {

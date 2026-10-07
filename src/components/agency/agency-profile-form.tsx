@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
+import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
 
 interface AgencyProfileFormProps {
   nombre: string;
@@ -30,9 +31,7 @@ export function AgencyProfileForm({ nombre, descripcion }: AgencyProfileFormProp
       });
       if (!respuesta.ok) {
         const cuerpo = await respuesta.json().catch(() => null);
-        // Los mensajes de la API están en español; en inglés se muestra el genérico.
-        const mensajeApi = cuerpo?.error?.details?.[0]?.message ?? cuerpo?.error?.message;
-        throw new Error((idioma === "es" && mensajeApi) || a.errorGuardar);
+        throw new Error(mensajeDeErrorApi(cuerpo, idioma, a.errorGuardar, { detalle: true }));
       }
       setMensaje({ tipo: "ok", texto: a.guardado });
       router.refresh();

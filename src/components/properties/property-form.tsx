@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
 import type { Sugerencia } from "./address-autocomplete";
 import { PropertyFormBasicsFields } from "./property-form-basics-fields";
 import { PropertyFormDetailsFields } from "./property-form-details-fields";
@@ -249,9 +250,8 @@ export function PropertyForm({ propiedad, contactos = [] }: PropertyFormProps) {
         if (existingId) setMensajeDuplicado({ id: existingId });
         return;
       }
-      // Los mensajes de la API están en español; en inglés se muestra el genérico.
       const generico = error.foto ? f.errorFoto : f.errorGuardar;
-      setErrorEnvio(idioma === "es" && error.message ? error.message : generico);
+      setErrorEnvio(mensajeDeErrorApi({ error }, idioma, generico));
     }
   }
 

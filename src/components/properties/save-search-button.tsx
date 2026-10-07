@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
+import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
 
 interface SaveSearchButtonProps {
   consulta: string;
@@ -42,12 +43,7 @@ export function SaveSearchButton({
       const cuerpo = await respuesta.json().catch(() => null);
       if (respuesta.ok) setGuardada(true);
       else {
-        // Los mensajes de la API están en español; en inglés se muestra el genérico.
-        setError(
-          idioma === "es" && cuerpo?.error?.message
-            ? cuerpo.error.message
-            : t.guardarBusqueda.error,
-        );
+        setError(mensajeDeErrorApi(cuerpo, idioma, t.guardarBusqueda.error));
       }
     } catch {
       setError(t.guardarBusqueda.error);
