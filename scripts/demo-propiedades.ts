@@ -8,8 +8,9 @@ import { normalizeAddress } from "../src/lib/normalize-address.ts";
 // - No borra nada más que lo suyo: todo cuelga del usuario oferente "Captive Demo"; al volver a
 //   correrlo se reemplazan sus espacios (útil después de `pnpm test`, que vacía la base).
 // - Solo corre contra el proyecto de desarrollo (misma guardia que el seed y las pruebas).
-// - Las fotos de oficinas son cuadros del video de la portada (public/demo/); naves y locales
-//   se muestran con su ícono hasta que se suban fotos reales.
+// - Fotos de ejemplo en public/demo/: oficinas (cuadros del video de la portada y dos interiores),
+//   una nave y un edificio en obra para los proyectos desde cero. Los locales aún no tienen foto y
+//   se muestran con su ícono.
 
 const OFERENTE_DEMO = {
   id: "11111111-1111-4111-8111-000000000001",
@@ -19,12 +20,17 @@ const OFERENTE_DEMO = {
   telefono: "444 100 2000",
 } as const;
 
+// Fotos por tipo de espacio; las oficinas rotan entre las seis, dos por espacio.
 const FOTOS_OFICINA = [
   "/demo/oficina-1.jpg",
+  "/demo/oficina-5.jpg",
   "/demo/oficina-2.jpg",
+  "/demo/oficina-6.jpg",
   "/demo/oficina-3.jpg",
   "/demo/oficina-4.jpg",
 ];
+const FOTOS_NAVE = ["/demo/nave-1.jpg"];
+const FOTOS_PROYECTO = ["/demo/proyecto-1.jpg"];
 
 type Espacio = Omit<
   typeof propiedad.$inferInsert,
@@ -291,16 +297,21 @@ async function main() {
       .returning({ id: propiedad.id });
     if (!fila) throw new Error(`No se insertó ${espacio.direccion}`);
 
-    if (espacio.tipo === "oficina") {
-      // Dos fotos por oficina, rotando entre las cuatro disponibles.
-      await db.insert(propiedadFoto).values(
-        [0, 1].map((orden) => ({
-          propiedadId: fila.id,
-          storageUrl: FOTOS_OFICINA[(fotoSiguiente + orden) % FOTOS_OFICINA.length] as string,
-          orden,
-        })),
+    let fotos: string[] = [];
+    if (espacio.modalidad === "desde_cero") {
+      fotos = FOTOS_PROYECTO;
+    } else if (espacio.tipo === "nave_industrial") {
+      fotos = FOTOS_NAVE;
+    } else if (espacio.tipo === "oficina") {
+      fotos = [0, 1].map(
+        (orden) => FOTOS_OFICINA[(fotoSiguiente + orden) % FOTOS_OFICINA.length] as string,
       );
       fotoSiguiente += 2;
+    }
+    if (fotos.length > 0) {
+      await db
+        .insert(propiedadFoto)
+        .values(fotos.map((storageUrl, orden) => ({ propiedadId: fila.id, storageUrl, orden })));
     }
   }
 
