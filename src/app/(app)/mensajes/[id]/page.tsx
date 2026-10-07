@@ -5,6 +5,7 @@ import { ChatThread } from "@/components/messages/chat-thread";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import { esUuid } from "@/server/http/envelope";
+import { obtenerTextos } from "@/server/i18n";
 import { obtenerConversacion } from "@/server/messages/conversations";
 
 interface ConversacionPageProps {
@@ -21,6 +22,7 @@ export default async function ConversacionPage({ params }: ConversacionPageProps
   const resultado = await obtenerConversacion(actor, id);
   if (!resultado.ok) notFound();
   const conversacion = resultado.data;
+  const m = (await obtenerTextos()).t.panel.mensajes;
 
   return (
     <main className="w-full py-10">
@@ -30,7 +32,7 @@ export default async function ConversacionPage({ params }: ConversacionPageProps
           className="flex w-fit items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground"
         >
           <ChevronLeftIcon className="size-4" aria-hidden="true" />
-          Mensajes
+          {m.titulo}
         </Link>
 
         <header className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm">
@@ -46,7 +48,7 @@ export default async function ConversacionPage({ params }: ConversacionPageProps
           </div>
           <div className="flex min-w-0 flex-col gap-0.5">
             <h1 className="truncate font-display text-lg font-bold text-foreground">
-              {conversacion.otro.nombre || "Oferente"}
+              {conversacion.otro.nombre || m.oferente}
             </h1>
             <Link
               href={`/espacios/${conversacion.propiedad.id}`}

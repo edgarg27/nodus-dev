@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 
 interface AgencyProfileFormProps {
   nombre: string;
@@ -9,6 +10,8 @@ interface AgencyProfileFormProps {
 }
 
 export function AgencyProfileForm({ nombre, descripcion }: AgencyProfileFormProps) {
+  const { idioma, t } = useIdioma();
+  const a = t.panel.agencia;
   const router = useRouter();
   const [nombreEditado, setNombreEditado] = useState(nombre);
   const [descripcionEditada, setDescripcionEditada] = useState(descripcion);
@@ -27,16 +30,16 @@ export function AgencyProfileForm({ nombre, descripcion }: AgencyProfileFormProp
       });
       if (!respuesta.ok) {
         const cuerpo = await respuesta.json().catch(() => null);
-        throw new Error(
-          cuerpo?.error?.details?.[0]?.message ?? cuerpo?.error?.message ?? "No se pudo guardar",
-        );
+        // Los mensajes de la API están en español; en inglés se muestra el genérico.
+        const mensajeApi = cuerpo?.error?.details?.[0]?.message ?? cuerpo?.error?.message;
+        throw new Error((idioma === "es" && mensajeApi) || a.errorGuardar);
       }
-      setMensaje({ tipo: "ok", texto: "Perfil guardado." });
+      setMensaje({ tipo: "ok", texto: a.guardado });
       router.refresh();
     } catch (err) {
       setMensaje({
         tipo: "error",
-        texto: err instanceof Error ? err.message : "No se pudo guardar",
+        texto: err instanceof Error ? err.message : a.errorGuardar,
       });
     } finally {
       setGuardando(false);
@@ -51,10 +54,10 @@ export function AgencyProfileForm({ nombre, descripcion }: AgencyProfileFormProp
       onSubmit={guardar}
       className="flex flex-col gap-5 rounded-2xl border border-border bg-surface p-6 shadow-sm"
     >
-      <h2 className="text-[15px] font-bold text-foreground">Información comercial</h2>
+      <h2 className="text-[15px] font-bold text-foreground">{a.infoComercial}</h2>
       <div className="flex flex-col gap-2">
         <label htmlFor="agencia-nombre" className="text-[13px] font-semibold text-foreground">
-          Nombre de la agencia
+          {a.nombre}
         </label>
         <input
           id="agencia-nombre"
@@ -67,7 +70,7 @@ export function AgencyProfileForm({ nombre, descripcion }: AgencyProfileFormProp
       </div>
       <div className="flex flex-col gap-2">
         <label htmlFor="agencia-descripcion" className="text-[13px] font-semibold text-foreground">
-          Descripción
+          {a.descripcion}
         </label>
         <textarea
           id="agencia-descripcion"
@@ -76,7 +79,7 @@ export function AgencyProfileForm({ nombre, descripcion }: AgencyProfileFormProp
           maxLength={1000}
           rows={4}
           className={`py-2.5 ${claseCampo}`}
-          placeholder="Cuenta en qué se especializa tu agencia."
+          placeholder={a.placeholderDescripcion}
         />
       </div>
       <div className="flex flex-wrap items-center gap-4">
@@ -85,7 +88,7 @@ export function AgencyProfileForm({ nombre, descripcion }: AgencyProfileFormProp
           disabled={guardando || !nombreEditado.trim()}
           className="flex h-[46px] cursor-pointer items-center rounded-lg bg-accent px-6 text-sm font-bold text-accent-foreground shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 disabled:opacity-60 motion-reduce:transition-none"
         >
-          {guardando ? "Guardando…" : "Guardar perfil"}
+          {guardando ? a.guardando : a.guardar}
         </button>
         {mensaje ? (
           <p

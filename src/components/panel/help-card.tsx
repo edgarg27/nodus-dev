@@ -1,8 +1,10 @@
 import { env } from "@/lib/env";
+import { type Idioma, textosDe } from "@/lib/i18n";
 
 // Tarjeta de ayuda del panel. El botón de WhatsApp solo aparece si hay número de soporte
 // configurado (NEXT_PUBLIC_SUPPORT_WHATSAPP).
-export function HelpCard() {
+export function HelpCard({ idioma }: { idioma: Idioma }) {
+  const i = textosDe(idioma).panel.inicio;
   const whatsapp = env.NEXT_PUBLIC_SUPPORT_WHATSAPP?.replace(/\D/g, "");
   return (
     <section
@@ -11,12 +13,9 @@ export function HelpCard() {
     >
       <div className="flex flex-col gap-1.5">
         <h2 id="ayuda-titulo" className="text-[15px] font-bold text-foreground">
-          ¿Necesitas ayuda?
+          {i.ayudaTitulo}
         </h2>
-        <p className="text-sm text-muted-foreground">
-          Una propiedad con fotos, precio y medidas completas recibe más contactos. Si tienes dudas
-          sobre tu publicación, escríbenos.
-        </p>
+        <p className="text-sm text-muted-foreground">{i.ayudaTexto}</p>
       </div>
       {whatsapp ? (
         <a
@@ -25,7 +24,7 @@ export function HelpCard() {
           rel="noopener noreferrer"
           className="flex h-[46px] w-fit items-center rounded-lg border border-input px-5 text-sm font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
         >
-          Escribir por WhatsApp
+          {i.whatsapp}
         </a>
       ) : null}
     </section>
