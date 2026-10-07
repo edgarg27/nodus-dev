@@ -5,10 +5,16 @@ import { defineConfig, devices } from "@playwright/test";
 // SUPABASE_SERVICE_ROLE_KEY y NODUS_*) y tests/helpers/reset-db.ts — y Next no carga .env para ellos.
 // Node 24 lo carga aquí, antes de que se evalúe cualquier archivo de prueba; los workers heredan el
 // process.env ya poblado. Wrapped in try/catch: CI inyecta las variables y no hay .env en disco.
-try {
-  process.loadEnvFile(".env");
-} catch {
-  // no .env file on disk — fine when the variables are injected directly
+// .env.test primero: process.loadEnvFile nunca sobreescribe una variable ya definida, así que el
+// proyecto de pruebas gana y lo demás sale de .env. El webServer (pnpm build && pnpm start) hereda
+// este process.env, y Next.js no sobreescribe variables ya definidas con las de .env: la app de las
+// pruebas E2E también apunta al proyecto de pruebas.
+for (const archivo of [".env.test", ".env"]) {
+  try {
+    process.loadEnvFile(archivo);
+  } catch {
+    // no .env file on disk — fine when the variables are injected directly
+  }
 }
 
 export default defineConfig({
