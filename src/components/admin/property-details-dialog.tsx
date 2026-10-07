@@ -1,6 +1,7 @@
 "use client";
 
 import { Building2Icon, StoreIcon, WarehouseIcon, XIcon } from "lucide-react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { PropiedadPendienteDeRevision } from "@/server/properties/queries";
@@ -20,18 +21,6 @@ const ICONO_POR_TIPO = {
   local_comercial: StoreIcon,
 } as const;
 
-const ETIQUETA_MODALIDAD: Record<string, string> = {
-  renta: "Renta",
-  venta: "Venta",
-  desde_cero: "Proyecto desde cero",
-};
-
-const ETIQUETA_TIPO: Record<string, string> = {
-  nave_industrial: "Nave industrial",
-  oficina: "Oficina",
-  local_comercial: "Local comercial",
-};
-
 export function PropertyDetailsDialog({
   open,
   onOpenChange,
@@ -40,6 +29,12 @@ export function PropertyDetailsDialog({
   onApprove,
   onReject,
 }: PropertyDetailsDialogProps) {
+  const { t } = useIdioma();
+  const p = t.admin.propiedades;
+  const etiquetas = t.etiquetas as {
+    tipo: Record<string, string>;
+    modalidad: Record<string, string>;
+  };
   const Icono = ICONO_POR_TIPO[propiedad.tipo as keyof typeof ICONO_POR_TIPO] ?? WarehouseIcon;
   const primeraFoto = propiedad.fotos[0];
 
@@ -57,14 +52,14 @@ export function PropertyDetailsDialog({
               className="absolute top-3 right-3 bg-white/20 text-primary-foreground hover:bg-white/30 hover:text-primary-foreground"
             >
               <XIcon />
-              <span className="sr-only">Cerrar</span>
+              <span className="sr-only">{p.cerrar}</span>
             </Button>
           </DialogClose>
           {primeraFoto ? (
             // biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático
             <img
               src={primeraFoto.storageUrl}
-              alt={`${propiedad.direccion} — ${ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo}`}
+              alt={`${propiedad.direccion} — ${etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo}`}
               className="size-full object-cover"
             />
           ) : (
@@ -76,7 +71,7 @@ export function PropertyDetailsDialog({
           )}
           {propiedad.fotos.length > 0 ? (
             <span className="absolute top-3.5 left-3.5 rounded-full bg-white/20 px-2.5 py-1 text-xs font-bold text-primary-foreground">
-              1 / {propiedad.fotos.length} fotos
+              {p.fotos(propiedad.fotos.length)}
             </span>
           ) : null}
         </div>
@@ -94,30 +89,30 @@ export function PropertyDetailsDialog({
           <div className="grid grid-cols-2 gap-4 rounded-xl bg-background p-4">
             <div className="flex flex-col gap-0.5">
               <span className="text-xs font-bold tracking-wide text-text-muted uppercase">
-                Modalidad
+                {p.modalidad}
               </span>
               <span className="text-sm font-semibold text-text">
-                {ETIQUETA_MODALIDAD[propiedad.modalidad] ?? propiedad.modalidad}
+                {etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad}
               </span>
             </div>
             <div className="flex flex-col gap-0.5">
               <span className="text-xs font-bold tracking-wide text-text-muted uppercase">
-                Tipo
+                {p.tipo}
               </span>
               <span className="text-sm font-semibold text-text">
-                {ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo}
+                {etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo}
               </span>
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-bold text-text">Descripción</span>
+            <span className="text-sm font-bold text-text">{p.descripcionCampo}</span>
             <p className="text-sm leading-relaxed text-text">{propiedad.descripcion}</p>
           </div>
 
           {propiedad.oferente ? (
             <div className="flex flex-col gap-2 border-t border-border pt-4">
-              <span className="text-sm font-bold text-text">Datos del oferente</span>
+              <span className="text-sm font-bold text-text">{p.datosOferente}</span>
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold text-text">{propiedad.oferente.nombre}</span>
                 <span className="text-sm text-text-muted">
@@ -130,10 +125,10 @@ export function PropertyDetailsDialog({
 
           <div className="flex flex-wrap justify-end gap-2.5">
             <Button type="button" variant="destructive" disabled={disabled} onClick={onReject}>
-              Rechazar
+              {p.rechazar}
             </Button>
             <Button type="button" disabled={disabled} onClick={onApprove}>
-              Aprobar
+              {p.aprobar}
             </Button>
           </div>
         </div>

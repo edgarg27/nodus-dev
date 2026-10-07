@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useAdminToast } from "@/components/admin/admin-toast";
 import { PropertyDetailsDialog } from "@/components/admin/property-details-dialog";
 import { RejectPropertyDialog } from "@/components/admin/reject-property-dialog";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
 import type { PropiedadPendienteDeRevision } from "@/server/properties/queries";
 
@@ -21,13 +22,13 @@ const ICONO_POR_TIPO = {
   local_comercial: StoreIcon,
 } as const;
 
-const ETIQUETA_MODALIDAD: Record<string, string> = {
-  renta: "Renta",
-  venta: "Venta",
-  desde_cero: "Proyecto desde cero",
-};
-
 export function PropertyReviewCard({ propiedad }: PropertyReviewCardProps) {
+  const { t } = useIdioma();
+  const p = t.admin.propiedades;
+  const etiquetas = t.etiquetas as {
+    tipo: Record<string, string>;
+    modalidad: Record<string, string>;
+  };
   const router = useRouter();
   const { showToast } = useAdminToast();
   const [rejectOpen, setRejectOpen] = useState(false);
@@ -48,13 +49,9 @@ export function PropertyReviewCard({ propiedad }: PropertyReviewCardProps) {
 
     setEnviando(false);
     if (respuesta.status === 409) {
-      showToast("Esta propiedad ya fue revisada.");
+      showToast(p.yaRevisada);
     } else if (respuesta.ok) {
-      showToast(
-        decision.decision === "aprobar"
-          ? "Propiedad aprobada y ahora es pública."
-          : "Propiedad rechazada. El oferente verá el motivo para corregirla.",
-      );
+      showToast(decision.decision === "aprobar" ? p.aprobada : p.rechazada);
     }
     if (respuesta.ok || respuesta.status === 409) {
       setRejectOpen(false);
@@ -75,7 +72,7 @@ export function PropertyReviewCard({ propiedad }: PropertyReviewCardProps) {
             <img
               key={foto.id}
               src={foto.storageUrl}
-              alt={`${propiedad.direccion} — ${propiedad.tipo}`}
+              alt={`${propiedad.direccion} — ${etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo}`}
               width={64}
               height={64}
               className="size-16 rounded-lg border border-border object-cover"
@@ -100,14 +97,14 @@ export function PropertyReviewCard({ propiedad }: PropertyReviewCardProps) {
               esRenta ? "bg-warning-foreground text-warning" : "bg-muted text-primary"
             }`}
           >
-            {ETIQUETA_MODALIDAD[propiedad.modalidad] ?? propiedad.modalidad}
+            {etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad}
           </span>
         </div>
         <p className="text-sm text-text-muted">
           {propiedad.ciudad}, {propiedad.estado}
         </p>
         {propiedad.oferente ? (
-          <p className="text-xs text-text-muted">Publicada por {propiedad.oferente.nombre}</p>
+          <p className="text-xs text-text-muted">{p.publicadaPor(propiedad.oferente.nombre)}</p>
         ) : null}
       </div>
 
@@ -118,7 +115,7 @@ export function PropertyReviewCard({ propiedad }: PropertyReviewCardProps) {
           disabled={enviando}
           onClick={() => setDetailsOpen(true)}
         >
-          Ver detalles
+          {p.verDetalles}
         </Button>
         <Button
           type="button"
@@ -126,14 +123,14 @@ export function PropertyReviewCard({ propiedad }: PropertyReviewCardProps) {
           disabled={enviando}
           onClick={() => setRejectOpen(true)}
         >
-          Rechazar
+          {p.rechazar}
         </Button>
         <Button
           type="button"
           disabled={enviando}
           onClick={() => enviarDecision({ decision: "aprobar" })}
         >
-          Aprobar
+          {p.aprobar}
         </Button>
       </div>
 
