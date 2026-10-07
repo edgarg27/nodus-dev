@@ -357,3 +357,12 @@ export async function listarPropiedadesSimilares(
     .limit(limite);
   return conPrimeraFoto(filas);
 }
+
+// Para el sitemap: cada espacio público con su última modificación.
+export async function listarIdsPublicos(): Promise<{ id: string; updatedAt: Date }[]> {
+  return db
+    .select({ id: propiedad.id, updatedAt: propiedad.updatedAt })
+    .from(propiedad)
+    .where(and(eq(propiedad.activo, true), eq(propiedad.estadoPublicacion, "publicada")))
+    .orderBy(desc(propiedad.updatedAt));
+}
