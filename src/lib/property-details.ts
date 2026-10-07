@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ESTADOS_MX } from "./estados.ts";
 
 // Datos del espacio (precio, superficies, servicios y datos industriales). Fuente única de las
 // reglas para la API, el formulario de publicar y las tarjetas que los muestran.
@@ -175,11 +176,9 @@ export const ETIQUETA_MODALIDAD: Record<string, string> = {
   desde_cero: "Proyecto desde cero",
 };
 
-export const ETIQUETA_ESTADO: Record<string, string> = {
-  SLP: "San Luis Potosí",
-  Aguascalientes: "Aguascalientes",
-  Leon: "León",
-};
+export const ETIQUETA_ESTADO: Record<string, string> = Object.fromEntries(
+  ESTADOS_MX.map((estado) => [estado.codigo, estado.nombre]),
+);
 
 // "Nave industrial en renta en San Luis Potosí" — título de la ficha y de su metadata.
 export function tituloEspacio(tipo: string, modalidad: string, ciudad: string): string {

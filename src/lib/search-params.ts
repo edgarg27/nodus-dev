@@ -1,3 +1,4 @@
+import { CODIGOS_ESTADO, nombreEstado } from "./estados.ts";
 import { MONEDAS, type Moneda } from "./property-details.ts";
 
 // Fuente única de los parámetros de /buscar y de GET /api/v1/properties: la página, la API, el
@@ -6,7 +7,7 @@ import { MONEDAS, type Moneda } from "./property-details.ts";
 
 export const MODALIDADES_BUSQUEDA = ["renta", "venta", "desde_cero"] as const;
 export const TIPOS_BUSQUEDA = ["nave_industrial", "oficina", "local_comercial"] as const;
-export const ESTADOS_BUSQUEDA = ["SLP", "Aguascalientes", "Leon"] as const;
+export const ESTADOS_BUSQUEDA = CODIGOS_ESTADO;
 export const ORDENES_BUSQUEDA = [
   "relevancia",
   "recientes",
@@ -66,6 +67,8 @@ export function leerBusqueda(obtener: (clave: string) => string | undefined): Le
   const invalidos: string[] = [];
   const texto = (clave: string) => {
     const valor = obtener(clave)?.trim();
+    // Ligas viejas: "Leon" era una ciudad guardada como estado; ahora es Guanajuato.
+    if (clave === "estado" && valor === "Leon") return "Guanajuato";
     return valor ? valor : undefined;
   };
 
@@ -161,11 +164,6 @@ const OPERACION: Record<string, string> = {
   venta: "en venta",
   desde_cero: "desde cero",
 };
-const ESTADO_NOMBRE: Record<string, string> = {
-  SLP: "San Luis Potosí",
-  Aguascalientes: "Aguascalientes",
-  Leon: "León",
-};
 
 function cifra(valor: number): string {
   return valor.toLocaleString("es-MX", { maximumFractionDigits: 2 });
@@ -174,7 +172,7 @@ function cifra(valor: number): string {
 // Nombre automático de una búsqueda guardada: "Naves industriales en renta en San Luis Potosí ·
 // hasta $40,000 MXN · desde 500 m²".
 export function describirBusqueda(filtros: FiltrosBusqueda): string {
-  const lugar = filtros.ciudad ?? (filtros.estado ? ESTADO_NOMBRE[filtros.estado] : undefined);
+  const lugar = filtros.ciudad ?? (filtros.estado ? nombreEstado(filtros.estado) : undefined);
   const base = [
     filtros.tipo ? TIPO_PLURAL[filtros.tipo] : "Espacios",
     filtros.modalidad ? OPERACION[filtros.modalidad] : undefined,

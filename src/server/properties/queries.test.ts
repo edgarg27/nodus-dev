@@ -164,7 +164,7 @@ describe("listarPropiedadesSimilares", () => {
         propiedadFixture(oferenteId, { descripcion: "venta", modalidad: "venta" }),
         propiedadFixture(oferenteId, { descripcion: "renta" }),
         propiedadFixture(oferenteId, { descripcion: "oficina", tipo: "oficina" }),
-        propiedadFixture(oferenteId, { descripcion: "otro estado", estado: "Leon" }),
+        propiedadFixture(oferenteId, { descripcion: "otro estado", estado: "Guanajuato" }),
         propiedadFixture(oferenteId, { descripcion: "pendiente", estadoPublicacion: "pendiente" }),
       ]);
     if (!base) throw new Error("no se insertó la base");

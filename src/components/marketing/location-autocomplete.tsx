@@ -15,6 +15,10 @@ const CIUDADES_PRINCIPALES: Ciudad[] = [
   { ciudad: "San Luis Potosí", estado: "San Luis Potosí" },
   { ciudad: "Aguascalientes", estado: "Aguascalientes" },
   { ciudad: "León", estado: "Guanajuato" },
+  { ciudad: "Ciudad de México", estado: "Ciudad de México" },
+  { ciudad: "Monterrey", estado: "Nuevo León" },
+  { ciudad: "Guadalajara", estado: "Jalisco" },
+  { ciudad: "Querétaro", estado: "Querétaro" },
 ];
 
 const MIN_CARACTERES = 2;

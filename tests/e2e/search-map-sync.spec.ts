@@ -118,7 +118,7 @@ test("filtros por query string muestran solo lo que cumple ambas condiciones", a
       direccion: "Av. Filtro Estado 800",
       direccionNormalizada: "av filtro estado 800",
       modalidad: "renta",
-      estado: "Leon",
+      estado: "Guanajuato",
     }),
   ]);
 

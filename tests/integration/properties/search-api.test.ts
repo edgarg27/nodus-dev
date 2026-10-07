@@ -84,7 +84,7 @@ describe("GET /api/v1/properties", () => {
       .values(propiedadFixture(oferente.id, { modalidad: "venta", estado: "SLP" }));
     await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { modalidad: "renta", estado: "Leon" }));
+      .values(propiedadFixture(oferente.id, { modalidad: "renta", estado: "Guanajuato" }));
     if (!coincide) throw new Error("fixture no se creó");
 
     const respuesta = await GET_SEARCH(requestSearch("modalidad=renta&estado=SLP"));

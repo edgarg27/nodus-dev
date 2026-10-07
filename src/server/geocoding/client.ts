@@ -1,11 +1,12 @@
 import { env, requireEnv } from "../../lib/env.ts";
+import { type CodigoEstado, estadoDesdeNombre } from "../../lib/estados.ts";
 
 export interface ResultadoGeocode {
   lat: number;
   lng: number;
   direccionSugerida: string;
-  // Solo los estados que maneja Nodus (ESTADOS del formulario); null si la dirección cae fuera.
-  estado: "SLP" | "Aguascalientes" | "Leon" | null;
+  // Código del estado (src/lib/estados.ts); null si MapTiler no devuelve un estado de México.
+  estado: CodigoEstado | null;
   ciudad: string | null;
 }
 
@@ -35,14 +36,6 @@ interface FeatureCollectionMapTiler {
   }>;
 }
 
-function normalizar(texto: string): string {
-  return texto
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLowerCase()
-    .trim();
-}
-
 // `id` de MapTiler viene como "<tipo>.<número>", p. ej. "region.2211" o "municipality.271886".
 function contextoDeTipo(context: ContextoMapTiler[] | undefined, tipo: string) {
   return context?.find((c) => c.id.startsWith(`${tipo}.`))?.text ?? null;
@@ -57,14 +50,8 @@ function extraerCiudad(feature: FeatureCollectionMapTiler["features"][number]): 
   return contextoDeTipo(feature.context, "place");
 }
 
-// León es el único mercado de Guanajuato; el resto del estado no tiene equivalente en ESTADOS.
-function mapearEstado(region: string | null, ciudad: string | null): ResultadoGeocode["estado"] {
-  if (!region) return null;
-  const r = normalizar(region);
-  if (r === "san luis potosi") return "SLP";
-  if (r === "aguascalientes") return "Aguascalientes";
-  if (r === "guanajuato" && ciudad && normalizar(ciudad) === "leon") return "Leon";
-  return null;
+function mapearEstado(region: string | null): ResultadoGeocode["estado"] {
+  return estadoDesdeNombre(region);
 }
 
 // Proxy server-side a MapTiler Geocoding (decisión #36 de blueprint.md §20.3). La llave es
@@ -182,7 +169,7 @@ export async function geocodificar(
     lat,
     lng,
     direccionSugerida: feature.place_name,
-    estado: mapearEstado(region, ciudad),
+    estado: mapearEstado(region),
     ciudad,
   };
 }
@@ -192,9 +179,6 @@ export interface CiudadSugerida {
   estado: string;
 }
 
-// Estados donde opera Nodus (León pertenece a Guanajuato en MapTiler); el resto de México no
-// tiene propiedades y solo produciría búsquedas vacías.
-const REGIONES_OPERATIVAS = new Set(["San Luis Potosí", "Aguascalientes", "Guanajuato"]);
 const MAX_CIUDADES = 6;
 
 // Sugerencias de ciudad para el buscador público. MapTiler devuelve el estado en
@@ -215,7 +199,7 @@ export async function buscarCiudades(q: string): Promise<CiudadSugerida[]> {
   for (const feature of cuerpo.features ?? []) {
     const ciudad = feature.place_name.split(",")[0]?.trim();
     const estado = feature.context?.find((entrada) => entrada.id.startsWith("region."))?.text;
-    if (!ciudad || !estado || !REGIONES_OPERATIVAS.has(estado)) continue;
+    if (!ciudad || !estado) continue;
     const clave = `${ciudad}|${estado}`;
     if (vistas.has(clave)) continue;
     vistas.add(clave);

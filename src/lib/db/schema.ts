@@ -35,6 +35,43 @@ export const usuario = pgTable(
   ],
 );
 
+// Los 32 estados de México. Debe coincidir con CODIGOS_ESTADO de src/lib/estados.ts (esta capa no
+// importa nada interno; src/lib/estados.test.ts verifica que sean iguales).
+export const CODIGOS_ESTADO_DB = [
+  "Aguascalientes",
+  "Baja California",
+  "Baja California Sur",
+  "Campeche",
+  "Chiapas",
+  "Chihuahua",
+  "Ciudad de Mexico",
+  "Coahuila",
+  "Colima",
+  "Durango",
+  "Estado de Mexico",
+  "Guanajuato",
+  "Guerrero",
+  "Hidalgo",
+  "Jalisco",
+  "Michoacan",
+  "Morelos",
+  "Nayarit",
+  "Nuevo Leon",
+  "Oaxaca",
+  "Puebla",
+  "Queretaro",
+  "Quintana Roo",
+  "SLP",
+  "Sinaloa",
+  "Sonora",
+  "Tabasco",
+  "Tamaulipas",
+  "Tlaxcala",
+  "Veracruz",
+  "Yucatan",
+  "Zacatecas",
+] as const;
+
 export const propiedad = pgTable(
   "propiedad",
   {
@@ -113,7 +150,10 @@ export const propiedad = pgTable(
     ),
     check("chk_propiedad_tipo", sql`${t.tipo} in ('nave_industrial','oficina','local_comercial')`),
     check("chk_propiedad_modalidad", sql`${t.modalidad} in ('renta','venta','desde_cero')`),
-    check("chk_propiedad_estado", sql`${t.estado} in ('SLP','Aguascalientes','Leon')`),
+    check(
+      "chk_propiedad_estado",
+      sql`${t.estado} in (${sql.raw(CODIGOS_ESTADO_DB.map((codigo) => `'${codigo}'`).join(","))})`,
+    ),
     check("chk_propiedad_moneda", sql`${t.moneda} in ('MXN','USD')`),
     check("chk_propiedad_precio_unidad", sql`${t.precioUnidad} in ('total','m2')`),
     check(

@@ -23,14 +23,16 @@ describe("resolverLanding", () => {
     expect(resolverLanding("alquiler", "oficinas")).toBeNull();
     expect(resolverLanding("renta", "castillos")).toBeNull();
     expect(resolverLanding("renta", "oficinas", "cdmx")).toBeNull();
+    expect(resolverLanding("renta", "oficinas", "leon")).toBeNull();
   });
 });
 
 describe("todasLasLandings", () => {
-  it("genera 3 operaciones × 3 tipos × (todas + 3 lugares) rutas únicas", () => {
+  it("genera 3 operaciones × 3 tipos × (todas + 32 estados) rutas únicas", () => {
     const rutas = todasLasLandings().map((landing) => landing.ruta);
-    expect(rutas).toHaveLength(36);
-    expect(new Set(rutas).size).toBe(36);
-    expect(rutas).toContain(rutaLanding("venta", "locales-comerciales", "leon"));
+    expect(rutas).toHaveLength(297);
+    expect(new Set(rutas).size).toBe(297);
+    expect(rutas).toContain(rutaLanding("venta", "locales-comerciales", "guanajuato"));
+    expect(rutas).toContain(rutaLanding("renta", "oficinas", "ciudad-de-mexico"));
   });
 });

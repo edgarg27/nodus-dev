@@ -2,13 +2,13 @@
 
 import { SlidersHorizontalIcon, XIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { ESTADOS_MX } from "@/lib/estados";
 import {
   contarFiltrosActivos,
   ETIQUETAS_ORDEN,
   type FiltrosBusqueda,
   ORDENES_BUSQUEDA,
 } from "@/lib/search-params";
-import { ESTADOS } from "./property-form-schema";
 
 const MODALIDADES = [
   { value: "renta", etiqueta: "Renta" },
@@ -21,12 +21,6 @@ const TIPOS = [
   { value: "oficina", etiqueta: "Oficina" },
   { value: "local_comercial", etiqueta: "Local comercial" },
 ] as const;
-
-const ESTADOS_ETIQUETA: Record<(typeof ESTADOS)[number], string> = {
-  SLP: "San Luis Potosí",
-  Aguascalientes: "Aguascalientes",
-  Leon: "León",
-};
 
 export type SearchFiltersInitial = FiltrosBusqueda & { orden?: string };
 
@@ -187,9 +181,9 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                   className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-sm text-text"
                 >
                   <option value="">Cualquiera</option>
-                  {ESTADOS.map((opcion) => (
-                    <option key={opcion} value={opcion}>
-                      {ESTADOS_ETIQUETA[opcion]}
+                  {ESTADOS_MX.map((opcion) => (
+                    <option key={opcion.codigo} value={opcion.codigo}>
+                      {opcion.nombre}
                     </option>
                   ))}
                 </select>
