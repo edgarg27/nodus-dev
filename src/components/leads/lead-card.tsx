@@ -1,10 +1,5 @@
+import { type Idioma, localeDe, textosDe } from "@/lib/i18n";
 import type { LeadOferente } from "@/server/contact-requests/queries";
-
-const formateadorFecha = new Intl.DateTimeFormat("es-MX", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
 
 function iniciales(nombre: string): string {
   const partes = nombre.trim().split(/\s+/);
@@ -14,12 +9,19 @@ function iniciales(nombre: string): string {
 
 interface LeadCardProps {
   lead: LeadOferente;
+  idioma: Idioma;
 }
 
-export function LeadCard({ lead }: LeadCardProps) {
+export function LeadCard({ lead, idioma }: LeadCardProps) {
+  const t = textosDe(idioma).panel.leads;
+  const formateadorFecha = new Intl.DateTimeFormat(localeDe(idioma), {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
   const metaPartes = [lead.emailBuscador, lead.telefonoBuscador, undefined]
     .filter((parte): parte is string => Boolean(parte))
-    .concat(`Recibido el ${formateadorFecha.format(lead.createdAt)}`);
+    .concat(t.recibido(formateadorFecha.format(lead.createdAt)));
 
   return (
     <article className="flex animate-in flex-col items-start gap-[18px] rounded-2xl border border-border bg-surface p-5 fade-in slide-in-from-bottom-1 duration-300 ease-out motion-reduce:animate-none sm:flex-row">
@@ -32,12 +34,12 @@ export function LeadCard({ lead }: LeadCardProps) {
           <h3 className="text-[15px] font-semibold text-foreground">{lead.nombreBuscador}</h3>
           {lead.quiereFinanciamiento ? (
             <span className="rounded-full bg-warning-foreground px-2.5 py-0.5 text-[11px] font-bold text-warning">
-              Quiere financiamiento
+              {t.quiereFinanciamiento}
             </span>
           ) : null}
         </div>
         <p className="text-[13px] text-muted-foreground">
-          Interesado en{" "}
+          {t.interesadoEn}{" "}
           <strong className="font-semibold text-foreground">{lead.direccionPropiedad}</strong>
         </p>
         <p className="text-xs text-muted-foreground/80">{metaPartes.join(" · ")}</p>
@@ -52,7 +54,7 @@ export function LeadCard({ lead }: LeadCardProps) {
         href={`mailto:${lead.emailBuscador}`}
         className="flex h-9 shrink-0 items-center justify-center rounded-lg border border-input px-3.5 text-[12.5px] font-bold whitespace-nowrap text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none sm:min-w-[170px]"
       >
-        Responder por correo
+        {t.responder}
       </a>
     </article>
   );

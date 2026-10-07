@@ -1,3 +1,7 @@
+"use client";
+
+import { useIdioma } from "@/components/i18n/idioma-provider";
+
 export type FiltroPublicacion = "todas" | "pendiente" | "publicada" | "rechazada";
 
 interface PropertyListingFiltersProps {
@@ -6,35 +10,31 @@ interface PropertyListingFiltersProps {
   conteos: Record<FiltroPublicacion, number>;
 }
 
-const OPCIONES: Array<{ valor: FiltroPublicacion; etiqueta: string }> = [
-  { valor: "todas", etiqueta: "Todas" },
-  { valor: "pendiente", etiqueta: "Pendientes" },
-  { valor: "publicada", etiqueta: "Publicadas" },
-  { valor: "rechazada", etiqueta: "Rechazadas" },
-];
+const OPCIONES: FiltroPublicacion[] = ["todas", "pendiente", "publicada", "rechazada"];
 
 export function PropertyListingFilters({
   filtro,
   onCambiarFiltro,
   conteos,
 }: PropertyListingFiltersProps) {
+  const { t } = useIdioma();
   return (
     <div className="flex flex-wrap items-center gap-2">
       {OPCIONES.map((opcion) => {
-        const activo = filtro === opcion.valor;
+        const activo = filtro === opcion;
         return (
           <button
-            key={opcion.valor}
+            key={opcion}
             type="button"
             aria-pressed={activo}
-            onClick={() => onCambiarFiltro(opcion.valor)}
+            onClick={() => onCambiarFiltro(opcion)}
             className={`flex h-[38px] cursor-pointer items-center gap-2 rounded-full border px-4 text-[13px] font-semibold transition-colors duration-150 ease-out ${
               activo
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-input bg-surface text-muted-foreground hover:border-primary hover:text-foreground"
             }`}
           >
-            {opcion.etiqueta}
+            {t.panel.filtros[opcion]}
             <span
               className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                 activo
@@ -42,7 +42,7 @@ export function PropertyListingFilters({
                   : "bg-muted text-muted-foreground"
               }`}
             >
-              {conteos[opcion.valor]}
+              {conteos[opcion]}
             </span>
           </button>
         );
