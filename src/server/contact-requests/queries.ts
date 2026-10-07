@@ -8,6 +8,7 @@ export interface LeadOferente {
   direccionPropiedad: string;
   nombreBuscador: string;
   emailBuscador: string;
+  telefonoBuscador: string | null;
   quiereFinanciamiento: boolean;
   mensaje: string | null;
   createdAt: Date;
@@ -36,6 +37,7 @@ export async function listarLeadsDelOferente(
       direccionPropiedad: propiedad.direccion,
       nombreBuscador: usuario.nombre,
       emailBuscador: usuario.email,
+      telefonoBuscador: usuario.telefono,
       quiereFinanciamiento: contactRequest.quiereFinanciamiento,
       mensaje: contactRequest.mensaje,
       createdAt: contactRequest.createdAt,

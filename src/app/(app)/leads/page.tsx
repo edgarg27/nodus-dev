@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { LeadCard } from "@/components/leads/lead-card";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import { listarLeadsDelOferente } from "@/server/contact-requests/queries";
@@ -21,38 +21,55 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
   const leads = await listarLeadsDelOferente(actor.id, propiedadId);
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8">
-      <h1 className="text-2xl font-semibold text-foreground">Mis leads</h1>
-      {leads.length === 0 ? (
-        <div className="flex flex-col items-start gap-2">
-          <p className="text-sm text-muted-foreground">Aún no tienes leads</p>
-          <Button asChild>
-            <Link href="/propiedades/nueva">Publicar una propiedad</Link>
-          </Button>
+    <main className="w-full py-10">
+      <div className="mx-auto flex w-full max-w-[1000px] flex-col gap-7 px-4">
+        <div className="flex flex-wrap items-center justify-between gap-5">
+          <div className="flex flex-col gap-1.5">
+            <h1 className="font-display text-[26px] font-bold text-foreground">Leads</h1>
+            <p className="text-sm text-muted-foreground">
+              Solicitudes de contacto que buscadores enviaron directamente a tus propiedades
+              publicadas.
+            </p>
+          </div>
+          <Link
+            href="/propiedades"
+            className="flex h-[46px] items-center whitespace-nowrap rounded-lg border border-input px-5 text-sm font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
+          >
+            Mis publicaciones
+          </Link>
         </div>
-      ) : (
-        <ul className="flex flex-col gap-3">
-          {leads.map((lead) => (
-            <li
-              key={lead.id}
-              className="flex flex-col gap-1 rounded-lg bg-surface p-4 ring-1 ring-border shadow-sm"
+
+        {leads.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border bg-surface px-5 py-14 text-center text-muted-foreground">
+            <svg
+              width="30"
+              height="30"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
             >
-              <p className="text-sm font-medium text-text">{lead.direccionPropiedad}</p>
-              <p className="text-sm text-text-muted">
-                {lead.nombreBuscador} · {lead.emailBuscador}
-              </p>
-              {lead.quiereFinanciamiento ? (
-                <p className="text-sm text-text-muted">Quiere financiamiento</p>
-              ) : null}
-              {lead.mensaje ? (
-                <p className="mt-1 rounded-md bg-background px-3 py-2 text-sm whitespace-pre-line text-text">
-                  {lead.mensaje}
-                </p>
-              ) : null}
-            </li>
-          ))}
-        </ul>
-      )}
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            <span className="text-sm">Aún no tienes leads</span>
+            <Link
+              href="/propiedades/nueva"
+              className="mt-2 flex h-[46px] items-center rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground hover:bg-accent/90"
+            >
+              Publicar una propiedad
+            </Link>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {leads.map((lead) => (
+              <LeadCard key={lead.id} lead={lead} />
+            ))}
+          </div>
+        )}
+      </div>
     </main>
   );
 }
