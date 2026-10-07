@@ -1,4 +1,5 @@
 import { env } from "./env.ts";
+import { ESTADOS_MX } from "./estados.ts";
 import type { FiltrosBusqueda } from "./search-params.ts";
 
 // Páginas de aterrizaje para Google: /<operación>/<tipo>[/<lugar>], por ejemplo
@@ -27,11 +28,11 @@ export const TIPOS_LANDING = [
   },
 ] as const;
 
-export const LUGARES_LANDING = [
-  { slug: "san-luis-potosi", valor: "SLP", nombre: "San Luis Potosí" },
-  { slug: "aguascalientes", valor: "Aguascalientes", nombre: "Aguascalientes" },
-  { slug: "leon", valor: "Leon", nombre: "León" },
-] as const;
+export const LUGARES_LANDING = ESTADOS_MX.map((estado) => ({
+  slug: estado.slug,
+  valor: estado.codigo,
+  nombre: estado.nombre,
+}));
 
 type Modalidad = (typeof MODALIDADES_LANDING)[number];
 type Tipo = (typeof TIPOS_LANDING)[number];
@@ -65,7 +66,7 @@ export function resolverLanding(
   const titulo = `${tipo.plural} ${modalidad.texto}${donde}`;
   const descripcion = lugar
     ? `Encuentra ${tipo.plural.toLowerCase()} ${modalidad.texto} en ${lugar.nombre}: precios, metros cuadrados, fotos y ubicación. Contacta directo al oferente en Captive by Nodus.`
-    : `${tipo.plural} ${modalidad.texto} en San Luis Potosí, Aguascalientes y León: precios, metros cuadrados, fotos y ubicación en Captive by Nodus.`;
+    : `${tipo.plural} ${modalidad.texto} en todo México: precios, metros cuadrados, fotos y ubicación en Captive by Nodus.`;
 
   return {
     modalidad,

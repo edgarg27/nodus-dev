@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { CODIGOS_ESTADO } from "../../../../lib/estados.ts";
 import { detallesPropiedadSchema } from "../../../../lib/property-details.ts";
 import { leerBusqueda } from "../../../../lib/search-params.ts";
 import { getUsuarioActual } from "../../../../server/auth/session.ts";
@@ -12,7 +13,6 @@ import {
 
 const TIPOS = ["nave_industrial", "oficina", "local_comercial"] as const;
 const MODALIDADES = ["renta", "venta", "desde_cero"] as const;
-const ESTADOS = ["SLP", "Aguascalientes", "Leon"] as const;
 
 // Rango geográfico de México continental (bounding box estándar, decisión del builder — el
 // blueprint exige el rango sin dar los números exactos).
@@ -28,7 +28,7 @@ const crearPropiedadSchema = z
     direccion: z.string().trim().min(1),
     lat: z.number().min(LAT_MIN).max(LAT_MAX),
     lng: z.number().min(LNG_MIN).max(LNG_MAX),
-    estado: z.enum(ESTADOS),
+    estado: z.enum(CODIGOS_ESTADO),
     ciudad: z.string().trim().min(1),
     descripcion: z.string().trim().min(1),
     aceptaFinanciamiento: z.boolean().optional(),

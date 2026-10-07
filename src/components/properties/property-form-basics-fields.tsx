@@ -2,6 +2,7 @@ import type { FieldErrors, UseFormRegister } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ESTADOS_MX } from "@/lib/estados";
 import { AddressAutocomplete, type Sugerencia } from "./address-autocomplete";
 import { inputClassName, type PropertyFormValues, selectClassName } from "./property-form-schema";
 
@@ -81,9 +82,11 @@ export function PropertyFormBasicsFields({
               Estado
             </Label>
             <select id="estado" {...register("estado")} className={selectClassName}>
-              <option value="SLP">San Luis Potosí</option>
-              <option value="Aguascalientes">Aguascalientes</option>
-              <option value="Leon">León</option>
+              {ESTADOS_MX.map((estado) => (
+                <option key={estado.codigo} value={estado.codigo}>
+                  {estado.nombre}
+                </option>
+              ))}
             </select>
             {errors.estado ? (
               <p role="alert" className="text-sm text-destructive">

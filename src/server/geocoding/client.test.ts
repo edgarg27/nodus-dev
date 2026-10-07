@@ -100,7 +100,7 @@ describe("geocodificar(q, { limit })", () => {
 });
 
 describe("buscarCiudades", () => {
-  it("filtra a los estados donde opera Nodus, deduplica y usa el estado del context", async () => {
+  it("acepta todo México, deduplica y usa el estado del context", async () => {
     fetchMock.mockResolvedValueOnce(
       respuestaMapTiler([
         {
@@ -132,6 +132,7 @@ describe("buscarCiudades", () => {
     const ciudades = await buscarCiudades("le");
     expect(ciudades).toEqual([
       { ciudad: "León", estado: "Guanajuato" },
+      { ciudad: "San Luis Río Colorado", estado: "Sonora" },
       { ciudad: "San Luis Potosí", estado: "San Luis Potosí" },
     ]);
     const [url] = fetchMock.mock.calls[0] as [string];

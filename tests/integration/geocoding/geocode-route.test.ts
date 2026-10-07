@@ -140,9 +140,9 @@ describe("GET /api/v1/geocode", () => {
         ]),
       );
 
-    expect((await (await GET(request("López Mateos León"))).json()).data.estado).toBe("Leon");
+    expect((await (await GET(request("López Mateos León"))).json()).data.estado).toBe("Guanajuato");
     const irapuato = (await (await GET(request("Calle Hidalgo Irapuato"))).json()).data;
-    expect(irapuato.estado).toBeNull();
+    expect(irapuato.estado).toBe("Guanajuato");
     expect(irapuato.ciudad).toBe("Irapuato");
   });
 

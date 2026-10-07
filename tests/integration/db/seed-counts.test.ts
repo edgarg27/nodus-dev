@@ -31,7 +31,7 @@ describe("scripts/seed.ts", () => {
     const total = propiedades.reduce((suma, f) => suma + Number(f.count), 0);
     expect(total).toBe(3);
     const plazas = propiedades.map((f) => f.estado).sort();
-    expect(plazas).toEqual(["Aguascalientes", "Leon", "SLP"].sort());
+    expect(plazas).toEqual(["Aguascalientes", "Guanajuato", "SLP"].sort());
   });
 
   it("sin NODUS_ALLOW_DB_RESET sale con código 1 sin cambiar nada", async () => {

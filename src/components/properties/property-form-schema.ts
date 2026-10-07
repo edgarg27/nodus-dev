@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { normalizeAddress } from "@/lib/normalize-address";
+import { CODIGOS_ESTADO, type CodigoEstado, estadoDesdeNombre } from "@/lib/estados";
 import { type DetallesPropiedad, MONEDAS, UNIDADES_PRECIO } from "@/lib/property-details";
 import type { PropertyFormPhoto } from "./property-photo-field";
 import type { EstadoPublicacion } from "./status-badge";
 
 export const TIPOS = ["nave_industrial", "oficina", "local_comercial"] as const;
 export const MODALIDADES = ["renta", "venta", "desde_cero"] as const;
-export const ESTADOS = ["SLP", "Aguascalientes", "Leon"] as const;
+export const ESTADOS = CODIGOS_ESTADO;
 
 const LAT_MIN = 14.5;
 const LAT_MAX = 32.7;
@@ -84,7 +84,7 @@ export interface PropertyFormInitialData extends DetallesPropiedad {
   direccion: string;
   lat: number;
   lng: number;
-  estado: (typeof ESTADOS)[number];
+  estado: CodigoEstado;
   ciudad: string;
   descripcion: string;
   aceptaFinanciamiento: boolean;
@@ -94,19 +94,13 @@ export interface PropertyFormInitialData extends DetallesPropiedad {
 }
 
 // MapTiler devuelve la región por nombre ("San Luis Potosí", "Guanajuato"); el formulario usa
-// códigos. León es el único mercado de Guanajuato (mismo criterio que `mapearEstado` en el
-// servidor de geocoding), así que la región sola no basta: hace falta la ciudad.
+// códigos (src/lib/estados.ts). La ciudad ya no se necesita: se conserva el parámetro por
+// compatibilidad con quien lo llama.
 export function estadoDesdeGeocode(
   region: string | null | undefined,
-  ciudad?: string | null,
-): (typeof ESTADOS)[number] | null {
-  if (!region) return null;
-  const normalizado = normalizeAddress(region);
-  if (normalizado === "san luis potosi" || normalizado === "slp") return "SLP";
-  if (normalizado === "aguascalientes") return "Aguascalientes";
-  if (normalizado === "leon") return "Leon";
-  if (normalizado === "guanajuato" && ciudad && normalizeAddress(ciudad) === "leon") return "Leon";
-  return null;
+  _ciudad?: string | null,
+): CodigoEstado | null {
+  return estadoDesdeNombre(region);
 }
 
 export const selectClassName =

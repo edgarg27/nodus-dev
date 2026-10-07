@@ -2,6 +2,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
+import { ESTADOS_MX } from "@/lib/estados";
 import { SearchFilters, type SearchFiltersInitial } from "./search-filters";
 
 async function abrirPanel() {
@@ -27,9 +28,7 @@ describe("SearchFilters", () => {
     expect(select.name).toBe("estado");
     expect(Array.from(select.options).map((o) => o.value)).toEqual([
       "",
-      "SLP",
-      "Aguascalientes",
-      "Leon",
+      ...ESTADOS_MX.map((estado) => estado.codigo),
     ]);
     expect(select.value).toBe("Aguascalientes");
   });

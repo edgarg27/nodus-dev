@@ -36,6 +36,10 @@ describe("LocationAutocomplete", () => {
       "San Luis Potosí",
       "Aguascalientes",
       "León, Guanajuato",
+      "Ciudad de México",
+      "Monterrey, Nuevo León",
+      "Guadalajara, Jalisco",
+      "Querétaro",
     ]);
     expect(fetchMock).not.toHaveBeenCalled();
   });

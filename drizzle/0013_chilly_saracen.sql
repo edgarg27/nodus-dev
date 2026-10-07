@@ -1,0 +1,2 @@
+ALTER TABLE "propiedad" DROP CONSTRAINT "chk_propiedad_estado";--> statement-breakpoint
+ALTER TABLE "propiedad" ADD CONSTRAINT "chk_propiedad_estado" CHECK ("propiedad"."estado" in ('Aguascalientes','Baja California','Baja California Sur','Campeche','Chiapas','Chihuahua','Ciudad de Mexico','Coahuila','Colima','Durango','Estado de Mexico','Guanajuato','Guerrero','Hidalgo','Jalisco','Michoacan','Morelos','Nayarit','Nuevo Leon','Oaxaca','Puebla','Queretaro','Quintana Roo','SLP','Sinaloa','Sonora','Tabasco','Tamaulipas','Tlaxcala','Veracruz','Yucatan','Zacatecas'));

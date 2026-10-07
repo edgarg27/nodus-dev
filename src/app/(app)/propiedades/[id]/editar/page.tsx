@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { PropertyForm } from "@/components/properties/property-form";
 import type { EstadoPublicacion } from "@/components/properties/status-badge";
+import type { CodigoEstado } from "@/lib/estados";
 import { extraerDetalles } from "@/lib/property-details";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
@@ -34,7 +35,7 @@ export default async function EditarPropiedadPage({ params }: EditarPropiedadPag
           direccion: propiedad.direccion,
           lat: Number(propiedad.lat),
           lng: Number(propiedad.lng),
-          estado: propiedad.estado as "SLP" | "Aguascalientes" | "Leon",
+          estado: propiedad.estado as CodigoEstado,
           ciudad: propiedad.ciudad,
           descripcion: propiedad.descripcion,
           aceptaFinanciamiento: propiedad.aceptaFinanciamiento,

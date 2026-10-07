@@ -72,7 +72,7 @@ async function seed() {
       direccionNormalizada: "av lopez mateos 300 leon",
       lat: "21.125000",
       lng: "-101.686000",
-      estado: "Leon",
+      estado: "Guanajuato",
       ciudad: "León",
       descripcion: "Local comercial a construir en avenida principal de León.",
       activo: true,

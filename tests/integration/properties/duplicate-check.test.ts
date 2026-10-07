@@ -109,7 +109,7 @@ describe("buscarDuplicadoActivo / crearPropiedad", () => {
       direccion: DIRECCION_FIJA,
       lat: LAT_FIJA,
       lng: LNG_FIJA,
-      estado: "Leon",
+      estado: "Guanajuato",
       ciudad: "León",
       descripcion: "Local A",
     });
@@ -123,7 +123,7 @@ describe("buscarDuplicadoActivo / crearPropiedad", () => {
       direccion: DIRECCION_FIJA,
       lat: LAT_FIJA,
       lng: LNG_FIJA,
-      estado: "Leon",
+      estado: "Guanajuato",
       ciudad: "León",
       descripcion: "Local B",
     });
