@@ -8,11 +8,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import { ultimaRevocacionDe, ultimaSolicitudDe } from "@/server/broker-requests/queries";
+import { obtenerTextos } from "@/server/i18n";
 
 export default async function BrokerPage() {
   const actor = await getUsuarioActual();
   const permiso = requireRol(actor, "oferente");
   if (!permiso.ok || !actor) notFound();
+  const { idioma, t } = await obtenerTextos();
 
   if (actor.isBroker) {
     const encabezados = await headers();
@@ -22,7 +24,11 @@ export default async function BrokerPage() {
 
     return (
       <main className="mx-auto w-full max-w-[680px] px-4 py-10">
-        <BrokerActiveCard brokerCode={actor.brokerCode ?? ""} enlaceReferido={enlaceReferido} />
+        <BrokerActiveCard
+          brokerCode={actor.brokerCode ?? ""}
+          enlaceReferido={enlaceReferido}
+          idioma={idioma}
+        />
       </main>
     );
   }
@@ -33,7 +39,7 @@ export default async function BrokerPage() {
   if (ultimaSolicitud?.estado === "pendiente") {
     return (
       <main className="mx-auto w-full max-w-[680px] px-4 py-10">
-        <BrokerPendingCard mensaje={ultimaSolicitud.mensaje} />
+        <BrokerPendingCard mensaje={ultimaSolicitud.mensaje} idioma={idioma} />
       </main>
     );
   }
@@ -41,16 +47,16 @@ export default async function BrokerPage() {
   let alerta: { motivo: string; detalle: string } | null = null;
   if (ultimaSolicitud?.estado === "denegada") {
     alerta = {
-      motivo: "Tu solicitud fue denegada",
-      detalle: ultimaSolicitud.motivoDenegacion ?? "Sin motivo indicado",
+      motivo: t.broker.denegada,
+      detalle: ultimaSolicitud.motivoDenegacion ?? t.broker.sinMotivo,
     };
   } else if (ultimaRevocacion) {
-    alerta = { motivo: "Tu acceso de broker fue revocado", detalle: ultimaRevocacion.motivo };
+    alerta = { motivo: t.broker.revocada, detalle: ultimaRevocacion.motivo };
   }
 
   return (
     <main className="mx-auto flex w-full max-w-[680px] flex-col gap-6 px-4 py-10">
-      <BrokerIntro />
+      <BrokerIntro idioma={idioma} />
       {alerta ? (
         <Alert variant="destructive">
           <AlertDescription>

@@ -2,24 +2,29 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { Textos } from "@/lib/i18n";
 import { SolicitudEnviada } from "./solicitud-enviada";
 
 const MENSAJE_MAXIMO = 500;
 const EMPRESA_MAXIMO = 200;
 
-const solicitudSchema = z.object({
-  empresa: z.string().trim().min(1, "La empresa es obligatoria").max(EMPRESA_MAXIMO),
-  mensaje: z.string().trim().min(1, "El mensaje es obligatorio").max(MENSAJE_MAXIMO),
-});
+// Los mensajes de validación dependen del idioma, así que el esquema se arma con el diccionario.
+function crearSchema(t: Textos["broker"]) {
+  return z.object({
+    empresa: z.string().trim().min(1, t.empresaObligatoria).max(EMPRESA_MAXIMO),
+    mensaje: z.string().trim().min(1, t.notaObligatoria).max(MENSAJE_MAXIMO),
+  });
+}
 
-type SolicitudInput = z.infer<typeof solicitudSchema>;
+type SolicitudInput = z.infer<ReturnType<typeof crearSchema>>;
 
 interface SolicitudFormProps {
   nombre: string;
@@ -27,6 +32,9 @@ interface SolicitudFormProps {
 }
 
 export function SolicitudForm({ nombre, correo }: SolicitudFormProps) {
+  const { idioma, t: textos } = useIdioma();
+  const t = textos.broker;
+  const solicitudSchema = useMemo(() => crearSchema(t), [t]);
   const router = useRouter();
   const {
     register,
@@ -55,14 +63,15 @@ export function SolicitudForm({ nombre, correo }: SolicitudFormProps) {
 
     setEnviando(false);
     if (respuesta.status === 409) {
-      setErrorEnvio("Ya tienes una solicitud pendiente");
+      setErrorEnvio(t.yaPendiente);
       router.refresh();
       return;
     }
 
     const cuerpo = await respuesta.json();
     if (!respuesta.ok) {
-      setErrorEnvio(cuerpo.error?.message ?? "No se pudo enviar la solicitud");
+      // Los mensajes de la API están en español; en inglés se muestra el genérico.
+      setErrorEnvio(idioma === "es" && cuerpo.error?.message ? cuerpo.error.message : t.errorEnvio);
       return;
     }
 
@@ -85,18 +94,18 @@ export function SolicitudForm({ nombre, correo }: SolicitudFormProps) {
 
       <dl className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
-          <dt className="text-[13px] font-semibold text-foreground">Nombre</dt>
+          <dt className="text-[13px] font-semibold text-foreground">{t.nombre}</dt>
           <dd className="text-[15px] text-muted-foreground">{nombre}</dd>
         </div>
         <div className="flex flex-col gap-1">
-          <dt className="text-[13px] font-semibold text-foreground">Correo</dt>
+          <dt className="text-[13px] font-semibold text-foreground">{t.correo}</dt>
           <dd className="text-[15px] break-all text-muted-foreground">{correo}</dd>
         </div>
       </dl>
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="empresa" className="text-[13px] font-semibold text-foreground">
-          Empresa
+          {t.empresa}
         </Label>
         <Input
           id="empresa"
@@ -115,7 +124,7 @@ export function SolicitudForm({ nombre, correo }: SolicitudFormProps) {
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="mensaje" className="text-[13px] font-semibold text-foreground">
-            Nota para el equipo de Nodus
+            {t.nota}
           </Label>
           <span className="text-xs text-muted-foreground">{mensaje.length}/500</span>
         </div>
@@ -123,7 +132,7 @@ export function SolicitudForm({ nombre, correo }: SolicitudFormProps) {
           id="mensaje"
           rows={5}
           maxLength={MENSAJE_MAXIMO}
-          placeholder="Cuéntanos a cuántos clientes representas, en qué zonas operas y cualquier detalle que ayude a revisar tu solicitud."
+          placeholder={t.placeholderNota}
           className="resize-y rounded-lg border-input bg-background px-3.5 py-3 text-[15px]"
           {...register("mensaje")}
           aria-invalid={!!errors.mensaje}
@@ -137,8 +146,8 @@ export function SolicitudForm({ nombre, correo }: SolicitudFormProps) {
 
       <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
         <p className="max-w-[300px] text-[12.5px] text-muted-foreground">
-          Tu solicitud queda en estado <strong className="text-warning">Pendiente</strong> hasta que
-          un administrador la revise.
+          {t.avisoPendienteAntes} <strong className="text-warning">{t.pendiente}</strong>{" "}
+          {t.avisoPendienteDespues}
         </p>
         <Button
           type="submit"
@@ -146,7 +155,7 @@ export function SolicitudForm({ nombre, correo }: SolicitudFormProps) {
           aria-busy={enviando}
           className="h-[48px] rounded-lg bg-accent px-6 text-[15px] font-bold text-accent-foreground shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md motion-reduce:transition-none disabled:opacity-60"
         >
-          {enviando ? "Enviando…" : "Enviar solicitud"}
+          {enviando ? t.enviando : t.enviar}
         </Button>
       </div>
     </form>
