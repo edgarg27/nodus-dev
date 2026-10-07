@@ -3,6 +3,7 @@ import { IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import { cookies } from "next/headers";
 import { SiteHeader } from "@/components/nav/site-header";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { urlDelSitio } from "@/lib/landing-pages";
 import { getUsuarioActual } from "@/server/auth/session";
 import "./globals.css";
 
@@ -19,6 +20,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
+  // Base de las ligas canónicas y de las imágenes de Open Graph (NEXT_PUBLIC_SITE_URL).
+  metadataBase: new URL(urlDelSitio()),
   title: "Captive by Nodus",
   description:
     "Marketplace inmobiliario de dos lados para naves industriales, oficinas y locales comerciales.",

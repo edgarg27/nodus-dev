@@ -1,11 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 
+// Ligas a las páginas por tipo (todas las ciudades), para visitantes y para Google.
+const EXPLORAR = [
+  { href: "/renta/naves-industriales", texto: "Naves industriales en renta" },
+  { href: "/renta/oficinas", texto: "Oficinas en renta" },
+  { href: "/renta/locales-comerciales", texto: "Locales comerciales en renta" },
+  { href: "/venta/naves-industriales", texto: "Naves industriales en venta" },
+];
+
 export function SiteFooter() {
   return (
     <footer className="bg-primary">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-8 sm:grid-cols-3">
+        <div className="grid gap-8 sm:grid-cols-3 lg:grid-cols-4">
           <div className="flex flex-col gap-4 sm:col-span-3 lg:col-span-1">
             <Link href="/" aria-label="NODUS Flex Center — inicio" className="w-fit">
               <Image
@@ -43,6 +51,20 @@ export function SiteFooter() {
             >
               Cómo funciona
             </Link>
+          </div>
+          <div className="flex flex-col gap-3.5">
+            <span className="text-[13px] font-bold tracking-wide text-primary-foreground uppercase">
+              Explorar
+            </span>
+            {EXPLORAR.map((liga) => (
+              <Link
+                key={liga.href}
+                href={liga.href}
+                className="text-sm text-primary-foreground/70 hover:text-primary-foreground"
+              >
+                {liga.texto}
+              </Link>
+            ))}
           </div>
           <div className="flex flex-col gap-3.5">
             <span className="text-[13px] font-bold tracking-wide text-primary-foreground uppercase">

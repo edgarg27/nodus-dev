@@ -3,19 +3,10 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SaveSearchButton } from "@/components/properties/save-search-button";
 import { SearchFilters } from "@/components/properties/search-filters";
-import type { SearchResultProperty } from "@/components/properties/search-results";
 import { SearchResults } from "@/components/properties/search-results";
 import { SortSelect } from "@/components/properties/sort-select";
-import { extraerDetalles } from "@/lib/property-details";
-import { busquedaAParams, leerBusqueda } from "@/lib/search-params";
-import { getUsuarioActual } from "@/server/auth/session";
-import { idsFavoritos } from "@/server/favorites/favorites";
-import {
-  buscarPropiedadesPublicas,
-  contarPropiedadesPublicas,
-  obtenerPrimerasFotos,
-} from "@/server/properties/queries";
-import { estaGuardada } from "@/server/saved-searches/saved-searches";
+import { leerBusqueda } from "@/lib/search-params";
+import { cargarResultados } from "../../_shared/cargar-resultados";
 
 interface BuscarPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -30,35 +21,8 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
 
   // Un parámetro inválido en la URL se ignora (la API, en cambio, responde 422).
   const { filtros, orden } = leerBusqueda(leer);
-  const filtrosServidor = {
-    ...filtros,
-    aceptaFinanciamiento:
-      filtros.financiamiento === undefined ? undefined : filtros.financiamiento === "true",
-  };
-
-  const consulta = busquedaAParams(filtros, orden).toString();
-  const actor = await getUsuarioActual();
-  const [resultado, total, favoritos, guardada] = await Promise.all([
-    buscarPropiedadesPublicas(filtrosServidor, { orden }),
-    contarPropiedadesPublicas(filtrosServidor),
-    actor ? idsFavoritos(actor.id) : Promise.resolve([]),
-    actor ? estaGuardada(actor.id, consulta) : Promise.resolve(false),
-  ]);
-  const primerasFotos = await obtenerPrimerasFotos(resultado.data.map((fila) => fila.id));
-
-  const propiedades: SearchResultProperty[] = resultado.data.map((fila) => ({
-    id: fila.id,
-    direccion: fila.direccion,
-    tipo: fila.tipo,
-    modalidad: fila.modalidad,
-    estado: fila.estado,
-    ciudad: fila.ciudad,
-    descripcion: fila.descripcion,
-    lat: Number(fila.lat),
-    lng: Number(fila.lng),
-    fotoUrl: primerasFotos.get(fila.id)?.storageUrl ?? null,
-    ...extraerDetalles(fila),
-  }));
+  const { consulta, autenticado, total, favoritos, guardada, propiedades, hasMore, nextCursor } =
+    await cargarResultados(filtros, orden);
 
   return (
     <>
@@ -82,7 +46,7 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
               <SaveSearchButton
                 consulta={consulta}
                 guardadaInicial={guardada}
-                autenticado={actor !== null}
+                autenticado={autenticado}
               />
               <SortSelect filtros={filtros} orden={orden} />
               <SearchFilters initial={{ ...filtros, orden }} />
@@ -94,10 +58,10 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
           <SearchResults
             key={consulta}
             favoritos={favoritos}
-            autenticado={actor !== null}
+            autenticado={autenticado}
             propiedadesIniciales={propiedades}
-            hasMoreInicial={resultado.hasMore}
-            nextCursorInicial={resultado.nextCursor}
+            hasMoreInicial={hasMore}
+            nextCursorInicial={nextCursor}
             filtros={filtros}
             orden={orden}
           />
