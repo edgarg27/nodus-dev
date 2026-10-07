@@ -67,7 +67,7 @@ describe("GET /auth/confirm", () => {
     const response = await GET(request);
 
     expect(response.status).toBe(307);
-    expect(response.headers.get("location")).toContain("/propiedades");
+    expect(response.headers.get("location")).toContain("/panel");
     expect(cookieJar.size).toBeGreaterThan(0);
 
     const [fila] = await db.select().from(usuario).where(eq(usuario.email, email));

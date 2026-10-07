@@ -1,8 +1,10 @@
+import { after } from "next/server";
 import type { SearchResultProperty } from "@/components/properties/search-results";
 import { extraerDetalles } from "@/lib/property-details";
 import { busquedaAParams, type FiltrosBusqueda, type OrdenBusqueda } from "@/lib/search-params";
 import { getUsuarioActual } from "@/server/auth/session";
 import { idsFavoritos } from "@/server/favorites/favorites";
+import { registrarImpresiones } from "@/server/metrics/record";
 import {
   buscarPropiedadesPublicas,
   contarPropiedadesPublicas,
@@ -28,6 +30,9 @@ export async function cargarResultados(filtros: FiltrosBusqueda, orden: OrdenBus
     actor ? estaGuardada(actor.id, consulta) : Promise.resolve(false),
   ]);
   const primerasFotos = await obtenerPrimerasFotos(resultado.data.map((fila) => fila.id));
+  // Cada propiedad mostrada en la primera página suma una impresión (después de responder).
+  const idsMostrados = resultado.data.map((fila) => fila.id);
+  after(() => registrarImpresiones(idsMostrados));
 
   const propiedades: SearchResultProperty[] = resultado.data.map((fila) => ({
     id: fila.id,

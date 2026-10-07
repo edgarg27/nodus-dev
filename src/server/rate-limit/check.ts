@@ -58,7 +58,12 @@ export async function verificarLimite(
 // La IP sale del primer valor de `x-forwarded-for` y, si falta, de "desconocida" — un límite de
 // abuso, no una defensa de identidad (§14). Vercel no se verificó en esta revisión (§20.1).
 export function obtenerIpCliente(request: Request): string {
-  const forwardedFor = request.headers.get("x-forwarded-for");
+  return ipDeEncabezados(request.headers);
+}
+
+// Lo mismo para los Server Components, que no reciben un `Request` sino los encabezados.
+export function ipDeEncabezados(encabezados: Headers): string {
+  const forwardedFor = encabezados.get("x-forwarded-for");
   const primera = forwardedFor?.split(",")[0]?.trim();
   return primera || "desconocida";
 }

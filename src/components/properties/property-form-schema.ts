@@ -62,6 +62,13 @@ export function crearPropertyFormSchema(m: MensajesFormulario) {
     alturaLibreM: campoNumerico({ maximo: 999 }, m),
     andenes: campoNumerico({ entero: true, maximo: 9_999 }, m),
     potenciaKva: campoNumerico({ entero: true, maximo: 9_999_999 }, m),
+    // Identificación y Red inmobiliaria (los selects de sí/no se manejan como "true"/"false").
+    referencia: z.string().trim().max(60, m.errorMaximo(60)).optional(),
+    titulo: z.string().trim().max(160, m.errorMaximo(160)).optional(),
+    contactoId: z.string().optional(),
+    compartidaEnRed: z.enum(["true", "false"]).optional(),
+    exclusiva: z.enum(["true", "false"]).optional(),
+    comisionPct: campoNumerico({ maximo: 100 }, m),
   });
 }
 
@@ -97,6 +104,12 @@ export interface PropertyFormInitialData extends DetallesPropiedad {
   ciudad: string;
   descripcion: string;
   aceptaFinanciamiento: boolean;
+  referencia: string | null;
+  titulo: string | null;
+  contactoId: string | null;
+  compartidaEnRed: boolean;
+  comisionPct: number | null;
+  exclusiva: boolean;
   estadoPublicacion: EstadoPublicacion;
   motivoRechazo: string | null;
   fotos: PropertyFormPhoto[];

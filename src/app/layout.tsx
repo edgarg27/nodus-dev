@@ -7,6 +7,7 @@ import { QueryProvider } from "@/components/providers/query-provider";
 import { COOKIE_IDIOMA, idiomaValido } from "@/lib/i18n";
 import { urlDelSitio } from "@/lib/landing-pages";
 import { getUsuarioActual } from "@/server/auth/session";
+import { contarMensajesNoLeidos } from "@/server/messages/conversations";
 import "./globals.css";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -35,6 +36,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const dataTheme = theme === "dark" ? "dark" : theme === "light" ? "light" : undefined;
   const actor = await getUsuarioActual();
   const idioma = idiomaValido(cookieStore.get(COOKIE_IDIOMA)?.value);
+  const mensajesNoLeidos = actor?.rol === "oferente" ? await contarMensajesNoLeidos(actor.id) : 0;
 
   return (
     <html
@@ -47,7 +49,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <QueryProvider>
             <SiteHeader
               actor={
-                actor ? { nombre: actor.nombre, rol: actor.rol, isBroker: actor.isBroker } : null
+                actor
+                  ? {
+                      nombre: actor.nombre,
+                      rol: actor.rol,
+                      isBroker: actor.isBroker,
+                      mensajesNoLeidos,
+                    }
+                  : null
               }
             />
             {children}

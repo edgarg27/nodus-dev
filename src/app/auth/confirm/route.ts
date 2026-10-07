@@ -5,7 +5,7 @@ import { getUsuarioActual } from "../../../server/auth/session.ts";
 const TIPOS_PERMITIDOS = new Set(["email", "signup"]);
 
 function destinoPorRol(rol: string | undefined): string {
-  if (rol === "oferente") return "/propiedades";
+  if (rol === "oferente") return "/panel";
   if (rol === "admin") return "/admin/propiedades";
   return "/buscar";
 }

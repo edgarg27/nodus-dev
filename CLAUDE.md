@@ -60,6 +60,18 @@ validación solo existen una vez.
 administración (`/admin/**`, `/api/v1/admin/**`) exigen `admin` en tres capas (proxy, layout,
 `requireRol()`) y devuelven **404, no 403**, a cualquier otro rol.
 
+**Panel del oferente.** Un oferente entra a `/panel` (métricas del periodo: publicadas, impresiones,
+visitas, solicitudes y gráfica) y de ahí a `/propiedades` (tabla con búsqueda, orden, paginación y CSV),
+`/leads` (bandeja agrupada por persona con embudo `nueva → contactada → visita → propuesta → ganada |
+descartada`, estado por persona en `contact_request.estado`), `/red` (propiedades que otros oferentes
+comparten, con comisión), `/mensajes` (chat entre oferentes sobre una propiedad de la Red) y `/perfil`
+(`agencia_perfil` y `agencia_contacto`; cada propiedad elige su `contacto_id`). Reglas: `comision_pct`,
+`contacto_id` y `referencia` **nunca** salen en una consulta o API pública (`proyeccionPublica` en
+`src/server/properties/public.ts`; solo `/red` devuelve la comisión, y solo a oferentes); las métricas son
+contadores diarios en `propiedad_metrica_diaria` (nunca una fila por visita) y registrarlas nunca puede romper
+la página (`src/server/metrics/record.ts`); los CSV pasan por `src/lib/csv.ts`, que neutraliza celdas que
+empiezan con `=`, `+`, `-` o `@`.
+
 **Límites.** Cruzar esta tabla al revés rompe el build:
 
 | Capa | Puede importar de | Nunca debe |
@@ -81,6 +93,8 @@ administración (`/admin/**`, `/api/v1/admin/**`) exigen `admin` en tres capas (
 | Aprobación de propiedades | `src/server/properties/review.ts` — el admin aprueba o rechaza con motivo; nunca edita |
 | Aprobación/revocación de brokers | `src/server/broker-requests/{resolve,revoke}.ts` — transacciones; el `broker_code` lo genera el servidor |
 | Normalización de dirección (dedupe) | `src/lib/normalize-address.ts` — única implementación, usada al crear/editar y en las pruebas |
+| Métricas, leads y Red del oferente | `src/server/metrics/`, `src/server/contact-requests/{inbox,lead-status}.ts`, `src/server/network/queries.ts`, `src/server/messages/conversations.ts`; parámetros de URL en `src/lib/{mis-propiedades-params,leads,red-params,periodos}.ts` |
+| Perfil de agencia y contactos | `src/server/agency/{queries,mutations}.ts` |
 
 ## Reglas de código
 
@@ -162,6 +176,7 @@ Todos los valores salen del dashboard del proyecto Supabase (`blueprint.md` §10
 | `SUPABASE_SERVICE_ROLE_KEY` | sí | `src/server/supabase/admin.ts`, `tests/helpers/auth-users.ts` | Settings → API Keys → secret key — solo servidor |
 | `NEXT_PUBLIC_MAPTILER_KEY` | sí | `src/components/map/*.tsx` | MapTiler account → Keys (https://cloud.maptiler.com/account/keys/) |
 | `MAPTILER_API_KEY` | sí | `src/app/api/v1/geocode/route.ts` | MapTiler account → Keys (puede ser el mismo valor) |
+| `NEXT_PUBLIC_SUPPORT_WHATSAPP` | no | `src/components/panel/help-card.tsx` | WhatsApp de soporte (solo dígitos con lada); sin él la tarjeta de ayuda no muestra el botón |
 | `NODUS_ALLOW_DB_RESET`, `NODUS_DEV_PROJECT_REF`, `NODUS_PROD_PROJECT_REF` | solo dev | `src/lib/db/dev-guard.ts` | `.env` de desarrollo a mano — **nunca en Vercel ni producción** |
 
 `.env.example` está commiteado y se mantiene sincronizado.

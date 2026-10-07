@@ -1,8 +1,11 @@
 import { ChevronRightIcon, MapPinIcon } from "lucide-react";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 import { cache } from "react";
+import { AgencyByline } from "@/components/agency/agency-byline";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { PropertyContactPanel } from "@/components/properties/property-contact-panel";
 import { PropertyDetailMap } from "@/components/properties/property-detail-map";
@@ -15,14 +18,17 @@ import {
   resumenDetalles,
   tituloEspacio,
 } from "@/lib/property-details";
+import { obtenerIdentidadPublica } from "@/server/agency/queries";
 import { getUsuarioActual } from "@/server/auth/session";
 import { idsFavoritos } from "@/server/favorites/favorites";
 import { obtenerTextos } from "@/server/i18n";
+import { registrarVisita } from "@/server/metrics/record";
 import {
   listarPropiedadesSimilares,
   obtenerFotosDePropiedad,
   obtenerPropiedadPublicaPorId,
 } from "@/server/properties/queries";
+import { ipDeEncabezados } from "@/server/rate-limit/check";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -47,7 +53,9 @@ export async function generateMetadata({ params }: EspacioPageProps): Promise<Me
   if (!espacio) return { title: t.ficha.noEncontrado };
 
   const { propiedad, fotos } = espacio;
-  const titulo = tituloEspacio(propiedad.tipo, propiedad.modalidad, propiedad.ciudad, idioma);
+  const titulo =
+    propiedad.titulo ??
+    tituloEspacio(propiedad.tipo, propiedad.modalidad, propiedad.ciudad, idioma);
   const precio = formatearPrecio(extraerDetalles(propiedad), propiedad.modalidad, idioma);
   const descripcion = `${precio}. ${propiedad.descripcion}`.slice(0, 160);
   return {
@@ -69,7 +77,9 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
   const { propiedad, fotos } = espacio;
   const detalles = extraerDetalles(propiedad);
   const { idioma, t } = await obtenerTextos();
-  const titulo = tituloEspacio(propiedad.tipo, propiedad.modalidad, propiedad.ciudad, idioma);
+  const titulo =
+    propiedad.titulo ??
+    tituloEspacio(propiedad.tipo, propiedad.modalidad, propiedad.ciudad, idioma);
   const precio = formatearPrecio(detalles, propiedad.modalidad, idioma);
   const filas = [
     { etiqueta: t.ficha.tipo, valor: t.etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo },
@@ -84,9 +94,20 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
     },
   ];
   const actor = await getUsuarioActual();
-  const [similares, favoritos] = await Promise.all([
+  // La visita se cuenta después de responder, para no retrasar la ficha.
+  const ip = ipDeEncabezados(await headers());
+  after(() =>
+    registrarVisita({
+      propiedadId: propiedad.id,
+      oferenteId: propiedad.oferenteId,
+      actorId: actor?.id ?? null,
+      ip,
+    }),
+  );
+  const [similares, favoritos, agencia] = await Promise.all([
     listarPropiedadesSimilares(propiedad),
     actor ? idsFavoritos(actor.id, [propiedad.id]) : Promise.resolve([]),
+    obtenerIdentidadPublica(propiedad.oferenteId),
   ]);
   const esFavorito = favoritos.length > 0;
   const estadoEtiqueta = ETIQUETA_ESTADO[propiedad.estado] ?? propiedad.estado;
@@ -156,6 +177,12 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
                 <MapPinIcon className="size-4 shrink-0" aria-hidden="true" />
                 {propiedad.direccion} · {lugar}
               </p>
+              <AgencyByline
+                nombre={agencia.nombre}
+                esBroker={agencia.esBroker}
+                etiquetaPublicadoPor={t.ficha.publicadoPor}
+                etiquetaBroker={t.ficha.brokerVerificado}
+              />
               <ul className="flex flex-wrap gap-1.5 pt-1" aria-label={t.ficha.datosPrincipales}>
                 {resumenDetalles(detalles, propiedad.tipo, idioma).map((etiqueta) => (
                   <li

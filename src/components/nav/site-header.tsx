@@ -15,6 +15,8 @@ export interface SiteHeaderActor {
   nombre: string;
   rol: "buscador" | "oferente" | "admin";
   isBroker: boolean;
+  // Mensajes sin leer del chat de la Red (solo oferentes).
+  mensajesNoLeidos?: number;
 }
 
 interface SiteHeaderProps {
@@ -27,10 +29,14 @@ const UMBRAL_SCROLL = 40;
 const ENLACE_BASE =
   "relative rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ease-out after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-accent after:transition-transform after:duration-200 after:ease-out after:content-[''] hover:after:scale-x-100 focus-visible:after:scale-x-100 motion-reduce:after:transition-none md:px-0 md:py-0 md:after:inset-x-0";
 
-function enlacesPorRol(
-  actor: SiteHeaderActor,
-  t: Textos["header"],
-): { href: string; etiqueta: string }[] {
+interface EnlaceNav {
+  href: string;
+  etiqueta: string;
+  // Contador a la derecha del enlace (por ejemplo, mensajes sin leer).
+  insignia?: number;
+}
+
+function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): EnlaceNav[] {
   if (actor.rol === "admin") {
     return [{ href: "/admin/propiedades", etiqueta: t.panelAdmin }];
   }
@@ -40,8 +46,12 @@ function enlacesPorRol(
   ];
   if (actor.rol === "oferente") {
     return [
+      { href: "/panel", etiqueta: t.panel },
       { href: "/propiedades", etiqueta: t.misPropiedades },
-      { href: "/leads", etiqueta: t.misLeads },
+      { href: "/leads", etiqueta: t.misLeadsBandeja },
+      { href: "/red", etiqueta: t.red },
+      { href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos },
+      { href: "/perfil", etiqueta: t.miPerfil },
       ...guardados,
     ];
   }
@@ -210,9 +220,14 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
                       href={enlace.href}
                       role="menuitem"
                       onClick={() => setUserMenuOpen(false)}
-                      className="cursor-pointer rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                      className="flex cursor-pointer items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
                     >
                       {enlace.etiqueta}
+                      {enlace.insignia ? (
+                        <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-accent-foreground">
+                          {enlace.insignia}
+                        </span>
+                      ) : null}
                     </Link>
                   ))}
                   <div className="my-1 h-px bg-border" />

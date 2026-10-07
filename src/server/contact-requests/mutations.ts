@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
 import { contactRequest, propiedad, usuario } from "../../lib/db/schema.ts";
+import { obtenerContactoPublico } from "../agency/queries.ts";
 import { requireRol } from "../auth/guards.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
 
@@ -58,8 +59,6 @@ export async function crearContactRequest(
   const [prop] = await db.select().from(propiedad).where(eq(propiedad.id, input.propiedadId));
   if (!prop?.activo || prop.estadoPublicacion !== "publicada") return errorNotFound();
 
-  const [oferente] = await db.select().from(usuario).where(eq(usuario.id, prop.oferenteId));
-
   let brokerId: string | null = null;
   if (actor.referralBrokerId) {
     const [broker] = await db.select().from(usuario).where(eq(usuario.id, actor.referralBrokerId));
@@ -79,7 +78,10 @@ export async function crearContactRequest(
     .returning();
   if (!fila) throw new Error("insert de contact_request no devolvió fila");
 
-  const telefonoOferente = oferente?.telefono ?? null;
+  // El contacto que el oferente eligió para esta propiedad (WhatsApp antes que teléfono), o su
+  // teléfono de cuenta si no eligió ninguno.
+  const contacto = await obtenerContactoPublico(prop.oferenteId, prop.contactoId);
+  const telefonoOferente = contacto.whatsapp ?? contacto.telefono;
   return {
     ok: true,
     data: {

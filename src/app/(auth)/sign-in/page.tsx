@@ -7,7 +7,7 @@ interface SignInPageProps {
 }
 
 function destinoPorRol(rol: string): string {
-  if (rol === "oferente") return "/propiedades";
+  if (rol === "oferente") return "/panel";
   if (rol === "admin") return "/admin/propiedades";
   return "/buscar";
 }

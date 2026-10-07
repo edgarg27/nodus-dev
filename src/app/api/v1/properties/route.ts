@@ -1,11 +1,14 @@
 import { randomUUID } from "node:crypto";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { z } from "zod";
 import { CODIGOS_ESTADO } from "../../../../lib/estados.ts";
 import { detallesPropiedadSchema } from "../../../../lib/property-details.ts";
+import { camposPropiosSchema } from "../../../../lib/property-own-fields.ts";
 import { leerBusqueda } from "../../../../lib/search-params.ts";
 import { getUsuarioActual } from "../../../../server/auth/session.ts";
+import { registrarImpresiones } from "../../../../server/metrics/record.ts";
 import { crearPropiedad } from "../../../../server/properties/mutations.ts";
+import { proyeccionPublica } from "../../../../server/properties/public.ts";
 import {
   buscarPropiedadesPublicas,
   obtenerPrimerasFotos,
@@ -33,7 +36,8 @@ const crearPropiedadSchema = z
     descripcion: z.string().trim().min(1),
     aceptaFinanciamiento: z.boolean().optional(),
   })
-  .extend(detallesPropiedadSchema.shape);
+  .extend(detallesPropiedadSchema.shape)
+  .extend(camposPropiosSchema.shape);
 
 // Los filtros y el orden los lee `leerBusqueda` (fuente compartida con /buscar); aquí solo
 // se validan los parámetros propios de la paginación.
@@ -85,10 +89,13 @@ export async function GET(request: Request) {
   );
 
   const primerasFotos = await obtenerPrimerasFotos(resultado.data.map((fila) => fila.id));
+  // La "página siguiente" de /buscar llega por aquí: también suma impresiones.
+  const idsMostrados = resultado.data.map((fila) => fila.id);
+  after(() => registrarImpresiones(idsMostrados));
 
   return NextResponse.json({
     data: resultado.data.map((fila) => ({
-      ...fila,
+      ...proyeccionPublica(fila),
       fotoUrl: primerasFotos.get(fila.id)?.storageUrl ?? null,
     })),
     meta: { has_more: resultado.hasMore, next_cursor: resultado.nextCursor },
@@ -120,6 +127,11 @@ export async function POST(request: Request) {
     if (resultado.error.code === "forbidden") {
       return NextResponse.json(errorEnvelope("forbidden", resultado.error.message), {
         status: 403,
+      });
+    }
+    if (resultado.error.code === "validation_error") {
+      return NextResponse.json(errorEnvelope("validation_error", resultado.error.message), {
+        status: 422,
       });
     }
     if (resultado.error.code === "conflict_duplicate_property") {
