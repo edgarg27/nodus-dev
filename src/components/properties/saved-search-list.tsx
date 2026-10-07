@@ -3,6 +3,7 @@
 import { Trash2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 
 export interface SavedSearchItem {
   id: string;
@@ -15,6 +16,7 @@ export interface SavedSearchItem {
 // Lista de "Mis búsquedas": abrir una marca la búsqueda como vista (reinicia "nuevos") y lleva a
 // /buscar con sus filtros; el bote la borra.
 export function SavedSearchList({ busquedas }: { busquedas: SavedSearchItem[] }) {
+  const t = useIdioma().t.panel.busquedas;
   const router = useRouter();
   const [lista, setLista] = useState(busquedas);
   const [error, setError] = useState<string | null>(null);
@@ -38,15 +40,14 @@ export function SavedSearchList({ busquedas }: { busquedas: SavedSearchItem[] })
     }).catch(() => null);
     if (!respuesta?.ok) {
       setLista(anterior);
-      setError("No se pudo borrar la búsqueda. Intenta de nuevo.");
+      setError(t.errorBorrar);
     }
   }
 
   if (lista.length === 0) {
     return (
       <p className="rounded-2xl border border-dashed border-border p-8 text-sm text-text-muted">
-        No tienes búsquedas guardadas. En los resultados, usa “Guardar búsqueda” para volver a ellas
-        y ver cuántos espacios nuevos aparecen.
+        {t.vacio}
       </p>
     );
   }
@@ -70,19 +71,17 @@ export function SavedSearchList({ busquedas }: { busquedas: SavedSearchItem[] })
               className="flex min-w-0 grow cursor-pointer flex-col items-start gap-1 text-left"
             >
               <span className="font-semibold text-text">{busqueda.nombre}</span>
-              <span className="text-[13px] text-text-muted">
-                {busqueda.total} {busqueda.total === 1 ? "espacio" : "espacios"}
-              </span>
+              <span className="text-[13px] text-text-muted">{t.espacios(busqueda.total)}</span>
             </button>
             {busqueda.nuevos > 0 ? (
               <span className="shrink-0 rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-accent-foreground">
-                {busqueda.nuevos} {busqueda.nuevos === 1 ? "nuevo" : "nuevos"}
+                {t.nuevos(busqueda.nuevos)}
               </span>
             ) : null}
             <button
               type="button"
               onClick={() => void borrar(busqueda)}
-              aria-label={`Borrar la búsqueda ${busqueda.nombre}`}
+              aria-label={t.borrar(busqueda.nombre)}
               className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-destructive/10 hover:text-destructive"
             >
               <Trash2Icon className="size-4" aria-hidden="true" />

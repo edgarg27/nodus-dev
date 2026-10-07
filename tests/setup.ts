@@ -38,6 +38,13 @@ vi.mock("next/font/local", () => {
   return { default: font };
 });
 
+// `after()` de Next solo funciona dentro de una petición real; las pruebas llaman los handlers
+// directo, así que aquí no hace nada (las métricas que agenda se prueban por separado).
+vi.mock("next/server", async (importOriginal) => {
+  const original = await importOriginal<typeof import("next/server")>();
+  return { ...original, after: () => {} };
+});
+
 const requiredForIntegration = ["DATABASE_URL", "DIRECT_URL"];
 
 for (const key of requiredForIntegration) {

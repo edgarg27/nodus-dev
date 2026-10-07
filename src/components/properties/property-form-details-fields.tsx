@@ -1,4 +1,5 @@
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { inputClassName, type PropertyFormValues, selectClassName } from "./property-form-schema";
@@ -75,17 +76,15 @@ export function PropertyFormDetailsFields({
   tipo,
   modalidad,
 }: PropertyFormDetailsFieldsProps) {
+  const f = useIdioma().t.panel.formulario;
   const etiquetaPrecio =
-    modalidad === "renta" ? "Renta mensual" : modalidad === "venta" ? "Precio de venta" : "Precio";
+    modalidad === "renta" ? f.rentaMensual : modalidad === "venta" ? f.precioVenta : f.precio;
 
   return (
     <div className="flex flex-col gap-4 border-t border-border pt-7">
       <div className="flex flex-col gap-1">
-        <h2 className="text-[15px] font-bold text-foreground">Precio y medidas</h2>
-        <p className="text-[13px] text-muted-foreground">
-          Opcionales, pero los espacios con precio y metros reciben más contactos. Sin precio se
-          muestra “Precio a consultar”.
-        </p>
+        <h2 className="text-[15px] font-bold text-foreground">{f.precioMedidas}</h2>
+        <p className="text-[13px] text-muted-foreground">{f.precioMedidasAyuda}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-[1.4fr_0.8fr_1fr]">
@@ -98,7 +97,7 @@ export function PropertyFormDetailsFields({
         />
         <div className="flex flex-col gap-2">
           <Label htmlFor="moneda" className="text-[13px] font-semibold text-foreground">
-            Moneda
+            {f.moneda}
           </Label>
           <select id="moneda" {...register("moneda")} className={selectClassName}>
             <option value="MXN">MXN</option>
@@ -107,11 +106,11 @@ export function PropertyFormDetailsFields({
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="precioUnidad" className="text-[13px] font-semibold text-foreground">
-            El precio es
+            {f.precioEs}
           </Label>
           <select id="precioUnidad" {...register("precioUnidad")} className={selectClassName}>
-            <option value="total">Por el espacio completo</option>
-            <option value="m2">Por m²</option>
+            <option value="total">{f.porEspacio}</option>
+            <option value="m2">{f.porM2}</option>
           </select>
         </div>
       </div>
@@ -119,15 +118,15 @@ export function PropertyFormDetailsFields({
       <div className="grid gap-4 sm:grid-cols-3">
         <CampoNumero
           campo="mantenimiento"
-          etiqueta="Mantenimiento"
-          sufijo="mensual"
+          etiqueta={f.mantenimiento}
+          sufijo={f.mensual}
           register={register}
           errors={errors}
           decimales
         />
         <CampoNumero
           campo="superficieConstruidaM2"
-          etiqueta="Superficie construida"
+          etiqueta={f.superficieConstruida}
           sufijo="m²"
           register={register}
           errors={errors}
@@ -135,7 +134,7 @@ export function PropertyFormDetailsFields({
         />
         <CampoNumero
           campo="superficieTerrenoM2"
-          etiqueta="Superficie de terreno"
+          etiqueta={f.superficieTerreno}
           sufijo="m²"
           register={register}
           errors={errors}
@@ -144,10 +143,10 @@ export function PropertyFormDetailsFields({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <CampoNumero campo="banos" etiqueta="Baños" register={register} errors={errors} />
+        <CampoNumero campo="banos" etiqueta={f.banos} register={register} errors={errors} />
         <CampoNumero
           campo="estacionamientos"
-          etiqueta="Estacionamientos"
+          etiqueta={f.estacionamientos}
           register={register}
           errors={errors}
         />
@@ -155,20 +154,20 @@ export function PropertyFormDetailsFields({
 
       {tipo === "nave_industrial" ? (
         <div className="flex flex-col gap-3 rounded-xl bg-muted/60 p-4">
-          <h3 className="text-[13px] font-bold text-foreground">Datos de la nave</h3>
+          <h3 className="text-[13px] font-bold text-foreground">{f.datosNave}</h3>
           <div className="grid gap-4 sm:grid-cols-3">
             <CampoNumero
               campo="alturaLibreM"
-              etiqueta="Altura libre"
+              etiqueta={f.alturaLibre}
               sufijo="m"
               register={register}
               errors={errors}
               decimales
             />
-            <CampoNumero campo="andenes" etiqueta="Andenes" register={register} errors={errors} />
+            <CampoNumero campo="andenes" etiqueta={f.andenes} register={register} errors={errors} />
             <CampoNumero
               campo="potenciaKva"
-              etiqueta="Carga eléctrica"
+              etiqueta={f.cargaElectrica}
               sufijo="kVA"
               register={register}
               errors={errors}

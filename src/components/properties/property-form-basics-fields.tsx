@@ -1,4 +1,5 @@
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,20 +20,22 @@ export function PropertyFormBasicsFields({
   onSalirDeDireccion,
   onSeleccionarDireccion,
 }: PropertyFormBasicsFieldsProps) {
+  const { t } = useIdioma();
+  const f = t.panel.formulario;
   return (
     <>
       <div className="flex flex-col gap-4">
-        <h2 className="text-[15px] font-bold text-foreground">Información básica</h2>
+        <h2 className="text-[15px] font-bold text-foreground">{f.infoBasica}</h2>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
             <Label htmlFor="tipo" className="text-[13px] font-semibold text-foreground">
-              Tipo
+              {f.tipo}
             </Label>
             <select id="tipo" {...register("tipo")} className={selectClassName}>
-              <option value="nave_industrial">Nave industrial</option>
-              <option value="oficina">Oficina</option>
-              <option value="local_comercial">Local comercial</option>
+              <option value="nave_industrial">{t.etiquetas.tipo.nave_industrial}</option>
+              <option value="oficina">{t.etiquetas.tipo.oficina}</option>
+              <option value="local_comercial">{t.etiquetas.tipo.local_comercial}</option>
             </select>
             {errors.tipo ? (
               <p role="alert" className="text-sm text-destructive">
@@ -43,12 +46,12 @@ export function PropertyFormBasicsFields({
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="modalidad" className="text-[13px] font-semibold text-foreground">
-              Modalidad
+              {f.modalidad}
             </Label>
             <select id="modalidad" {...register("modalidad")} className={selectClassName}>
-              <option value="renta">Renta</option>
-              <option value="venta">Venta</option>
-              <option value="desde_cero">Desde cero</option>
+              <option value="renta">{t.etiquetas.modalidad.renta}</option>
+              <option value="venta">{t.etiquetas.modalidad.venta}</option>
+              <option value="desde_cero">{f.desdeCero}</option>
             </select>
             {errors.modalidad ? (
               <p role="alert" className="text-sm text-destructive">
@@ -60,7 +63,7 @@ export function PropertyFormBasicsFields({
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="direccion" className="text-[13px] font-semibold text-foreground">
-            Dirección
+            {f.direccion}
           </Label>
           <AddressAutocomplete
             id="direccion"
@@ -79,7 +82,7 @@ export function PropertyFormBasicsFields({
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
             <Label htmlFor="estado" className="text-[13px] font-semibold text-foreground">
-              Estado
+              {f.estado}
             </Label>
             <select id="estado" {...register("estado")} className={selectClassName}>
               {ESTADOS_MX.map((estado) => (
@@ -97,7 +100,7 @@ export function PropertyFormBasicsFields({
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="ciudad" className="text-[13px] font-semibold text-foreground">
-              Ciudad
+              {f.ciudad}
             </Label>
             <Input
               id="ciudad"
@@ -114,9 +117,7 @@ export function PropertyFormBasicsFields({
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label className="text-[13px] font-semibold text-foreground">
-            ¿Financiamiento disponible?
-          </Label>
+          <Label className="text-[13px] font-semibold text-foreground">{f.financiamiento}</Label>
           <div className="flex items-center gap-5">
             <label className="flex items-center gap-2 text-[15px] text-foreground">
               <input
@@ -125,7 +126,7 @@ export function PropertyFormBasicsFields({
                 className="accent-primary"
                 {...register("aceptaFinanciamiento")}
               />
-              Sí
+              {f.si}
             </label>
             <label className="flex items-center gap-2 text-[15px] text-foreground">
               <input
@@ -134,7 +135,7 @@ export function PropertyFormBasicsFields({
                 className="accent-primary"
                 {...register("aceptaFinanciamiento")}
               />
-              No
+              {f.no}
             </label>
           </div>
           {errors.aceptaFinanciamiento ? (
@@ -146,15 +147,15 @@ export function PropertyFormBasicsFields({
       </div>
 
       <div className="flex flex-col gap-4 border-t border-border pt-7">
-        <h2 className="text-[15px] font-bold text-foreground">Descripción</h2>
+        <h2 className="text-[15px] font-bold text-foreground">{f.descripcion}</h2>
         <div className="flex flex-col gap-2">
           <Label htmlFor="descripcion" className="text-[13px] font-semibold text-foreground">
-            Cuéntale a los buscadores sobre tu espacio
+            {f.cuentale}
           </Label>
           <Textarea
             id="descripcion"
             rows={5}
-            placeholder="Oficinas incluidas, uso de suelo, condiciones de acceso, etc."
+            placeholder={f.placeholderDescripcion}
             className="resize-y rounded-lg border-input bg-background px-3.5 py-3 text-[15px]"
             {...register("descripcion")}
             aria-invalid={!!errors.descripcion}

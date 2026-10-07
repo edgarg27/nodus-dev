@@ -1,12 +1,9 @@
+"use client";
+
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Badge } from "@/components/ui/badge";
 
 export type EstadoPublicacion = "pendiente" | "publicada" | "rechazada";
-
-const TEXTOS: Record<EstadoPublicacion, string> = {
-  pendiente: "En revisión",
-  publicada: "Publicada",
-  rechazada: "Rechazada",
-};
 
 const VARIANTES: Record<
   EstadoPublicacion,
@@ -22,10 +19,11 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ estado }: StatusBadgeProps) {
+  const { t } = useIdioma();
   const { variant, className } = VARIANTES[estado];
   return (
     <Badge role="status" variant={variant} className={className}>
-      {TEXTOS[estado]}
+      {t.panel.estado[estado]}
     </Badge>
   );
 }

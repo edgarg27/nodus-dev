@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import {
   type FiltroEstadoMisPropiedades,
   misPropiedadesAParams,
@@ -28,6 +29,7 @@ export function MyListingsPage({
   porPagina,
   isBroker,
 }: MyListingsPageProps) {
+  const p = useIdioma().t.panel.publicaciones;
   const sinPropiedades = conteos.todas === 0 && !params.q;
 
   return (
@@ -51,12 +53,12 @@ export function MyListingsPage({
 
       {sinPropiedades ? (
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-border bg-surface px-6 py-10">
-          <p className="text-sm text-muted-foreground">Aún no tienes propiedades</p>
+          <p className="text-sm text-muted-foreground">{p.sinPropiedades}</p>
           <Link
             href="/propiedades/nueva"
             className="flex h-[46px] items-center rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground hover:bg-accent/90"
           >
-            Publicar una propiedad
+            {p.publicarPropiedad}
           </Link>
         </div>
       ) : (

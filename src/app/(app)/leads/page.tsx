@@ -7,6 +7,7 @@ import { bandejaAParams, leerBandeja, POR_PAGINA_LEADS } from "@/lib/leads";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import { listarBandejaDelOferente } from "@/server/contact-requests/inbox";
+import { obtenerTextos } from "@/server/i18n";
 
 interface LeadsPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -17,6 +18,7 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
   const permiso = requireRol(actor, "oferente");
   if (!permiso.ok || !actor) notFound();
 
+  const t = (await obtenerTextos()).t.panel.leads;
   const query = await searchParams;
   const params = leerBandeja((clave) => {
     const valor = query[clave];
@@ -57,7 +59,7 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
               href="/propiedades/nueva"
               className="mt-2 flex h-[46px] items-center rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground hover:bg-accent/90"
             >
-              Publicar una propiedad
+              {t.publicarPropiedad}
             </Link>
           </div>
         ) : (
