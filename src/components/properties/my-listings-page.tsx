@@ -29,23 +29,23 @@ export function MyListingsPage({
   porPagina,
   isBroker,
 }: MyListingsPageProps) {
-  const p = useIdioma().t.panel.publicaciones;
+  const { idioma, t } = useIdioma();
+  const p = t.panel.publicaciones;
+  const tabla = t.panel.tabla;
   const sinPropiedades = conteos.todas === 0 && !params.q;
 
   return (
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-7 px-4">
       <div className="flex flex-wrap items-center justify-between gap-5">
         <div className="flex flex-col gap-1.5">
-          <h1 className="font-display text-[26px] font-bold text-foreground">Propiedades</h1>
-          <p className="text-sm text-muted-foreground">
-            Tus espacios con su estado de revisión y sus resultados.
-          </p>
+          <h1 className="font-display text-[26px] font-bold text-foreground">{tabla.titulo}</h1>
+          <p className="text-sm text-muted-foreground">{tabla.descripcion}</p>
         </div>
         <Link
           href="/propiedades/nueva"
           className="flex h-[46px] items-center gap-2 whitespace-nowrap rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md motion-reduce:transition-none"
         >
-          Publicar un espacio
+          {p.publicarEspacio}
         </Link>
       </div>
 
@@ -77,6 +77,7 @@ export function MyListingsPage({
                 pagina={params.pagina}
                 porPagina={porPagina}
                 total={total}
+                idioma={idioma}
                 hrefDe={(pagina) => {
                   const consulta = misPropiedadesAParams({ ...params, pagina }).toString();
                   return consulta ? `/propiedades?${consulta}` : "/propiedades";
@@ -85,9 +86,9 @@ export function MyListingsPage({
             </>
           ) : (
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border bg-surface px-5 py-14 text-center text-muted-foreground">
-              <span className="text-sm">No hay propiedades que coincidan con tu búsqueda.</span>
+              <span className="text-sm">{tabla.sinCoincidencias}</span>
               <Link href="/propiedades" className="text-sm font-semibold text-primary underline">
-                Borrar filtros
+                {tabla.borrarFiltros}
               </Link>
             </div>
           )}

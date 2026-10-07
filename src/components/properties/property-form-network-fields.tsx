@@ -1,4 +1,5 @@
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { inputClassName, type PropertyFormValues, selectClassName } from "./property-form-schema";
@@ -8,12 +9,6 @@ export interface ContactoOpcion {
   tipo: "email" | "telefono" | "whatsapp";
   valor: string;
 }
-
-const ETIQUETA_TIPO_CONTACTO: Record<ContactoOpcion["tipo"], string> = {
-  email: "Correo",
-  telefono: "Teléfono",
-  whatsapp: "WhatsApp",
-};
 
 interface PropertyFormNetworkFieldsProps {
   register: UseFormRegister<PropertyFormValues>;
@@ -37,29 +32,32 @@ export function PropertyFormNetworkFields({
   contactos,
   compartidaEnRed,
 }: PropertyFormNetworkFieldsProps) {
+  const { t } = useIdioma();
+  const f = t.panel.formulario;
   return (
     <div className="flex flex-col gap-4 border-t border-border pt-7">
-      <h2 className="text-[15px] font-bold text-foreground">Identificación y Red inmobiliaria</h2>
+      <h2 className="text-[15px] font-bold text-foreground">{f.redTitulo}</h2>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor="titulo" className="text-[13px] font-semibold text-foreground">
-            Título <span className="font-normal text-muted-foreground">(opcional, público)</span>
+            {f.titulo}{" "}
+            <span className="font-normal text-muted-foreground">{f.opcionalPublico}</span>
           </Label>
           <Input
             id="titulo"
             maxLength={160}
             {...register("titulo")}
             className={inputClassName}
-            placeholder="Nave con andenes cerca del aeropuerto"
+            placeholder={f.placeholderTitulo}
           />
           <MensajeError mensaje={errors.titulo?.message} />
         </div>
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="referencia" className="text-[13px] font-semibold text-foreground">
-            Referencia{" "}
-            <span className="font-normal text-muted-foreground">(opcional, interna)</span>
+            {f.referencia}{" "}
+            <span className="font-normal text-muted-foreground">{f.opcionalInterna}</span>
           </Label>
           <Input
             id="referencia"
@@ -74,36 +72,34 @@ export function PropertyFormNetworkFields({
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="contactoId" className="text-[13px] font-semibold text-foreground">
-          Contacto para esta propiedad
+          {f.contacto}
         </Label>
         <select id="contactoId" {...register("contactoId")} className={selectClassName}>
-          <option value="">Mi contacto de cuenta</option>
+          <option value="">{f.miContacto}</option>
           {contactos.map((contacto) => (
             <option key={contacto.id} value={contacto.id}>
-              {ETIQUETA_TIPO_CONTACTO[contacto.tipo]}: {contacto.valor}
+              {t.panel.agencia.tipoContacto[contacto.tipo]}: {contacto.valor}
             </option>
           ))}
         </select>
-        <p className="text-xs text-muted-foreground">
-          Administra tus correos, teléfonos y WhatsApp en el perfil de tu agencia.
-        </p>
+        <p className="text-xs text-muted-foreground">{f.contactosAyuda}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <Label htmlFor="compartidaEnRed" className="text-[13px] font-semibold text-foreground">
-            Compartir en la Red inmobiliaria
+            {f.compartir}
           </Label>
           <select id="compartidaEnRed" {...register("compartidaEnRed")} className={selectClassName}>
-            <option value="false">No compartir</option>
-            <option value="true">Compartir con otros oferentes</option>
+            <option value="false">{f.noCompartir}</option>
+            <option value="true">{f.compartirOtros}</option>
           </select>
         </div>
 
         {compartidaEnRed ? (
           <div className="flex flex-col gap-2">
             <Label htmlFor="comisionPct" className="text-[13px] font-semibold text-foreground">
-              Comisión que compartes <span className="font-normal text-muted-foreground">(%)</span>
+              {f.comision} <span className="font-normal text-muted-foreground">(%)</span>
             </Label>
             <Input
               id="comisionPct"
@@ -120,15 +116,13 @@ export function PropertyFormNetworkFields({
       {compartidaEnRed ? (
         <div className="flex flex-col gap-2">
           <Label htmlFor="exclusiva" className="text-[13px] font-semibold text-foreground">
-            ¿Manejas este espacio en exclusiva?
+            {f.exclusiva}
           </Label>
           <select id="exclusiva" {...register("exclusiva")} className={selectClassName}>
-            <option value="false">No</option>
-            <option value="true">Sí, en exclusiva</option>
+            <option value="false">{f.no}</option>
+            <option value="true">{f.siExclusiva}</option>
           </select>
-          <p className="text-xs text-muted-foreground">
-            La comisión solo la ven otros oferentes en la Red; nunca aparece en la ficha pública.
-          </p>
+          <p className="text-xs text-muted-foreground">{f.comisionAyuda}</p>
         </div>
       ) : null}
     </div>

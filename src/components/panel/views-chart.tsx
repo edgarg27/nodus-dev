@@ -1,7 +1,9 @@
+import { type Idioma, localeDe, textosDe } from "@/lib/i18n";
 import type { PuntoMetrica } from "@/server/metrics/queries";
 
 interface ViewsChartProps {
   serie: PuntoMetrica[];
+  idioma: Idioma;
 }
 
 const ANCHO = 720;
@@ -15,21 +17,21 @@ function techoDelEje(maximo: number): number {
   return Math.ceil(maximo / magnitud) * magnitud;
 }
 
-const formatoDia = new Intl.DateTimeFormat("es-MX", { day: "numeric", month: "short" });
-
-function etiquetaDia(dia: string): string {
-  return formatoDia.format(new Date(`${dia}T12:00:00`)).replace(".", "");
+function etiquetaDia(dia: string, formato: Intl.DateTimeFormat): string {
+  return formato.format(new Date(`${dia}T12:00:00`)).replace(".", "");
 }
 
 // Gráfica de línea de impresiones y visitas por día. SVG puro (sin librería ni JavaScript de
 // cliente) con los tokens de diseño; sin datos muestra un estado vacío.
-export function ViewsChart({ serie }: ViewsChartProps) {
+export function ViewsChart({ serie, idioma }: ViewsChartProps) {
+  const textos = textosDe(idioma).panel.inicio;
+  const locale = localeDe(idioma);
+  const formatoDia = new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" });
   const hayDatos = serie.some((punto) => punto.impresiones > 0 || punto.visitas > 0);
   if (!hayDatos) {
     return (
       <div className="flex h-[240px] items-center justify-center rounded-2xl border border-dashed border-border bg-surface px-5 text-center text-sm text-muted-foreground">
-        Aún no hay visualizaciones en este periodo. Aparecerán cuando tus propiedades publicadas
-        reciban visitas.
+        {textos.sinVistas}
       </div>
     );
   }
@@ -57,7 +59,7 @@ export function ViewsChart({ serie }: ViewsChartProps) {
       <svg
         viewBox={`0 0 ${ANCHO} ${ALTO}`}
         role="img"
-        aria-label={`Impresiones y visitas por día: ${totalImpresiones} impresiones y ${totalVisitas} visitas en el periodo`}
+        aria-label={textos.graficaAria(totalImpresiones, totalVisitas)}
         className="h-auto w-full"
       >
         {marcasY.map((valor) => (
@@ -76,7 +78,7 @@ export function ViewsChart({ serie }: ViewsChartProps) {
               textAnchor="end"
               className="fill-muted-foreground text-[11px]"
             >
-              {valor.toLocaleString("es-MX")}
+              {valor.toLocaleString(locale)}
             </text>
           </g>
         ))}
@@ -104,7 +106,9 @@ export function ViewsChart({ serie }: ViewsChartProps) {
             r="3"
             className="fill-primary"
           >
-            <title>{`${etiquetaDia(punto.dia)}: ${punto.impresiones} impresiones, ${punto.visitas} visitas`}</title>
+            <title>
+              {textos.punto(etiquetaDia(punto.dia, formatoDia), punto.impresiones, punto.visitas)}
+            </title>
           </circle>
         ))}
         {marcasX.map(({ punto, i }) => (
@@ -115,21 +119,21 @@ export function ViewsChart({ serie }: ViewsChartProps) {
             textAnchor="middle"
             className="fill-muted-foreground text-[11px]"
           >
-            {etiquetaDia(punto.dia)}
+            {etiquetaDia(punto.dia, formatoDia)}
           </text>
         ))}
       </svg>
       <figcaption className="flex flex-wrap gap-5 text-[13px] text-muted-foreground">
         <span className="flex items-center gap-2">
           <span aria-hidden="true" className="h-0.5 w-5 rounded-full bg-primary" />
-          Impresiones en listados
+          {textos.leyendaImpresiones}
         </span>
         <span className="flex items-center gap-2">
           <span
             aria-hidden="true"
             className="h-0 w-5 border-t-2 border-dashed border-muted-foreground"
           />
-          Visitas a tus propiedades
+          {textos.leyendaVisitas}
         </span>
       </figcaption>
     </figure>

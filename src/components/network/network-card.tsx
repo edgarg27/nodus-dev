@@ -1,11 +1,7 @@
 import { Building2Icon, ShieldCheckIcon, StoreIcon, WarehouseIcon } from "lucide-react";
 import Link from "next/link";
-import {
-  ETIQUETA_ESTADO,
-  ETIQUETA_MODALIDAD,
-  ETIQUETA_TIPO,
-  formatearPrecio,
-} from "@/lib/property-details";
+import { type Idioma, localeDe, textosDe } from "@/lib/i18n";
+import { ETIQUETA_ESTADO, formatearPrecio } from "@/lib/property-details";
 import type { PropiedadDeLaRed } from "@/server/network/queries";
 import { ContactAgentButton } from "./contact-agent-button";
 
@@ -19,9 +15,16 @@ interface NetworkCardProps {
   propiedad: PropiedadDeLaRed;
   // Las propiedades propias aparecen sin botón de contacto.
   esPropia: boolean;
+  idioma: Idioma;
 }
 
-export function NetworkCard({ propiedad, esPropia }: NetworkCardProps) {
+export function NetworkCard({ propiedad, esPropia, idioma }: NetworkCardProps) {
+  const t = textosDe(idioma);
+  const r = t.panel.red;
+  const etiquetas = t.etiquetas as {
+    tipo: Record<string, string>;
+    modalidad: Record<string, string>;
+  };
   const Icono = ICONO_POR_TIPO[propiedad.tipo as keyof typeof ICONO_POR_TIPO] ?? WarehouseIcon;
   const superficie = propiedad.superficieConstruidaM2 ?? propiedad.superficieTerrenoM2;
   const lugar = [propiedad.ciudad, ETIQUETA_ESTADO[propiedad.estado] ?? propiedad.estado]
@@ -44,11 +47,11 @@ export function NetworkCard({ propiedad, esPropia }: NetworkCardProps) {
         <div className="absolute top-3 left-3 flex gap-2">
           {propiedad.exclusiva ? (
             <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-bold text-accent-foreground">
-              Exclusiva
+              {r.exclusiva}
             </span>
           ) : null}
           <span className="rounded-full bg-surface px-2.5 py-0.5 text-xs font-bold text-foreground">
-            {ETIQUETA_MODALIDAD[propiedad.modalidad] ?? propiedad.modalidad}
+            {etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad}
           </span>
         </div>
       </div>
@@ -56,7 +59,7 @@ export function NetworkCard({ propiedad, esPropia }: NetworkCardProps) {
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex flex-col gap-1">
           <span className="text-xs font-semibold tracking-wide text-warning uppercase">
-            {ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo}
+            {etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo}
           </span>
           <h3 className="line-clamp-2 text-[15px] font-bold text-foreground">
             {propiedad.titulo ?? propiedad.direccion}
@@ -66,25 +69,25 @@ export function NetworkCard({ propiedad, esPropia }: NetworkCardProps) {
 
         <div className="flex items-baseline justify-between gap-2">
           <span className="text-base font-bold text-foreground">
-            {formatearPrecio(propiedad, propiedad.modalidad)}
+            {formatearPrecio(propiedad, propiedad.modalidad, idioma)}
           </span>
           {superficie !== null ? (
             <span className="text-xs text-muted-foreground">
-              {superficie.toLocaleString("es-MX")} m²
+              {superficie.toLocaleString(localeDe(idioma))} m²
             </span>
           ) : null}
         </div>
 
         <div className="rounded-lg bg-success/10 px-3 py-2 text-[13px] text-success">
           {propiedad.comisionPct === null ? (
-            "Comisión a convenir"
+            r.comisionConvenir
           ) : (
             <>
-              Comisión compartida: <strong>{propiedad.comisionPct}%</strong>
+              {r.comisionCompartida} <strong>{propiedad.comisionPct}%</strong>
               {propiedad.comisionEstimada !== null ? (
                 <>
                   {" "}
-                  · tu comisión estimada{" "}
+                  · {r.tuComision}{" "}
                   <strong>
                     {formatearPrecio(
                       {
@@ -93,6 +96,7 @@ export function NetworkCard({ propiedad, esPropia }: NetworkCardProps) {
                         precioUnidad: "total",
                       },
                       "venta",
+                      idioma,
                     )}
                   </strong>
                 </>
@@ -102,14 +106,14 @@ export function NetworkCard({ propiedad, esPropia }: NetworkCardProps) {
         </div>
 
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          Publicado por{" "}
+          {r.publicadoPor}{" "}
           <strong className="font-semibold text-foreground">
             {propiedad.agenciaNombre || "—"}
           </strong>
           {propiedad.esBroker ? (
             <span className="flex items-center gap-1 text-success">
               <ShieldCheckIcon className="size-3.5" aria-hidden="true" />
-              Broker verificado
+              {r.brokerVerificado}
             </span>
           ) : null}
         </p>
@@ -117,7 +121,7 @@ export function NetworkCard({ propiedad, esPropia }: NetworkCardProps) {
         <div className="mt-auto flex flex-col gap-2 pt-1">
           {esPropia ? (
             <span className="text-center text-xs font-semibold text-muted-foreground">
-              Tu propiedad
+              {r.tuPropiedad}
             </span>
           ) : (
             <ContactAgentButton
@@ -129,7 +133,7 @@ export function NetworkCard({ propiedad, esPropia }: NetworkCardProps) {
             href={`/espacios/${propiedad.id}`}
             className="text-center text-xs font-semibold text-primary underline-offset-4 hover:underline"
           >
-            Ver ficha pública
+            {r.verFicha}
           </Link>
         </div>
       </div>

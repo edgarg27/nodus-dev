@@ -4,13 +4,8 @@ import { SearchIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import {
-  bandejaAParams,
-  ESTADOS_LEAD,
-  type EstadoLead,
-  ETIQUETA_ESTADO_LEAD,
-  type ParamsBandeja,
-} from "@/lib/leads";
+import { useIdioma } from "@/components/i18n/idioma-provider";
+import { bandejaAParams, ESTADOS_LEAD, type EstadoLead, type ParamsBandeja } from "@/lib/leads";
 
 interface InboxHeaderProps {
   params: ParamsBandeja;
@@ -29,6 +24,7 @@ function urlDe(params: ParamsBandeja): string {
 // Resumen (personas, solicitudes y conteo por estado; cada conteo filtra al pulsarlo), buscador y
 // exportación. Todo vive en la URL.
 export function InboxHeader({ params, resumen }: InboxHeaderProps) {
+  const b = useIdioma().t.panel.bandeja;
   const router = useRouter();
   const [texto, setTexto] = useState(params.q);
   const hayFiltros = Boolean(params.q || params.estado);
@@ -53,8 +49,8 @@ export function InboxHeader({ params, resumen }: InboxHeaderProps) {
               type="search"
               value={texto}
               onChange={(evento) => setTexto(evento.target.value)}
-              aria-label="Buscar por nombre, correo o teléfono"
-              placeholder="Buscar por nombre, correo o teléfono"
+              aria-label={b.buscar}
+              placeholder={b.buscar}
               className="h-[46px] w-full rounded-lg border border-input bg-background pr-3.5 pl-10 text-[15px] text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             />
           </form>
@@ -66,14 +62,14 @@ export function InboxHeader({ params, resumen }: InboxHeaderProps) {
               className="flex h-[46px] items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-muted-foreground hover:text-foreground"
             >
               <XIcon className="size-4" aria-hidden="true" />
-              Borrar filtros
+              {b.borrarFiltros}
             </Link>
           ) : null}
           <a
             href={`/api/v1/leads/export${exportar ? `?${exportar}` : ""}`}
             className="flex h-[46px] items-center rounded-lg border border-input px-5 text-sm font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
           >
-            Exportar datos
+            {b.exportar}
           </a>
         </div>
       </div>
@@ -83,13 +79,13 @@ export function InboxHeader({ params, resumen }: InboxHeaderProps) {
           <dd className="font-display text-2xl leading-none font-bold text-foreground">
             {resumen.personas}
           </dd>
-          <dt className="text-xs text-muted-foreground">Personas interesadas</dt>
+          <dt className="text-xs text-muted-foreground">{b.personas}</dt>
         </div>
         <div className="flex flex-col gap-1 bg-surface px-4 py-3">
           <dd className="font-display text-2xl leading-none font-bold text-foreground">
             {resumen.solicitudes}
           </dd>
-          <dt className="text-xs text-muted-foreground">Solicitudes recibidas</dt>
+          <dt className="text-xs text-muted-foreground">{b.solicitudes}</dt>
         </div>
         {ESTADOS_LEAD.map((estado) => {
           const activo = params.estado === estado;
@@ -112,7 +108,7 @@ export function InboxHeader({ params, resumen }: InboxHeaderProps) {
                 <dt
                   className={`text-xs ${activo ? "text-primary-foreground/80" : "text-muted-foreground"}`}
                 >
-                  {ETIQUETA_ESTADO_LEAD[estado]}
+                  {b.estados[estado]}
                 </dt>
               </Link>
             </div>

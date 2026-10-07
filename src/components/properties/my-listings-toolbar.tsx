@@ -3,19 +3,13 @@
 import { SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import {
   ESTADOS_FILTRO,
   type FiltroEstadoMisPropiedades,
   misPropiedadesAParams,
   type ParamsMisPropiedades,
 } from "@/lib/mis-propiedades-params";
-
-const ETIQUETA_FILTRO: Record<FiltroEstadoMisPropiedades, string> = {
-  todas: "Todas",
-  pendiente: "Pendientes",
-  publicada: "Publicadas",
-  rechazada: "Rechazadas",
-};
 
 interface MyListingsToolbarProps {
   params: ParamsMisPropiedades;
@@ -25,6 +19,8 @@ interface MyListingsToolbarProps {
 // Búsqueda de texto, filtro por estado de publicación y exportación. Todo vive en la URL
 // (`/propiedades?q=…&estado=…`), así que se puede compartir y funciona con el botón "atrás".
 export function MyListingsToolbar({ params, conteos }: MyListingsToolbarProps) {
+  const { t } = useIdioma();
+  const tabla = t.panel.tabla;
   const router = useRouter();
   const [texto, setTexto] = useState(params.q);
 
@@ -54,8 +50,8 @@ export function MyListingsToolbar({ params, conteos }: MyListingsToolbarProps) {
               type="search"
               value={texto}
               onChange={(evento) => setTexto(evento.target.value)}
-              aria-label="Buscar por referencia, título, dirección o ciudad"
-              placeholder="Buscar por referencia, título o dirección"
+              aria-label={tabla.buscarAria}
+              placeholder={tabla.buscarPlaceholder}
               className="h-[46px] w-full rounded-lg border border-input bg-background pr-3.5 pl-10 text-[15px] text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
             />
           </form>
@@ -64,7 +60,7 @@ export function MyListingsToolbar({ params, conteos }: MyListingsToolbarProps) {
           href={`/api/v1/properties/export${exportar ? `?${exportar}` : ""}`}
           className="flex h-[46px] items-center rounded-lg border border-input px-5 text-sm font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
         >
-          Exportar datos
+          {tabla.exportar}
         </a>
       </div>
 
@@ -83,7 +79,7 @@ export function MyListingsToolbar({ params, conteos }: MyListingsToolbarProps) {
                   : "border-input bg-surface text-muted-foreground hover:border-primary hover:text-foreground"
               }`}
             >
-              {ETIQUETA_FILTRO[estado]}
+              {t.panel.filtros[estado]}
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                   activo

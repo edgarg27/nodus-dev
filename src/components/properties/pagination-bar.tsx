@@ -1,5 +1,6 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
+import { type Idioma, textosDe } from "@/lib/i18n";
 
 interface PaginationBarProps {
   pagina: number;
@@ -7,10 +8,12 @@ interface PaginationBarProps {
   total: number;
   // Arma la URL de una página dada (conserva el resto de los parámetros).
   hrefDe: (pagina: number) => string;
+  idioma: Idioma;
 }
 
 // Paginación "1-25 de 101" con enlaces anterior/siguiente. Sin JavaScript de cliente.
-export function PaginationBar({ pagina, porPagina, total, hrefDe }: PaginationBarProps) {
+export function PaginationBar({ pagina, porPagina, total, hrefDe, idioma }: PaginationBarProps) {
+  const t = textosDe(idioma).panel.paginacion;
   if (total === 0) return null;
   const desde = (pagina - 1) * porPagina + 1;
   const hasta = Math.min(pagina * porPagina, total);
@@ -23,14 +26,12 @@ export function PaginationBar({ pagina, porPagina, total, hrefDe }: PaginationBa
 
   return (
     <nav
-      aria-label="Paginación"
+      aria-label={t.aria}
       className="flex items-center justify-end gap-3 text-[13px] text-muted-foreground"
     >
-      <span>
-        {desde}-{hasta} de {total}
-      </span>
+      <span>{t.rango(desde, hasta, total)}</span>
       {hayAnterior ? (
-        <Link href={hrefDe(pagina - 1)} aria-label="Página anterior" className={clase}>
+        <Link href={hrefDe(pagina - 1)} aria-label={t.anterior} className={clase}>
           <ChevronLeftIcon className="size-4" aria-hidden="true" />
         </Link>
       ) : (
@@ -39,7 +40,7 @@ export function PaginationBar({ pagina, porPagina, total, hrefDe }: PaginationBa
         </span>
       )}
       {haySiguiente ? (
-        <Link href={hrefDe(pagina + 1)} aria-label="Página siguiente" className={clase}>
+        <Link href={hrefDe(pagina + 1)} aria-label={t.siguiente} className={clase}>
           <ChevronRightIcon className="size-4" aria-hidden="true" />
         </Link>
       ) : (

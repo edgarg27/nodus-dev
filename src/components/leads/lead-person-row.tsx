@@ -2,9 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
+import { localeDe } from "@/lib/i18n";
 import { iniciales } from "@/lib/initials";
-import { ESTADOS_LEAD, type EstadoLead, ETIQUETA_ESTADO_LEAD } from "@/lib/leads";
-import { ETIQUETA_MODALIDAD, ETIQUETA_TIPO } from "@/lib/property-details";
+import { ESTADOS_LEAD, type EstadoLead } from "@/lib/leads";
 
 export interface PropiedadDeLeadVista {
   id: string;
@@ -29,17 +30,22 @@ export interface PersonaLeadVista {
   propiedades: PropiedadDeLeadVista[];
 }
 
-const formateadorFecha = new Intl.DateTimeFormat("es-MX", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-
 interface LeadPersonRowProps {
   persona: PersonaLeadVista;
 }
 
 export function LeadPersonRow({ persona }: LeadPersonRowProps) {
+  const { idioma, t } = useIdioma();
+  const b = t.panel.bandeja;
+  const etiquetas = t.etiquetas as {
+    tipo: Record<string, string>;
+    modalidad: Record<string, string>;
+  };
+  const formateadorFecha = new Intl.DateTimeFormat(localeDe(idioma), {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
   const router = useRouter();
   const [estado, setEstado] = useState<EstadoLead>(persona.estado);
   const [guardando, setGuardando] = useState(false);
@@ -62,7 +68,7 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
       router.refresh();
     } catch {
       setEstado(anterior);
-      setError("No se pudo cambiar el estado. Inténtalo de nuevo.");
+      setError(b.errorEstado);
     } finally {
       setGuardando(false);
     }
@@ -79,7 +85,7 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
             <h3 className="text-[15px] font-semibold text-foreground">{persona.nombre}</h3>
             {persona.quiereFinanciamiento ? (
               <span className="rounded-full bg-warning-foreground px-2.5 py-0.5 text-[11px] font-bold text-warning">
-                Quiere financiamiento
+                {t.panel.leads.quiereFinanciamiento}
               </span>
             ) : null}
           </div>
@@ -87,8 +93,10 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
             {[persona.email, persona.telefono].filter(Boolean).join(" · ")}
           </p>
           <p className="text-xs text-muted-foreground/80">
-            {persona.solicitudes} {persona.solicitudes === 1 ? "solicitud" : "solicitudes"} · última
-            actividad {formateadorFecha.format(new Date(persona.ultimaFecha))}
+            {b.actividad(
+              persona.solicitudes,
+              formateadorFecha.format(new Date(persona.ultimaFecha)),
+            )}
           </p>
           {persona.ultimoMensaje ? (
             <p className="mt-1 rounded-md bg-background px-3 py-2 text-sm whitespace-pre-line text-foreground">
@@ -100,7 +108,7 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
 
       <ul
         className="flex min-w-0 flex-1 flex-col gap-2"
-        aria-label={`Propiedades de ${persona.nombre}`}
+        aria-label={b.propiedadesDe(persona.nombre)}
       >
         {persona.propiedades.map((propiedad) => (
           <li key={propiedad.id} className="flex items-center gap-3">
@@ -115,9 +123,9 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
                 {propiedad.titulo ?? propiedad.direccion}
               </span>
               <span className="text-xs text-muted-foreground">
-                {ETIQUETA_MODALIDAD[propiedad.modalidad] ?? propiedad.modalidad} ·{" "}
-                {ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo}
-                {propiedad.solicitudes > 1 ? ` · ${propiedad.solicitudes} solicitudes` : ""}
+                {etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad} ·{" "}
+                {etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo}
+                {propiedad.solicitudes > 1 ? ` · ${b.nSolicitudes(propiedad.solicitudes)}` : ""}
               </span>
             </div>
           </li>
@@ -126,7 +134,7 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
 
       <div className="flex shrink-0 flex-col gap-2 lg:w-[190px]">
         <label className="flex flex-col gap-1 text-xs font-semibold text-muted-foreground">
-          Estado
+          {b.estado}
           <select
             value={estado}
             disabled={guardando}
@@ -135,7 +143,7 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
           >
             {ESTADOS_LEAD.map((valor) => (
               <option key={valor} value={valor}>
-                {ETIQUETA_ESTADO_LEAD[valor]}
+                {b.estados[valor]}
               </option>
             ))}
           </select>
@@ -149,7 +157,7 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
           href={`mailto:${persona.email}`}
           className="flex h-9 items-center justify-center rounded-lg border border-input px-3.5 text-[12.5px] font-bold text-foreground transition-colors hover:border-primary"
         >
-          Responder por correo
+          {t.panel.leads.responder}
         </a>
         {whatsapp ? (
           <a

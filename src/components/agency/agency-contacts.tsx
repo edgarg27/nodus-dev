@@ -3,6 +3,7 @@
 import { Trash2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 
 type TipoContacto = "email" | "telefono" | "whatsapp";
 
@@ -13,10 +14,11 @@ export interface ContactoVista {
   propiedadesAsociadas: number;
 }
 
-const SECCIONES: { tipo: TipoContacto; titulo: string; ejemplo: string; tipoInput: string }[] = [
-  { tipo: "email", titulo: "Correo", ejemplo: "ventas@miagencia.mx", tipoInput: "email" },
-  { tipo: "telefono", titulo: "Teléfono", ejemplo: "+52 444 123 4567", tipoInput: "tel" },
-  { tipo: "whatsapp", titulo: "WhatsApp", ejemplo: "+52 444 123 4567", tipoInput: "tel" },
+// El título de cada sección sale del diccionario (panel.agencia.tipoContacto).
+const SECCIONES: { tipo: TipoContacto; ejemplo: string; tipoInput: string }[] = [
+  { tipo: "email", ejemplo: "ventas@miagencia.mx", tipoInput: "email" },
+  { tipo: "telefono", ejemplo: "+52 444 123 4567", tipoInput: "tel" },
+  { tipo: "whatsapp", ejemplo: "+52 444 123 4567", tipoInput: "tel" },
 ];
 
 interface AgencyContactsProps {
@@ -30,6 +32,9 @@ function SeccionContactos({
   seccion: (typeof SECCIONES)[number];
   contactos: ContactoVista[];
 }) {
+  const { idioma, t } = useIdioma();
+  const a = t.panel.agencia;
+  const titulo = a.tipoContacto[seccion.tipo];
   const router = useRouter();
   const [valor, setValor] = useState("");
   const [ocupado, setOcupado] = useState(false);
@@ -47,12 +52,15 @@ function SeccionContactos({
       });
       if (!respuesta.ok) {
         const cuerpo = await respuesta.json().catch(() => null);
-        throw new Error(cuerpo?.error?.details?.[0]?.message ?? "No se pudo agregar el contacto");
+        // Los mensajes de la API están en español; en inglés se muestra el genérico.
+        throw new Error(
+          (idioma === "es" && cuerpo?.error?.details?.[0]?.message) || a.errorAgregar,
+        );
       }
       setValor("");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo agregar el contacto");
+      setError(err instanceof Error ? err.message : a.errorAgregar);
     } finally {
       setOcupado(false);
     }
@@ -63,10 +71,10 @@ function SeccionContactos({
     setError(null);
     try {
       const respuesta = await fetch(`/api/v1/agency/contacts/${id}`, { method: "DELETE" });
-      if (!respuesta.ok) throw new Error("No se pudo borrar el contacto");
+      if (!respuesta.ok) throw new Error(a.errorBorrar);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo borrar el contacto");
+      setError(err instanceof Error ? err.message : a.errorBorrar);
     } finally {
       setOcupado(false);
     }
@@ -82,16 +90,16 @@ function SeccionContactos({
                 scope="col"
                 className="px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase"
               >
-                {seccion.titulo}
+                {titulo}
               </th>
               <th
                 scope="col"
                 className="px-4 py-2.5 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase"
               >
-                Propiedades asociadas
+                {a.propiedadesAsociadas}
               </th>
               <th scope="col" className="w-12 px-4 py-2.5">
-                <span className="sr-only">Acciones</span>
+                <span className="sr-only">{a.acciones}</span>
               </th>
             </tr>
           </thead>
@@ -99,7 +107,7 @@ function SeccionContactos({
             {contactos.length === 0 ? (
               <tr>
                 <td colSpan={3} className="px-4 py-4 text-muted-foreground">
-                  Aún no agregas {seccion.titulo.toLowerCase()}.
+                  {a.sinContactos(titulo)}
                 </td>
               </tr>
             ) : (
@@ -114,7 +122,7 @@ function SeccionContactos({
                       type="button"
                       disabled={ocupado}
                       onClick={() => void borrar(contacto.id)}
-                      aria-label={`Borrar ${contacto.valor}`}
+                      aria-label={a.borrarAria(contacto.valor)}
                       className="flex size-8 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-destructive disabled:opacity-50"
                     >
                       <Trash2Icon className="size-4" aria-hidden="true" />
@@ -128,7 +136,7 @@ function SeccionContactos({
       </div>
       <form onSubmit={agregar} className="flex flex-wrap items-center gap-2">
         <label htmlFor={`nuevo-${seccion.tipo}`} className="sr-only">
-          Agregar {seccion.titulo.toLowerCase()}
+          {a.agregarAria(titulo)}
         </label>
         <input
           id={`nuevo-${seccion.tipo}`}
@@ -145,7 +153,7 @@ function SeccionContactos({
           disabled={ocupado || !valor.trim()}
           className="flex h-10 cursor-pointer items-center rounded-lg border border-input px-4 text-[13px] font-bold text-foreground transition-colors hover:border-primary disabled:opacity-60"
         >
-          Agregar
+          {a.agregar}
         </button>
       </form>
       {error ? (
@@ -158,13 +166,12 @@ function SeccionContactos({
 }
 
 export function AgencyContacts({ contactos }: AgencyContactsProps) {
+  const a = useIdioma().t.panel.agencia;
   return (
     <div className="flex flex-col gap-6 rounded-2xl border border-border bg-surface p-6 shadow-sm">
       <div className="flex flex-col gap-1">
-        <h2 className="text-[15px] font-bold text-foreground">Datos de contacto</h2>
-        <p className="text-sm text-muted-foreground">
-          Al publicar o editar una propiedad eliges cuál de estos contactos se muestra en ella.
-        </p>
+        <h2 className="text-[15px] font-bold text-foreground">{a.contactoTitulo}</h2>
+        <p className="text-sm text-muted-foreground">{a.contactoTexto}</p>
       </div>
       {SECCIONES.map((seccion) => (
         <SeccionContactos

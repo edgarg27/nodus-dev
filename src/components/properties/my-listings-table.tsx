@@ -3,13 +3,14 @@
 import { Building2Icon, CheckIcon, LinkIcon, StoreIcon, WarehouseIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
+import { localeDe } from "@/lib/i18n";
 import {
   type CampoOrdenMisPropiedades,
   dividirOrden,
   misPropiedadesAParams,
   type ParamsMisPropiedades,
 } from "@/lib/mis-propiedades-params";
-import { ETIQUETA_MODALIDAD, ETIQUETA_TIPO } from "@/lib/property-details";
 import { type EstadoPublicacion, StatusBadge } from "./status-badge";
 
 export interface PropiedadDeTabla {
@@ -36,12 +37,6 @@ const ICONO_POR_TIPO = {
   oficina: Building2Icon,
   local_comercial: StoreIcon,
 } as const;
-
-const formateadorFecha = new Intl.DateTimeFormat("es-MX", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
 
 interface MyListingsTableProps {
   propiedades: PropiedadDeTabla[];
@@ -82,6 +77,7 @@ function EncabezadoOrdenable({
 }
 
 function BotonCopiarEnlace({ id }: { id: string }) {
+  const tabla = useIdioma().t.panel.tabla;
   const [copiado, setCopiado] = useState(false);
   async function copiar() {
     try {
@@ -96,7 +92,7 @@ function BotonCopiarEnlace({ id }: { id: string }) {
     <button
       type="button"
       onClick={copiar}
-      aria-label={copiado ? "Enlace copiado" : "Copiar enlace de la propiedad"}
+      aria-label={copiado ? tabla.enlaceCopiado : tabla.copiarEnlace}
       className="flex size-9 cursor-pointer items-center justify-center rounded-lg border border-input text-foreground transition-colors hover:border-primary"
     >
       {copiado ? (
@@ -109,6 +105,17 @@ function BotonCopiarEnlace({ id }: { id: string }) {
 }
 
 export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
+  const { idioma, t } = useIdioma();
+  const tabla = t.panel.tabla;
+  const etiquetas = t.etiquetas as {
+    tipo: Record<string, string>;
+    modalidad: Record<string, string>;
+  };
+  const formateadorFecha = new Intl.DateTimeFormat(localeDe(idioma), {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
   const [seleccion, setSeleccion] = useState<Set<string>>(new Set());
   const todasMarcadas = propiedades.length > 0 && propiedades.every((p) => seleccion.has(p.id));
 
@@ -135,22 +142,21 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
           className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-3 text-sm"
         >
           <span className="font-semibold text-foreground">
-            {seleccion.size}{" "}
-            {seleccion.size === 1 ? "propiedad seleccionada" : "propiedades seleccionadas"}
+            {tabla.seleccionadas(seleccion.size)}
           </span>
           <div className="flex gap-2">
             <a
               href={`/api/v1/properties/export?ids=${idsSeleccion}`}
               className="flex h-9 items-center rounded-lg border border-input px-3.5 text-[13px] font-bold text-foreground transition-colors hover:border-primary"
             >
-              Exportar selección
+              {tabla.exportarSeleccion}
             </a>
             <button
               type="button"
               onClick={() => setSeleccion(new Set())}
               className="flex h-9 cursor-pointer items-center rounded-lg px-3.5 text-[13px] font-semibold text-muted-foreground hover:text-foreground"
             >
-              Quitar selección
+              {tabla.quitarSeleccion}
             </button>
           </div>
         </div>
@@ -165,7 +171,7 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
                   type="checkbox"
                   checked={todasMarcadas}
                   onChange={alternarTodas}
-                  aria-label="Seleccionar todas las propiedades de la página"
+                  aria-label={tabla.seleccionarTodas}
                   className="size-4 cursor-pointer accent-primary"
                 />
               </th>
@@ -173,30 +179,38 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
                 scope="col"
                 className="px-3 py-3 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase"
               >
-                Propiedad
+                {tabla.propiedad}
               </th>
               <th
                 scope="col"
                 className="px-3 py-3 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase"
               >
-                Operación
+                {tabla.operacion}
               </th>
-              <EncabezadoOrdenable campo="precio" etiqueta="Precio" params={params} />
-              <EncabezadoOrdenable campo="impresiones" etiqueta="Impr." params={params} />
-              <EncabezadoOrdenable campo="visitas" etiqueta="Visitas" params={params} />
-              <EncabezadoOrdenable campo="solicitudes" etiqueta="Solic." params={params} />
+              <EncabezadoOrdenable campo="precio" etiqueta={tabla.precio} params={params} />
+              <EncabezadoOrdenable
+                campo="impresiones"
+                etiqueta={tabla.impresiones}
+                params={params}
+              />
+              <EncabezadoOrdenable campo="visitas" etiqueta={tabla.visitas} params={params} />
+              <EncabezadoOrdenable
+                campo="solicitudes"
+                etiqueta={tabla.solicitudes}
+                params={params}
+              />
               <th
                 scope="col"
                 className="px-3 py-3 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase"
               >
-                Estado
+                {tabla.estado}
               </th>
-              <EncabezadoOrdenable campo="fecha" etiqueta="Fecha" params={params} />
+              <EncabezadoOrdenable campo="fecha" etiqueta={tabla.fecha} params={params} />
               <th
                 scope="col"
                 className="px-3 py-3 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase"
               >
-                Acciones
+                {tabla.acciones}
               </th>
             </tr>
           </thead>
@@ -211,7 +225,7 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
                       type="checkbox"
                       checked={seleccion.has(propiedad.id)}
                       onChange={() => alternar(propiedad.id)}
-                      aria-label={`Seleccionar ${propiedad.titulo ?? propiedad.direccion}`}
+                      aria-label={tabla.seleccionar(propiedad.titulo ?? propiedad.direccion)}
                       className="size-4 cursor-pointer accent-primary"
                     />
                   </td>
@@ -243,16 +257,16 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
                         </span>
                         {propiedad.referencia ? (
                           <span className="text-xs text-muted-foreground">
-                            Ref. {propiedad.referencia}
+                            {tabla.referencia(propiedad.referencia)}
                           </span>
                         ) : null}
                       </div>
                     </div>
                   </td>
                   <td className="px-3 py-3 whitespace-nowrap text-foreground">
-                    {ETIQUETA_MODALIDAD[propiedad.modalidad] ?? propiedad.modalidad}
+                    {etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad}
                     <span className="block text-xs text-muted-foreground">
-                      {ETIQUETA_TIPO[propiedad.tipo] ?? propiedad.tipo}
+                      {etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo}
                     </span>
                   </td>
                   <td className="px-3 py-3 whitespace-nowrap font-semibold text-foreground">
@@ -265,7 +279,7 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
                     <div className="flex flex-col items-start gap-1.5">
                       <StatusBadge estado={propiedad.estadoPublicacion} />
                       {propiedad.compartidaEnRed ? (
-                        <span className="text-xs text-muted-foreground">En la Red</span>
+                        <span className="text-xs text-muted-foreground">{tabla.enRed}</span>
                       ) : null}
                       {propiedad.estadoPublicacion === "rechazada" && propiedad.motivoRechazo ? (
                         <span className="max-w-[200px] text-xs text-destructive">
@@ -285,7 +299,7 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
                             href={`/espacios/${propiedad.id}`}
                             className="flex h-9 items-center rounded-lg border border-input px-3 text-[13px] font-bold text-foreground transition-colors hover:border-primary"
                           >
-                            Ver
+                            {tabla.ver}
                           </Link>
                           <BotonCopiarEnlace id={propiedad.id} />
                         </>
@@ -299,8 +313,8 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
                         }
                       >
                         {propiedad.estadoPublicacion === "rechazada"
-                          ? "Corregir y reenviar"
-                          : "Editar"}
+                          ? t.panel.publicaciones.corregir
+                          : t.panel.publicaciones.editar}
                       </Link>
                     </div>
                   </td>

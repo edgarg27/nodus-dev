@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
+import { localeDe } from "@/lib/i18n";
 
 export interface MensajeVista {
   id: string;
@@ -15,17 +17,18 @@ interface ChatThreadProps {
   mensajes: MensajeVista[];
 }
 
-const formateadorHora = new Intl.DateTimeFormat("es-MX", {
-  day: "numeric",
-  month: "short",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
 // Intervalo con el que se revisan mensajes nuevos mientras la conversación está abierta.
 const REVISION_MS = 10_000;
 
 export function ChatThread({ conversacionId, mensajes }: ChatThreadProps) {
+  const { idioma, t } = useIdioma();
+  const m = t.panel.mensajes;
+  const formateadorHora = new Intl.DateTimeFormat(localeDe(idioma), {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
   const router = useRouter();
   const idCampo = useId();
   const [texto, setTexto] = useState("");
@@ -60,12 +63,13 @@ export function ChatThread({ conversacionId, mensajes }: ChatThreadProps) {
       });
       if (!respuesta.ok) {
         const cuerpo = await respuesta.json().catch(() => null);
-        throw new Error(cuerpo?.error?.message ?? "No se pudo enviar el mensaje");
+        // Los mensajes de la API están en español; en inglés se muestra el genérico.
+        throw new Error((idioma === "es" && cuerpo?.error?.message) || m.errorEnviar);
       }
       setTexto("");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo enviar el mensaje");
+      setError(err instanceof Error ? err.message : m.errorEnviar);
     } finally {
       setEnviando(false);
     }
@@ -99,7 +103,7 @@ export function ChatThread({ conversacionId, mensajes }: ChatThreadProps) {
 
       <form onSubmit={enviar} className="flex flex-col gap-2">
         <label htmlFor={idCampo} className="sr-only">
-          Escribe un mensaje
+          {m.escribe}
         </label>
         <textarea
           id={idCampo}
@@ -107,7 +111,7 @@ export function ChatThread({ conversacionId, mensajes }: ChatThreadProps) {
           onChange={(evento) => setTexto(evento.target.value)}
           maxLength={2000}
           rows={3}
-          placeholder="Escribe un mensaje…"
+          placeholder={m.placeholder}
           className="w-full rounded-lg border border-input bg-background px-3.5 py-2.5 text-[15px] text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         />
         {error ? (
@@ -120,7 +124,7 @@ export function ChatThread({ conversacionId, mensajes }: ChatThreadProps) {
           disabled={enviando || !texto.trim()}
           className="flex h-[46px] w-fit cursor-pointer items-center rounded-lg bg-accent px-6 text-sm font-bold text-accent-foreground shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 disabled:opacity-60 motion-reduce:transition-none"
         >
-          {enviando ? "Enviando…" : "Enviar"}
+          {enviando ? m.enviando : m.enviar}
         </button>
       </form>
     </div>
