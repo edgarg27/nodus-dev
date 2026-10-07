@@ -16,6 +16,7 @@ afiliados) que publican esos espacios. Toda propiedad la aprueba un admin antes 
 | Tests unitarios/integración | `pnpm test` · un archivo: `pnpm test <ruta>` |
 | Tests en modo watch | `pnpm test:watch` |
 | E2E | `pnpm test:e2e` |
+| Preparar el proyecto de pruebas (migraciones + bucket) | `pnpm test:db:setup` — lee `.env.test` |
 | Generar migración | `pnpm db:generate` |
 | Aplicar migraciones | `pnpm db:migrate` |
 | Explorar DB | `pnpm db:studio` |
@@ -24,7 +25,9 @@ afiliados) que publican esos espacios. Toda propiedad la aprueba un admin antes 
 | Crear/actualizar el bucket de fotos (desde el paso 11) | `pnpm storage:setup` |
 
 **No hay Docker ni Supabase CLI.** La base, Auth y Storage son proyectos Supabase alojados:
-`nodus-dev` (desarrollo, pruebas, previews) y `nodus-prod`.
+`nodus-dev` (desarrollo y previews), uno de pruebas (`.env.test`, ver `.env.test.example`) y
+`nodus-prod`. `pnpm test` y `pnpm test:e2e` vacían tablas y usuarios de Auth: solo corren contra el
+proyecto de pruebas (`assertSafeToResetTests`), nunca contra `nodus-dev`.
 
 **Gate:** `pnpm typecheck && pnpm lint && pnpm test` debe pasar antes de marcar cualquier tarea como
 terminada.
@@ -178,8 +181,9 @@ Todos los valores salen del dashboard del proyecto Supabase (`blueprint.md` §10
 | `MAPTILER_API_KEY` | sí | `src/app/api/v1/geocode/route.ts` | MapTiler account → Keys (puede ser el mismo valor) |
 | `NEXT_PUBLIC_SUPPORT_WHATSAPP` | no | `src/components/panel/help-card.tsx` | WhatsApp de soporte (solo dígitos con lada); sin él la tarjeta de ayuda no muestra el botón |
 | `NODUS_ALLOW_DB_RESET`, `NODUS_DEV_PROJECT_REF`, `NODUS_PROD_PROJECT_REF` | solo dev | `src/lib/db/dev-guard.ts` | `.env` de desarrollo a mano — **nunca en Vercel ni producción** |
+| `NODUS_TEST_PROJECT_REF` (+ conexiones y llaves del proyecto de pruebas) | solo pruebas | `assertSafeToResetTests`, `vitest.config.ts`, `playwright.config.ts` | `.env.test` (tiene prioridad sobre `.env` en las pruebas) |
 
-`.env.example` está commiteado y se mantiene sincronizado.
+`.env.example` y `.env.test.example` están commiteados y se mantienen sincronizados.
 
 ## Reglas diferidas
 

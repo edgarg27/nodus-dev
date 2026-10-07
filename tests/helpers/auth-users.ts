@@ -7,7 +7,7 @@
 //
 // GUARDIA: crear y borrar usuarios de Auth en el proyecto que apunta `.env` es tan destructivo como
 // truncar tablas, así que TODO cliente que este archivo construye pasa antes por
-// `assertSafeToReset(process.env)` (src/lib/db/dev-guard.ts, paso 3: una hoja sin dependencias).
+// `assertSafeToResetTests(process.env)` (src/lib/db/dev-guard.ts, paso 3: una hoja sin dependencias).
 // Con un `.env` que apunte a producción, estas funciones lanzan antes de tocar nada.
 //
 // Aparte de dev-guard.ts, este archivo importa solo `@supabase/supabase-js` (lo instala el Bootstrap,
@@ -20,7 +20,7 @@
 import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
-import { assertSafeToReset } from "../../src/lib/db/dev-guard.ts";
+import { assertSafeToResetTests } from "../../src/lib/db/dev-guard.ts";
 
 export interface UsuarioAuthPrueba {
   id: string;
@@ -57,7 +57,7 @@ function metadataDe(opciones: { rol?: string; nombre?: string; ref?: string }) {
 }
 
 export function clienteAdminDePrueba() {
-  assertSafeToReset(process.env);
+  assertSafeToResetTests(process.env);
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) {

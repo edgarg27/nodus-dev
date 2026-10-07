@@ -19,6 +19,7 @@ next-env.d.ts
 # Ver blueprint.md §10 "Files that must be committed" y la Gotcha sobre orden de commits.
 .env*
 !.env.example
+!.env.test.example
 
 # --- Nodus: propio del proyecto ---
 # (Sin Supabase CLI ni Docker: no hay estado local de servicios que ignorar.)

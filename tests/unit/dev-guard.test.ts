@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assertSafeToReset } from "../../src/lib/db/dev-guard.ts";
+import { assertSafeToReset, assertSafeToResetTests } from "../../src/lib/db/dev-guard.ts";
 
 const base = {
   NODUS_ALLOW_DB_RESET: "yes",
@@ -51,5 +51,56 @@ describe("assertSafeToReset", () => {
 
   it("con entorno completo y correcto devuelve sin lanzar", () => {
     expect(() => assertSafeToReset(base)).not.toThrow();
+  });
+});
+
+const pruebas = {
+  NODUS_ALLOW_DB_RESET: "yes",
+  NODUS_DEV_PROJECT_REF: "devref",
+  NODUS_TEST_PROJECT_REF: "testref",
+  DATABASE_URL: "postgresql://postgres.testref:pw@aws-0-region.pooler.supabase.com:6543/postgres",
+  DIRECT_URL: "postgresql://postgres.testref:pw@aws-0-region.pooler.supabase.com:5432/postgres",
+  NEXT_PUBLIC_SUPABASE_URL: "https://testref.supabase.co",
+};
+
+describe("assertSafeToResetTests", () => {
+  it("con el proyecto de pruebas bien configurado devuelve sin lanzar", () => {
+    expect(() => assertSafeToResetTests(pruebas)).not.toThrow();
+  });
+
+  it("sin NODUS_TEST_PROJECT_REF lanza y explica cómo crear .env.test", () => {
+    const { NODUS_TEST_PROJECT_REF: _omit, ...sinRef } = pruebas;
+    expect(() => assertSafeToResetTests(sinRef)).toThrowError(/NODUS_TEST_PROJECT_REF.*.env.test/);
+  });
+
+  it("se niega a vaciar nodus-dev: con las conexiones de dev lanza", () => {
+    expect(() =>
+      assertSafeToResetTests({ ...base, NODUS_TEST_PROJECT_REF: "testref" }),
+    ).toThrowError(/proyecto de pruebas/);
+    expect(() =>
+      assertSafeToResetTests({ ...pruebas, NODUS_TEST_PROJECT_REF: "devref" }),
+    ).toThrowError(/NODUS_DEV_PROJECT_REF/);
+  });
+
+  it("lanza si una conexión contiene el ref de dev o de producción", () => {
+    expect(() =>
+      assertSafeToResetTests({
+        ...pruebas,
+        DIRECT_URL: "postgresql://postgres.testref:pw@host/devref",
+      }),
+    ).toThrowError(/proyecto dev/);
+    expect(() =>
+      assertSafeToResetTests({
+        ...pruebas,
+        NODUS_PROD_PROJECT_REF: "prodref",
+        DATABASE_URL: "postgresql://postgres.testref:pw@host/prodref",
+      }),
+    ).toThrowError(/producción/);
+  });
+
+  it("sin NODUS_ALLOW_DB_RESET lanza", () => {
+    expect(() => assertSafeToResetTests({ ...pruebas, NODUS_ALLOW_DB_RESET: "" })).toThrowError(
+      /NODUS_ALLOW_DB_RESET/,
+    );
   });
 });

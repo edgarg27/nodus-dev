@@ -1,10 +1,10 @@
 // Trunca las tablas de la aplicación entre pruebas de integración para que ningún test dependa
 // del orden de ejecución ni de datos dejados por otro test.
 //
-// LA BASE ES COMPARTIDA Y REMOTA (proyecto Supabase alojado `nodus-dev`, sin Docker): este helper es
-// destructivo, así que la PRIMERA línea es la guardia del paso 3 — `assertSafeToReset(process.env)`
-// exige `NODUS_ALLOW_DB_RESET=yes`, el ref del proyecto dev en DATABASE_URL/DIRECT_URL/
-// NEXT_PUBLIC_SUPABASE_URL y (si existe) que el ref de producción no aparezca en ninguna. Solo
+// LA BASE ES REMOTA (proyecto Supabase alojado de PRUEBAS, `.env.test`; sin Docker): este helper es
+// destructivo, así que la PRIMERA línea es la guardia — `assertSafeToResetTests(process.env)` exige
+// `NODUS_ALLOW_DB_RESET=yes`, el ref del proyecto de pruebas en DATABASE_URL/DIRECT_URL/
+// NEXT_PUBLIC_SUPABASE_URL, y que ni el ref de nodus-dev ni el de producción aparezcan en ninguna. Solo
 // después se importa el cliente de base de datos (import dinámico: sin la guardia satisfecha nunca
 // se abre una conexión).
 //
@@ -27,10 +27,10 @@
 // Esto solo vacía el esquema `public`: los usuarios de Supabase Auth de los fixtures se borran aparte
 // con `limpiarUsuariosAuth()` (tests/helpers/auth-users.ts).
 import { sql } from "drizzle-orm";
-import { assertSafeToReset } from "../../src/lib/db/dev-guard.ts";
+import { assertSafeToResetTests } from "../../src/lib/db/dev-guard.ts";
 
 export async function resetTestDatabase(): Promise<void> {
-  assertSafeToReset(process.env);
+  assertSafeToResetTests(process.env);
   const { db } = await import("../../src/lib/db/client.ts");
   await db.execute(
     sql`truncate table mensaje, conversacion, propiedad_metrica_diaria, agencia_contacto, agencia_perfil, favorito, busqueda_guardada, rate_limit_hit, broker_atribucion_historica, broker_revocacion, broker_solicitud, contact_request, propiedad_foto, propiedad, usuario restart identity cascade;`,

@@ -5,10 +5,15 @@ import { defineConfig } from "vitest/config";
 // Vitest runs test files under Node, not under Next.js — Next's automatic .env loading does not
 // apply here. Node 24's native loader (no extra dependency) populates process.env before any test
 // file or setupFile runs, so tests/setup.ts and every integration test can read DATABASE_URL.
-try {
-  process.loadEnvFile(".env");
-} catch {
-  // no .env file on disk — fine in CI, where these variables are injected directly
+// .env.test first: process.loadEnvFile never overrides a variable that is already set, so the
+// test project's connection strings and keys win and everything else (MapTiler keys, the dev/prod
+// refs the guard compares against) falls back to .env.
+for (const archivo of [".env.test", ".env"]) {
+  try {
+    process.loadEnvFile(archivo);
+  } catch {
+    // file not on disk — fine in CI, where these variables are injected directly
+  }
 }
 
 // package.json declares "type": "module" (blueprint.md §10 Bootstrap), so this file is ESM and
@@ -38,7 +43,7 @@ export default defineConfig({
       "src/**/*.test.tsx",
     ],
     exclude: ["blueprints/**", "node_modules/**", ".next/**", "tests/e2e/**"],
-    // Integration tests hit the shared, REMOTE Supabase project `nodus-dev` (no local Docker stack):
+    // Integration tests hit the REMOTE Supabase test project from .env.test (no local Docker stack):
     // every query crosses the network, hence the longer timeout than a local Postgres needs.
     testTimeout: 30000,
     // Run test files sequentially so table-truncation between files never races and the shared

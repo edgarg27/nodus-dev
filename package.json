@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:db:setup": "node --env-file=.env.test node_modules/drizzle-kit/bin.cjs migrate && node --env-file=.env.test scripts/setup-storage.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",

@@ -2,10 +2,10 @@ import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { afterAll, describe, expect, it, vi } from "vitest";
-import { assertSafeToReset } from "../../../src/lib/db/dev-guard.ts";
+import { assertSafeToResetTests } from "../../../src/lib/db/dev-guard.ts";
 import { crearClienteAdmin } from "../../../src/server/supabase/admin.ts";
 
-assertSafeToReset(process.env);
+assertSafeToResetTests(process.env);
 
 const BUCKET = "propiedades-fotos";
 const PNG_1X1_BASE64 =
@@ -83,7 +83,7 @@ describe("bucket propiedades-fotos", () => {
 
   it("sin NODUS_ALLOW_DB_RESET la guardia lanza y no sube nada", () => {
     vi.stubEnv("NODUS_ALLOW_DB_RESET", "");
-    expect(() => assertSafeToReset(process.env)).toThrowError(/NODUS_ALLOW_DB_RESET/);
+    expect(() => assertSafeToResetTests(process.env)).toThrowError(/NODUS_ALLOW_DB_RESET/);
     vi.unstubAllEnvs();
   });
 });
