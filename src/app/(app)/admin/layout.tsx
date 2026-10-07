@@ -7,6 +7,7 @@ import { iniciales } from "@/lib/initials";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import { listarBrokersActivos, listarPendientes } from "@/server/broker-requests/queries";
+import { obtenerTextos } from "@/server/i18n";
 import { listarPendientesDeRevision } from "@/server/properties/queries";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -14,6 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const permiso = requireRol(actor, "admin");
   if (!permiso.ok || !actor) notFound();
 
+  const a = (await obtenerTextos()).t.admin;
   const [propiedadesPendientes, solicitudesPendientes, brokersActivos] = await Promise.all([
     listarPendientesDeRevision(),
     listarPendientes(),
@@ -28,14 +30,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <div className="flex items-center gap-3.5">
               <Link
                 href="/"
-                aria-label="Nodus, inicio"
+                aria-label={a.inicio}
                 className="flex shrink-0 items-center transition-transform duration-200 ease-out hover:-translate-y-px hover:scale-[1.03] active:scale-[0.97] motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:hover:translate-y-0"
               >
                 <span className="font-display text-xl font-bold text-text">Nodus</span>
               </Link>
               <span className="h-5 w-px bg-border max-sm:hidden" aria-hidden="true" />
               <span className="text-sm font-bold tracking-wide text-text-muted max-sm:hidden">
-                Panel de administración
+                {a.panel}
               </span>
             </div>
             <div className="flex min-w-0 shrink items-center gap-3.5">

@@ -3,6 +3,7 @@
 import { ShieldCheckIcon, UsersIcon, WarehouseIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 
 interface AdminSidebarNavProps {
   pendingPropertiesCount: number;
@@ -13,19 +14,16 @@ interface AdminSidebarNavProps {
 const ITEMS = [
   {
     href: "/admin/propiedades",
-    label: "Propiedades pendientes",
     icon: WarehouseIcon,
     key: "propiedades" as const,
   },
   {
     href: "/admin/broker-requests",
-    label: "Solicitudes de broker",
     icon: UsersIcon,
     key: "requests" as const,
   },
   {
     href: "/admin/brokers",
-    label: "Brokers activos",
     icon: ShieldCheckIcon,
     key: "brokers" as const,
   },
@@ -36,6 +34,7 @@ export function AdminSidebarNav({
   pendingRequestsCount,
   activeBrokersCount,
 }: AdminSidebarNavProps) {
+  const { t } = useIdioma();
   const pathname = usePathname();
   const counts: Record<(typeof ITEMS)[number]["key"], number> = {
     propiedades: pendingPropertiesCount,
@@ -45,7 +44,7 @@ export function AdminSidebarNav({
 
   return (
     <nav
-      aria-label="Secciones del panel"
+      aria-label={t.admin.secciones}
       className="admin-sidebar flex w-64 shrink-0 flex-col gap-1 border-r border-border bg-surface p-4 max-md:w-full max-md:flex-row max-md:overflow-x-auto max-md:border-r-0 max-md:border-b max-md:p-3"
     >
       {ITEMS.map((item) => {
@@ -65,7 +64,7 @@ export function AdminSidebarNav({
             }`}
           >
             <Icon className="size-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            <span className="grow">{item.label}</span>
+            <span className="grow">{t.admin.nav[item.key]}</span>
             <span
               className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${
                 isActive

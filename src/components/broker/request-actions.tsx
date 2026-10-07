@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAdminToast } from "@/components/admin/admin-toast";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
+import { localeDe } from "@/lib/i18n";
 import { iniciales } from "@/lib/initials";
 
 interface Solicitud {
@@ -21,13 +23,14 @@ interface RequestActionsProps {
   solicitud: Solicitud;
 }
 
-const FORMATO_FECHA = new Intl.DateTimeFormat("es-MX", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-});
-
 export function RequestActions({ solicitud }: RequestActionsProps) {
+  const { idioma, t } = useIdioma();
+  const s = t.admin.solicitudes;
+  const formatoFecha = new Intl.DateTimeFormat(localeDe(idioma), {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
   const router = useRouter();
   const { showToast } = useAdminToast();
   const [enviando, setEnviando] = useState(false);
@@ -41,14 +44,14 @@ export function RequestActions({ solicitud }: RequestActionsProps) {
 
     setEnviando(false);
     if (respuesta.status === 409) {
-      showToast("Esta solicitud ya fue resuelta.");
+      showToast(s.yaResuelta);
       router.refresh();
       return;
     }
 
     const cuerpo = await respuesta.json();
     if (respuesta.ok) {
-      showToast(`Solicitud aprobada — código ${cuerpo.data.broker_code} generado.`);
+      showToast(s.aprobada(cuerpo.data.broker_code));
       router.refresh();
     }
   }
@@ -64,12 +67,12 @@ export function RequestActions({ solicitud }: RequestActionsProps) {
 
     setEnviando(false);
     if (respuesta.status === 409) {
-      showToast("Esta solicitud ya fue resuelta.");
+      showToast(s.yaResuelta);
       router.refresh();
       return;
     }
     if (respuesta.ok) {
-      showToast("Solicitud de broker denegada.");
+      showToast(s.denegada);
       router.refresh();
     }
   }
@@ -91,16 +94,16 @@ export function RequestActions({ solicitud }: RequestActionsProps) {
         </p>
         <p className="text-sm text-text italic">“{solicitud.mensaje}”</p>
         <p className="text-xs text-text-muted">
-          Solicitado el {FORMATO_FECHA.format(solicitud.createdAt)}
+          {s.solicitado(formatoFecha.format(solicitud.createdAt))}
         </p>
       </div>
 
       <div className="flex shrink-0 items-center gap-2 max-md:w-full max-md:flex-wrap">
         <Button type="button" variant="outline" disabled={enviando} onClick={denegar}>
-          Denegar
+          {s.denegar}
         </Button>
         <Button type="button" disabled={enviando} onClick={aprobar}>
-          Aprobar
+          {s.aprobar}
         </Button>
       </div>
     </article>

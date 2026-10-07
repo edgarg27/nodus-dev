@@ -3,6 +3,7 @@
 import { XIcon } from "lucide-react";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,6 +30,7 @@ export function RejectPropertyDialog({
   disabled,
   onConfirm,
 }: RejectPropertyDialogProps) {
+  const p = useIdioma().t.admin.propiedades;
   const [motivo, setMotivo] = useState("");
   const contenidoRef = useRef<HTMLDivElement>(null);
 
@@ -69,18 +71,18 @@ export function RejectPropertyDialog({
       >
         <div className="flex flex-col gap-1">
           <DialogPrimitive.Title className="text-lg leading-none font-bold text-text">
-            Rechazar propiedad
+            {p.rechazarTitulo}
           </DialogPrimitive.Title>
           <DialogPrimitive.Description className="text-sm text-text-muted">
             {title}
           </DialogPrimitive.Description>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="reject-reason">Motivo (obligatorio)</Label>
+          <Label htmlFor="reject-reason">{p.motivo}</Label>
           <Textarea
             id="reject-reason"
             rows={4}
-            placeholder="El oferente verá este motivo para corregir y reenviar su propiedad."
+            placeholder={p.motivoPlaceholder}
             value={motivo}
             onChange={(event) => setMotivo(event.target.value)}
           />
@@ -88,7 +90,7 @@ export function RejectPropertyDialog({
         <div className="flex justify-end gap-2.5">
           <DialogPrimitive.Close asChild>
             <Button type="button" variant="outline">
-              Cancelar
+              {p.cancelar}
             </Button>
           </DialogPrimitive.Close>
           <Button
@@ -97,13 +99,13 @@ export function RejectPropertyDialog({
             disabled={disabled || motivo.trim().length === 0}
             onClick={() => onConfirm(motivo)}
           >
-            Confirmar rechazo
+            {p.confirmarRechazo}
           </Button>
         </div>
         <DialogPrimitive.Close asChild>
           <Button variant="ghost" size="icon-sm" className="absolute top-3 right-3">
             <XIcon />
-            <span className="sr-only">Cerrar</span>
+            <span className="sr-only">{p.cerrar}</span>
           </Button>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>

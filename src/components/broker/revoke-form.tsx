@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import { type ChangeEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useAdminToast } from "@/components/admin/admin-toast";
+import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +27,7 @@ const SELECTOR_FOCOSABLES =
 // (y también el trapFocus automático), así que el atrapado de foco de la Acceptance #1 se
 // reimplementa aquí a mano, sobre el mismo Content.
 export function RevokeForm({ broker }: RevokeFormProps) {
+  const b = useIdioma().t.admin.brokers;
   const router = useRouter();
   const { showToast } = useAdminToast();
   const [abierto, setAbierto] = useState(false);
@@ -66,13 +68,13 @@ export function RevokeForm({ broker }: RevokeFormProps) {
 
     setEnviando(false);
     if (respuesta.status === 409) {
-      showToast("Este usuario ya no es broker.");
+      showToast(b.yaNoEsBroker);
       setAbierto(false);
       router.refresh();
       return;
     }
     if (respuesta.ok) {
-      showToast("Acceso de broker revocado.");
+      showToast(b.revocado);
       setAbierto(false);
       router.refresh();
     }
@@ -101,7 +103,7 @@ export function RevokeForm({ broker }: RevokeFormProps) {
       <DialogPrimitive.Root open={abierto} onOpenChange={setAbierto} modal={false}>
         <DialogPrimitive.Trigger asChild>
           <Button type="button" variant="destructive" className="shrink-0">
-            Revocar
+            {b.revocar}
           </Button>
         </DialogPrimitive.Trigger>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-primary/55 duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0" />
@@ -112,15 +114,14 @@ export function RevokeForm({ broker }: RevokeFormProps) {
         >
           <div className="flex flex-col gap-1">
             <DialogPrimitive.Title className="text-lg leading-none font-bold text-text">
-              Revocar acceso de broker
+              {b.revocarTitulo}
             </DialogPrimitive.Title>
             <DialogPrimitive.Description className="text-sm text-text-muted">
-              Esta acción es irreversible: el usuario pierde su código de broker y deja de recibir
-              nuevos leads atribuidos.
+              {b.revocarTexto}
             </DialogPrimitive.Description>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor={`motivo-revocar-${broker.id}`}>Motivo (obligatorio)</Label>
+            <Label htmlFor={`motivo-revocar-${broker.id}`}>{b.motivo}</Label>
             <Textarea
               id={`motivo-revocar-${broker.id}`}
               rows={4}
@@ -131,7 +132,7 @@ export function RevokeForm({ broker }: RevokeFormProps) {
           <div className="flex justify-end gap-2.5">
             <DialogPrimitive.Close asChild>
               <Button type="button" variant="outline">
-                Cancelar
+                {b.cancelar}
               </Button>
             </DialogPrimitive.Close>
             <Button
@@ -140,13 +141,13 @@ export function RevokeForm({ broker }: RevokeFormProps) {
               disabled={enviando || motivo.trim().length === 0}
               onClick={revocar}
             >
-              Confirmar revocación
+              {b.confirmar}
             </Button>
           </div>
           <DialogPrimitive.Close asChild>
             <Button variant="ghost" size="icon-sm" className="absolute top-3 right-3">
               <XIcon />
-              <span className="sr-only">Cerrar</span>
+              <span className="sr-only">{b.cerrar}</span>
             </Button>
           </DialogPrimitive.Close>
         </DialogPrimitive.Content>

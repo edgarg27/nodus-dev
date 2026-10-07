@@ -7,6 +7,12 @@ vi.mock("../../../src/server/auth/session.ts", async (importOriginal) => {
   return { ...real, getUsuarioActual: vi.fn() };
 });
 
+// El layout lee la cookie de idioma; fuera de una petición real no hay cookies (español).
+vi.mock("next/headers", async (importOriginal) => {
+  const real = await importOriginal<typeof import("next/headers")>();
+  return { ...real, cookies: async () => ({ get: () => undefined }) };
+});
+
 const { getUsuarioActual } = await import("../../../src/server/auth/session.ts");
 const { db } = await import("../../../src/lib/db/client.ts");
 const { contactRequest, propiedad } = await import("../../../src/lib/db/schema.ts");
