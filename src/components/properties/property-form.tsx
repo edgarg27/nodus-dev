@@ -12,6 +12,7 @@ import type { Sugerencia } from "./address-autocomplete";
 import { PropertyFormBasicsFields } from "./property-form-basics-fields";
 import { PropertyFormDetailsFields } from "./property-form-details-fields";
 import { PropertyFormLocationField } from "./property-form-location-field";
+import { type ContactoOpcion, PropertyFormNetworkFields } from "./property-form-network-fields";
 import { PropertyFormReviewDialog } from "./property-form-review-dialog";
 import {
   CAMPOS_NUMERICOS_FORMULARIO,
@@ -28,6 +29,8 @@ export type { PropertyFormInitialData } from "./property-form-schema";
 
 interface PropertyFormProps {
   propiedad?: PropertyFormInitialData;
+  // Contactos de la agencia entre los que el oferente puede elegir para esta propiedad.
+  contactos?: ContactoOpcion[];
 }
 
 interface ErrorApi {
@@ -49,7 +52,7 @@ async function subirFoto(propiedadId: string, archivo: File): Promise<void> {
   }
 }
 
-export function PropertyForm({ propiedad }: PropertyFormProps) {
+export function PropertyForm({ propiedad, contactos = [] }: PropertyFormProps) {
   const router = useRouter();
   const modo = propiedad ? "editar" : "nueva";
 
@@ -74,6 +77,12 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
           ciudad: propiedad.ciudad,
           descripcion: propiedad.descripcion,
           aceptaFinanciamiento: propiedad.aceptaFinanciamiento ? "true" : "false",
+          referencia: propiedad.referencia ?? "",
+          titulo: propiedad.titulo ?? "",
+          contactoId: propiedad.contactoId ?? "",
+          compartidaEnRed: propiedad.compartidaEnRed ? "true" : "false",
+          exclusiva: propiedad.exclusiva ? "true" : "false",
+          comisionPct: propiedad.comisionPct === null ? "" : String(propiedad.comisionPct),
           moneda: propiedad.moneda === "USD" ? "USD" : "MXN",
           precioUnidad: propiedad.precioUnidad === "m2" ? "m2" : "total",
           ...Object.fromEntries(
@@ -83,7 +92,13 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
             ]),
           ),
         }
-      : { aceptaFinanciamiento: "false", moneda: "MXN", precioUnidad: "total" },
+      : {
+          aceptaFinanciamiento: "false",
+          moneda: "MXN",
+          precioUnidad: "total",
+          compartidaEnRed: "false",
+          exclusiva: "false",
+        },
   });
 
   const [archivosNuevos, setArchivosNuevos] = useState<File[]>([]);
@@ -102,6 +117,7 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
   const tipo = watch("tipo");
   const modalidad = watch("modalidad");
   const lng = watch("lng");
+  const compartidaEnRed = watch("compartidaEnRed") === "true";
 
   function alTocarCoordenadas() {
     setCoordenadasTocadas(true);
@@ -155,6 +171,13 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
         ...Object.fromEntries(
           CAMPOS_NUMERICOS_FORMULARIO.map((campo) => [campo, textoANumero(valores[campo])]),
         ),
+        // Vacío borra el valor (null); la API distingue "no mandado" de "borrar".
+        referencia: valores.referencia?.trim() || null,
+        titulo: valores.titulo?.trim() || null,
+        contactoId: valores.contactoId || null,
+        compartidaEnRed: valores.compartidaEnRed === "true",
+        exclusiva: valores.exclusiva === "true",
+        comisionPct: textoANumero(valores.comisionPct),
       };
       const respuesta = propiedad
         ? await fetch(`/api/v1/properties/${propiedad.id}`, {
@@ -309,6 +332,13 @@ export function PropertyForm({ propiedad }: PropertyFormProps) {
           errors={errors}
           tipo={tipo}
           modalidad={modalidad}
+        />
+
+        <PropertyFormNetworkFields
+          register={register}
+          errors={errors}
+          contactos={contactos}
+          compartidaEnRed={compartidaEnRed}
         />
 
         <PropertyFormLocationField

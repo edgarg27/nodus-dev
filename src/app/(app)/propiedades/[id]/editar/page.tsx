@@ -3,6 +3,7 @@ import { PropertyForm } from "@/components/properties/property-form";
 import type { EstadoPublicacion } from "@/components/properties/status-badge";
 import type { CodigoEstado } from "@/lib/estados";
 import { extraerDetalles } from "@/lib/property-details";
+import { listarContactosDeAgencia } from "@/server/agency/queries";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import {
@@ -23,11 +24,19 @@ export default async function EditarPropiedadPage({ params }: EditarPropiedadPag
   const propiedad = await obtenerPropiedadDelDuenoPorId(actor.id, id);
   if (!propiedad) notFound();
 
-  const fotos = await obtenerFotosDePropiedad(propiedad.id);
+  const [fotos, contactos] = await Promise.all([
+    obtenerFotosDePropiedad(propiedad.id),
+    listarContactosDeAgencia(actor.id),
+  ]);
 
   return (
     <main className="w-full py-10">
       <PropertyForm
+        contactos={contactos.map(({ id, tipo, valor }) => ({
+          id,
+          tipo: tipo as "email" | "telefono" | "whatsapp",
+          valor,
+        }))}
         propiedad={{
           id: propiedad.id,
           tipo: propiedad.tipo as "nave_industrial" | "oficina" | "local_comercial",
@@ -39,6 +48,12 @@ export default async function EditarPropiedadPage({ params }: EditarPropiedadPag
           ciudad: propiedad.ciudad,
           descripcion: propiedad.descripcion,
           aceptaFinanciamiento: propiedad.aceptaFinanciamiento,
+          referencia: propiedad.referencia,
+          titulo: propiedad.titulo,
+          contactoId: propiedad.contactoId,
+          compartidaEnRed: propiedad.compartidaEnRed,
+          comisionPct: propiedad.comisionPct,
+          exclusiva: propiedad.exclusiva,
           ...extraerDetalles(propiedad),
           estadoPublicacion: propiedad.estadoPublicacion as EstadoPublicacion,
           motivoRechazo: propiedad.motivoRechazo,

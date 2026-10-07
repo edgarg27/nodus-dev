@@ -56,6 +56,13 @@ export const propertyFormSchema = z.object({
   alturaLibreM: campoNumerico({ maximo: 999 }),
   andenes: campoNumerico({ entero: true, maximo: 9_999 }),
   potenciaKva: campoNumerico({ entero: true, maximo: 9_999_999 }),
+  // Identificación y Red inmobiliaria (los selects de sí/no se manejan como "true"/"false").
+  referencia: z.string().trim().max(60, "Máximo 60 caracteres").optional(),
+  titulo: z.string().trim().max(160, "Máximo 160 caracteres").optional(),
+  contactoId: z.string().optional(),
+  compartidaEnRed: z.enum(["true", "false"]).optional(),
+  exclusiva: z.enum(["true", "false"]).optional(),
+  comisionPct: campoNumerico({ maximo: 100 }),
 });
 
 export const CAMPOS_NUMERICOS_FORMULARIO = [
@@ -88,6 +95,12 @@ export interface PropertyFormInitialData extends DetallesPropiedad {
   ciudad: string;
   descripcion: string;
   aceptaFinanciamiento: boolean;
+  referencia: string | null;
+  titulo: string | null;
+  contactoId: string | null;
+  compartidaEnRed: boolean;
+  comisionPct: number | null;
+  exclusiva: boolean;
   estadoPublicacion: EstadoPublicacion;
   motivoRechazo: string | null;
   fotos: PropertyFormPhoto[];

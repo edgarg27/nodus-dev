@@ -4,6 +4,7 @@ import {
   type AnyPgColumn,
   boolean,
   check,
+  date,
   index,
   integer,
   numeric,
@@ -118,6 +119,17 @@ export const propiedad = pgTable(
     alturaLibreM: numeric("altura_libre_m", { precision: 5, scale: 2, mode: "number" }),
     andenes: integer("andenes"),
     potenciaKva: integer("potencia_kva"),
+    // Identificación propia del oferente (E1-T2). `titulo` es texto público; `referencia` es interna.
+    referencia: text("referencia"),
+    titulo: text("titulo"),
+    // Contacto de la agencia que se muestra en la ficha pública (nulo = el del oferente).
+    contactoId: uuid("contacto_id").references((): AnyPgColumn => agenciaContacto.id, {
+      onDelete: "set null",
+    }),
+    // Red inmobiliaria (E1-T5): la comisión que se comparte nunca se expone en consultas públicas.
+    compartidaEnRed: boolean("compartida_en_red").notNull().default(false),
+    comisionPct: numeric("comision_pct", { precision: 5, scale: 2, mode: "number" }),
+    exclusiva: boolean("exclusiva").notNull().default(false),
     estadoPublicacion: text("estado_publicacion").notNull().default("pendiente"),
     motivoRechazo: text("motivo_rechazo"),
     revisadaPor: uuid("revisada_por").references(() => usuario.id),
@@ -155,6 +167,17 @@ export const propiedad = pgTable(
       sql`${t.estado} in (${sql.raw(CODIGOS_ESTADO_DB.map((codigo) => `'${codigo}'`).join(","))})`,
     ),
     check("chk_propiedad_moneda", sql`${t.moneda} in ('MXN','USD')`),
+    check(
+      "chk_propiedad_comision",
+      sql`${t.comisionPct} is null or (${t.comisionPct} >= 0 and ${t.comisionPct} <= 100)`,
+    ),
+    check(
+      "chk_propiedad_referencia_titulo",
+      sql`(${t.referencia} is null or length(btrim(${t.referencia})) between 1 and 60) and (${t.titulo} is null or length(btrim(${t.titulo})) between 1 and 160)`,
+    ),
+    index("idx_propiedad_red")
+      .on(t.createdAt)
+      .where(sql`${t.compartidaEnRed} = true and ${t.activo} = true`),
     check("chk_propiedad_precio_unidad", sql`${t.precioUnidad} in ('total','m2')`),
     check(
       "chk_propiedad_detalles_no_negativos",
@@ -175,6 +198,47 @@ export const propiedadFoto = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("idx_propiedad_foto_propiedad_id").on(t.propiedadId)],
+);
+
+// Perfil comercial del oferente (blueprints/panel-oferente, E1-T1). Un perfil por usuario;
+// `logo_url` es opcional (sin logo se muestran las iniciales del nombre).
+export const agenciaPerfil = pgTable(
+  "agencia_perfil",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id),
+    nombre: text("nombre").notNull(),
+    descripcion: text("descripcion").notNull().default(""),
+    logoUrl: text("logo_url"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("uq_agencia_perfil_usuario").on(t.usuarioId),
+    check("chk_agencia_perfil_nombre", sql`length(btrim(${t.nombre})) between 1 and 120`),
+    check("chk_agencia_perfil_descripcion", sql`length(${t.descripcion}) <= 1000`),
+  ],
+);
+
+// Correos, teléfonos y WhatsApp de la agencia. Cada propiedad podrá elegir uno (E1-T2).
+export const agenciaContacto = pgTable(
+  "agencia_contacto",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id),
+    tipo: text("tipo").notNull(),
+    valor: text("valor").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("idx_agencia_contacto_usuario_id").on(t.usuarioId),
+    uniqueIndex("uq_agencia_contacto_usuario_tipo_valor").on(t.usuarioId, t.tipo, t.valor),
+    check("chk_agencia_contacto_tipo", sql`${t.tipo} in ('email','telefono','whatsapp')`),
+    check("chk_agencia_contacto_valor", sql`length(btrim(${t.valor})) between 1 and 200`),
+  ],
 );
 
 // Espacios que un usuario marcó como favoritos. Un par usuario–propiedad aparece una sola vez.
@@ -230,9 +294,16 @@ export const contactRequest = pgTable(
     quiereFinanciamiento: boolean("quiere_financiamiento").notNull().default(false),
     // Mensaje opcional del buscador (preguntas rápidas o texto libre), máximo 1000 caracteres.
     mensaje: text("mensaje"),
+    // Embudo de seguimiento del oferente (E1-T4). Se cambia por persona: todas las solicitudes de
+    // un buscador a un mismo oferente comparten estado.
+    estado: text("estado").notNull().default("nueva"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
+    check(
+      "chk_contact_request_estado",
+      sql`${t.estado} in ('nueva','contactada','visita','propuesta','ganada','descartada')`,
+    ),
     check(
       "chk_contact_request_mensaje",
       sql`${t.mensaje} is null or length(${t.mensaje}) between 1 and 1000`,
@@ -332,6 +403,68 @@ export const rateLimitHit = pgTable(
     conteo: integer("conteo").notNull().default(1),
   },
   (t) => [primaryKey({ columns: [t.clave, t.ventanaInicio] })],
+);
+
+// Contadores diarios por propiedad (E1-T3): una fila por (propiedad, día) en vez de una por visita.
+export const propiedadMetricaDiaria = pgTable(
+  "propiedad_metrica_diaria",
+  {
+    propiedadId: uuid("propiedad_id")
+      .notNull()
+      .references(() => propiedad.id, { onDelete: "cascade" }),
+    dia: date("dia", { mode: "string" }).notNull(),
+    impresiones: integer("impresiones").notNull().default(0),
+    visitas: integer("visitas").notNull().default(0),
+  },
+  (t) => [
+    primaryKey({ columns: [t.propiedadId, t.dia] }),
+    check("chk_metrica_no_negativa", sql`${t.impresiones} >= 0 and ${t.visitas} >= 0`),
+  ],
+);
+
+// Chat entre oferentes sobre una propiedad de la Red (E1-T6). Una conversación por par
+// (propiedad, iniciador); el otro participante es siempre el dueño de la propiedad.
+export const conversacion = pgTable(
+  "conversacion",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    propiedadId: uuid("propiedad_id")
+      .notNull()
+      .references(() => propiedad.id),
+    iniciadorId: uuid("iniciador_id")
+      .notNull()
+      .references(() => usuario.id),
+    duenoId: uuid("dueno_id")
+      .notNull()
+      .references(() => usuario.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("uq_conversacion_propiedad_iniciador").on(t.propiedadId, t.iniciadorId),
+    index("idx_conversacion_iniciador_id").on(t.iniciadorId),
+    index("idx_conversacion_dueno_id").on(t.duenoId),
+    check("chk_conversacion_participantes", sql`${t.iniciadorId} <> ${t.duenoId}`),
+  ],
+);
+
+export const mensaje = pgTable(
+  "mensaje",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    conversacionId: uuid("conversacion_id")
+      .notNull()
+      .references(() => conversacion.id, { onDelete: "cascade" }),
+    autorId: uuid("autor_id")
+      .notNull()
+      .references(() => usuario.id),
+    texto: text("texto").notNull(),
+    leidoEn: timestamp("leido_en", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("idx_mensaje_conversacion").on(t.conversacionId, t.createdAt),
+    check("chk_mensaje_texto", sql`length(btrim(${t.texto})) between 1 and 2000`),
+  ],
 );
 
 export const usuarioRelations = relations(usuario, ({ many, one }) => ({

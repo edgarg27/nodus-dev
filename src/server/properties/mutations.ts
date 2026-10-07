@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
-import { propiedad } from "../../lib/db/schema.ts";
+import { agenciaContacto, propiedad } from "../../lib/db/schema.ts";
 import { normalizeAddress } from "../../lib/normalize-address.ts";
 import {
   CAMPOS_DETALLE,
@@ -21,6 +21,13 @@ export interface CrearPropiedadInput extends DetallesPropiedadInput {
   ciudad: string;
   descripcion: string;
   aceptaFinanciamiento?: boolean;
+  // Identificación y Red inmobiliaria (panel del oferente). Nulo borra el valor.
+  referencia?: string | null;
+  titulo?: string | null;
+  contactoId?: string | null;
+  compartidaEnRed?: boolean;
+  comisionPct?: number | null;
+  exclusiva?: boolean;
 }
 
 export type EditarPropiedadInput = Partial<CrearPropiedadInput>;
@@ -40,8 +47,37 @@ function detallesParaGuardar(input: DetallesPropiedadInput, tipoFinal: string) {
   return valores as Partial<Pick<PropiedadFila, (typeof CAMPOS_DETALLE)[number]>>;
 }
 
+// Campos propios del oferente que no pasan por la revisión del admin (salvo `titulo`, que es texto
+// público y sí la reinicia).
+const CAMPOS_PROPIOS = [
+  "referencia",
+  "titulo",
+  "contactoId",
+  "compartidaEnRed",
+  "comisionPct",
+  "exclusiva",
+] as const;
+
+function camposPropiosParaGuardar(input: Partial<CrearPropiedadInput>) {
+  const valores: Partial<Pick<PropiedadFila, (typeof CAMPOS_PROPIOS)[number]>> = {};
+  for (const campo of CAMPOS_PROPIOS) {
+    if (input[campo] !== undefined) Object.assign(valores, { [campo]: input[campo] });
+  }
+  return valores;
+}
+
+// El contacto elegido tiene que ser del propio oferente: un id ajeno se rechaza.
+async function contactoEsDelOferente(oferenteId: string, contactoId: string): Promise<boolean> {
+  const [fila] = await db
+    .select({ id: agenciaContacto.id })
+    .from(agenciaContacto)
+    .where(and(eq(agenciaContacto.id, contactoId), eq(agenciaContacto.usuarioId, oferenteId)));
+  return fila !== undefined;
+}
+
 export type ErrorPropiedad =
   | { code: "forbidden"; status: 403; message: string }
+  | { code: "validation_error"; status: 422; message: string }
   | { code: "not_found"; status: 404; message: string }
   | {
       code: "conflict_duplicate_property";
@@ -65,6 +101,13 @@ function errorNotFound(): ResultadoPropiedad {
   return {
     ok: false,
     error: { code: "not_found", status: 404, message: "Propiedad no encontrada" },
+  };
+}
+
+function errorContactoInvalido(): ResultadoPropiedad {
+  return {
+    ok: false,
+    error: { code: "validation_error", status: 422, message: "El contacto elegido no es tuyo" },
   };
 }
 
@@ -95,6 +138,10 @@ export async function crearPropiedad(
   const permiso = requireRol(actor, "oferente");
   if (!permiso.ok || !actor) return errorForbidden();
 
+  if (input.contactoId && !(await contactoEsDelOferente(actor.id, input.contactoId))) {
+    return errorContactoInvalido();
+  }
+
   const direccionNormalizada = normalizeAddress(input.direccion);
   const duplicado = await buscarDuplicadoActivo(direccionNormalizada, input.lat, input.lng);
   if (duplicado) return errorDuplicado(duplicado.id);
@@ -114,6 +161,7 @@ export async function crearPropiedad(
         ciudad: input.ciudad,
         descripcion: input.descripcion,
         aceptaFinanciamiento: input.aceptaFinanciamiento ?? false,
+        ...camposPropiosParaGuardar(input),
         ...detallesParaGuardar(input, input.tipo),
       })
       .returning();
@@ -141,6 +189,10 @@ export async function editarPropiedad(
   const [existente] = await db.select().from(propiedad).where(eq(propiedad.id, id));
   if (!existente || existente.oferenteId !== actor.id) return errorNotFound();
 
+  if (parche.contactoId && !(await contactoEsDelOferente(actor.id, parche.contactoId))) {
+    return errorContactoInvalido();
+  }
+
   const cambiaUbicacion =
     (parche.direccion !== undefined && parche.direccion !== existente.direccion) ||
     (parche.lat !== undefined && String(parche.lat) !== existente.lat) ||
@@ -152,7 +204,8 @@ export async function editarPropiedad(
     (parche.modalidad !== undefined && parche.modalidad !== existente.modalidad) ||
     (parche.estado !== undefined && parche.estado !== existente.estado) ||
     (parche.ciudad !== undefined && parche.ciudad !== existente.ciudad) ||
-    (parche.descripcion !== undefined && parche.descripcion !== existente.descripcion);
+    (parche.descripcion !== undefined && parche.descripcion !== existente.descripcion) ||
+    (parche.titulo !== undefined && parche.titulo !== existente.titulo);
 
   const direccionNormalizada =
     parche.direccion !== undefined
@@ -185,6 +238,8 @@ export async function editarPropiedad(
         ...(parche.aceptaFinanciamiento !== undefined
           ? { aceptaFinanciamiento: parche.aceptaFinanciamiento }
           : {}),
+        // Referencia, contacto y datos de la Red no alteran qué espacio es: no reinician la revisión.
+        ...camposPropiosParaGuardar(parche),
         // Precio y medidas no devuelven la propiedad a revisión: cambian seguido (una baja de
         // renta, por ejemplo) y no alteran qué espacio es ni dónde está.
         ...detallesParaGuardar(parche, parche.tipo ?? existente.tipo),

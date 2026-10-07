@@ -3,8 +3,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { CODIGOS_ESTADO } from "../../../../../lib/estados.ts";
 import { detallesPropiedadSchema } from "../../../../../lib/property-details.ts";
+import { camposPropiosSchema } from "../../../../../lib/property-own-fields.ts";
 import { getUsuarioActual } from "../../../../../server/auth/session.ts";
 import { darDeBajaPropiedad, editarPropiedad } from "../../../../../server/properties/mutations.ts";
+import { proyeccionPublica } from "../../../../../server/properties/public.ts";
 import {
   obtenerPropiedadDelDuenoPorId,
   obtenerPropiedadPublicaPorId,
@@ -30,7 +32,8 @@ const editarPropiedadSchema = z
     descripcion: z.string().trim().min(1).optional(),
     aceptaFinanciamiento: z.boolean().optional(),
   })
-  .extend(detallesPropiedadSchema.shape);
+  .extend(detallesPropiedadSchema.shape)
+  .extend(camposPropiosSchema.shape);
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -62,7 +65,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
   const publica = await obtenerPropiedadPublicaPorId(id);
   if (publica) {
-    return NextResponse.json({ data: publica });
+    return NextResponse.json({ data: proyeccionPublica(publica) });
   }
 
   const actor = await getUsuarioActual();
@@ -115,6 +118,11 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     if (resultado.error.code === "not_found") {
       return NextResponse.json(errorEnvelope("not_found", resultado.error.message), {
         status: 404,
+      });
+    }
+    if (resultado.error.code === "validation_error") {
+      return NextResponse.json(errorEnvelope("validation_error", resultado.error.message), {
+        status: 422,
       });
     }
     if (resultado.error.code === "conflict_duplicate_property") {

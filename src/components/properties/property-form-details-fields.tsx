@@ -16,6 +16,11 @@ type CampoNumerico = Exclude<
   | "aceptaFinanciamiento"
   | "moneda"
   | "precioUnidad"
+  | "referencia"
+  | "titulo"
+  | "contactoId"
+  | "compartidaEnRed"
+  | "exclusiva"
 >;
 
 interface PropertyFormDetailsFieldsProps {

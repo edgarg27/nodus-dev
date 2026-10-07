@@ -6,6 +6,7 @@ import {
   eq,
   gt,
   gte,
+  ilike,
   inArray,
   lt,
   lte,
@@ -16,7 +17,13 @@ import {
 } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
 import { propiedad, propiedadFoto, usuario } from "../../lib/db/schema.ts";
+import {
+  dividirOrden,
+  type OrdenMisPropiedades,
+  POR_PAGINA_MIS_PROPIEDADES,
+} from "../../lib/mis-propiedades-params.ts";
 import type { FiltrosBusqueda, OrdenBusqueda } from "../../lib/search-params.ts";
+import { type MetricasDePropiedad, metricasPorPropiedad } from "../metrics/queries.ts";
 
 const LIMITE_MAXIMO_BUSQUEDA = 50;
 
@@ -109,7 +116,7 @@ export async function obtenerPropiedadDelDuenoPorId(oferenteId: string, id: stri
   return fila ?? null;
 }
 
-function condicionesBusquedaPublica(filtros: FiltrosBusquedaPropiedad) {
+export function condicionesBusquedaPublica(filtros: FiltrosBusquedaPropiedad) {
   const condiciones = [eq(propiedad.activo, true), eq(propiedad.estadoPublicacion, "publicada")];
   if (filtros.modalidad) condiciones.push(eq(propiedad.modalidad, filtros.modalidad));
   if (filtros.tipo) condiciones.push(eq(propiedad.tipo, filtros.tipo));
@@ -214,7 +221,7 @@ export async function buscarPropiedadesPublicas(
 
 // Los precios en MXN y en USD no se comparan entre sí: al ordenar por precio, los de MXN van
 // primero y después los de USD, cada grupo en su orden. Los espacios sin dato van al final.
-function ordenPorValorDe(orden: OrdenBusquedaPropiedad | undefined): SQL[] | null {
+export function ordenPorValorDe(orden: OrdenBusquedaPropiedad | undefined): SQL[] | null {
   if (orden === "precio_asc" || orden === "precio_desc") {
     const direccion = orden === "precio_asc" ? sql`asc` : sql`desc`;
     return [
@@ -365,4 +372,121 @@ export async function listarIdsPublicos(): Promise<{ id: string; updatedAt: Date
     .from(propiedad)
     .where(and(eq(propiedad.activo, true), eq(propiedad.estadoPublicacion, "publicada")))
     .orderBy(desc(propiedad.updatedAt));
+}
+
+export interface FiltrosMisPropiedades {
+  q?: string;
+  // Solo estas propiedades (exportar la selección de la tabla).
+  ids?: string[];
+  estadoPublicacion?: "pendiente" | "publicada" | "rechazada";
+  orden?: OrdenMisPropiedades;
+  pagina?: number;
+  // `null` trae todas las filas (exportación); por defecto, 25 por página.
+  porPagina?: number | null;
+}
+
+export interface PropiedadDelDueno extends PropiedadDestacada {
+  metricas: MetricasDePropiedad;
+}
+
+export interface ListadoMisPropiedades {
+  filas: PropiedadDelDueno[];
+  total: number;
+  pagina: number;
+  porPagina: number | null;
+  // Conteos por estado de publicación sobre la búsqueda (sin el filtro de estado).
+  conteos: Record<"todas" | "pendiente" | "publicada" | "rechazada", number>;
+}
+
+function escaparLike(texto: string): string {
+  return texto.replace(/[\\%_]/g, (caracter) => `\\${caracter}`);
+}
+
+const sumaMetrica = (columna: "impresiones" | "visitas") =>
+  sql<number>`coalesce((select sum(m.${sql.raw(columna)}) from propiedad_metrica_diaria m where m.propiedad_id = ${propiedad.id}), 0)`;
+const conteoSolicitudes = sql<number>`(select count(*) from contact_request c where c.propiedad_id = ${propiedad.id})`;
+
+function ordenMisPropiedades(orden: OrdenMisPropiedades): SQL[] {
+  const { campo, direccion } = dividirOrden(orden);
+  const dir = direccion === "asc" ? sql`asc` : sql`desc`;
+  const expresion = {
+    fecha: sql`${propiedad.createdAt}`,
+    precio: precioTotal,
+    impresiones: sumaMetrica("impresiones"),
+    visitas: sumaMetrica("visitas"),
+    solicitudes: conteoSolicitudes,
+  }[campo];
+  // Sin precio, la propiedad va al final en cualquier dirección.
+  const nulosAlFinal = campo === "precio" ? [sql`${precioTotal} is null`] : [];
+  return [...nulosAlFinal, sql`${expresion} ${dir}`, desc(propiedad.id)];
+}
+
+// "Mis propiedades" del oferente: búsqueda de texto, filtro por estado de publicación, orden por
+// columna y paginación en servidor, con las métricas de cada fila. Solo filas activas del dueño.
+export async function listarMisPropiedades(
+  oferenteId: string,
+  filtros: FiltrosMisPropiedades = {},
+): Promise<ListadoMisPropiedades> {
+  const base = [eq(propiedad.oferenteId, oferenteId), eq(propiedad.activo, true)];
+  if (filtros.ids) {
+    base.push(filtros.ids.length > 0 ? inArray(propiedad.id, filtros.ids) : sql`false`);
+  }
+  const texto = filtros.q?.trim();
+  if (texto) {
+    const patron = `%${escaparLike(texto)}%`;
+    const coincidencia = or(
+      ilike(propiedad.referencia, patron),
+      ilike(propiedad.titulo, patron),
+      ilike(propiedad.direccion, patron),
+      ilike(propiedad.ciudad, patron),
+    );
+    if (coincidencia) base.push(coincidencia);
+  }
+
+  const porEstado = await db
+    .select({ estadoPublicacion: propiedad.estadoPublicacion, total: count() })
+    .from(propiedad)
+    .where(and(...base))
+    .groupBy(propiedad.estadoPublicacion);
+  const conteos = { todas: 0, pendiente: 0, publicada: 0, rechazada: 0 };
+  for (const fila of porEstado) {
+    if (fila.estadoPublicacion in conteos) {
+      conteos[fila.estadoPublicacion as "pendiente" | "publicada" | "rechazada"] = fila.total;
+    }
+    conteos.todas += fila.total;
+  }
+
+  const condiciones = [...base];
+  if (filtros.estadoPublicacion) {
+    condiciones.push(eq(propiedad.estadoPublicacion, filtros.estadoPublicacion));
+  }
+  const total = filtros.estadoPublicacion ? conteos[filtros.estadoPublicacion] : conteos.todas;
+  const porPagina =
+    filtros.porPagina === null ? null : (filtros.porPagina ?? POR_PAGINA_MIS_PROPIEDADES);
+  const pagina = Math.max(1, filtros.pagina ?? 1);
+
+  const consulta = db
+    .select()
+    .from(propiedad)
+    .where(and(...condiciones))
+    .orderBy(...ordenMisPropiedades(filtros.orden ?? "fecha_desc"))
+    .$dynamic();
+  const filas = await (porPagina === null
+    ? consulta
+    : consulta.limit(porPagina).offset((pagina - 1) * porPagina));
+
+  const [conFoto, metricas] = await Promise.all([
+    conPrimeraFoto(filas),
+    metricasPorPropiedad(filas.map((fila) => fila.id)),
+  ]);
+  return {
+    filas: conFoto.map((fila) => ({
+      ...fila,
+      metricas: metricas.get(fila.id) ?? { impresiones: 0, visitas: 0, solicitudes: 0 },
+    })),
+    total,
+    pagina,
+    porPagina,
+    conteos,
+  };
 }
