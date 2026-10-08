@@ -4,12 +4,14 @@ import {
   Building2Icon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  EyeIcon,
   ImageIcon,
   StoreIcon,
   WarehouseIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
+import { PhotoLightbox } from "./photo-lightbox";
 
 const ICONO_POR_TIPO = {
   nave_industrial: WarehouseIcon,
@@ -23,10 +25,12 @@ interface PropertyGalleryProps {
   descripcionAlt: string;
 }
 
-// Galería de la ficha: foto grande con flechas, contador "3/12" y miniaturas.
+// Galería de la ficha: foto grande con flechas, contador "3/12" y miniaturas. El ojo (o un clic en
+// la foto) abre el visor a pantalla completa en la misma foto.
 export function PropertyGallery({ fotos, tipo, descripcionAlt }: PropertyGalleryProps) {
   const { t } = useIdioma();
   const [indice, setIndice] = useState(0);
+  const [visorAbierto, setVisorAbierto] = useState(false);
   const Icono = ICONO_POR_TIPO[tipo as keyof typeof ICONO_POR_TIPO] ?? WarehouseIcon;
 
   if (fotos.length === 0) {
@@ -49,13 +53,29 @@ export function PropertyGallery({ fotos, tipo, descripcionAlt }: PropertyGallery
     <section aria-label={t.ficha.fotos} className="flex flex-col gap-3">
       <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-primary">
         {actual ? (
-          // biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático
-          <img
-            src={actual.storageUrl}
-            alt={t.ficha.fotoDe(descripcionAlt, indice + 1, total)}
-            className="h-full w-full object-cover"
-          />
+          <button
+            type="button"
+            onClick={() => setVisorAbierto(true)}
+            aria-label={t.ficha.verGrande}
+            className="block h-full w-full cursor-zoom-in"
+          >
+            {/* biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático */}
+            <img
+              src={actual.storageUrl}
+              alt={t.ficha.fotoDe(descripcionAlt, indice + 1, total)}
+              className="h-full w-full object-cover"
+            />
+          </button>
         ) : null}
+        <button
+          type="button"
+          onClick={() => setVisorAbierto(true)}
+          aria-label={t.ficha.verGrande}
+          title={t.ficha.verGrande}
+          className="absolute top-3 right-3 flex size-10 cursor-pointer items-center justify-center rounded-full bg-primary/60 text-primary-foreground backdrop-blur transition-colors hover:bg-primary/80"
+        >
+          <EyeIcon className="size-5" aria-hidden="true" />
+        </button>
         {total > 1 ? (
           <>
             <button
@@ -102,6 +122,15 @@ export function PropertyGallery({ fotos, tipo, descripcionAlt }: PropertyGallery
           ))}
         </ul>
       ) : null}
+
+      <PhotoLightbox
+        abierto={visorAbierto}
+        onAbiertoChange={setVisorAbierto}
+        fotos={fotos}
+        indice={indice}
+        onIndiceChange={setIndice}
+        descripcionAlt={descripcionAlt}
+      />
     </section>
   );
 }
