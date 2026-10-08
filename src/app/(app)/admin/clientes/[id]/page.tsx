@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, MailIcon, PhoneIcon } from "lucide-react";
+import { ArrowLeftIcon, ChevronDownIcon, MailIcon, PhoneIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -45,6 +45,9 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
     hour: "numeric",
     minute: "2-digit",
   });
+  // Las nuevas (le llegaron a Captive) a la vista; las anteriores (directo al oferente), aparte.
+  const nuevas = cliente.solicitudes.filter((s) => s.canal === "captive");
+  const anteriores = cliente.solicitudes.filter((s) => s.canal === "directo");
   const etiquetaSolicitud = new Map(
     cliente.solicitudes.map((s) => [s.id, s.propiedad.titulo ?? s.propiedad.direccion]),
   );
@@ -86,14 +89,14 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
       <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
         <section className="flex flex-col gap-4" aria-labelledby="titulo-solicitudes">
           <h2 id="titulo-solicitudes" className="text-lg font-bold text-text">
-            {textos.solicitudesTitulo} · {cliente.solicitudes.length}
+            {textos.solicitudesTitulo} · {nuevas.length}
           </h2>
-          {cliente.solicitudes.length === 0 ? (
+          {nuevas.length === 0 ? (
             <p className="rounded-2xl border border-dashed border-border bg-surface px-6 py-10 text-center text-sm text-text-muted">
-              {textos.sinSolicitudesTexto}
+              {anteriores.length > 0 ? textos.sinNuevas : textos.sinSolicitudesTexto}
             </p>
           ) : (
-            cliente.solicitudes.map((solicitud) => (
+            nuevas.map((solicitud) => (
               <SolicitudClienteCard
                 key={solicitud.id}
                 solicitud={solicitud}
@@ -103,6 +106,36 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
               />
             ))
           )}
+
+          {anteriores.length > 0 ? (
+            // Las que le llegaron directo al oferente antes del cambio: cerradas hasta que se
+            // pidan, para no mezclarlas con las nuevas.
+            <details className="group flex flex-col gap-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl border border-border bg-surface px-5 py-4 text-sm font-semibold text-text transition-colors hover:border-primary [&::-webkit-details-marker]:hidden">
+                <span className="flex flex-col gap-0.5">
+                  {textos.anteriores(anteriores.length)}
+                  <span className="text-xs font-normal text-text-muted">
+                    {textos.anterioresAyuda}
+                  </span>
+                </span>
+                <ChevronDownIcon
+                  className="size-4 shrink-0 text-text-muted transition-transform duration-200 ease-out group-open:rotate-180"
+                  aria-hidden="true"
+                />
+              </summary>
+              <div className="mt-4 flex flex-col gap-4">
+                {anteriores.map((solicitud) => (
+                  <SolicitudClienteCard
+                    key={solicitud.id}
+                    solicitud={solicitud}
+                    textos={textos}
+                    etiquetas={t.etiquetas}
+                    formatoFecha={formatoFecha}
+                  />
+                ))}
+              </div>
+            </details>
+          ) : null}
         </section>
 
         <aside className="flex flex-col gap-6">

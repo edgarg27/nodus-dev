@@ -503,6 +503,10 @@ export const es = {
       etapaGuardada: "Etapa actualizada.",
       errorGuardar: "No se pudo guardar. Intenta de nuevo.",
       solicitudesTitulo: "Solicitudes",
+      sinNuevas: "No tiene solicitudes nuevas.",
+      anteriores: (n: number) => `Solicitudes anteriores · ${n}`,
+      anterioresAyuda:
+        "Le llegaron directo al broker, antes de que las solicitudes pasaran por Captive.",
       sinSolicitudesTexto:
         "Este cliente se registró pero todavía no pide informes de ningún espacio.",
       verEspacio: "Ver espacio",

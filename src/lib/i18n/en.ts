@@ -499,6 +499,9 @@ export const en: Textos = {
       etapaGuardada: "Stage updated.",
       errorGuardar: "Could not save. Please try again.",
       solicitudesTitulo: "Requests",
+      sinNuevas: "No new requests.",
+      anteriores: (n: number) => `Earlier requests · ${n}`,
+      anterioresAyuda: "These went directly to the broker, before requests went through Captive.",
       sinSolicitudesTexto:
         "This client signed up but has not requested information on any space yet.",
       verEspacio: "View space",
