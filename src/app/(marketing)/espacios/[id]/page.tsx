@@ -5,17 +5,20 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import { cache } from "react";
+import { AgencyAdvertiser } from "@/components/agency/agency-advertiser";
 import { AgencyByline } from "@/components/agency/agency-byline";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { PropertyContactPanel } from "@/components/properties/property-contact-panel";
 import { PropertyDetailMap } from "@/components/properties/property-detail-map";
 import { PropertyGallery } from "@/components/properties/property-gallery";
+import { PropertyKeyFacts } from "@/components/properties/property-key-facts";
+import { localeDe } from "@/lib/i18n";
 import {
+  datosClave,
   ETIQUETA_ESTADO,
   especificaciones,
   extraerDetalles,
   formatearPrecio,
-  resumenDetalles,
   tituloEspacio,
 } from "@/lib/property-details";
 import { obtenerIdentidadPublica } from "@/server/agency/queries";
@@ -110,6 +113,18 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
     obtenerIdentidadPublica(propiedad.oferenteId),
   ]);
   const esFavorito = favoritos.length > 0;
+  const anunciante = {
+    nombre: agencia.nombre,
+    logoUrl: agencia.logoUrl,
+    esBroker: agencia.esBroker,
+  };
+  const miembroDesde = agencia.miembroDesde
+    ? t.ficha.miembroDesde(
+        new Intl.DateTimeFormat(localeDe(idioma), { month: "long", year: "numeric" }).format(
+          agencia.miembroDesde,
+        ),
+      )
+    : null;
   const estadoEtiqueta = ETIQUETA_ESTADO[propiedad.estado] ?? propiedad.estado;
   const lugar =
     propiedad.ciudad === estadoEtiqueta
@@ -179,21 +194,17 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
               </p>
               <AgencyByline
                 nombre={agencia.nombre}
+                logoUrl={agencia.logoUrl}
                 esBroker={agencia.esBroker}
                 etiquetaPublicadoPor={t.ficha.publicadoPor}
                 etiquetaBroker={t.ficha.brokerVerificado}
               />
-              <ul className="flex flex-wrap gap-1.5 pt-1" aria-label={t.ficha.datosPrincipales}>
-                {resumenDetalles(detalles, propiedad.tipo, idioma).map((etiqueta) => (
-                  <li
-                    key={etiqueta}
-                    className="rounded-full bg-surface px-3 py-1 text-[13px] font-medium text-text"
-                  >
-                    {etiqueta}
-                  </li>
-                ))}
-              </ul>
             </header>
+
+            <PropertyKeyFacts
+              datos={datosClave(detalles, propiedad.tipo, idioma)}
+              etiqueta={t.ficha.datosPrincipales}
+            />
 
             <div className="lg:hidden">
               <PropertyContactPanel
@@ -205,6 +216,7 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
                 tipo={propiedad.tipo}
                 aceptaFinanciamiento={propiedad.aceptaFinanciamiento}
                 haySimilares={similares.length > 0}
+                anunciante={anunciante}
               />
             </div>
 
@@ -229,6 +241,19 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
                 {propiedad.descripcion}
               </p>
             </section>
+
+            <AgencyAdvertiser
+              nombre={agencia.nombre}
+              logoUrl={agencia.logoUrl}
+              descripcion={agencia.descripcion}
+              esBroker={agencia.esBroker}
+              textos={{
+                titulo: t.ficha.anunciante,
+                broker: t.ficha.brokerVerificado,
+                espaciosPublicados: t.ficha.espaciosPublicados(agencia.espaciosPublicados),
+                miembroDesde,
+              }}
+            />
 
             <section className="flex flex-col gap-3">
               <h2 className="text-lg font-bold text-text">{t.ficha.ubicacion}</h2>
@@ -287,6 +312,7 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
                 tipo={propiedad.tipo}
                 aceptaFinanciamiento={propiedad.aceptaFinanciamiento}
                 haySimilares={similares.length > 0}
+                anunciante={anunciante}
               />
             </div>
           </aside>

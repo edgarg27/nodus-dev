@@ -1,9 +1,10 @@
 import { ShieldCheckIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { AgencyAvatar } from "@/components/agency/agency-avatar";
 import { AgencyContacts } from "@/components/agency/agency-contacts";
+import { AgencyLogoField } from "@/components/agency/agency-logo-field";
 import { AgencyProfileForm } from "@/components/agency/agency-profile-form";
-import { iniciales } from "@/lib/initials";
 import { listarContactosDeAgencia, obtenerPerfilAgencia } from "@/server/agency/queries";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
@@ -29,9 +30,11 @@ export default async function PerfilPage() {
     <main className="w-full py-10">
       <div className="mx-auto flex w-full max-w-[860px] flex-col gap-7 px-4">
         <header className="flex items-center gap-4">
-          <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-primary font-display text-xl font-bold text-primary-foreground">
-            {iniciales(perfil.nombre) || "?"}
-          </span>
+          <AgencyAvatar
+            nombre={perfil.nombre}
+            logoUrl={perfil.logoUrl}
+            className="size-16 rounded-2xl text-xl"
+          />
           <div className="flex flex-col gap-1">
             <h1 className="font-display text-[26px] font-bold text-foreground">{a.titulo}</h1>
             {actor.isBroker ? (
@@ -43,6 +46,7 @@ export default async function PerfilPage() {
           </div>
         </header>
 
+        <AgencyLogoField nombre={perfil.nombre} logoUrl={perfil.logoUrl} />
         <AgencyProfileForm nombre={perfil.nombre} descripcion={perfil.descripcion} />
         <AgencyContacts
           contactos={contactos.map(({ id, tipo, valor, propiedadesAsociadas }) => ({

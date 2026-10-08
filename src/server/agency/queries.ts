@@ -100,10 +100,31 @@ export async function nombresDeAgencia(usuarioIds: string[]): Promise<Map<string
 }
 
 // Identidad que se muestra en la ficha pública: nombre de la agencia y si es broker aprobado.
+// También alimenta "Información del anunciante": descripción, antigüedad y espacios publicados.
 export async function obtenerIdentidadPublica(oferenteId: string) {
-  const [perfil, [cuenta]] = await Promise.all([
+  const [perfil, [cuenta], [publicadas]] = await Promise.all([
     obtenerPerfilAgencia(oferenteId),
-    db.select({ isBroker: usuario.isBroker }).from(usuario).where(eq(usuario.id, oferenteId)),
+    db
+      .select({ isBroker: usuario.isBroker, createdAt: usuario.createdAt })
+      .from(usuario)
+      .where(eq(usuario.id, oferenteId)),
+    db
+      .select({ total: count() })
+      .from(propiedad)
+      .where(
+        and(
+          eq(propiedad.oferenteId, oferenteId),
+          eq(propiedad.activo, true),
+          eq(propiedad.estadoPublicacion, "publicada"),
+        ),
+      ),
   ]);
-  return { nombre: perfil.nombre, logoUrl: perfil.logoUrl, esBroker: cuenta?.isBroker ?? false };
+  return {
+    nombre: perfil.nombre,
+    descripcion: perfil.descripcion,
+    logoUrl: perfil.logoUrl,
+    esBroker: cuenta?.isBroker ?? false,
+    miembroDesde: cuenta?.createdAt ?? null,
+    espaciosPublicados: publicadas?.total ?? 0,
+  };
 }
