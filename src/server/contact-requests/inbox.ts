@@ -1,6 +1,6 @@
-import { and, desc, eq, ilike, or } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
-import { contactRequest, propiedad, usuario } from "../../lib/db/schema.ts";
+import { contactRequest, conversacion, propiedad, usuario } from "../../lib/db/schema.ts";
 import { ESTADOS_LEAD, type EstadoLead, POR_PAGINA_LEADS } from "../../lib/leads.ts";
 import { obtenerPrimerasFotos } from "../properties/queries.ts";
 
@@ -26,6 +26,8 @@ export interface PersonaLead {
   ultimaFecha: Date;
   quiereFinanciamiento: boolean;
   ultimoMensaje: string | null;
+  // Chat con esta persona sobre su propiedad más reciente, para responderle ahí mismo.
+  conversacionId: string | null;
   propiedades: PropiedadDeLead[];
 }
 
@@ -111,6 +113,7 @@ export async function listarBandejaDelOferente(
         ultimaFecha: fila.createdAt,
         quiereFinanciamiento: false,
         ultimoMensaje: fila.mensaje,
+        conversacionId: null,
         propiedades: [],
       };
       personas.set(fila.buscadorId, persona);
@@ -157,6 +160,30 @@ export async function listarBandejaDelOferente(
   for (const persona of visibles) {
     for (const propiedadDeLead of persona.propiedades) {
       propiedadDeLead.fotoUrl = fotos.get(propiedadDeLead.id)?.storageUrl ?? null;
+    }
+  }
+
+  // Las propiedades de cada persona vienen de la más reciente a la más antigua: el chat de la
+  // primera que tenga conversación es el que se abre desde la bandeja.
+  const buscadores = visibles.map((persona) => persona.buscadorId);
+  if (buscadores.length > 0) {
+    const chats = await db
+      .select({
+        id: conversacion.id,
+        buscadorId: conversacion.iniciadorId,
+        propiedadId: conversacion.propiedadId,
+      })
+      .from(conversacion)
+      .where(
+        and(eq(conversacion.duenoId, oferenteId), inArray(conversacion.iniciadorId, buscadores)),
+      );
+    for (const persona of visibles) {
+      const chat = persona.propiedades
+        .map((p) =>
+          chats.find((c) => c.buscadorId === persona.buscadorId && c.propiedadId === p.id),
+        )
+        .find(Boolean);
+      persona.conversacionId = chat?.id ?? null;
     }
   }
 

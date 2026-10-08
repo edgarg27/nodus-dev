@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { idiomaDeCookies, textosDe } from "../../../../lib/i18n/index.ts";
 import { getUsuarioActual } from "../../../../server/auth/session.ts";
 import { crearContactRequest } from "../../../../server/contact-requests/mutations.ts";
 import { obtenerIpCliente, verificarLimite } from "../../../../server/rate-limit/check.ts";
@@ -59,6 +60,8 @@ export async function POST(request: Request) {
     propiedadId: parsed.data.propiedad_id,
     quiereFinanciamiento: parsed.data.quiere_financiamiento,
     mensaje: parsed.data.mensaje,
+    mensajeInicial: textosDe(idiomaDeCookies(request.headers.get("cookie"))).contacto
+      .mensajeInicial,
   });
   if (!resultado.ok) {
     return NextResponse.json(errorEnvelope(resultado.error.code, resultado.error.message), {
@@ -70,6 +73,7 @@ export async function POST(request: Request) {
     {
       data: {
         id: resultado.data.id,
+        conversacion_id: resultado.data.conversacionId,
         telefono_oferente: resultado.data.telefonoOferente,
         whatsapp_url: resultado.data.whatsappUrl,
       },

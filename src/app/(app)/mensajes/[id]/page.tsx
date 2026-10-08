@@ -2,7 +2,6 @@ import { ChevronLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChatThread } from "@/components/messages/chat-thread";
-import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import { esUuid } from "@/server/http/envelope";
 import { obtenerTextos } from "@/server/i18n";
@@ -15,8 +14,7 @@ interface ConversacionPageProps {
 export default async function ConversacionPage({ params }: ConversacionPageProps) {
   const { id } = await params;
   const actor = await getUsuarioActual();
-  const permiso = requireRol(actor, "oferente");
-  if (!permiso.ok || !actor || !esUuid(id)) notFound();
+  if (!actor || (actor.rol !== "oferente" && actor.rol !== "buscador") || !esUuid(id)) notFound();
 
   // Abrirla marca como leídos los mensajes del otro participante.
   const resultado = await obtenerConversacion(actor, id);

@@ -55,7 +55,11 @@ function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): EnlaceNav[]
       ...guardados,
     ];
   }
-  return [{ href: "/buscar", etiqueta: t.buscarEspacios }, ...guardados];
+  return [
+    { href: "/buscar", etiqueta: t.buscarEspacios },
+    { href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos },
+    ...guardados,
+  ];
 }
 
 export function SiteHeader({ actor }: SiteHeaderProps) {
