@@ -15,12 +15,16 @@ export interface LeadOferente {
 }
 
 // Siempre filtra por `oferente_id === actor.id` — un `propiedadId` que no pertenece al oferente
-// se ignora en vez de devolver los leads de otro dueño (§14).
+// se ignora en vez de devolver los leads de otro dueño (§14). Solo canal "directo": las solicitudes
+// nuevas llegan únicamente a Captive.
 export async function listarLeadsDelOferente(
   oferenteId: string,
   propiedadId?: string,
 ): Promise<LeadOferente[]> {
-  const condiciones = [eq(contactRequest.oferenteId, oferenteId)];
+  const condiciones = [
+    eq(contactRequest.oferenteId, oferenteId),
+    eq(contactRequest.canal, "directo"),
+  ];
 
   if (propiedadId) {
     const [propiedadPropia] = await db

@@ -9,7 +9,9 @@ vi.mock("../../../src/server/auth/session.ts", async (importOriginal) => {
 
 const { getUsuarioActual } = await import("../../../src/server/auth/session.ts");
 const { db } = await import("../../../src/lib/db/client.ts");
-const { contactRequest, propiedad, usuario } = await import("../../../src/lib/db/schema.ts");
+const { contactRequest, conversacion, propiedad, seguimientoCliente, usuario } = await import(
+  "../../../src/lib/db/schema.ts"
+);
 const { resetTestDatabase } = await import("../../helpers/reset-db.ts");
 const { POST } = await import("../../../src/app/api/v1/contact-requests/route.ts");
 
@@ -231,7 +233,7 @@ describe("POST /api/v1/contact-requests", () => {
     expect(leadNuevo?.brokerId).toBeNull();
   });
 
-  it("respuesta exitosa incluye teléfono y whatsapp_url del oferente dueño", async () => {
+  it("la solicitud llega solo a Captive: sin teléfono, WhatsApp ni chat con el oferente", async () => {
     await resetTestDatabase();
     const oferente = actorFixture("oferente");
     await insertarUsuario(oferente, { telefono: "444 123 4567" });
@@ -245,8 +247,37 @@ describe("POST /api/v1/contact-requests", () => {
     const respuesta = await POST(request({ propiedad_id: propia.id, quiere_financiamiento: true }));
     expect(respuesta.status).toBe(201);
     const cuerpo = await respuesta.json();
-    expect(cuerpo.data.telefono_oferente).toBe("444 123 4567");
-    expect(cuerpo.data.whatsapp_url).toContain("4441234567");
+    expect(cuerpo.data.telefono_oferente).toBeNull();
+    expect(cuerpo.data.whatsapp_url).toBeNull();
+    expect(cuerpo.data.conversacion_id).toBeNull();
+
+    const [lead] = await db
+      .select()
+      .from(contactRequest)
+      .where(eq(contactRequest.propiedadId, propia.id));
+    expect(lead?.canal).toBe("captive");
+    expect(await db.select().from(conversacion)).toHaveLength(0);
+  });
+
+  it("una solicitud nueva regresa al cliente a pendiente en el seguimiento de Captive", async () => {
+    await resetTestDatabase();
+    const oferente = actorFixture("oferente");
+    await insertarUsuario(oferente);
+    const [propia] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+    if (!propia) throw new Error("fixture no se creó");
+
+    const buscador = actorFixture("buscador");
+    await insertarUsuario(buscador);
+    await db.insert(seguimientoCliente).values({ buscadorId: buscador.id, estado: "cerrado" });
+    actuarComo(buscador);
+
+    const respuesta = await POST(request({ propiedad_id: propia.id }));
+    expect(respuesta.status).toBe(201);
+    const [seguimiento] = await db
+      .select()
+      .from(seguimientoCliente)
+      .where(eq(seguimientoCliente.buscadorId, buscador.id));
+    expect(seguimiento?.estado).toBe("pendiente");
   });
 });
 
@@ -263,13 +294,11 @@ describe("POST /api/v1/contact-requests — mensaje", () => {
     return propia;
   }
 
-  it("guarda el mensaje en el lead y lo precarga en el enlace de WhatsApp", async () => {
+  it("guarda el mensaje (recortado) en la solicitud", async () => {
     const propia = await preparar();
     const mensaje = "¿Sigue disponible?\n¿Cuándo puedo visitarlo?";
     const respuesta = await POST(request({ propiedad_id: propia.id, mensaje: `  ${mensaje}  ` }));
     expect(respuesta.status).toBe(201);
-    const cuerpo = await respuesta.json();
-    expect(cuerpo.data.whatsapp_url).toContain(`?text=${encodeURIComponent(mensaje)}`);
 
     const [lead] = await db
       .select()
@@ -278,12 +307,10 @@ describe("POST /api/v1/contact-requests — mensaje", () => {
     expect(lead?.mensaje).toBe(mensaje);
   });
 
-  it("sin mensaje (o solo espacios) guarda null y usa un texto que identifica el espacio", async () => {
+  it("sin mensaje (o solo espacios) guarda null", async () => {
     const propia = await preparar();
     const respuesta = await POST(request({ propiedad_id: propia.id, mensaje: "   " }));
     expect(respuesta.status).toBe(201);
-    const cuerpo = await respuesta.json();
-    expect(decodeURIComponent(cuerpo.data.whatsapp_url)).toContain(propia.direccion);
 
     const [lead] = await db
       .select()

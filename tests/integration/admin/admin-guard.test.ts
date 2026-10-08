@@ -59,12 +59,13 @@ describe("AdminLayout (capa 2: layout de administración)", () => {
     });
   });
 
-  it("un admin recibe el árbol con los enlaces a Propiedades y Brokers", async () => {
+  it("un admin recibe el árbol con los enlaces a Propiedades, Brokers y Clientes", async () => {
     actuarComo(actorFixture("admin"));
     const arbol = await AdminLayout({ children: null });
     const html = renderToStaticMarkup(arbol);
     expect(html).toContain("/admin/propiedades");
     expect(html).toContain("/admin/brokers");
+    expect(html).toContain("/admin/clientes");
   });
 });
 

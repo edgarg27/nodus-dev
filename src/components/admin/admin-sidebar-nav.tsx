@@ -1,6 +1,6 @@
 "use client";
 
-import { ShieldCheckIcon, UsersIcon, WarehouseIcon } from "lucide-react";
+import { ShieldCheckIcon, UserRoundSearchIcon, UsersIcon, WarehouseIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useIdioma } from "@/components/i18n/idioma-provider";
@@ -9,6 +9,8 @@ interface AdminSidebarNavProps {
   pendingPropertiesCount: number;
   pendingRequestsCount: number;
   activeBrokersCount: number;
+  // Clientes con solicitudes para Captive que siguen pendientes.
+  pendingClientsCount: number;
 }
 
 const ITEMS = [
@@ -27,12 +29,18 @@ const ITEMS = [
     icon: ShieldCheckIcon,
     key: "brokers" as const,
   },
+  {
+    href: "/admin/clientes",
+    icon: UserRoundSearchIcon,
+    key: "clientes" as const,
+  },
 ];
 
 export function AdminSidebarNav({
   pendingPropertiesCount,
   pendingRequestsCount,
   activeBrokersCount,
+  pendingClientsCount,
 }: AdminSidebarNavProps) {
   const { t } = useIdioma();
   const pathname = usePathname();
@@ -40,6 +48,7 @@ export function AdminSidebarNav({
     propiedades: pendingPropertiesCount,
     requests: pendingRequestsCount,
     brokers: activeBrokersCount,
+    clientes: pendingClientsCount,
   };
 
   return (

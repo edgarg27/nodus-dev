@@ -134,6 +134,20 @@
       "when": 1791489580983,
       "tag": "0018_clear_colonel_america",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1791498783586,
+      "tag": "0019_clientes_prospectos",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1791498784751,
+      "tag": "0020_clientes_prospectos_lockdown",
+      "breakpoints": true
     }
   ]
 }

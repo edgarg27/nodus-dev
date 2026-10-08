@@ -7,6 +7,7 @@ import { iniciales } from "@/lib/initials";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import { listarBrokersActivos, listarPendientes } from "@/server/broker-requests/queries";
+import { contarClientesPendientes } from "@/server/clientes/queries";
 import { obtenerTextos } from "@/server/i18n";
 import { listarPendientesDeRevision } from "@/server/properties/queries";
 
@@ -16,11 +17,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!permiso.ok || !actor) notFound();
 
   const a = (await obtenerTextos()).t.admin;
-  const [propiedadesPendientes, solicitudesPendientes, brokersActivos] = await Promise.all([
-    listarPendientesDeRevision(),
-    listarPendientes(),
-    listarBrokersActivos(),
-  ]);
+  const [propiedadesPendientes, solicitudesPendientes, brokersActivos, clientesPendientes] =
+    await Promise.all([
+      listarPendientesDeRevision(),
+      listarPendientes(),
+      listarBrokersActivos(),
+      contarClientesPendientes(),
+    ]);
 
   return (
     <AdminToastProvider>
@@ -57,6 +60,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             pendingPropertiesCount={propiedadesPendientes.length}
             pendingRequestsCount={solicitudesPendientes.length}
             activeBrokersCount={brokersActivos.length}
+            pendingClientsCount={clientesPendientes}
           />
           <main className="flex min-w-0 grow flex-col gap-6 overflow-y-auto px-10 pt-8 pb-16 max-md:px-5 max-md:pt-6">
             {children}

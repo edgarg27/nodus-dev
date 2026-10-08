@@ -11,8 +11,9 @@ export interface ContactoRevelado {
   whatsappUrl: string | null;
 }
 
-// Lógica de "Contactar" compartida por la tarjeta de resultados y la ficha del espacio: crea el
-// lead en POST /api/v1/contact-requests y revela el teléfono del oferente. Sin sesión, manda a
+// Lógica de "Contactar" compartida por la tarjeta de resultados y la ficha del espacio: crea la
+// solicitud en POST /api/v1/contact-requests, que le llega al equipo de Captive (la API ya no
+// devuelve teléfono ni chat del oferente; los campos siguen por compatibilidad). Sin sesión, manda a
 // iniciar sesión y regresa a la página actual.
 export function useContactarPropiedad(propiedadId: string) {
   const { idioma, t } = useIdioma();

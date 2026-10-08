@@ -101,6 +101,14 @@ test.beforeAll(async () => {
     buscadorId: buscador.id,
     propiedadId: publicada.id,
     oferenteId: oferenteConLead.id,
+    // Le llegó al oferente (bandeja /leads); otra igual de canal "captive" llena la lista de Captive.
+    canal: "directo",
+  });
+  await db.insert(contactRequest).values({
+    buscadorId: buscador.id,
+    propiedadId: publicada.id,
+    oferenteId: oferenteConLead.id,
+    canal: "captive",
   });
 
   brokerActivo = await crearOferente("Broker activo a11y", {
@@ -129,6 +137,7 @@ const RUTAS_AUTENTICADAS: Array<{
   { ruta: "/admin/propiedades", login: async () => admin },
   { ruta: "/admin/broker-requests", login: async () => admin },
   { ruta: "/admin/brokers", login: async () => admin },
+  { ruta: "/admin/clientes", login: async () => admin },
 ];
 
 for (const { ruta, login } of RUTAS_AUTENTICADAS) {

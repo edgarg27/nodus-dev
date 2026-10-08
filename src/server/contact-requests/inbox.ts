@@ -57,12 +57,16 @@ function escaparLike(texto: string): string {
   return texto.replace(/[\\%_]/g, (caracter) => `\\${caracter}`);
 }
 
-// Bandeja de entrada: leads agrupados por persona. Siempre filtra por `oferente_id`.
+// Bandeja de entrada: leads agrupados por persona. Siempre filtra por `oferente_id`, y solo las
+// solicitudes de canal "directo" (las nuevas llegan solo a Captive).
 export async function listarBandejaDelOferente(
   oferenteId: string,
   opciones: OpcionesBandeja = {},
 ): Promise<BandejaLeads> {
-  const condiciones = [eq(contactRequest.oferenteId, oferenteId)];
+  const condiciones = [
+    eq(contactRequest.oferenteId, oferenteId),
+    eq(contactRequest.canal, "directo"),
+  ];
   const texto = opciones.q?.trim();
   if (texto) {
     const patron = `%${escaparLike(texto)}%`;

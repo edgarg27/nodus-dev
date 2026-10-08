@@ -304,6 +304,11 @@ export const contactRequest = pgTable(
     // Embudo de seguimiento del oferente (E1-T4). Se cambia por persona: todas las solicitudes de
     // un buscador a un mismo oferente comparten estado.
     estado: text("estado").notNull().default("nueva"),
+    // A quién llega la solicitud. "captive": solo al equipo de Captive (Clientes y prospectos del
+    // panel de administración), que confirma la disponibilidad con el oferente; el oferente no la ve
+    // ni se abre chat con él. "directo": las anteriores a ese cambio (migraciones 0019 y 0020), que siguen en
+    // la bandeja del oferente.
+    canal: text("canal").notNull().default("captive"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
@@ -311,6 +316,7 @@ export const contactRequest = pgTable(
       "chk_contact_request_estado",
       sql`${t.estado} in ('nueva','contactada','visita','propuesta','ganada','descartada')`,
     ),
+    check("chk_contact_request_canal", sql`${t.canal} in ('directo','captive')`),
     check(
       "chk_contact_request_mensaje",
       sql`${t.mensaje} is null or length(${t.mensaje}) between 1 and 1000`,
@@ -318,6 +324,54 @@ export const contactRequest = pgTable(
     index("idx_contact_request_oferente_id").on(t.oferenteId),
     index("idx_contact_request_broker_id").on(t.brokerId).where(sql`${t.brokerId} is not null`),
     index("idx_contact_request_propiedad_id").on(t.propiedadId),
+  ],
+);
+
+// Seguimiento de Captive a cada cliente (buscador) en "Clientes y prospectos". Sin fila = pendiente.
+// Una solicitud nueva del cliente lo regresa a "pendiente".
+export const seguimientoCliente = pgTable(
+  "seguimiento_cliente",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    buscadorId: uuid("buscador_id")
+      .notNull()
+      .unique()
+      .references(() => usuario.id),
+    estado: text("estado").notNull().default("pendiente"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    check(
+      "chk_seguimiento_cliente_estado",
+      sql`${t.estado} in ('pendiente','seguimiento','cerrado')`,
+    ),
+  ],
+);
+
+// Bitácora de seguimiento de Captive: llamadas al broker, al cliente o notas. Solo INSERT.
+export const seguimientoNota = pgTable(
+  "seguimiento_nota",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    buscadorId: uuid("buscador_id")
+      .notNull()
+      .references(() => usuario.id),
+    // Solicitud de la que trata la nota (opcional: también hay notas generales del cliente).
+    contactRequestId: uuid("contact_request_id").references(() => contactRequest.id),
+    autorId: uuid("autor_id")
+      .notNull()
+      .references(() => usuario.id),
+    tipo: text("tipo").notNull(),
+    texto: text("texto").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    check(
+      "chk_seguimiento_nota_tipo",
+      sql`${t.tipo} in ('llamada_broker','llamada_cliente','nota')`,
+    ),
+    check("chk_seguimiento_nota_texto", sql`length(${t.texto}) between 1 and 2000`),
+    index("idx_seguimiento_nota_buscador_id").on(t.buscadorId),
   ],
 );
 
