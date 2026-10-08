@@ -114,6 +114,52 @@ export function resumenDetalles(
   return etiquetas;
 }
 
+// Datos clave de la ficha, con un ícono cada uno (franja bajo el título): superficies, baños,
+// estacionamientos y, en naves, altura libre, andenes y carga eléctrica. Omite lo no capturado.
+export type ClaveDatoFicha =
+  | "terreno"
+  | "construida"
+  | "banos"
+  | "estacionamientos"
+  | "altura"
+  | "andenes"
+  | "kva";
+
+export function datosClave(
+  detalles: DetallesPropiedad,
+  tipo: string,
+  idioma: Idioma = "es",
+): { clave: ClaveDatoFicha; texto: string }[] {
+  const t = textosDe(idioma).detalles;
+  const datos: { clave: ClaveDatoFicha; texto: string }[] = [];
+  const numero = (valor: number) => formatoNumero(valor, 0, idioma);
+  if (detalles.superficieTerrenoM2 !== null) {
+    datos.push({ clave: "terreno", texto: t.m2Terreno(numero(detalles.superficieTerrenoM2)) });
+  }
+  if (detalles.superficieConstruidaM2 !== null) {
+    datos.push({
+      clave: "construida",
+      texto: t.m2Construidos(numero(detalles.superficieConstruidaM2)),
+    });
+  }
+  if (detalles.banos !== null) datos.push({ clave: "banos", texto: t.banos(detalles.banos) });
+  if (detalles.estacionamientos !== null) {
+    datos.push({ clave: "estacionamientos", texto: t.estacionamientos(detalles.estacionamientos) });
+  }
+  if (tipo === "nave_industrial") {
+    if (detalles.alturaLibreM !== null) {
+      datos.push({ clave: "altura", texto: t.alturaLibre(numero(detalles.alturaLibreM)) });
+    }
+    if (detalles.andenes !== null) {
+      datos.push({ clave: "andenes", texto: t.andenes(detalles.andenes) });
+    }
+    if (detalles.potenciaKva !== null) {
+      datos.push({ clave: "kva", texto: `${numero(detalles.potenciaKva)} kVA` });
+    }
+  }
+  return datos;
+}
+
 // Filas "etiqueta: valor" para la ficha del espacio; omite lo que no se capturó.
 export function especificaciones(
   detalles: DetallesPropiedad,
