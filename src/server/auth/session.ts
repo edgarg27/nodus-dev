@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
+import { datosOferenteDeMetadata } from "../../lib/auth/datos-oferente.ts";
 import { db } from "../../lib/db/client.ts";
-import { usuario } from "../../lib/db/schema.ts";
+import { agenciaPerfil, usuario } from "../../lib/db/schema.ts";
 import { createClient } from "../../lib/supabase/server.ts";
 
 export interface ActorAutenticado {
@@ -62,10 +63,29 @@ export async function getUsuarioActual(): Promise<ActorAutenticado | null> {
     if (broker?.isBroker) referralBrokerId = broker.id;
   }
 
-  await db
+  // El oferente deja en el registro teléfono, cómo publica y, si es inmobiliaria, su nombre (que se
+  // vuelve el nombre de su agencia). Datos inválidos se ignoran: los puede completar en su perfil.
+  const datosOferente = rol === "oferente" ? datosOferenteDeMetadata(metadata) : null;
+
+  const insertados = await db
     .insert(usuario)
-    .values({ id, email, nombre, rol, referralBrokerId })
-    .onConflictDoNothing();
+    .values({
+      id,
+      email,
+      nombre,
+      rol,
+      referralBrokerId,
+      telefono: datosOferente?.telefono ?? null,
+      tipoAnunciante: datosOferente?.tipoAnunciante ?? null,
+    })
+    .onConflictDoNothing()
+    .returning({ id: usuario.id });
+  if (insertados.length > 0 && datosOferente?.empresa) {
+    await db
+      .insert(agenciaPerfil)
+      .values({ usuarioId: id, nombre: datosOferente.empresa })
+      .onConflictDoNothing();
+  }
 
   const [fila] = await db.select().from(usuario).where(eq(usuario.id, id));
   if (!fila) return null;

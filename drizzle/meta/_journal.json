@@ -127,6 +127,13 @@
       "when": 1791397616616,
       "tag": "0017_red_chat_metricas_lockdown",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1791489580983,
+      "tag": "0018_clear_colonel_america",
+      "breakpoints": true
     }
   ]
 }

@@ -250,6 +250,9 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
               textos={{
                 titulo: t.ficha.anunciante,
                 broker: t.ficha.brokerVerificado,
+                tipoAnunciante: agencia.tipoAnunciante
+                  ? (t.ficha.tipoAnunciante[agencia.tipoAnunciante] ?? null)
+                  : null,
                 espaciosPublicados: t.ficha.espaciosPublicados(agencia.espaciosPublicados),
                 miembroDesde,
               }}

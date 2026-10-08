@@ -64,6 +64,16 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Cuenta confirmada que aún no crea su contraseña (el registro no la pide): primero eso.
+  const metadata = (data.claims as { user_metadata?: { crear_password?: unknown } }).user_metadata;
+  if (metadata?.crear_password === true && !esApiAdmin) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/crear-contrasena";
+    url.search = "";
+    url.searchParams.set("next", request.nextUrl.pathname);
+    return NextResponse.redirect(url);
+  }
+
   if (esSuperficieAdmin) {
     const claims = data.claims as { sub: string };
     // Import dinámico, solo en esta rama: el proxy corre en el runtime de Node.js (verificado por

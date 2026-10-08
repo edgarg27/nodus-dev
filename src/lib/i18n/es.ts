@@ -35,6 +35,7 @@ export const es = {
     en: "English",
   },
   header: {
+    publicarEspacio: "Publica tu espacio",
     buscar: "Buscar",
     iniciarSesion: "Iniciar sesión",
     crearCuenta: "Crear cuenta",
@@ -259,6 +260,10 @@ export const es = {
     verConversacion: "Continuar la conversación en Mensajes",
   },
   ficha: {
+    tipoAnunciante: { particular: "Dueño directo", inmobiliaria: "Inmobiliaria" } as Record<
+      string,
+      string
+    >,
     fotos: "Fotos del espacio",
     fotoAnterior: "Foto anterior",
     fotoSiguiente: "Foto siguiente",
@@ -468,6 +473,38 @@ export const es = {
   },
   panel: {
     error: { titulo: "Algo salió mal", reintentar: "Reintentar" },
+    publicar: {
+      metaTitulo: "Publica tu espacio — Captive by Nodus",
+      titulo: "Publica tu espacio en Captive",
+      descripcion:
+        "Llega a empresas que buscan naves, oficinas y locales en todo México. Publicar es gratis; un administrador revisa cada espacio antes de mostrarlo.",
+      beneficios: [
+        "Recibe solicitudes y responde por chat",
+        "Mide visitas e impresiones de cada espacio",
+        "Comparte tus espacios en la Red inmobiliaria",
+      ],
+      formularioTitulo: "Completa tus datos de anunciante",
+      formularioTexto:
+        "Tu cuenta de buscador se vuelve de oferente: conservas tus favoritos y chats.",
+      telefono: "Teléfono o WhatsApp",
+      comoPublicas: "¿Cómo publicas?",
+      particular: "Soy el dueño",
+      inmobiliaria: "Inmobiliaria o agente",
+      empresa: "Nombre de la inmobiliaria o empresa",
+      enviar: "Continuar y publicar",
+      enviando: "Guardando…",
+      error: "No se pudieron guardar tus datos. Intenta de nuevo.",
+      errorTelefono: "Escribe un teléfono válido (10 a 15 dígitos)",
+      errorTipo: "Elige cómo publicas",
+      errorEmpresa: "Escribe el nombre de tu inmobiliaria o empresa",
+      visitanteTexto: "Crea tu cuenta de oferente o entra con la que ya tienes.",
+      crearCuenta: "Crear cuenta para publicar",
+      yaTengoCuenta: "Ya tengo cuenta",
+      adminTexto: "Las cuentas de administrador no publican espacios.",
+      ctaTitulo: "¿Tienes un espacio en renta o venta?",
+      ctaTexto: "Publícalo gratis en Captive y recibe contactos de empresas interesadas.",
+      ctaBoton: "Publica tu espacio",
+    },
     estado: {
       pendiente: "En revisión",
       publicada: "Publicada",

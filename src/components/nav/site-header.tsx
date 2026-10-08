@@ -59,6 +59,7 @@ function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): EnlaceNav[]
     { href: "/buscar", etiqueta: t.buscarEspacios },
     { href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos },
     ...guardados,
+    { href: "/publicar", etiqueta: t.publicarEspacio },
   ];
 }
 
@@ -273,6 +274,9 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
               >
                 <Link href="/buscar" className={enlaceClase}>
                   {t.buscar}
+                </Link>
+                <Link href="/publicar" className={enlaceClase}>
+                  {t.publicarEspacio}
                 </Link>
                 <Link href="/sign-in" className={enlaceClase}>
                   {t.iniciarSesion}

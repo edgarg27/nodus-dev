@@ -10,6 +10,8 @@ interface AgencyAdvertiserProps {
   textos: {
     titulo: string;
     broker: string;
+    // "Dueño directo" o "Inmobiliaria"; null si no lo indicó.
+    tipoAnunciante: string | null;
     espaciosPublicados: string;
     miembroDesde: string | null;
   };
@@ -35,6 +37,11 @@ export function AgencyAdvertiser({
           <AgencyAvatar nombre={nombre} logoUrl={logoUrl} className="size-20 text-2xl" />
           <div className="flex min-w-0 flex-col gap-1.5">
             <span className="text-lg font-bold text-text">{nombre}</span>
+            {textos.tipoAnunciante ? (
+              <span className="text-[13px] font-semibold text-text-muted">
+                {textos.tipoAnunciante}
+              </span>
+            ) : null}
             {esBroker ? (
               <span className="flex w-fit items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-bold text-success">
                 <ShieldCheckIcon className="size-3.5" aria-hidden="true" />

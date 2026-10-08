@@ -46,7 +46,7 @@ test("registro con la red interceptada muestra Revisa tu correo y permite reenvi
   await page.goto("/sign-up");
   await page.getByLabel("Nombre").fill("Prueba");
   await page.getByLabel("Correo electrónico").fill("revisa-correo@example.com");
-  await page.getByLabel("Contraseña", { exact: true }).fill("password123");
+  // Sin contraseña: se crea después de confirmar el correo (/crear-contrasena).
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Crear cuenta" }).click();
 
