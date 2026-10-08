@@ -105,7 +105,11 @@ export async function obtenerIdentidadPublica(oferenteId: string) {
   const [perfil, [cuenta], [publicadas]] = await Promise.all([
     obtenerPerfilAgencia(oferenteId),
     db
-      .select({ isBroker: usuario.isBroker, createdAt: usuario.createdAt })
+      .select({
+        isBroker: usuario.isBroker,
+        createdAt: usuario.createdAt,
+        tipoAnunciante: usuario.tipoAnunciante,
+      })
       .from(usuario)
       .where(eq(usuario.id, oferenteId)),
     db
@@ -124,6 +128,7 @@ export async function obtenerIdentidadPublica(oferenteId: string) {
     descripcion: perfil.descripcion,
     logoUrl: perfil.logoUrl,
     esBroker: cuenta?.isBroker ?? false,
+    tipoAnunciante: cuenta?.tipoAnunciante ?? null,
     miembroDesde: cuenta?.createdAt ?? null,
     espaciosPublicados: publicadas?.total ?? 0,
   };

@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { buildSignUpArgs, type SignUpInput, signUpSchema } from "@/lib/auth/sign-up";
 import { createClient } from "@/lib/supabase/client";
-import { EyeIcon } from "./eye-icon";
 
 const SEGUNDOS_ESPERA_REENVIO = 30;
 const DURACION_AUTO_DESCARTE_MS = 6000;
@@ -21,8 +20,15 @@ const OPCIONES_ROL = [
   { valor: "oferente", etiqueta: "Ofrezco un espacio" },
 ] as const;
 
+const OPCIONES_TIPO_ANUNCIANTE = [
+  { valor: "particular", etiqueta: "Soy el dueño" },
+  { valor: "inmobiliaria", etiqueta: "Inmobiliaria o agente" },
+] as const;
+
 interface SignUpFormProps {
   ref?: string;
+  // "oferente" cuando se llega desde "Publica tu espacio".
+  rolInicial?: "buscador" | "oferente";
 }
 
 function traducirErrorSignUp(mensaje: string): string {
@@ -32,7 +38,7 @@ function traducirErrorSignUp(mensaje: string): string {
   return "No pudimos crear tu cuenta. Intenta de nuevo.";
 }
 
-export function SignUpForm({ ref }: SignUpFormProps) {
+export function SignUpForm({ ref, rolInicial = "buscador" }: SignUpFormProps) {
   const {
     register,
     handleSubmit,
@@ -42,17 +48,17 @@ export function SignUpForm({ ref }: SignUpFormProps) {
     formState: { errors, isSubmitting },
   } = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { rol: "buscador" },
+    defaultValues: { rol: rolInicial },
   });
 
   const rol = watch("rol");
+  const tipoAnunciante = watch("tipoAnunciante");
 
   const [vista, setVista] = useState<"formulario" | "revisa-correo">("formulario");
   const [emailEnviado, setEmailEnviado] = useState("");
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
   const [segundosParaReenvio, setSegundosParaReenvio] = useState(0);
   const [mensajeReenvio, setMensajeReenvio] = useState<string | null>(null);
-  const [passwordVisible, setPasswordVisible] = useState(false);
 
   useEffect(() => {
     if (!errorEnvio) return;
@@ -70,8 +76,10 @@ export function SignUpForm({ ref }: SignUpFormProps) {
     if (
       !errors.nombre &&
       !errors.email &&
-      !errors.password &&
       !errors.rol &&
+      !errors.telefono &&
+      !errors.tipoAnunciante &&
+      !errors.empresa &&
       !errors.aceptaTerminos
     )
       return;
@@ -80,8 +88,10 @@ export function SignUpForm({ ref }: SignUpFormProps) {
   }, [
     errors.nombre,
     errors.email,
-    errors.password,
     errors.rol,
+    errors.telefono,
+    errors.tipoAnunciante,
+    errors.empresa,
     errors.aceptaTerminos,
     clearErrors,
   ]);
@@ -157,7 +167,7 @@ export function SignUpForm({ ref }: SignUpFormProps) {
           <p className="max-w-[340px] text-sm leading-relaxed text-muted-foreground">
             Enviamos un enlace de confirmación a{" "}
             <strong className="font-semibold text-foreground">{emailEnviado}</strong>. Ábrelo para
-            activar tu cuenta.
+            activar tu cuenta y crear tu contraseña.
           </p>
           {mensajeReenvio ? (
             <p className="animate-in fade-in text-sm text-muted-foreground duration-200 ease-out motion-reduce:animate-none">
@@ -252,35 +262,6 @@ export function SignUpForm({ ref }: SignUpFormProps) {
           ) : null}
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="password" className="text-[13px] font-semibold text-foreground">
-            Contraseña
-          </Label>
-          <div className="relative flex items-center">
-            <Input
-              id="password"
-              type={passwordVisible ? "text" : "password"}
-              placeholder="Mínimo 8 caracteres"
-              className="h-[46px] rounded-lg border-border bg-background pr-11 pl-3.5 text-[15px]"
-              {...register("password")}
-              aria-invalid={!!errors.password}
-            />
-            <button
-              type="button"
-              onClick={() => setPasswordVisible((v) => !v)}
-              aria-label={passwordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
-              className="absolute right-2 flex h-[30px] w-[30px] cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground"
-            >
-              <EyeIcon hidden={!passwordVisible} />
-            </button>
-          </div>
-          {errors.password ? (
-            <p role="alert" className="text-sm text-destructive">
-              {errors.password.message}
-            </p>
-          ) : null}
-        </div>
-
         <div>
           <span id="rol-label" className="text-[13px] font-semibold text-foreground">
             Quiero
@@ -319,6 +300,81 @@ export function SignUpForm({ ref }: SignUpFormProps) {
             </p>
           ) : null}
         </div>
+
+        {rol === "oferente" ? (
+          <div className="flex flex-col gap-4 rounded-xl border border-border bg-background/60 p-4">
+            <p className="text-[13px] text-muted-foreground">
+              Para publicar necesitamos saber quién eres y cómo contactarte.
+            </p>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="telefono" className="text-[13px] font-semibold text-foreground">
+                Teléfono o WhatsApp
+              </Label>
+              <Input
+                id="telefono"
+                type="tel"
+                autoComplete="tel"
+                placeholder="+52 444 123 4567"
+                className="h-[46px] rounded-lg border-border bg-background px-3.5 text-[15px]"
+                {...register("telefono")}
+                aria-invalid={!!errors.telefono}
+              />
+              {errors.telefono ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.telefono.message}
+                </p>
+              ) : null}
+            </div>
+            <fieldset className="flex flex-col gap-2">
+              <legend className="text-[13px] font-semibold text-foreground">¿Cómo publicas?</legend>
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {OPCIONES_TIPO_ANUNCIANTE.map((opcion) => (
+                  <label
+                    key={opcion.valor}
+                    className={cn(
+                      "flex h-[42px] cursor-pointer items-center justify-center rounded-lg border text-[13px] font-semibold transition-colors",
+                      tipoAnunciante === opcion.valor
+                        ? "border-accent bg-accent/10 text-foreground"
+                        : "border-border text-foreground/70 hover:border-foreground/40",
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      value={opcion.valor}
+                      className="sr-only"
+                      {...register("tipoAnunciante")}
+                    />
+                    {opcion.etiqueta}
+                  </label>
+                ))}
+              </div>
+              {errors.tipoAnunciante ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {errors.tipoAnunciante.message}
+                </p>
+              ) : null}
+            </fieldset>
+            {tipoAnunciante === "inmobiliaria" ? (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="empresa" className="text-[13px] font-semibold text-foreground">
+                  Nombre de la inmobiliaria o empresa
+                </Label>
+                <Input
+                  id="empresa"
+                  maxLength={120}
+                  className="h-[46px] rounded-lg border-border bg-background px-3.5 text-[15px]"
+                  {...register("empresa")}
+                  aria-invalid={!!errors.empresa}
+                />
+                {errors.empresa ? (
+                  <p role="alert" className="text-sm text-destructive">
+                    {errors.empresa.message}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="flex flex-col gap-2">
           <label className="flex items-start gap-2 text-[13px] leading-relaxed text-foreground">

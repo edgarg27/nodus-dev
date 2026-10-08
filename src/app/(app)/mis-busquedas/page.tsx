@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { SavedSearchList } from "@/components/properties/saved-search-list";
+import { PublishCta } from "@/components/publicar/publish-cta";
 import { getUsuarioActual } from "@/server/auth/session";
 import { obtenerTextos } from "@/server/i18n";
 import { listarBusquedasGuardadas } from "@/server/saved-searches/saved-searches";
@@ -15,7 +16,8 @@ export default async function MisBusquedasPage() {
   if (!actor) redirect("/sign-in?next=/mis-busquedas");
 
   const busquedas = await listarBusquedasGuardadas(actor.id);
-  const t = (await obtenerTextos()).t.panel.busquedas;
+  const { idioma, t: textos } = await obtenerTextos();
+  const t = textos.panel.busquedas;
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-10 sm:px-6">
@@ -32,6 +34,7 @@ export default async function MisBusquedasPage() {
           nuevos: busqueda.nuevos,
         }))}
       />
+      {actor.rol === "buscador" ? <PublishCta idioma={idioma} /> : null}
     </main>
   );
 }

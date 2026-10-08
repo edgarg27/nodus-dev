@@ -35,6 +35,7 @@ export const en: Textos = {
     en: "English",
   },
   header: {
+    publicarEspacio: "List your space",
     buscar: "Search",
     iniciarSesion: "Sign in",
     crearCuenta: "Sign up",
@@ -256,6 +257,10 @@ export const en: Textos = {
     verConversacion: "Continue the conversation in Messages",
   },
   ficha: {
+    tipoAnunciante: { particular: "Direct owner", inmobiliaria: "Agency" } as Record<
+      string,
+      string
+    >,
     fotos: "Space photos",
     fotoAnterior: "Previous photo",
     fotoSiguiente: "Next photo",
@@ -460,6 +465,38 @@ export const en: Textos = {
   },
   panel: {
     error: { titulo: "Something went wrong", reintentar: "Try again" },
+    publicar: {
+      metaTitulo: "List your space — Captive by Nodus",
+      titulo: "List your space on Captive",
+      descripcion:
+        "Reach companies looking for warehouses, offices and retail space across Mexico. Listing is free; an administrator reviews every space before it goes live.",
+      beneficios: [
+        "Get requests and reply by chat",
+        "Track visits and impressions for each space",
+        "Share your spaces in the Real estate network",
+      ],
+      formularioTitulo: "Complete your lister details",
+      formularioTexto:
+        "Your buyer account becomes a lister account: you keep your favorites and chats.",
+      telefono: "Phone or WhatsApp",
+      comoPublicas: "How do you list?",
+      particular: "I'm the owner",
+      inmobiliaria: "Agency or agent",
+      empresa: "Agency or company name",
+      enviar: "Continue and list",
+      enviando: "Saving…",
+      error: "Couldn't save your details. Please try again.",
+      errorTelefono: "Enter a valid phone number (10 to 15 digits)",
+      errorTipo: "Choose how you list",
+      errorEmpresa: "Enter your agency or company name",
+      visitanteTexto: "Create a lister account or sign in with the one you have.",
+      crearCuenta: "Sign up to list",
+      yaTengoCuenta: "I already have an account",
+      adminTexto: "Administrator accounts don't list spaces.",
+      ctaTitulo: "Do you have a space for rent or sale?",
+      ctaTexto: "List it for free on Captive and get contacts from interested companies.",
+      ctaBoton: "List your space",
+    },
     estado: {
       pendiente: "Under review",
       publicada: "Published",

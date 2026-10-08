@@ -23,6 +23,9 @@ export const usuario = pgTable(
     email: text("email").notNull().unique(),
     nombre: text("nombre").notNull(),
     telefono: text("telefono"),
+    // Solo oferentes: "particular" (dueño directo) o "inmobiliaria" (agencia o agente). Lo capturan
+    // el registro y "Publica tu espacio"; la ficha pública lo muestra.
+    tipoAnunciante: text("tipo_anunciante"),
     rol: text("rol").notNull(),
     isBroker: boolean("is_broker").notNull().default(false),
     brokerCode: text("broker_code").unique(),
@@ -32,6 +35,10 @@ export const usuario = pgTable(
   },
   (t) => [
     check("chk_usuario_rol", sql`${t.rol} in ('buscador','oferente','admin')`),
+    check(
+      "chk_usuario_tipo_anunciante",
+      sql`${t.tipoAnunciante} is null or ${t.tipoAnunciante} in ('particular','inmobiliaria')`,
+    ),
     check("chk_usuario_broker_code", sql`${t.brokerCode} is null or ${t.isBroker} = true`),
   ],
 );

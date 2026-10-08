@@ -1,0 +1,2 @@
+ALTER TABLE "usuario" ADD COLUMN "tipo_anunciante" text;--> statement-breakpoint
+ALTER TABLE "usuario" ADD CONSTRAINT "chk_usuario_tipo_anunciante" CHECK ("usuario"."tipo_anunciante" is null or "usuario"."tipo_anunciante" in ('particular','inmobiliaria'));

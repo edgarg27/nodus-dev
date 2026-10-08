@@ -42,6 +42,9 @@ const EN: Record<string, string> = {
   "La solicitud ya fue resuelta": "This request has already been resolved.",
   "Este usuario no es broker": "This user isn't a broker.",
   "Correo inválido": "Invalid email.",
+  "El teléfono es obligatorio": "Phone number is required.",
+  "Elige cómo publicas": "Choose how you list.",
+  "Escribe el nombre de tu inmobiliaria o empresa": "Enter your agency or company name.",
   "Teléfono inválido": "Invalid phone number.",
 };
 

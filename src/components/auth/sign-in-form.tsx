@@ -236,6 +236,12 @@ export function SignInForm({ errorConfirmacion }: SignInFormProps) {
               {errors.password.message}
             </p>
           ) : null}
+          <Link
+            href="/recuperar"
+            className="self-end text-[13px] font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
         </div>
 
         <Button

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { FavoriteButton } from "@/components/properties/favorite-button";
+import { PublishCta } from "@/components/publicar/publish-cta";
 import { Button } from "@/components/ui/button";
 import { extraerDetalles, formatearPrecio, resumenDetalles } from "@/lib/property-details";
 import { getUsuarioActual } from "@/server/auth/session";
@@ -75,6 +76,7 @@ export default async function FavoritosPage() {
           })}
         </ul>
       )}
+      {actor.rol === "buscador" ? <PublishCta idioma={idioma} /> : null}
     </main>
   );
 }
