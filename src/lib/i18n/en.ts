@@ -252,6 +252,8 @@ export const en: Textos = {
     errorGeneral: "Couldn't send the request. Please try again.",
     errorConexion: "Couldn't send the request. Check your connection and try again.",
     datosDelEspacio: "Space details",
+    mensajeInicial: "Hi, I'm interested in this space. Is it still available?",
+    verConversacion: "Continue the conversation in Messages",
   },
   ficha: {
     fotos: "Space photos",
@@ -586,9 +588,15 @@ export const en: Textos = {
     mensajes: {
       metaTitulo: "Messages — Captive by Nodus",
       titulo: "Messages",
-      descripcion: "Conversations with other listers about properties in the Real estate network.",
+      descripcion:
+        "Conversations with clients interested in your spaces and with other listers in the Real estate network.",
+      descripcionBuscador: "Your conversations with the listers of the spaces you contacted.",
       vacio: "You don't have any conversations yet.",
+      vacioBuscador:
+        "You don't have any conversations yet. Message a lister from any space's listing page.",
       explorar: "Explore the network",
+      buscar: "Search spaces",
+      cliente: "Client",
       oferente: "Lister",
       escribe: "Write a message",
       placeholder: "Write a message…",
@@ -650,6 +658,7 @@ export const en: Textos = {
       nSolicitudes: (n: number) => `${n} requests`,
       estado: "Status",
       errorEstado: "Couldn't change the status. Please try again.",
+      abrirChat: "Reply in chat",
     },
     tabla: {
       metaTitulo: "Properties — Captive by Nodus",

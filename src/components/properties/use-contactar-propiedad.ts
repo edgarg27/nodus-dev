@@ -6,6 +6,7 @@ import { useIdioma } from "@/components/i18n/idioma-provider";
 import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
 
 export interface ContactoRevelado {
+  conversacionId: string | null;
   telefono: string | null;
   whatsappUrl: string | null;
 }
@@ -49,6 +50,7 @@ export function useContactarPropiedad(propiedadId: string) {
       }
 
       setContacto({
+        conversacionId: cuerpo.data.conversacion_id ?? null,
         telefono: cuerpo.data.telefono_oferente,
         whatsappUrl: cuerpo.data.whatsapp_url,
       });

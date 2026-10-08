@@ -255,6 +255,8 @@ export const es = {
     errorGeneral: "No se pudo contactar. Intenta de nuevo.",
     errorConexion: "No se pudo contactar. Revisa tu conexión e intenta de nuevo.",
     datosDelEspacio: "Datos del espacio",
+    mensajeInicial: "Hola, me interesa este espacio. ¿Sigue disponible?",
+    verConversacion: "Continuar la conversación en Mensajes",
   },
   ficha: {
     fotos: "Fotos del espacio",
@@ -592,9 +594,15 @@ export const es = {
     mensajes: {
       metaTitulo: "Mensajes — Captive by Nodus",
       titulo: "Mensajes",
-      descripcion: "Conversaciones con otros oferentes sobre propiedades de la Red inmobiliaria.",
+      descripcion:
+        "Conversaciones con clientes interesados en tus espacios y con otros oferentes de la Red inmobiliaria.",
+      descripcionBuscador: "Tus conversaciones con los oferentes de los espacios que contactaste.",
       vacio: "Aún no tienes conversaciones.",
+      vacioBuscador:
+        "Aún no tienes conversaciones. Escríbele a un oferente desde la ficha de cualquier espacio.",
       explorar: "Explorar la red",
+      buscar: "Buscar espacios",
+      cliente: "Cliente",
       oferente: "Oferente",
       escribe: "Escribe un mensaje",
       placeholder: "Escribe un mensaje…",
@@ -657,6 +665,7 @@ export const es = {
       nSolicitudes: (n: number) => `${n} solicitudes`,
       estado: "Estado",
       errorEstado: "No se pudo cambiar el estado. Inténtalo de nuevo.",
+      abrirChat: "Responder en el chat",
     },
     tabla: {
       metaTitulo: "Propiedades — Captive by Nodus",

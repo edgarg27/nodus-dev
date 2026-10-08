@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
@@ -27,6 +28,7 @@ export interface PersonaLeadVista {
   ultimaFecha: string;
   quiereFinanciamiento: boolean;
   ultimoMensaje: string | null;
+  conversacionId: string | null;
   propiedades: PropiedadDeLeadVista[];
 }
 
@@ -152,6 +154,14 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
           <p role="alert" className="text-xs text-destructive">
             {error}
           </p>
+        ) : null}
+        {persona.conversacionId ? (
+          <Link
+            href={`/mensajes/${persona.conversacionId}`}
+            className="flex h-9 items-center justify-center rounded-lg bg-accent px-3.5 text-[12.5px] font-bold text-accent-foreground transition-colors hover:bg-accent/90"
+          >
+            {b.abrirChat}
+          </Link>
         ) : null}
         <a
           href={`mailto:${persona.email}`}

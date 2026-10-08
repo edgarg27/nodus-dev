@@ -1,14 +1,19 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
 import { contactRequest, propiedad, usuario } from "../../lib/db/schema.ts";
+import { textosDe } from "../../lib/i18n/index.ts";
 import { obtenerContactoPublico } from "../agency/queries.ts";
 import { requireRol } from "../auth/guards.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
+import { abrirConversacionDeContacto } from "../messages/conversations.ts";
 
 export interface CrearContactRequestInput {
   propiedadId: string;
   quiereFinanciamiento: boolean;
   mensaje?: string;
+  // Primer mensaje del chat cuando el buscador no escribió nada (en el idioma de su sitio; sin él,
+  // en español).
+  mensajeInicial?: string;
 }
 
 export type ErrorContactRequest =
@@ -17,6 +22,7 @@ export type ErrorContactRequest =
 
 export interface ContactRequestCreada {
   id: string;
+  conversacionId: string;
   telefonoOferente: string | null;
   whatsappUrl: string | null;
 }
@@ -78,6 +84,14 @@ export async function crearContactRequest(
     .returning();
   if (!fila) throw new Error("insert de contact_request no devolvió fila");
 
+  // Cada solicitud llega también al chat con el oferente, para que pueda responder ahí mismo.
+  const conversacionId = await abrirConversacionDeContacto({
+    propiedadId: prop.id,
+    buscadorId: actor.id,
+    oferenteId: prop.oferenteId,
+    texto: input.mensaje ?? input.mensajeInicial ?? textosDe("es").contacto.mensajeInicial,
+  });
+
   // El contacto que el oferente eligió para esta propiedad (WhatsApp antes que teléfono), o su
   // teléfono de cuenta si no eligió ninguno.
   const contacto = await obtenerContactoPublico(prop.oferenteId, prop.contactoId);
@@ -86,6 +100,7 @@ export async function crearContactRequest(
     ok: true,
     data: {
       id: fila.id,
+      conversacionId,
       telefonoOferente,
       whatsappUrl: construirWhatsappUrl(
         telefonoOferente,

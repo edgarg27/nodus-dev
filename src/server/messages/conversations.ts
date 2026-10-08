@@ -1,13 +1,15 @@
 import { and, asc, desc, eq, inArray, isNull, ne, or, sql } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
-import { conversacion, mensaje, propiedad } from "../../lib/db/schema.ts";
+import { conversacion, mensaje, propiedad, usuario } from "../../lib/db/schema.ts";
 import { nombresDeAgencia } from "../agency/queries.ts";
 import { requireRol } from "../auth/guards.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
 import { obtenerPrimerasFotos } from "../properties/queries.ts";
 
-// Chat entre oferentes sobre una propiedad de la Red. El iniciador escribe sobre una propiedad
-// ajena y compartida; el otro participante es siempre su dueño. Solo ellos dos ven la conversación.
+// Chat sobre una propiedad. Dos orígenes: un oferente escribe sobre una propiedad ajena de la Red
+// (iniciarConversacion), o un buscador contacta un espacio publicado (abrirConversacionDeContacto,
+// desde la solicitud de contacto). El otro participante es siempre el dueño de la propiedad, y solo
+// ellos dos ven la conversación.
 
 export type ErrorChat =
   | { code: "forbidden"; status: 403; message: string }
@@ -31,10 +33,17 @@ export interface PropiedadDeConversacion {
   fotoUrl: string | null;
 }
 
+// `esCliente`: el otro participante es un buscador (no otro oferente de la Red).
+export interface OtroParticipante {
+  id: string;
+  nombre: string;
+  esCliente: boolean;
+}
+
 export interface ResumenConversacion {
   id: string;
   propiedad: PropiedadDeConversacion;
-  otro: { id: string; nombre: string };
+  otro: OtroParticipante;
   ultimoMensaje: { texto: string; autorId: string; createdAt: Date } | null;
   noLeidos: number;
 }
@@ -49,11 +58,85 @@ export interface MensajeDeConversacion {
 export interface DetalleConversacion {
   id: string;
   propiedad: PropiedadDeConversacion;
-  otro: { id: string; nombre: string };
+  otro: OtroParticipante;
   mensajes: MensajeDeConversacion[];
 }
 
-// Idempotente en la conversación (una por propiedad e iniciador); cada llamada agrega un mensaje.
+// Oferentes y buscadores chatean; el admin no participa.
+function puedeChatear(actor: ActorAutenticado | null): actor is ActorAutenticado {
+  return actor !== null && (actor.rol === "oferente" || actor.rol === "buscador");
+}
+
+// Una conversación por propiedad e iniciador: la crea si no existe y agrega el mensaje.
+async function agregarMensajeEnConversacion(datos: {
+  propiedadId: string;
+  iniciadorId: string;
+  duenoId: string;
+  texto: string;
+}): Promise<string> {
+  await db
+    .insert(conversacion)
+    .values({
+      propiedadId: datos.propiedadId,
+      iniciadorId: datos.iniciadorId,
+      duenoId: datos.duenoId,
+    })
+    .onConflictDoNothing();
+  const [fila] = await db
+    .select({ id: conversacion.id })
+    .from(conversacion)
+    .where(
+      and(
+        eq(conversacion.propiedadId, datos.propiedadId),
+        eq(conversacion.iniciadorId, datos.iniciadorId),
+      ),
+    );
+  if (!fila) throw new Error("conversación no encontrada tras el insert");
+  await db
+    .insert(mensaje)
+    .values({ conversacionId: fila.id, autorId: datos.iniciadorId, texto: datos.texto });
+  return fila.id;
+}
+
+// La solicitud de contacto de un buscador abre (o retoma) su chat con el dueño de la propiedad. La
+// validación de rol y de propiedad publicada ya la hizo crearContactRequest.
+export function abrirConversacionDeContacto(datos: {
+  propiedadId: string;
+  buscadorId: string;
+  oferenteId: string;
+  texto: string;
+}): Promise<string> {
+  return agregarMensajeEnConversacion({
+    propiedadId: datos.propiedadId,
+    iniciadorId: datos.buscadorId,
+    duenoId: datos.oferenteId,
+    texto: datos.texto,
+  });
+}
+
+// Nombre (agencia o persona) y si cada participante es buscador.
+async function participantes(ids: string[]): Promise<Map<string, OtroParticipante>> {
+  const [nombres, roles] = await Promise.all([
+    nombresDeAgencia(ids),
+    ids.length === 0
+      ? Promise.resolve([])
+      : db
+          .select({ id: usuario.id, rol: usuario.rol })
+          .from(usuario)
+          .where(inArray(usuario.id, [...new Set(ids)])),
+  ]);
+  const mapa = new Map<string, OtroParticipante>();
+  for (const id of ids) {
+    mapa.set(id, {
+      id,
+      nombre: nombres.get(id) ?? "",
+      esCliente: roles.find((fila) => fila.id === id)?.rol === "buscador",
+    });
+  }
+  return mapa;
+}
+
+// Chat de la Red, entre oferentes. Idempotente en la conversación; cada llamada agrega un mensaje.
 export async function iniciarConversacion(
   actor: ActorAutenticado | null,
   propiedadId: string,
@@ -77,18 +160,13 @@ export async function iniciarConversacion(
     );
   if (!prop) return NO_ENCONTRADA;
 
-  await db
-    .insert(conversacion)
-    .values({ propiedadId: prop.id, iniciadorId: actor.id, duenoId: prop.oferenteId })
-    .onConflictDoNothing();
-  const [fila] = await db
-    .select({ id: conversacion.id })
-    .from(conversacion)
-    .where(and(eq(conversacion.propiedadId, prop.id), eq(conversacion.iniciadorId, actor.id)));
-  if (!fila) throw new Error("conversación no encontrada tras el insert");
-
-  await db.insert(mensaje).values({ conversacionId: fila.id, autorId: actor.id, texto });
-  return { ok: true, data: { conversacionId: fila.id } };
+  const conversacionId = await agregarMensajeEnConversacion({
+    propiedadId: prop.id,
+    iniciadorId: actor.id,
+    duenoId: prop.oferenteId,
+    texto,
+  });
+  return { ok: true, data: { conversacionId } };
 }
 
 function esParticipante(actorId: string) {
@@ -100,8 +178,7 @@ export async function enviarMensaje(
   conversacionId: string,
   texto: string,
 ): Promise<ResultadoChat<{ id: string }>> {
-  const permiso = requireRol(actor, "oferente");
-  if (!permiso.ok || !actor) return SIN_PERMISO;
+  if (!puedeChatear(actor)) return SIN_PERMISO;
 
   const [fila] = await db
     .select({ id: conversacion.id })
@@ -133,12 +210,11 @@ async function propiedadesDeConversaciones(propiedadIds: string[]) {
   return mapa;
 }
 
-// Conversaciones del oferente, la de actividad más reciente primero, con los no leídos.
+// Conversaciones del usuario, la de actividad más reciente primero, con los no leídos.
 export async function listarConversaciones(
   actor: ActorAutenticado | null,
 ): Promise<ResultadoChat<ResumenConversacion[]>> {
-  const permiso = requireRol(actor, "oferente");
-  if (!permiso.ok || !actor) return SIN_PERMISO;
+  if (!puedeChatear(actor)) return SIN_PERMISO;
 
   const filas = await db
     .select()
@@ -166,9 +242,9 @@ export async function listarConversaciones(
   const otros = filas.map((fila) =>
     fila.iniciadorId === actor.id ? fila.duenoId : fila.iniciadorId,
   );
-  const [propiedades, nombres] = await Promise.all([
+  const [propiedades, otrosParticipantes] = await Promise.all([
     propiedadesDeConversaciones(filas.map((fila) => fila.propiedadId)),
-    nombresDeAgencia(otros),
+    participantes(otros),
   ]);
 
   const resumen = filas.map((fila, i): ResumenConversacion => {
@@ -182,7 +258,7 @@ export async function listarConversaciones(
         direccion: "",
         fotoUrl: null,
       },
-      otro: { id: otroId, nombre: nombres.get(otroId) ?? "" },
+      otro: otrosParticipantes.get(otroId) ?? { id: otroId, nombre: "", esCliente: false },
       ultimoMensaje: ultimoMensaje
         ? {
             texto: ultimoMensaje.texto,
@@ -207,8 +283,7 @@ export async function obtenerConversacion(
   actor: ActorAutenticado | null,
   conversacionId: string,
 ): Promise<ResultadoChat<DetalleConversacion>> {
-  const permiso = requireRol(actor, "oferente");
-  if (!permiso.ok || !actor) return SIN_PERMISO;
+  if (!puedeChatear(actor)) return SIN_PERMISO;
 
   const [fila] = await db
     .select()
@@ -228,14 +303,14 @@ export async function obtenerConversacion(
     );
 
   const otroId = fila.iniciadorId === actor.id ? fila.duenoId : fila.iniciadorId;
-  const [mensajes, propiedades, nombres] = await Promise.all([
+  const [mensajes, propiedades, otrosParticipantes] = await Promise.all([
     db
       .select()
       .from(mensaje)
       .where(eq(mensaje.conversacionId, conversacionId))
       .orderBy(asc(mensaje.createdAt)),
     propiedadesDeConversaciones([fila.propiedadId]),
-    nombresDeAgencia([otroId]),
+    participantes([otroId]),
   ]);
 
   return {
@@ -248,7 +323,7 @@ export async function obtenerConversacion(
         direccion: "",
         fotoUrl: null,
       },
-      otro: { id: otroId, nombre: nombres.get(otroId) ?? "" },
+      otro: otrosParticipantes.get(otroId) ?? { id: otroId, nombre: "", esCliente: false },
       mensajes: mensajes.map((m) => ({
         id: m.id,
         texto: m.texto,

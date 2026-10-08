@@ -36,7 +36,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const dataTheme = theme === "dark" ? "dark" : theme === "light" ? "light" : undefined;
   const actor = await getUsuarioActual();
   const idioma = idiomaValido(cookieStore.get(COOKIE_IDIOMA)?.value);
-  const mensajesNoLeidos = actor?.rol === "oferente" ? await contarMensajesNoLeidos(actor.id) : 0;
+  const mensajesNoLeidos =
+    actor?.rol === "oferente" || actor?.rol === "buscador"
+      ? await contarMensajesNoLeidos(actor.id)
+      : 0;
 
   return (
     <html

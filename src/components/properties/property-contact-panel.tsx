@@ -1,6 +1,7 @@
 "use client";
 
-import { CheckIcon, LinkIcon, Share2Icon } from "lucide-react";
+import { CheckIcon, LinkIcon, MessageCircleIcon, Share2Icon } from "lucide-react";
+import Link from "next/link";
 import { useId, useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -111,6 +112,15 @@ ${pregunta}`
           ) : (
             <span>{t.contacto.listo}</span>
           )}
+          {contacto.conversacionId ? (
+            <Link
+              href={`/mensajes/${contacto.conversacionId}`}
+              className="mt-1 flex items-center gap-1.5 font-semibold text-primary underline underline-offset-4"
+            >
+              <MessageCircleIcon className="size-4" aria-hidden="true" />
+              {t.contacto.verConversacion}
+            </Link>
+          ) : null}
           {haySimilares ? (
             <a href="#similares" className="pt-1 text-primary underline underline-offset-4">
               {t.ficha.verSimilares}
