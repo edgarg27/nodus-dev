@@ -24,7 +24,8 @@ export interface ClienteResumen {
   telefono: string | null;
   registradoEn: Date;
   estado: EstadoCliente;
-  // Solicitudes que llegaron a Captive (canal "captive").
+  // Todas sus solicitudes: las nuevas (canal "captive") y las anteriores que le llegaron directo al
+  // oferente, para que Captive vea a todos los que alguna vez pidieron informes.
   solicitudes: number;
   ultimaSolicitud: Date | null;
   quiereFinanciamiento: boolean;
@@ -59,7 +60,8 @@ export async function listarClientes(
   };
   if (!esAdmin(actor)) return vacia;
 
-  // Por cliente: cuántas solicitudes le llegaron a Captive, la más reciente y si pidió financiamiento.
+  // Por cliente: cuántas solicitudes hizo (de cualquier canal), la más reciente y si pidió
+  // financiamiento.
   const agregados = await db
     .select({
       buscadorId: contactRequest.buscadorId,
@@ -68,7 +70,6 @@ export async function listarClientes(
       financiamiento: sql<boolean>`bool_or(${contactRequest.quiereFinanciamiento})`,
     })
     .from(contactRequest)
-    .where(eq(contactRequest.canal, "captive"))
     .groupBy(contactRequest.buscadorId);
   const porCliente = new Map(agregados.map((fila) => [fila.buscadorId, fila]));
 

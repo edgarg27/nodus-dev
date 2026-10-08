@@ -116,6 +116,22 @@ describe("Clientes y prospectos — consultas", () => {
     );
   });
 
+  it("la vista con solicitudes también trae a quien solo tiene solicitudes anteriores", async () => {
+    const { admin, oferente, conSolicitud, propia } = await preparar();
+    const anterior = await crearUsuario("buscador");
+    await db.insert(contactRequest).values({
+      buscadorId: anterior.id,
+      propiedadId: propia.id,
+      oferenteId: oferente.id,
+      canal: "directo",
+    });
+
+    const lista = await listarClientes(admin, PARAMS);
+    expect(lista.clientes.map((c) => c.id).sort()).toEqual([conSolicitud.id, anterior.id].sort());
+    // El contador del menú sigue contando solo las nuevas (canal "captive").
+    expect(await contarClientesPendientes()).toBe(1);
+  });
+
   it("el detalle trae la solicitud con el oferente al que hay que llamarle", async () => {
     const { admin, oferente, conSolicitud, propia } = await preparar();
     const detalle = await obtenerCliente(admin, conSolicitud.id);
