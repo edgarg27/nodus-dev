@@ -45,11 +45,16 @@ async function crearPropiedad(oferenteId: string, estadoPublicacion: string) {
 }
 
 describe("Dueños del panel de administración", () => {
-  it("solo oferentes que no son brokers ni eligieron «Soy broker», con sus propiedades", async () => {
+  it("solo dueños verificados que no son brokers, con sus propiedades", async () => {
     await resetTestDatabase();
     const admin = await crearUsuario("admin");
-    const dueno = await crearUsuario("oferente", { tipoAnunciante: "particular" });
-    const sinElegir = await crearUsuario("oferente");
+    const dueno = await crearUsuario("oferente", {
+      tipoAnunciante: "particular",
+      duenoVerificado: true,
+    });
+    const sinElegir = await crearUsuario("oferente", { duenoVerificado: true });
+    // Dueño sin verificar (su solicitud sigue pendiente): todavía no aparece.
+    await crearUsuario("oferente", { tipoAnunciante: "particular" });
     await crearUsuario("oferente", { tipoAnunciante: "inmobiliaria" });
     await crearUsuario("oferente", { isBroker: true, brokerCode: "BRK-DUENO1" });
     await crearUsuario("buscador");

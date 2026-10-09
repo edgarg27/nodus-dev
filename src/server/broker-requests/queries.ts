@@ -27,6 +27,7 @@ export async function listarPendientes() {
     .select({
       id: brokerSolicitud.id,
       mensaje: brokerSolicitud.mensaje,
+      tipo: brokerSolicitud.tipo,
       createdAt: brokerSolicitud.createdAt,
       usuario: {
         id: usuario.id,

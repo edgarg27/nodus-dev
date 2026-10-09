@@ -42,9 +42,11 @@ export async function convertirEnOferente(
         .onConflictDoUpdate({ target: agenciaPerfil.usuarioId, set: { nombre: datos.empresa } });
     }
   });
-  // "Soy broker": queda como solicitud de broker para que Captive la apruebe.
-  if (datos.tipoAnunciante === "inmobiliaria" && !actor.isBroker) {
-    await abrirSolicitudPorRegistro(actor.id, datos.empresa ?? "");
+  // Queda como solicitud para que Captive lo apruebe: de broker ("Soy broker") o de dueño.
+  if (datos.tipoAnunciante === "inmobiliaria") {
+    if (!actor.isBroker) await abrirSolicitudPorRegistro(actor.id, "broker", datos.empresa ?? "");
+  } else {
+    await abrirSolicitudPorRegistro(actor.id, "dueno");
   }
   return { ok: true };
 }

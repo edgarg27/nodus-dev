@@ -28,6 +28,8 @@ export const usuario = pgTable(
     tipoAnunciante: text("tipo_anunciante"),
     rol: text("rol").notNull(),
     isBroker: boolean("is_broker").notNull().default(false),
+    // Dueño (publica lo suyo) que Captive ya verificó al aprobar su solicitud de tipo "dueno".
+    duenoVerificado: boolean("dueno_verificado").notNull().default(false),
     brokerCode: text("broker_code").unique(),
     referralBrokerId: uuid("referral_broker_id").references((): AnyPgColumn => usuario.id),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -412,6 +414,9 @@ export const brokerSolicitud = pgTable(
       .references(() => usuario.id),
     mensaje: text("mensaje").notNull(),
     empresa: text("empresa").notNull().default(""),
+    // "broker": aprobarla da is_broker y el broker_code. "dueno": aprobarla solo verifica al dueño
+    // (dueno_verificado); la abre el registro cuando alguien elige "Soy el dueño".
+    tipo: text("tipo").notNull().default("broker"),
     estado: text("estado").notNull().default("pendiente"),
     motivoDenegacion: text("motivo_denegacion"),
     resueltaPor: uuid("resuelta_por").references(() => usuario.id),
@@ -425,6 +430,7 @@ export const brokerSolicitud = pgTable(
     index("idx_broker_solicitud_usuario_id").on(t.usuarioId),
     index("idx_broker_solicitud_pendientes").on(t.createdAt).where(sql`${t.estado} = 'pendiente'`),
     check("chk_broker_solicitud_estado", sql`${t.estado} in ('pendiente','aprobada','denegada')`),
+    check("chk_broker_solicitud_tipo", sql`${t.tipo} in ('broker','dueno')`),
     check("chk_broker_solicitud_mensaje", sql`length(btrim(${t.mensaje})) > 0`),
     check(
       "chk_broker_solicitud_resolucion",

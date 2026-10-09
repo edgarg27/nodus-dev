@@ -107,7 +107,7 @@ describe("getUsuarioActual — aprovisionamiento just-in-time", () => {
     expect(actorNoBroker?.referralBrokerId).toBeNull();
   });
 
-  it("«Soy broker» deja una solicitud de broker pendiente; «Soy el dueño», no", async () => {
+  it("todo oferente nuevo queda como solicitud pendiente: de broker o de dueño", async () => {
     const datos = { telefono: "444 123 4567" };
     const broker = await crearUsuarioAuth({
       rol: "oferente",
@@ -118,11 +118,13 @@ describe("getUsuarioActual — aprovisionamiento just-in-time", () => {
     expect(actorBroker?.isBroker).toBe(false);
     // Una segunda llamada no duplica la solicitud.
     await getUsuarioActual();
-    const solicitudes = await db
+    const deBroker = await db
       .select()
       .from(brokerSolicitud)
       .where(eq(brokerSolicitud.usuarioId, broker.id));
-    expect(solicitudes.map((s) => [s.estado, s.empresa])).toEqual([["pendiente", "Ontigón"]]);
+    expect(deBroker.map((s) => [s.tipo, s.estado, s.empresa])).toEqual([
+      ["broker", "pendiente", "Ontigón"],
+    ]);
 
     const dueno = await crearUsuarioAuth({
       rol: "oferente",
@@ -130,8 +132,18 @@ describe("getUsuarioActual — aprovisionamiento just-in-time", () => {
     });
     usarCliente(await clienteConSesion(dueno));
     await getUsuarioActual();
+    const deDueno = await db
+      .select()
+      .from(brokerSolicitud)
+      .where(eq(brokerSolicitud.usuarioId, dueno.id));
+    expect(deDueno.map((s) => [s.tipo, s.estado])).toEqual([["dueno", "pendiente"]]);
+
+    // Un buscador no abre ninguna.
+    const buscador = await crearUsuarioAuth({ rol: "buscador" });
+    usarCliente(await clienteConSesion(buscador));
+    await getUsuarioActual();
     expect(
-      await db.select().from(brokerSolicitud).where(eq(brokerSolicitud.usuarioId, dueno.id)),
+      await db.select().from(brokerSolicitud).where(eq(brokerSolicitud.usuarioId, buscador.id)),
     ).toHaveLength(0);
   });
 

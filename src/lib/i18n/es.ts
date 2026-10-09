@@ -415,7 +415,7 @@ export const es = {
     secciones: "Secciones del panel",
     nav: {
       propiedades: "Propiedades pendientes",
-      requests: "Solicitudes de broker",
+      requests: "Solicitudes de broker y dueños",
       brokers: "Brokers activos",
       duenos: "Dueños",
       clientes: "Clientes y prospectos",
@@ -447,17 +447,20 @@ export const es = {
       confirmarRechazo: "Confirmar rechazo",
     },
     solicitudes: {
-      metaTitulo: "Solicitudes de broker — Captive by Nodus",
-      titulo: "Solicitudes de broker",
+      metaTitulo: "Solicitudes de broker y dueños — Captive by Nodus",
+      titulo: "Solicitudes de broker y dueños",
       descripcion:
-        "Al aprobar, Nodus genera automáticamente un código de broker único para el oferente.",
-      vacio: "No hay solicitudes de broker pendientes.",
+        "Revisa que la persona sea real antes de aprobarla. Un broker aprobado recibe su código de broker único; un dueño aprobado pasa a Dueños como verificado.",
+      vacio: "No hay solicitudes pendientes.",
+      tipoBroker: "Broker",
+      tipoDueno: "Dueño",
+      aprobadaDueno: "Dueño verificado: ya aparece en Dueños.",
       solicitado: (fecha: string) => `Solicitado el ${fecha}`,
       denegar: "Denegar",
       aprobar: "Aprobar",
       yaResuelta: "Esta solicitud ya fue resuelta.",
       aprobada: (codigo: string) => `Solicitud aprobada — código ${codigo} generado.`,
-      denegada: "Solicitud de broker denegada.",
+      denegada: "Solicitud denegada.",
     },
     brokers: {
       metaTitulo: "Brokers activos — Captive by Nodus",
@@ -488,7 +491,7 @@ export const es = {
       metaTitulo: "Dueños — Captive by Nodus",
       titulo: "Dueños",
       descripcion:
-        "Personas que publican sus propios espacios (se registraron como «Soy el dueño»). Los brokers van en Solicitudes de broker y Brokers activos.",
+        "Personas que publican sus propios espacios y que Captive ya verificó (se aprueban en Solicitudes de broker y dueños).",
       buscar: "Buscar por nombre, correo o teléfono",
       buscarBoton: "Buscar",
       vacio: "Todavía no hay dueños registrados.",

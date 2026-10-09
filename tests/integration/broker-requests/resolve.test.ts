@@ -69,6 +69,29 @@ describe("aprobarSolicitud", () => {
     expect(fila?.brokerCode).toMatch(/^BRK-[A-HJ-NP-Z2-9]{6}$/);
   });
 
+  it("una solicitud de dueño solo lo verifica: sin is_broker ni broker_code", async () => {
+    await resetTestDatabase();
+    const admin = actorFixture("admin");
+    const dueno = actorFixture("oferente");
+    await insertarUsuario(admin);
+    await insertarUsuario(dueno);
+    const [solicitud] = await db
+      .insert(brokerSolicitud)
+      .values({ usuarioId: dueno.id, mensaje: "Soy el dueño", tipo: "dueno" })
+      .returning();
+    if (!solicitud) throw new Error("fixture no se creó");
+
+    const resultado = await aprobarSolicitud(admin, solicitud.id);
+    expect(resultado.ok).toBe(true);
+    if (!resultado.ok) throw new Error("se esperaba ok");
+    expect(resultado.data.brokerCode).toBeNull();
+
+    const [fila] = await db.select().from(usuario).where(eq(usuario.id, dueno.id));
+    expect(fila?.duenoVerificado).toBe(true);
+    expect(fila?.isBroker).toBe(false);
+    expect(fila?.brokerCode).toBeNull();
+  });
+
   it("colisión de broker_code: reintenta con otro y aprueba; dos oferentes obtienen códigos distintos", async () => {
     await resetTestDatabase();
     const admin = actorFixture("admin");

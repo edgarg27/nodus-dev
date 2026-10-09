@@ -271,13 +271,12 @@ export async function clienteDelChat(
       email: usuario.email,
       rol: usuario.rol,
       isBroker: usuario.isBroker,
-      tipoAnunciante: usuario.tipoAnunciante,
+      duenoVerificado: usuario.duenoVerificado,
     })
     .from(usuario)
     .where(and(eq(usuario.id, buscadorId), ne(usuario.rol, "admin")));
   if (!fila) return null;
-  const esDueno =
-    fila.rol === "oferente" && !fila.isBroker && fila.tipoAnunciante !== "inmobiliaria";
+  const esDueno = fila.rol === "oferente" && !fila.isBroker && fila.duenoVerificado;
   const fichaHref =
     fila.rol === "buscador"
       ? `/admin/clientes/${buscadorId}`

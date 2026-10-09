@@ -11,6 +11,8 @@ import { iniciales } from "@/lib/initials";
 interface Solicitud {
   id: string;
   mensaje: string;
+  // "broker" o "dueno".
+  tipo: string;
   createdAt: Date;
   usuario: {
     nombre: string;
@@ -51,7 +53,8 @@ export function RequestActions({ solicitud }: RequestActionsProps) {
 
     const cuerpo = await respuesta.json();
     if (respuesta.ok) {
-      showToast(s.aprobada(cuerpo.data.broker_code));
+      // Un dueño se verifica; un broker recibe su código.
+      showToast(cuerpo.data.broker_code ? s.aprobada(cuerpo.data.broker_code) : s.aprobadaDueno);
       router.refresh();
     }
   }
@@ -87,7 +90,16 @@ export function RequestActions({ solicitud }: RequestActionsProps) {
       </span>
 
       <div className="flex min-w-0 grow flex-col gap-0.5">
-        <h3 className="text-sm font-semibold text-text">{solicitud.usuario.nombre}</h3>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="text-sm font-semibold text-text">{solicitud.usuario.nombre}</h3>
+          <span
+            className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
+              solicitud.tipo === "dueno" ? "bg-success/15 text-success" : "bg-accent/10 text-accent"
+            }`}
+          >
+            {solicitud.tipo === "dueno" ? s.tipoDueno : s.tipoBroker}
+          </span>
+        </div>
         <p className="text-sm text-text-muted">
           {solicitud.usuario.email}
           {solicitud.usuario.telefono ? ` · ${solicitud.usuario.telefono}` : ""}

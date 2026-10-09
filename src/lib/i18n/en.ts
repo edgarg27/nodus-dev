@@ -411,7 +411,7 @@ export const en: Textos = {
     secciones: "Panel sections",
     nav: {
       propiedades: "Pending properties",
-      requests: "Broker requests",
+      requests: "Broker and owner requests",
       brokers: "Active brokers",
       duenos: "Owners",
       clientes: "Clients and prospects",
@@ -443,17 +443,20 @@ export const en: Textos = {
       confirmarRechazo: "Confirm rejection",
     },
     solicitudes: {
-      metaTitulo: "Broker requests — Captive by Nodus",
-      titulo: "Broker requests",
+      metaTitulo: "Broker and owner requests — Captive by Nodus",
+      titulo: "Broker and owner requests",
       descripcion:
-        "When you approve, Nodus automatically generates a unique broker code for the lister.",
-      vacio: "No pending broker requests.",
+        "Check that the person is real before approving. An approved broker gets a unique broker code; an approved owner moves to Owners as verified.",
+      vacio: "No pending requests.",
+      tipoBroker: "Broker",
+      tipoDueno: "Owner",
+      aprobadaDueno: "Owner verified: now listed in Owners.",
       solicitado: (fecha: string) => `Requested ${fecha}`,
       denegar: "Deny",
       aprobar: "Approve",
       yaResuelta: "This request has already been resolved.",
       aprobada: (codigo: string) => `Request approved — code ${codigo} generated.`,
-      denegada: "Broker request denied.",
+      denegada: "Request denied.",
     },
     brokers: {
       metaTitulo: "Active brokers — Captive by Nodus",
@@ -484,7 +487,7 @@ export const en: Textos = {
       metaTitulo: "Owners — Captive by Nodus",
       titulo: "Owners",
       descripcion:
-        "People who list their own spaces (signed up as “I'm the owner”). Brokers go to Broker requests and Active brokers.",
+        "People who list their own spaces and whom Captive has verified (approved in Broker and owner requests).",
       buscar: "Search by name, email or phone",
       buscarBoton: "Search",
       vacio: "No owners registered yet.",

@@ -53,6 +53,8 @@ export async function POST(_request: Request, { params }: RouteParams) {
     data: {
       id: resultado.data.id,
       estado: resultado.data.estado,
+      tipo: resultado.data.tipo,
+      // null en una solicitud de dueño.
       broker_code: resultado.data.brokerCode,
       resuelta_en: resultado.data.resueltaEn,
     },

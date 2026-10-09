@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, inArray, isNull, or } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
 import { propiedad, usuario } from "../../lib/db/schema.ts";
 import { requireRol } from "../auth/guards.ts";
@@ -6,8 +6,8 @@ import type { ActorAutenticado } from "../auth/session.ts";
 import { clientesConMensajesSinLeer } from "../messages/captive.ts";
 import { obtenerPrimerasFotos } from "../properties/queries.ts";
 
-// "Dueños" del panel de administración: oferentes que publican sus propios espacios (eligieron
-// "Soy el dueño", o no eligieron) y que no son brokers. Solo admin.
+// "Dueños" del panel de administración: oferentes que publican sus propios espacios, que no son
+// brokers y que Captive ya verificó (aprobó su solicitud de dueño). Solo admin.
 
 export interface ConteoPropiedades {
   publicadas: number;
@@ -45,11 +45,11 @@ function escaparLike(texto: string): string {
   return texto.replace(/[\\%_]/g, (caracter) => `\\${caracter}`);
 }
 
-// Oferente que no es broker y no eligió "Soy broker".
+// Oferente verificado como dueño y que no es broker.
 const esDueno = and(
   eq(usuario.rol, "oferente"),
   eq(usuario.isBroker, false),
-  or(eq(usuario.tipoAnunciante, "particular"), isNull(usuario.tipoAnunciante)),
+  eq(usuario.duenoVerificado, true),
 );
 
 async function conteosPorDueno(ids: string[]): Promise<Map<string, ConteoPropiedades>> {

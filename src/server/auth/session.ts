@@ -87,9 +87,15 @@ export async function getUsuarioActual(): Promise<ActorAutenticado | null> {
       .values({ usuarioId: id, nombre: datosOferente.empresa })
       .onConflictDoNothing();
   }
-  // "Soy broker" en el registro: queda como solicitud de broker para que Captive la apruebe.
-  if (insertados.length > 0 && datosOferente?.tipoAnunciante === "inmobiliaria") {
-    await abrirSolicitudPorRegistro(id, datosOferente.empresa ?? "");
+  // Todo oferente nuevo queda como solicitud para que Captive lo apruebe: de broker si eligió
+  // "Soy broker"; de dueño si eligió "Soy el dueño" (o si no eligió).
+  if (insertados.length > 0 && rol === "oferente") {
+    const esBroker = datosOferente?.tipoAnunciante === "inmobiliaria";
+    await abrirSolicitudPorRegistro(
+      id,
+      esBroker ? "broker" : "dueno",
+      esBroker ? (datosOferente?.empresa ?? "") : "",
+    );
   }
 
   const [fila] = await db.select().from(usuario).where(eq(usuario.id, id));

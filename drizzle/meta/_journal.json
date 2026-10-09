@@ -176,6 +176,13 @@
       "when": 1791568637662,
       "tag": "0024_chat_captive_lockdown",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791586267237,
+      "tag": "0025_solicitud_dueno",
+      "breakpoints": true
     }
   ]
 }

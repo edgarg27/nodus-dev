@@ -172,7 +172,7 @@ test("denegar con motivo deja la solicitud visible en /broker del oferente", asy
 
   const fila = page.locator("article").filter({ hasText: oferente.email });
   await fila.getByRole("button", { name: "Denegar" }).click();
-  await expect(page.getByText("Solicitud de broker denegada.")).toBeVisible();
+  await expect(page.getByText("Solicitud denegada.")).toBeVisible();
   await expect(fila).toHaveCount(0);
 
   await page.context().clearCookies();
