@@ -477,8 +477,7 @@ export const es = {
     mensajes: {
       metaTitulo: "Mensajes — Captive by Nodus",
       titulo: "Mensajes",
-      descripcion:
-        "Conversaciones de los clientes con el equipo de Captive. Lo que escribas aquí le llega al cliente como «Equipo Captive».",
+      descripcion: "Conversaciones de los clientes con el equipo de Captive.",
       vacio: "Todavía no hay mensajes de clientes.",
       tu: "Tú",
       verCliente: "Ver cliente",
