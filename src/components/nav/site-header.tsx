@@ -73,8 +73,15 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const esPortada = usePathname() === "/";
+  const pathname = usePathname();
+  const esPortada = pathname === "/";
   const t = useIdioma().t.header;
+  // Dentro del panel de administración no se repite la liga al mismo panel.
+  const enlacesCuenta = actor
+    ? enlacesPorRol(actor, t).filter(
+        (enlace) => !(enlace.href.startsWith("/admin") && pathname?.startsWith("/admin")),
+      )
+    : [];
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -225,7 +232,7 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
                   <div className="mb-1 flex flex-col gap-0.5 border-b border-border px-3 pt-1 pb-3">
                     <span className="text-sm font-bold text-foreground">{actor.nombre}</span>
                   </div>
-                  {enlacesPorRol(actor, t).map((enlace) => (
+                  {enlacesCuenta.map((enlace) => (
                     <Link
                       key={enlace.href}
                       href={enlace.href}
@@ -241,7 +248,7 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
                       ) : null}
                     </Link>
                   ))}
-                  <div className="my-1 h-px bg-border" />
+                  {enlacesCuenta.length > 0 ? <div className="my-1 h-px bg-border" /> : null}
                   <button
                     type="button"
                     role="menuitem"
