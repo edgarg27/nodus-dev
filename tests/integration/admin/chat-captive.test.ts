@@ -10,8 +10,12 @@ const { getUsuarioActual } = await import("../../../src/server/auth/session.ts")
 const { db } = await import("../../../src/lib/db/client.ts");
 const { mensajeCaptive, usuario } = await import("../../../src/lib/db/schema.ts");
 const { resetTestDatabase } = await import("../../helpers/reset-db.ts");
-const { obtenerChatParaCaptive, contarNoLeidosDeCaptive, clientesConMensajesSinLeer } =
-  await import("../../../src/server/messages/captive.ts");
+const {
+  obtenerChatParaCaptive,
+  contarNoLeidosDeCaptive,
+  clientesConMensajesSinLeer,
+  listarChatsParaCaptive,
+} = await import("../../../src/server/messages/captive.ts");
 const { contarClientesPorAtender } = await import("../../../src/server/clientes/queries.ts");
 const CLIENTE = await import("../../../src/app/api/v1/captive-chat/route.ts");
 const { POST: POST_ADMIN } = await import(
@@ -54,7 +58,10 @@ describe("Chat del cliente con Captive", () => {
     const enviado = await CLIENTE.POST(peticion("/api/v1/captive-chat", { texto: "  Hola  " }));
     expect(enviado.status).toBe(201);
     expect((await clientesConMensajesSinLeer()).get(cliente.id)).toBe(1);
-    expect(await contarClientesPorAtender()).toBe(1);
+    // Los mensajes se cuentan en "Mensajes", no en el contador de Clientes y prospectos.
+    expect(await contarClientesPorAtender()).toBe(0);
+    const bandeja = await listarChatsParaCaptive(admin);
+    expect(bandeja.map((chat) => [chat.buscadorId, chat.noLeidos])).toEqual([[cliente.id, 1]]);
 
     // Abrir el chat desde el panel lo marca como leído.
     const vistaCaptive = await obtenerChatParaCaptive(admin, cliente.id);

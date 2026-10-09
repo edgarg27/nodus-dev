@@ -138,6 +138,7 @@ const RUTAS_AUTENTICADAS: Array<{
   { ruta: "/admin/broker-requests", login: async () => admin },
   { ruta: "/admin/brokers", login: async () => admin },
   { ruta: "/admin/clientes", login: async () => admin },
+  { ruta: "/admin/mensajes", login: async () => admin },
 ];
 
 for (const { ruta, login } of RUTAS_AUTENTICADAS) {

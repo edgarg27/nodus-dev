@@ -413,6 +413,7 @@ export const en: Textos = {
       requests: "Broker requests",
       brokers: "Active brokers",
       clientes: "Clients and prospects",
+      mensajes: "Messages",
     },
     propiedades: {
       metaTitulo: "Pending properties — Captive by Nodus",
@@ -468,6 +469,15 @@ export const en: Textos = {
       cerrar: "Close",
       yaNoEsBroker: "This user is no longer a broker.",
       revocado: "Broker access revoked.",
+    },
+    mensajes: {
+      metaTitulo: "Messages — Captive by Nodus",
+      titulo: "Messages",
+      descripcion:
+        "Clients' conversations with the Captive team. What you write here reaches the client as “Captive team”.",
+      vacio: "No client messages yet.",
+      tu: "You",
+      verCliente: "View client",
     },
     clientes: {
       metaTitulo: "Clients and prospects — Captive by Nodus",

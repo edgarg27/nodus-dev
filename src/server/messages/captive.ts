@@ -197,3 +197,77 @@ export async function clientesConMensajesSinLeer(
     .groupBy(chatCaptive.buscadorId);
   return new Map(filas.map((fila) => [fila.buscadorId, fila.total]));
 }
+
+export interface ChatDeCliente {
+  buscadorId: string;
+  nombre: string;
+  email: string;
+  ultimo: { texto: string; deCaptive: boolean; createdAt: Date } | null;
+  // Mensajes del cliente que Captive no ha leído.
+  noLeidos: number;
+}
+
+// Bandeja de Mensajes del panel: un chat por cliente, el de actividad más reciente primero.
+export async function listarChatsParaCaptive(
+  actor: ActorAutenticado | null,
+): Promise<ChatDeCliente[]> {
+  if (actor?.rol !== "admin") return [];
+  const chats = await db
+    .select({
+      id: chatCaptive.id,
+      buscadorId: chatCaptive.buscadorId,
+      nombre: usuario.nombre,
+      email: usuario.email,
+    })
+    .from(chatCaptive)
+    .innerJoin(usuario, eq(chatCaptive.buscadorId, usuario.id));
+  if (chats.length === 0) return [];
+
+  const mensajes = await db
+    .select({
+      chatId: mensajeCaptive.chatId,
+      texto: mensajeCaptive.texto,
+      deCaptive: mensajeCaptive.deCaptive,
+      leidoEn: mensajeCaptive.leidoEn,
+      createdAt: mensajeCaptive.createdAt,
+    })
+    .from(mensajeCaptive)
+    .where(
+      inArray(
+        mensajeCaptive.chatId,
+        chats.map((chat) => chat.id),
+      ),
+    )
+    .orderBy(sql`${mensajeCaptive.createdAt} desc`);
+
+  const resumen = chats.map((chat): ChatDeCliente => {
+    const propios = mensajes.filter((m) => m.chatId === chat.id);
+    const [ultimo] = propios;
+    return {
+      buscadorId: chat.buscadorId,
+      nombre: chat.nombre,
+      email: chat.email,
+      ultimo: ultimo
+        ? { texto: ultimo.texto, deCaptive: ultimo.deCaptive, createdAt: ultimo.createdAt }
+        : null,
+      noLeidos: propios.filter((m) => !m.deCaptive && m.leidoEn === null).length,
+    };
+  });
+  return resumen
+    .filter((chat) => chat.ultimo !== null)
+    .sort((a, b) => (b.ultimo?.createdAt.getTime() ?? 0) - (a.ultimo?.createdAt.getTime() ?? 0));
+}
+
+// Datos de cabecera de un chat en el panel: nombre y correo del cliente. Otro rol o un cliente que
+// no existe: null.
+export async function clienteDelChat(
+  actor: ActorAutenticado | null,
+  buscadorId: string,
+): Promise<{ nombre: string; email: string } | null> {
+  if (actor?.rol !== "admin") return null;
+  const [fila] = await db
+    .select({ nombre: usuario.nombre, email: usuario.email })
+    .from(usuario)
+    .where(and(eq(usuario.id, buscadorId), ne(usuario.rol, "admin")));
+  return fila ?? null;
+}

@@ -244,26 +244,23 @@ export async function listarAccionesPendientes(
   }));
 }
 
-// Contador del menú lateral: clientes con alguna solicitud nueva sin atender, con un recordatorio
-// vencido o con mensajes que Captive no ha leído.
+// Contador del menú lateral: clientes con alguna solicitud nueva sin atender o con un recordatorio
+// vencido. (Los mensajes sin leer se cuentan aparte, en "Mensajes".)
 export async function contarClientesPorAtender(ahora: Date = new Date()): Promise<number> {
-  const [filas, conMensajes] = await Promise.all([
-    db
-      .selectDistinct({ buscadorId: contactRequest.buscadorId })
-      .from(contactRequest)
-      .where(
-        and(
-          eq(contactRequest.canal, "captive"),
-          or(
-            eq(contactRequest.paso, "nueva"),
-            and(
-              notInArray(contactRequest.paso, [...PASOS_TERMINADOS]),
-              lte(contactRequest.proximaAccionEn, ahora),
-            ),
+  const filas = await db
+    .selectDistinct({ buscadorId: contactRequest.buscadorId })
+    .from(contactRequest)
+    .where(
+      and(
+        eq(contactRequest.canal, "captive"),
+        or(
+          eq(contactRequest.paso, "nueva"),
+          and(
+            notInArray(contactRequest.paso, [...PASOS_TERMINADOS]),
+            lte(contactRequest.proximaAccionEn, ahora),
           ),
         ),
       ),
-    clientesConMensajesSinLeer(),
-  ]);
-  return new Set([...filas.map((fila) => fila.buscadorId), ...conMensajes.keys()]).size;
+    );
+  return filas.length;
 }
