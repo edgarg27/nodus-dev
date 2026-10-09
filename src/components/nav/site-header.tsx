@@ -36,6 +36,10 @@ interface EnlaceNav {
   insignia?: number;
 }
 
+// Las solicitudes de los clientes ya le llegan a Captive, así que "Mensajes" no se muestra en el menú
+// del oferente. La pantalla sigue existiendo (/mensajes): para volver a mostrarla, poner `true`.
+const MENSAJES_VISIBLE_PARA_OFERENTE = false;
+
 function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): EnlaceNav[] {
   if (actor.rol === "admin") {
     return [{ href: "/admin/propiedades", etiqueta: t.panelAdmin }];
@@ -50,7 +54,9 @@ function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): EnlaceNav[]
       { href: "/propiedades", etiqueta: t.misPropiedades },
       { href: "/leads", etiqueta: t.misLeadsBandeja },
       { href: "/red", etiqueta: t.red },
-      { href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos },
+      ...(MENSAJES_VISIBLE_PARA_OFERENTE
+        ? [{ href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos }]
+        : []),
       { href: "/perfil", etiqueta: t.miPerfil },
       ...guardados,
     ];
