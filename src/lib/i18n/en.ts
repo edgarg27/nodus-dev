@@ -537,8 +537,6 @@ export const en: Textos = {
       accionesDescripcion: "Today's reminders and the overdue ones.",
       sinAcciones: "No reminders for today.",
       mensajesTitulo: "Messages",
-      mensajesVacio:
-        "No messages yet. Write to the client: they will see it in their Messages as “Captive team”.",
       mensajesNuevos: (n: number) => (n === 1 ? "1 new message" : `${n} new messages`),
       seguimientoTitulo: "Follow-up",
       tiposNota: {

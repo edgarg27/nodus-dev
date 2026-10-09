@@ -543,8 +543,6 @@ export const es = {
       accionesDescripcion: "Recordatorios de hoy y los que ya se vencieron.",
       sinAcciones: "No hay recordatorios para hoy.",
       mensajesTitulo: "Mensajes",
-      mensajesVacio:
-        "Todavía no hay mensajes. Escríbele al cliente: lo verá en su apartado Mensajes como «Equipo Captive».",
       mensajesNuevos: (n: number) => (n === 1 ? "1 mensaje nuevo" : `${n} mensajes nuevos`),
       seguimientoTitulo: "Seguimiento",
       tiposNota: {

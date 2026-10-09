@@ -180,7 +180,6 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
             <ChatThread
               endpoint={`/api/v1/admin/clientes/${cliente.id}/mensajes`}
               compacta
-              vacio={textos.mensajesVacio}
               mensajes={chat.map((mensaje) => ({
                 id: mensaje.id,
                 texto: mensaje.texto,

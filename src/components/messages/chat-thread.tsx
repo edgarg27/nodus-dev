@@ -84,35 +84,38 @@ export function ChatThread({ endpoint, mensajes, compacta = false, vacio }: Chat
 
   return (
     <div className="flex flex-col gap-4">
-      <div
-        aria-live="polite"
-        className={`flex flex-col gap-3 overflow-y-auto rounded-2xl border border-border bg-surface ${
-          compacta ? "max-h-80 min-h-40 p-4" : "max-h-[55vh] min-h-[240px] p-5"
-        }`}
-      >
-        {mensajes.length === 0 && vacio ? (
-          <p className="m-auto max-w-sm text-center text-sm text-muted-foreground">{vacio}</p>
-        ) : null}
-        {mensajes.map((mensaje) => (
-          <div
-            key={mensaje.id}
-            className={`flex max-w-[80%] flex-col gap-1 ${mensaje.mio ? "self-end items-end" : "self-start items-start"}`}
-          >
-            <p
-              className={`rounded-2xl px-4 py-2.5 text-sm whitespace-pre-line ${
-                mensaje.mio ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
-              }`}
+      {/* Sin mensajes y sin texto de ayuda, solo queda la caja para escribir. */}
+      {mensajes.length > 0 || vacio ? (
+        <div
+          aria-live="polite"
+          className={`flex flex-col gap-3 overflow-y-auto rounded-2xl border border-border bg-surface ${
+            compacta ? "max-h-80 p-4" : "max-h-[55vh] min-h-[240px] p-5"
+          }`}
+        >
+          {mensajes.length === 0 && vacio ? (
+            <p className="m-auto max-w-sm text-center text-sm text-muted-foreground">{vacio}</p>
+          ) : null}
+          {mensajes.map((mensaje) => (
+            <div
+              key={mensaje.id}
+              className={`flex max-w-[80%] flex-col gap-1 ${mensaje.mio ? "self-end items-end" : "self-start items-start"}`}
             >
-              {mensaje.texto}
-            </p>
-            <span className="text-[11px] text-muted-foreground">
-              {mensaje.autor ? `${mensaje.autor} · ` : ""}
-              {formateadorHora.format(new Date(mensaje.createdAt))}
-            </span>
-          </div>
-        ))}
-        <div ref={finRef} />
-      </div>
+              <p
+                className={`rounded-2xl px-4 py-2.5 text-sm whitespace-pre-line ${
+                  mensaje.mio ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
+                }`}
+              >
+                {mensaje.texto}
+              </p>
+              <span className="text-[11px] text-muted-foreground">
+                {mensaje.autor ? `${mensaje.autor} · ` : ""}
+                {formateadorHora.format(new Date(mensaje.createdAt))}
+              </span>
+            </div>
+          ))}
+          <div ref={finRef} />
+        </div>
+      ) : null}
 
       <form onSubmit={enviar} className="flex flex-col gap-2">
         <label htmlFor={idCampo} className="sr-only">
