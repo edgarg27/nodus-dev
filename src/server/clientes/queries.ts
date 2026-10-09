@@ -1,21 +1,21 @@
-import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
-import { alias } from "drizzle-orm/pg-core";
-import type { EstadoCliente, ParamsClientes, TipoNota } from "../../lib/clientes.ts";
-import { POR_PAGINA_CLIENTES } from "../../lib/clientes.ts";
-import { db } from "../../lib/db/client.ts";
+import { and, asc, eq, ilike, inArray, isNotNull, lte, notInArray, or, sql } from "drizzle-orm";
 import {
-  contactRequest,
-  propiedad,
-  seguimientoCliente,
-  seguimientoNota,
-  usuario,
-} from "../../lib/db/schema.ts";
-import { obtenerContactoPublico } from "../agency/queries.ts";
+  type EstadoCliente,
+  estadoDeCliente,
+  finDelDia,
+  PASOS_TERMINADOS,
+  type ParamsClientes,
+  type PasoSolicitud,
+  POR_PAGINA_CLIENTES,
+} from "../../lib/clientes.ts";
+import { db } from "../../lib/db/client.ts";
+import { contactRequest, propiedad, usuario } from "../../lib/db/schema.ts";
 import { requireRol } from "../auth/guards.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
 
 // "Clientes y prospectos" (panel de administración): los buscadores registrados y lo que pidieron.
-// Solo admin: cualquier otro actor recibe `null`/vacío, igual que un recurso que no existe.
+// Solo admin: cualquier otro actor recibe vacío, igual que un recurso que no existe. El detalle de
+// un cliente vive en ./detalle.ts.
 
 export interface ClienteResumen {
   id: string;
@@ -23,12 +23,15 @@ export interface ClienteResumen {
   email: string;
   telefono: string | null;
   registradoEn: Date;
-  estado: EstadoCliente;
+  // Calculada de los pasos de sus solicitudes para Captive; `null` si no tiene ninguna.
+  estado: EstadoCliente | null;
   // Todas sus solicitudes: las nuevas (canal "captive") y las anteriores que le llegaron directo al
   // oferente, para que Captive vea a todos los que alguna vez pidieron informes.
   solicitudes: number;
   ultimaSolicitud: Date | null;
   quiereFinanciamiento: boolean;
+  // La próxima acción más cercana de sus solicitudes abiertas.
+  proximaAccion: { texto: string; en: Date } | null;
 }
 
 export interface ListaClientes {
@@ -47,6 +50,60 @@ function esAdmin(actor: ActorAutenticado | null): boolean {
   return requireRol(actor, "admin").ok;
 }
 
+interface Agregado {
+  solicitudes: number;
+  ultima: Date;
+  financiamiento: boolean;
+  pasosCaptive: PasoSolicitud[];
+  proximaAccion: { texto: string; en: Date } | null;
+}
+
+// Por cliente: cuántas solicitudes hizo, la más reciente, si pidió financiamiento, los pasos de las
+// que son para Captive y su próxima acción más cercana.
+async function agregarPorCliente(): Promise<Map<string, Agregado>> {
+  const filas = await db
+    .select({
+      buscadorId: contactRequest.buscadorId,
+      canal: contactRequest.canal,
+      paso: contactRequest.paso,
+      proximaAccion: contactRequest.proximaAccion,
+      proximaAccionEn: contactRequest.proximaAccionEn,
+      quiereFinanciamiento: contactRequest.quiereFinanciamiento,
+      createdAt: contactRequest.createdAt,
+    })
+    .from(contactRequest);
+
+  const mapa = new Map<string, Agregado>();
+  for (const fila of filas) {
+    let agregado = mapa.get(fila.buscadorId);
+    if (!agregado) {
+      agregado = {
+        solicitudes: 0,
+        ultima: fila.createdAt,
+        financiamiento: false,
+        pasosCaptive: [],
+        proximaAccion: null,
+      };
+      mapa.set(fila.buscadorId, agregado);
+    }
+    agregado.solicitudes += 1;
+    if (fila.createdAt > agregado.ultima) agregado.ultima = fila.createdAt;
+    agregado.financiamiento ||= fila.quiereFinanciamiento;
+    if (fila.canal !== "captive") continue;
+    const paso = fila.paso as PasoSolicitud;
+    agregado.pasosCaptive.push(paso);
+    if (
+      fila.proximaAccion &&
+      fila.proximaAccionEn &&
+      !PASOS_TERMINADOS.includes(paso) &&
+      (!agregado.proximaAccion || fila.proximaAccionEn < agregado.proximaAccion.en)
+    ) {
+      agregado.proximaAccion = { texto: fila.proximaAccion, en: fila.proximaAccionEn };
+    }
+  }
+  return mapa;
+}
+
 export async function listarClientes(
   actor: ActorAutenticado | null,
   params: ParamsClientes,
@@ -60,19 +117,7 @@ export async function listarClientes(
   };
   if (!esAdmin(actor)) return vacia;
 
-  // Por cliente: cuántas solicitudes hizo (de cualquier canal), la más reciente y si pidió
-  // financiamiento.
-  const agregados = await db
-    .select({
-      buscadorId: contactRequest.buscadorId,
-      solicitudes: sql<number>`count(*)::int`,
-      ultima: sql<Date>`max(${contactRequest.createdAt})`,
-      financiamiento: sql<boolean>`bool_or(${contactRequest.quiereFinanciamiento})`,
-    })
-    .from(contactRequest)
-    .groupBy(contactRequest.buscadorId);
-  const porCliente = new Map(agregados.map((fila) => [fila.buscadorId, fila]));
-
+  const porCliente = await agregarPorCliente();
   const condiciones = [];
   const conSolicitud = [...porCliente.keys()];
   if (params.vista === "solicitudes") {
@@ -103,24 +148,19 @@ export async function listarClientes(
       email: usuario.email,
       telefono: usuario.telefono,
       registradoEn: usuario.createdAt,
-      estado: seguimientoCliente.estado,
     })
     .from(usuario)
-    .leftJoin(seguimientoCliente, eq(seguimientoCliente.buscadorId, usuario.id))
     .where(and(...condiciones));
 
   const todos: ClienteResumen[] = filas.map((fila) => {
     const agregado = porCliente.get(fila.id);
     return {
-      id: fila.id,
-      nombre: fila.nombre,
-      email: fila.email,
-      telefono: fila.telefono,
-      registradoEn: fila.registradoEn,
-      estado: (fila.estado ?? "pendiente") as EstadoCliente,
+      ...fila,
+      estado: estadoDeCliente(agregado?.pasosCaptive ?? []),
       solicitudes: agregado?.solicitudes ?? 0,
-      ultimaSolicitud: agregado ? new Date(agregado.ultima) : null,
+      ultimaSolicitud: agregado?.ultima ?? null,
       quiereFinanciamiento: agregado?.financiamiento ?? false,
+      proximaAccion: agregado?.proximaAccion ?? null,
     };
   });
   // Primero quien pidió informes más recientemente; luego los registrados más nuevos.
@@ -131,7 +171,7 @@ export async function listarClientes(
   );
 
   const porEstado: Record<EstadoCliente, number> = { pendiente: 0, seguimiento: 0, cerrado: 0 };
-  for (const cliente of todos) porEstado[cliente.estado] += 1;
+  for (const cliente of todos) if (cliente.estado) porEstado[cliente.estado] += 1;
 
   const filtrados = params.estado ? todos.filter((c) => c.estado === params.estado) : todos;
   const inicio = (params.pagina - 1) * POR_PAGINA_CLIENTES;
@@ -144,183 +184,76 @@ export async function listarClientes(
   };
 }
 
-// Contador del menú lateral: clientes con solicitudes para Captive que siguen pendientes.
-export async function contarClientesPendientes(): Promise<number> {
-  const [fila] = await db
-    .select({ total: sql<number>`count(distinct ${contactRequest.buscadorId})::int` })
+export interface AccionPendiente {
+  solicitudId: string;
+  clienteId: string;
+  clienteNombre: string;
+  espacio: string;
+  paso: PasoSolicitud;
+  texto: string;
+  en: Date;
+  vencida: boolean;
+}
+
+// Próximas acciones de hoy y vencidas, de la más antigua a la más nueva (solo solicitudes abiertas).
+export async function listarAccionesPendientes(
+  actor: ActorAutenticado | null,
+  ahora: Date = new Date(),
+): Promise<AccionPendiente[]> {
+  if (!esAdmin(actor)) return [];
+  const filas = await db
+    .select({
+      solicitudId: contactRequest.id,
+      clienteId: usuario.id,
+      clienteNombre: usuario.nombre,
+      titulo: propiedad.titulo,
+      direccion: propiedad.direccion,
+      paso: contactRequest.paso,
+      texto: contactRequest.proximaAccion,
+      en: contactRequest.proximaAccionEn,
+    })
     .from(contactRequest)
-    .leftJoin(seguimientoCliente, eq(seguimientoCliente.buscadorId, contactRequest.buscadorId))
+    .innerJoin(usuario, eq(contactRequest.buscadorId, usuario.id))
+    .innerJoin(propiedad, eq(contactRequest.propiedadId, propiedad.id))
     .where(
       and(
         eq(contactRequest.canal, "captive"),
-        sql`coalesce(${seguimientoCliente.estado}, 'pendiente') = 'pendiente'`,
+        notInArray(contactRequest.paso, [...PASOS_TERMINADOS]),
+        isNotNull(contactRequest.proximaAccion),
+        lte(contactRequest.proximaAccionEn, finDelDia(ahora)),
+      ),
+    )
+    .orderBy(asc(contactRequest.proximaAccionEn));
+
+  return filas.map((fila) => ({
+    solicitudId: fila.solicitudId,
+    clienteId: fila.clienteId,
+    clienteNombre: fila.clienteNombre,
+    espacio: fila.titulo ?? fila.direccion,
+    paso: fila.paso as PasoSolicitud,
+    texto: fila.texto ?? "",
+    en: fila.en ?? ahora,
+    vencida: (fila.en ?? ahora) < ahora,
+  }));
+}
+
+// Contador del menú lateral: clientes con alguna solicitud nueva sin atender o con una próxima
+// acción vencida.
+export async function contarClientesPorAtender(ahora: Date = new Date()): Promise<number> {
+  const [fila] = await db
+    .select({ total: sql<number>`count(distinct ${contactRequest.buscadorId})::int` })
+    .from(contactRequest)
+    .where(
+      and(
+        eq(contactRequest.canal, "captive"),
+        or(
+          eq(contactRequest.paso, "nueva"),
+          and(
+            notInArray(contactRequest.paso, [...PASOS_TERMINADOS]),
+            lte(contactRequest.proximaAccionEn, ahora),
+          ),
+        ),
       ),
     );
   return fila?.total ?? 0;
-}
-
-export interface SolicitudDeCliente {
-  id: string;
-  canal: "directo" | "captive";
-  creadaEn: Date;
-  quiereFinanciamiento: boolean;
-  mensaje: string | null;
-  propiedad: {
-    id: string;
-    titulo: string | null;
-    direccion: string;
-    ciudad: string;
-    tipo: string;
-    modalidad: string;
-    publicada: boolean;
-  };
-  // A quién hay que llamarle para confirmar la disponibilidad.
-  oferente: {
-    id: string;
-    nombre: string;
-    agencia: string;
-    email: string;
-    telefono: string | null;
-    whatsapp: string | null;
-    esBroker: boolean;
-    brokerCode: string | null;
-  };
-  // Broker que refirió al cliente (atribución), si lo hay.
-  brokerReferido: string | null;
-}
-
-export interface NotaDeSeguimiento {
-  id: string;
-  tipo: TipoNota;
-  texto: string;
-  creadaEn: Date;
-  autor: string;
-  contactRequestId: string | null;
-}
-
-export interface DetalleCliente {
-  id: string;
-  nombre: string;
-  email: string;
-  telefono: string | null;
-  registradoEn: Date;
-  estado: EstadoCliente;
-  solicitudes: SolicitudDeCliente[];
-  notas: NotaDeSeguimiento[];
-}
-
-export async function obtenerCliente(
-  actor: ActorAutenticado | null,
-  buscadorId: string,
-): Promise<DetalleCliente | null> {
-  if (!esAdmin(actor)) return null;
-
-  const [cliente] = await db
-    .select({
-      id: usuario.id,
-      nombre: usuario.nombre,
-      email: usuario.email,
-      telefono: usuario.telefono,
-      rol: usuario.rol,
-      registradoEn: usuario.createdAt,
-      estado: seguimientoCliente.estado,
-    })
-    .from(usuario)
-    .leftJoin(seguimientoCliente, eq(seguimientoCliente.buscadorId, usuario.id))
-    .where(eq(usuario.id, buscadorId));
-  if (!cliente || cliente.rol === "admin") return null;
-
-  const oferente = alias(usuario, "oferente");
-  const broker = alias(usuario, "broker");
-  const filas = await db
-    .select({
-      id: contactRequest.id,
-      canal: contactRequest.canal,
-      creadaEn: contactRequest.createdAt,
-      quiereFinanciamiento: contactRequest.quiereFinanciamiento,
-      mensaje: contactRequest.mensaje,
-      propiedadId: propiedad.id,
-      titulo: propiedad.titulo,
-      direccion: propiedad.direccion,
-      ciudad: propiedad.ciudad,
-      tipo: propiedad.tipo,
-      modalidad: propiedad.modalidad,
-      activo: propiedad.activo,
-      estadoPublicacion: propiedad.estadoPublicacion,
-      contactoId: propiedad.contactoId,
-      oferenteId: oferente.id,
-      oferenteNombre: oferente.nombre,
-      oferenteEmail: oferente.email,
-      oferenteEsBroker: oferente.isBroker,
-      oferenteBrokerCode: oferente.brokerCode,
-      brokerNombre: broker.nombre,
-    })
-    .from(contactRequest)
-    .innerJoin(propiedad, eq(contactRequest.propiedadId, propiedad.id))
-    .innerJoin(oferente, eq(contactRequest.oferenteId, oferente.id))
-    .leftJoin(broker, eq(contactRequest.brokerId, broker.id))
-    .where(eq(contactRequest.buscadorId, buscadorId))
-    .orderBy(desc(contactRequest.createdAt));
-
-  // Un cliente sin solicitudes solo existe aquí si es buscador (los oferentes no son prospectos).
-  if (filas.length === 0 && cliente.rol !== "buscador") return null;
-
-  const solicitudes: SolicitudDeCliente[] = await Promise.all(
-    filas.map(async (fila) => {
-      const contacto = await obtenerContactoPublico(fila.oferenteId, fila.contactoId);
-      return {
-        id: fila.id,
-        canal: fila.canal as SolicitudDeCliente["canal"],
-        creadaEn: fila.creadaEn,
-        quiereFinanciamiento: fila.quiereFinanciamiento,
-        mensaje: fila.mensaje,
-        propiedad: {
-          id: fila.propiedadId,
-          titulo: fila.titulo,
-          direccion: fila.direccion,
-          ciudad: fila.ciudad,
-          tipo: fila.tipo,
-          modalidad: fila.modalidad,
-          publicada: fila.activo && fila.estadoPublicacion === "publicada",
-        },
-        oferente: {
-          id: fila.oferenteId,
-          nombre: fila.oferenteNombre,
-          agencia: contacto.agenciaNombre,
-          email: contacto.email ?? fila.oferenteEmail,
-          telefono: contacto.telefono,
-          whatsapp: contacto.whatsapp,
-          esBroker: fila.oferenteEsBroker,
-          brokerCode: fila.oferenteBrokerCode,
-        },
-        brokerReferido: fila.brokerNombre,
-      };
-    }),
-  );
-
-  const autor = alias(usuario, "autor");
-  const notas = await db
-    .select({
-      id: seguimientoNota.id,
-      tipo: seguimientoNota.tipo,
-      texto: seguimientoNota.texto,
-      creadaEn: seguimientoNota.createdAt,
-      autor: autor.nombre,
-      contactRequestId: seguimientoNota.contactRequestId,
-    })
-    .from(seguimientoNota)
-    .innerJoin(autor, eq(seguimientoNota.autorId, autor.id))
-    .where(eq(seguimientoNota.buscadorId, buscadorId))
-    .orderBy(desc(seguimientoNota.createdAt));
-
-  return {
-    id: cliente.id,
-    nombre: cliente.nombre,
-    email: cliente.email,
-    telefono: cliente.telefono,
-    registradoEn: cliente.registradoEn,
-    estado: (cliente.estado ?? "pendiente") as EstadoCliente,
-    solicitudes,
-    notas: notas.map((nota) => ({ ...nota, tipo: nota.tipo as TipoNota })),
-  };
 }

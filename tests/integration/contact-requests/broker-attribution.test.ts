@@ -9,7 +9,7 @@ vi.mock("../../../src/server/auth/session.ts", async (importOriginal) => {
 
 const { getUsuarioActual } = await import("../../../src/server/auth/session.ts");
 const { db } = await import("../../../src/lib/db/client.ts");
-const { contactRequest, conversacion, propiedad, seguimientoCliente, usuario } = await import(
+const { contactRequest, conversacion, propiedad, usuario } = await import(
   "../../../src/lib/db/schema.ts"
 );
 const { resetTestDatabase } = await import("../../helpers/reset-db.ts");
@@ -256,28 +256,10 @@ describe("POST /api/v1/contact-requests", () => {
       .from(contactRequest)
       .where(eq(contactRequest.propiedadId, propia.id));
     expect(lead?.canal).toBe("captive");
+    // Nace en el primer paso del seguimiento de Captive, sin próxima acción.
+    expect(lead?.paso).toBe("nueva");
+    expect(lead?.proximaAccion).toBeNull();
     expect(await db.select().from(conversacion)).toHaveLength(0);
-  });
-
-  it("una solicitud nueva regresa al cliente a pendiente en el seguimiento de Captive", async () => {
-    await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    const [propia] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
-    if (!propia) throw new Error("fixture no se creó");
-
-    const buscador = actorFixture("buscador");
-    await insertarUsuario(buscador);
-    await db.insert(seguimientoCliente).values({ buscadorId: buscador.id, estado: "cerrado" });
-    actuarComo(buscador);
-
-    const respuesta = await POST(request({ propiedad_id: propia.id }));
-    expect(respuesta.status).toBe(201);
-    const [seguimiento] = await db
-      .select()
-      .from(seguimientoCliente)
-      .where(eq(seguimientoCliente.buscadorId, buscador.id));
-    expect(seguimiento?.estado).toBe("pendiente");
   });
 });
 

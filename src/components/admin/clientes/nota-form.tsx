@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { useAdminToast } from "@/components/admin/admin-toast";
 import { useIdioma } from "@/components/i18n/idioma-provider";
-import { MAXIMO_NOTA, TIPOS_NOTA, type TipoNota } from "@/lib/clientes";
+import { MAXIMO_NOTA, TIPOS_NOTA_MANUAL, type TipoNotaManual } from "@/lib/clientes";
 
 interface NotaFormProps {
   clienteId: string;
@@ -16,7 +16,7 @@ export function NotaForm({ clienteId }: NotaFormProps) {
   const textos = t.admin.clientes;
   const router = useRouter();
   const { showToast } = useAdminToast();
-  const [tipo, setTipo] = useState<TipoNota>("llamada_broker");
+  const [tipo, setTipo] = useState<TipoNotaManual>("llamada_broker");
   const [texto, setTexto] = useState("");
   const [guardando, setGuardando] = useState(false);
   const idTipo = useId();
@@ -55,10 +55,10 @@ export function NotaForm({ clienteId }: NotaFormProps) {
         <select
           id={idTipo}
           value={tipo}
-          onChange={(evento) => setTipo(evento.target.value as TipoNota)}
+          onChange={(evento) => setTipo(evento.target.value as TipoNotaManual)}
           className={campo}
         >
-          {TIPOS_NOTA.map((opcion) => (
+          {TIPOS_NOTA_MANUAL.map((opcion) => (
             <option key={opcion} value={opcion}>
               {textos.tiposNota[opcion]}
             </option>

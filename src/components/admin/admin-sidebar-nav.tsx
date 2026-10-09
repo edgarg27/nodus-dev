@@ -9,7 +9,7 @@ interface AdminSidebarNavProps {
   pendingPropertiesCount: number;
   pendingRequestsCount: number;
   activeBrokersCount: number;
-  // Clientes con solicitudes para Captive que siguen pendientes.
+  // Clientes con una solicitud nueva sin atender o con una próxima acción vencida.
   pendingClientsCount: number;
 }
 

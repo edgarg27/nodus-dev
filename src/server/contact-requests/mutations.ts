@@ -3,7 +3,6 @@ import { db } from "../../lib/db/client.ts";
 import { contactRequest, propiedad, usuario } from "../../lib/db/schema.ts";
 import { requireRol } from "../auth/guards.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
-import { marcarClientePendiente } from "../clientes/mutations.ts";
 
 export interface CrearContactRequestInput {
   propiedadId: string;
@@ -76,9 +75,7 @@ export async function crearContactRequest(
     .returning();
   if (!fila) throw new Error("insert de contact_request no devolvió fila");
 
-  // Captive le da seguimiento desde "Clientes y prospectos": el cliente vuelve a pendiente.
-  await marcarClientePendiente(actor.id);
-
+  // Nace en el paso "nueva": Captive la atiende desde "Clientes y prospectos".
   return {
     ok: true,
     data: { id: fila.id, conversacionId: null, telefonoOferente: null, whatsappUrl: null },

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { MAXIMO_NOTA, TIPOS_NOTA } from "../../../../../../../lib/clientes.ts";
+import { MAXIMO_NOTA, TIPOS_NOTA_MANUAL } from "../../../../../../../lib/clientes.ts";
 import { getUsuarioActual } from "../../../../../../../server/auth/session.ts";
 import { agregarNotaCliente } from "../../../../../../../server/clientes/mutations.ts";
 import {
@@ -13,9 +13,8 @@ import {
 import { manejarError } from "../../../../../../../server/http/handle-error.ts";
 
 const notaSchema = z.object({
-  tipo: z.enum(TIPOS_NOTA),
+  tipo: z.enum(TIPOS_NOTA_MANUAL),
   texto: z.string().trim().min(1).max(MAXIMO_NOTA),
-  contact_request_id: z.uuid().nullish(),
 });
 
 interface RouteParams {
@@ -34,11 +33,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     const parsed = notaSchema.safeParse(await request.json().catch(() => null));
     if (!parsed.success) return errorValidacion(parsed.error);
 
-    const resultado = await agregarNotaCliente(actor, id, {
-      tipo: parsed.data.tipo,
-      texto: parsed.data.texto,
-      contactRequestId: parsed.data.contact_request_id ?? null,
-    });
+    const resultado = await agregarNotaCliente(actor, id, parsed.data);
     if (!resultado.ok) {
       return respuestaError(resultado.error.status, resultado.error.code, resultado.error.message);
     }

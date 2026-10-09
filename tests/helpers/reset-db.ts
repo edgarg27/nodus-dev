@@ -20,8 +20,9 @@
 //     oferente), en el mismo commit que crea las tablas.
 //   - `propiedad_metrica_diaria`, `conversacion`, `mensaje`: agregadas con la migración 0016
 //     (métricas y chat del panel del oferente), en el mismo commit que crea las tablas.
-//   - `seguimiento_nota`, `seguimiento_cliente`: agregadas con la migración 0019 (Clientes y
-//     prospectos del panel de administración), en el mismo commit que crea las tablas.
+//   - `seguimiento_nota`: agregada con la migración 0019 (Clientes y prospectos del panel de
+//     administración), en el mismo commit que crea la tabla. (`seguimiento_cliente` nació en la 0019
+//     y la quitó la 0021.)
 //   - `rate_limit_hit`: no existe hasta el paso 36 (hardening); el paso 36 EDITA este archivo otra
 //     vez para agregarla, en el mismo commit que agrega la tabla.
 // Nunca antes — mismo patrón de "staging" que `tsconfig.tests.json`/`tsconfig.scripts.json`.
@@ -35,6 +36,6 @@ export async function resetTestDatabase(): Promise<void> {
   assertSafeToResetTests(process.env);
   const { db } = await import("../../src/lib/db/client.ts");
   await db.execute(
-    sql`truncate table seguimiento_nota, seguimiento_cliente, mensaje, conversacion, propiedad_metrica_diaria, agencia_contacto, agencia_perfil, favorito, busqueda_guardada, rate_limit_hit, broker_atribucion_historica, broker_revocacion, broker_solicitud, contact_request, propiedad_foto, propiedad, usuario restart identity cascade;`,
+    sql`truncate table seguimiento_nota, mensaje, conversacion, propiedad_metrica_diaria, agencia_contacto, agencia_perfil, favorito, busqueda_guardada, rate_limit_hit, broker_atribucion_historica, broker_revocacion, broker_solicitud, contact_request, propiedad_foto, propiedad, usuario restart identity cascade;`,
   );
 }

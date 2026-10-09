@@ -1,12 +1,13 @@
 import { UserRoundSearchIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AccionesPendientes } from "@/components/admin/clientes/acciones-pendientes";
 import { ClienteFila } from "@/components/admin/clientes/cliente-fila";
 import { ClientesFiltros, hrefClientes } from "@/components/admin/clientes/clientes-filtros";
-import { leerParamsClientes } from "@/lib/clientes";
+import { leerParamsClientes, ZONA_HORARIA } from "@/lib/clientes";
 import { localeDe } from "@/lib/i18n";
 import { getUsuarioActual } from "@/server/auth/session";
-import { listarClientes } from "@/server/clientes/queries";
+import { listarAccionesPendientes, listarClientes } from "@/server/clientes/queries";
 import { obtenerTextos } from "@/server/i18n";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -28,11 +29,23 @@ export default async function AdminClientesPage({ searchParams }: AdminClientesP
   });
   const [{ idioma, t }, actor] = await Promise.all([obtenerTextos(), getUsuarioActual()]);
   const textos = t.admin.clientes;
-  const lista = await listarClientes(actor, params);
+  const ahora = new Date();
+  const [lista, acciones] = await Promise.all([
+    listarClientes(actor, params),
+    listarAccionesPendientes(actor, ahora),
+  ]);
   const formatoFecha = new Intl.DateTimeFormat(localeDe(idioma), {
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: ZONA_HORARIA,
+  });
+  const formatoFechaHora = new Intl.DateTimeFormat(localeDe(idioma), {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: ZONA_HORARIA,
   });
   const paginas = Math.max(1, Math.ceil(lista.total / lista.porPagina));
 
@@ -42,6 +55,8 @@ export default async function AdminClientesPage({ searchParams }: AdminClientesP
         <h1 className="text-[22px] font-bold text-text">{textos.titulo}</h1>
         <p className="max-w-3xl text-sm text-text-muted">{textos.descripcion}</p>
       </div>
+
+      <AccionesPendientes acciones={acciones} textos={textos} formatoFechaHora={formatoFechaHora} />
 
       <ClientesFiltros params={params} porEstado={lista.porEstado} textos={textos} />
 
@@ -54,7 +69,13 @@ export default async function AdminClientesPage({ searchParams }: AdminClientesP
         <ul className="flex flex-col gap-3">
           {lista.clientes.map((cliente) => (
             <li key={cliente.id}>
-              <ClienteFila cliente={cliente} textos={textos} formatoFecha={formatoFecha} />
+              <ClienteFila
+                cliente={cliente}
+                textos={textos}
+                formatoFecha={formatoFecha}
+                formatoFechaHora={formatoFechaHora}
+                ahora={ahora}
+              />
             </li>
           ))}
         </ul>

@@ -3,14 +3,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { EstadoBadge } from "@/components/admin/clientes/estado-badge";
-import { EstadoClienteSelect } from "@/components/admin/clientes/estado-cliente-select";
 import { NotaForm } from "@/components/admin/clientes/nota-form";
 import { NotasLista } from "@/components/admin/clientes/notas-lista";
 import { SolicitudClienteCard } from "@/components/admin/clientes/solicitud-cliente-card";
+import { ZONA_HORARIA } from "@/lib/clientes";
 import { localeDe } from "@/lib/i18n";
 import { iniciales } from "@/lib/initials";
 import { getUsuarioActual } from "@/server/auth/session";
-import { obtenerCliente } from "@/server/clientes/queries";
+import { obtenerCliente } from "@/server/clientes/detalle";
 import { esUuid } from "@/server/http/envelope";
 import { obtenerTextos } from "@/server/i18n";
 
@@ -23,8 +23,8 @@ interface AdminClientePageProps {
   params: Promise<{ id: string }>;
 }
 
-// Detalle de un cliente: sus solicitudes (con el contacto del broker para confirmar disponibilidad),
-// la etapa del seguimiento y la bitácora de llamadas y notas.
+// Detalle de un cliente: sus solicitudes (cada una con su paso, su próxima acción y el contacto del
+// broker para confirmar disponibilidad) y la bitácora de llamadas, notas y cambios de paso.
 export default async function AdminClientePage({ params }: AdminClientePageProps) {
   const { id } = await params;
   if (!esUuid(id)) notFound();
@@ -38,13 +38,16 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
     day: "numeric",
     month: "short",
     year: "numeric",
+    timeZone: ZONA_HORARIA,
   });
   const formatoFechaHora = new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "short",
     hour: "numeric",
     minute: "2-digit",
+    timeZone: ZONA_HORARIA,
   });
+  const ahora = new Date();
   // Las nuevas (le llegaron a Captive) a la vista; las anteriores (directo al oferente), aparte.
   const nuevas = cliente.solicitudes.filter((s) => s.canal === "captive");
   const anteriores = cliente.solicitudes.filter((s) => s.canal === "directo");
@@ -70,19 +73,14 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
           <div className="flex flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-[22px] font-bold text-text">{cliente.nombre}</h1>
-              <EstadoBadge estado={cliente.estado} etiqueta={textos.estados[cliente.estado]} />
+              {cliente.estado ? (
+                <EstadoBadge estado={cliente.estado} etiqueta={textos.estados[cliente.estado]} />
+              ) : null}
             </div>
             <span className="text-sm text-text-muted">
               {textos.registrado(formatoFecha.format(cliente.registradoEn))}
             </span>
           </div>
-        </div>
-        <div className="w-full sm:w-56">
-          <EstadoClienteSelect
-            key={cliente.estado}
-            clienteId={cliente.id}
-            estado={cliente.estado}
-          />
         </div>
       </div>
 
@@ -103,6 +101,8 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
                 textos={textos}
                 etiquetas={t.etiquetas}
                 formatoFecha={formatoFecha}
+                formatoFechaHora={formatoFechaHora}
+                ahora={ahora}
               />
             ))
           )}
@@ -131,6 +131,8 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
                     textos={textos}
                     etiquetas={t.etiquetas}
                     formatoFecha={formatoFecha}
+                    formatoFechaHora={formatoFechaHora}
+                    ahora={ahora}
                   />
                 ))}
               </div>

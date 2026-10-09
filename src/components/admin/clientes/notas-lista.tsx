@@ -1,6 +1,7 @@
-import { NotebookPenIcon, PhoneCallIcon } from "lucide-react";
+import { ArrowRightLeftIcon, NotebookPenIcon, PhoneCallIcon } from "lucide-react";
+import type { PasoSolicitud } from "@/lib/clientes";
 import type { Textos } from "@/lib/i18n";
-import type { NotaDeSeguimiento } from "@/server/clientes/queries";
+import type { NotaDeSeguimiento } from "@/server/clientes/detalle";
 
 interface NotasListaProps {
   notas: NotaDeSeguimiento[];
@@ -24,7 +25,17 @@ export function NotasLista({
   return (
     <ol className="flex flex-col gap-3">
       {notas.map((nota) => {
-        const Icono = nota.tipo === "nota" ? NotebookPenIcon : PhoneCallIcon;
+        const Icono =
+          nota.tipo === "paso"
+            ? ArrowRightLeftIcon
+            : nota.tipo === "nota"
+              ? NotebookPenIcon
+              : PhoneCallIcon;
+        // En un cambio de paso, `texto` es la clave del paso nuevo.
+        const texto =
+          nota.tipo === "paso"
+            ? textos.pasoCambiado(textos.pasos[nota.texto as PasoSolicitud] ?? nota.texto)
+            : nota.texto;
         const sobre = nota.contactRequestId ? etiquetaSolicitud.get(nota.contactRequestId) : null;
         return (
           <li key={nota.id} className="flex gap-3 rounded-xl bg-background p-3.5">
@@ -36,7 +47,7 @@ export function NotasLista({
                 {textos.tiposNota[nota.tipo]}
                 {sobre ? <span className="font-normal text-text-muted"> · {sobre}</span> : null}
               </span>
-              <p className="text-sm whitespace-pre-line text-text">{nota.texto}</p>
+              <p className="text-sm whitespace-pre-line text-text">{texto}</p>
               <span className="text-xs text-text-muted">
                 {nota.autor} · {formatoFechaHora.format(nota.creadaEn)}
               </span>

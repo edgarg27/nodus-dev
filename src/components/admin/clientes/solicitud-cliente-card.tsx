@@ -1,13 +1,18 @@
-import { ExternalLinkIcon, MessageCircleIcon, PhoneIcon } from "lucide-react";
+import { CalendarClockIcon, ExternalLinkIcon, MessageCircleIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
 import type { Textos } from "@/lib/i18n";
-import type { SolicitudDeCliente } from "@/server/clientes/queries";
+import type { SolicitudDeCliente } from "@/server/clientes/detalle";
+import { ActualizarSolicitudForm } from "./actualizar-solicitud-form";
+import { PasoBadge } from "./paso-badge";
 
 interface SolicitudClienteCardProps {
   solicitud: SolicitudDeCliente;
   textos: Textos["admin"]["clientes"];
   etiquetas: Textos["etiquetas"];
   formatoFecha: Intl.DateTimeFormat;
+  formatoFechaHora: Intl.DateTimeFormat;
+  // Para marcar la próxima acción como vencida.
+  ahora: Date;
 }
 
 function digitos(telefono: string): string {
@@ -20,6 +25,8 @@ export function SolicitudClienteCard({
   textos,
   etiquetas,
   formatoFecha,
+  formatoFechaHora,
+  ahora,
 }: SolicitudClienteCardProps) {
   const { propiedad, oferente } = solicitud;
   const telefono = oferente.whatsapp ?? oferente.telefono;
@@ -67,6 +74,27 @@ export function SolicitudClienteCard({
               {textos.directo}
             </span>
           ) : null}
+        </div>
+      ) : null}
+
+      {solicitud.canal === "captive" ? (
+        // Seguimiento de Captive: en qué paso va y qué sigue.
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <PasoBadge paso={solicitud.paso} etiqueta={textos.pasos[solicitud.paso]} />
+          {solicitud.proximaAccion ? (
+            <span
+              className={`flex items-center gap-1.5 text-sm ${
+                solicitud.proximaAccion.en < ahora ? "font-semibold text-destructive" : "text-text"
+              }`}
+            >
+              <CalendarClockIcon className="size-4 shrink-0" aria-hidden="true" />
+              {solicitud.proximaAccion.texto} ·{" "}
+              {formatoFechaHora.format(solicitud.proximaAccion.en)}
+              {solicitud.proximaAccion.en < ahora ? ` · ${textos.vencida}` : ""}
+            </span>
+          ) : (
+            <span className="text-sm text-text-muted">{textos.sinProximaAccion}</span>
+          )}
         </div>
       ) : null}
 
@@ -125,6 +153,14 @@ export function SolicitudClienteCard({
           </span>
         ) : null}
       </div>
+      {solicitud.canal === "captive" ? (
+        <ActualizarSolicitudForm
+          key={`${solicitud.paso}-${solicitud.proximaAccion?.en.getTime() ?? ""}`}
+          solicitudId={solicitud.id}
+          paso={solicitud.paso}
+          proximaAccion={solicitud.proximaAccion}
+        />
+      ) : null}
     </article>
   );
 }

@@ -1,4 +1,4 @@
-import { ChevronRightIcon } from "lucide-react";
+import { CalendarClockIcon, ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
 import type { Textos } from "@/lib/i18n";
 import { iniciales } from "@/lib/initials";
@@ -9,10 +9,19 @@ interface ClienteFilaProps {
   cliente: ClienteResumen;
   textos: Textos["admin"]["clientes"];
   formatoFecha: Intl.DateTimeFormat;
+  formatoFechaHora: Intl.DateTimeFormat;
+  ahora: Date;
 }
 
 // Un cliente en la lista de "Clientes y prospectos"; abre su detalle.
-export function ClienteFila({ cliente, textos, formatoFecha }: ClienteFilaProps) {
+export function ClienteFila({
+  cliente,
+  textos,
+  formatoFecha,
+  formatoFechaHora,
+  ahora,
+}: ClienteFilaProps) {
+  const vencida = cliente.proximaAccion ? cliente.proximaAccion.en < ahora : false;
   return (
     <Link
       href={`/admin/clientes/${cliente.id}`}
@@ -25,7 +34,7 @@ export function ClienteFila({ cliente, textos, formatoFecha }: ClienteFilaProps)
       <div className="flex min-w-0 grow flex-col gap-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="truncate font-semibold text-text">{cliente.nombre}</span>
-          {cliente.solicitudes > 0 ? (
+          {cliente.estado ? (
             <EstadoBadge estado={cliente.estado} etiqueta={textos.estados[cliente.estado]} />
           ) : null}
           {cliente.quiereFinanciamiento ? (
@@ -38,6 +47,17 @@ export function ClienteFila({ cliente, textos, formatoFecha }: ClienteFilaProps)
           {cliente.email}
           {cliente.telefono ? ` · ${cliente.telefono}` : ""}
         </span>
+        {cliente.proximaAccion ? (
+          <span
+            className={`flex items-center gap-1.5 truncate text-sm ${
+              vencida ? "font-semibold text-destructive" : "text-text"
+            }`}
+          >
+            <CalendarClockIcon className="size-4 shrink-0" aria-hidden="true" />
+            {cliente.proximaAccion.texto} · {formatoFechaHora.format(cliente.proximaAccion.en)}
+            {vencida ? ` · ${textos.vencida}` : ""}
+          </span>
+        ) : null}
       </div>
 
       <div className="hidden shrink-0 flex-col items-end gap-1 text-right text-xs text-text-muted sm:flex">

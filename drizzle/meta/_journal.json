@@ -148,6 +148,13 @@
       "when": 1791498784751,
       "tag": "0020_clientes_prospectos_lockdown",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1791560013847,
+      "tag": "0021_pasos_solicitud",
+      "breakpoints": true
     }
   ]
 }
