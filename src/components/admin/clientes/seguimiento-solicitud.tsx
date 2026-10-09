@@ -1,6 +1,5 @@
 "use client";
 
-import { ArrowRightIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import { useAdminToast } from "@/components/admin/admin-toast";
@@ -10,8 +9,8 @@ import {
   MAXIMO_RECORDATORIO,
   type PasoSolicitud,
   pasoTerminado,
-  siguientePaso,
 } from "@/lib/clientes";
+import { BarraPasos } from "./barra-pasos";
 
 interface SeguimientoSolicitudProps {
   solicitudId: string;
@@ -25,9 +24,9 @@ function aLocal(fecha: Date): string {
   return local.toISOString().slice(0, 16);
 }
 
-// Seguimiento de una solicitud con lo mínimo: un botón para pasar al siguiente paso, "Descartar", y
-// una sola caja para anotar qué pasó y, si se quiere, un recordatorio con fecha
-// (PATCH /api/v1/admin/solicitudes/:id).
+// Seguimiento de una solicitud con lo mínimo: la barra de pasos (se presiona el paso al que se quiere
+// mover), "Descartar", y una sola caja para anotar qué pasó y, si se quiere, un recordatorio con
+// fecha (PATCH /api/v1/admin/solicitudes/:id).
 export function SeguimientoSolicitud({
   solicitudId,
   paso,
@@ -43,7 +42,6 @@ export function SeguimientoSolicitud({
   const [confirmarDescarte, setConfirmarDescarte] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const ids = { comentario: useId(), recordarme: useId(), fecha: useId() };
-  const siguiente = siguientePaso(paso);
   const terminado = pasoTerminado(paso);
   // Guardar sin escribir nada solo tiene sentido si cambió el recordatorio.
   const cambiaRecordatorio =
@@ -94,34 +92,20 @@ export function SeguimientoSolicitud({
   const boton =
     "flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 text-sm font-bold disabled:opacity-60";
 
-  if (terminado) {
-    return (
-      <button
-        type="button"
-        disabled={guardando}
-        onClick={() => void enviar({ paso: "con_broker" }, textos.solicitudActualizada)}
-        className="w-fit cursor-pointer text-sm font-semibold text-text-muted underline-offset-4 hover:text-primary hover:underline"
-      >
-        {textos.reabrir}
-      </button>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-4 border-t border-border pt-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        {siguiente ? (
-          <button
-            type="button"
-            disabled={guardando}
-            onClick={() => void enviar({ paso: siguiente }, textos.solicitudActualizada)}
-            className={`${boton} bg-accent text-accent-foreground shadow-sm hover:bg-accent/90`}
-          >
-            {textos.pasarA(textos.pasos[siguiente])}
-            <ArrowRightIcon className="size-4" aria-hidden="true" />
-          </button>
-        ) : null}
-        {confirmarDescarte ? (
+      <BarraPasos
+        paso={paso}
+        etiquetas={textos.pasos}
+        titulo={textos.pasosTitulo}
+        deshabilitada={guardando}
+        onElegir={(nuevo) => void enviar({ paso: nuevo }, textos.solicitudActualizada)}
+      />
+
+      <div className="flex justify-end">
+        {paso === "descartada" ? (
+          <span className="text-sm text-text-muted">{textos.descartadaAyuda}</span>
+        ) : confirmarDescarte ? (
           <span className="flex items-center gap-3 text-sm">
             <span className="text-text-muted">{textos.confirmarDescartar}</span>
             <button
@@ -151,55 +135,57 @@ export function SeguimientoSolicitud({
         )}
       </div>
 
-      <form onSubmit={guardarNota} className="flex flex-col gap-2.5 rounded-xl bg-background p-4">
-        <label htmlFor={ids.comentario} className="text-xs font-semibold text-text-muted">
-          {textos.quePaso}
-        </label>
-        <textarea
-          id={ids.comentario}
-          value={comentario}
-          onChange={(evento) => setComentario(evento.target.value.slice(0, MAXIMO_NOTA))}
-          rows={2}
-          placeholder={textos.quePasoPlaceholder}
-          className="resize-y rounded-lg border border-input bg-surface px-3 py-2.5 text-sm text-text placeholder:text-muted-foreground"
-        />
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <label htmlFor={ids.recordarme} className="flex items-center gap-2 text-sm text-text">
-              <input
-                id={ids.recordarme}
-                type="checkbox"
-                checked={recordarme}
-                onChange={(evento) => setRecordarme(evento.target.checked)}
-                className="accent-primary"
-              />
-              {textos.recordarme}
-            </label>
-            {recordarme ? (
-              <>
-                <label htmlFor={ids.fecha} className="sr-only">
-                  {textos.fecha}
-                </label>
+      {terminado ? null : (
+        <form onSubmit={guardarNota} className="flex flex-col gap-2.5 rounded-xl bg-background p-4">
+          <label htmlFor={ids.comentario} className="text-xs font-semibold text-text-muted">
+            {textos.quePaso}
+          </label>
+          <textarea
+            id={ids.comentario}
+            value={comentario}
+            onChange={(evento) => setComentario(evento.target.value.slice(0, MAXIMO_NOTA))}
+            rows={2}
+            placeholder={textos.quePasoPlaceholder}
+            className="resize-y rounded-lg border border-input bg-surface px-3 py-2.5 text-sm text-text placeholder:text-muted-foreground"
+          />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <label htmlFor={ids.recordarme} className="flex items-center gap-2 text-sm text-text">
                 <input
-                  id={ids.fecha}
-                  type="datetime-local"
-                  required
-                  value={fecha}
-                  onChange={(evento) => setFecha(evento.target.value)}
-                  className="h-9 rounded-lg border border-input bg-surface px-2.5 text-sm text-text"
+                  id={ids.recordarme}
+                  type="checkbox"
+                  checked={recordarme}
+                  onChange={(evento) => setRecordarme(evento.target.checked)}
+                  className="accent-primary"
                 />
-              </>
-            ) : null}
+                {textos.recordarme}
+              </label>
+              {recordarme ? (
+                <>
+                  <label htmlFor={ids.fecha} className="sr-only">
+                    {textos.fecha}
+                  </label>
+                  <input
+                    id={ids.fecha}
+                    type="datetime-local"
+                    required
+                    value={fecha}
+                    onChange={(evento) => setFecha(evento.target.value)}
+                    className="h-9 rounded-lg border border-input bg-surface px-2.5 text-sm text-text"
+                  />
+                </>
+              ) : null}
+            </div>
+            <button
+              type="submit"
+              disabled={guardando || (!comentario.trim() && !cambiaRecordatorio)}
+              className={`${boton} border border-input bg-surface text-text hover:border-primary`}
+            >
+              {guardando ? textos.guardando : textos.guardar}
+            </button>
           </div>
-          <button
-            type="submit"
-            disabled={guardando || (!comentario.trim() && !cambiaRecordatorio)}
-            className={`${boton} border border-input bg-surface text-text hover:border-primary`}
-          >
-            {guardando ? textos.guardando : textos.guardar}
-          </button>
-        </div>
-      </form>
+        </form>
+      )}
     </div>
   );
 }

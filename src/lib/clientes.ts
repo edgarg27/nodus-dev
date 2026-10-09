@@ -1,9 +1,9 @@
 // "Clientes y prospectos" del panel de administración: pasos del seguimiento de Captive a cada
 // solicitud, etapa del cliente (se deriva de sus solicitudes), tipos de nota y parámetros de la lista.
 
-// Pasos del seguimiento de Captive a una solicitud, siempre hacia adelante: nueva → con el broker
-// (confirmando disponibilidad) → con el cliente (avisándole, agendando la visita) → cerrada. En
-// cualquier momento se puede descartar.
+// Pasos del seguimiento de Captive a una solicitud, en orden: nueva → con el broker (confirmando
+// disponibilidad) → con el cliente (avisándole, agendando la visita) → cerrada. Desde la barra de
+// pasos se puede ir a cualquiera, y en cualquier momento se puede descartar.
 export const PASOS_SOLICITUD = [
   "nueva",
   "con_broker",
@@ -18,17 +18,6 @@ export const PASOS_TERMINADOS: readonly PasoSolicitud[] = ["cerrada", "descartad
 
 export function pasoTerminado(paso: PasoSolicitud): boolean {
   return PASOS_TERMINADOS.includes(paso);
-}
-
-const SIGUIENTE: Partial<Record<PasoSolicitud, PasoSolicitud>> = {
-  nueva: "con_broker",
-  con_broker: "con_cliente",
-  con_cliente: "cerrada",
-};
-
-// El paso al que lleva el botón "Pasar a…"; `null` si la solicitud ya terminó.
-export function siguientePaso(paso: PasoSolicitud): PasoSolicitud | null {
-  return SIGUIENTE[paso] ?? null;
 }
 
 // Etapa del cliente, calculada de sus solicitudes para Captive: "pendiente" si alguna sigue nueva,
