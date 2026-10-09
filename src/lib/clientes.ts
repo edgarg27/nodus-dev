@@ -1,13 +1,13 @@
 // "Clientes y prospectos" del panel de administración: pasos del seguimiento de Captive a cada
 // solicitud, etapa del cliente (se deriva de sus solicitudes), tipos de nota y parámetros de la lista.
 
+// Pasos del seguimiento de Captive a una solicitud, siempre hacia adelante: nueva → con el broker
+// (confirmando disponibilidad) → con el cliente (avisándole, agendando la visita) → cerrada. En
+// cualquier momento se puede descartar.
 export const PASOS_SOLICITUD = [
   "nueva",
-  "broker_contactado",
-  "disponible",
-  "no_disponible",
-  "cliente_contactado",
-  "visita_agendada",
+  "con_broker",
+  "con_cliente",
   "cerrada",
   "descartada",
 ] as const;
@@ -18,6 +18,17 @@ export const PASOS_TERMINADOS: readonly PasoSolicitud[] = ["cerrada", "descartad
 
 export function pasoTerminado(paso: PasoSolicitud): boolean {
   return PASOS_TERMINADOS.includes(paso);
+}
+
+const SIGUIENTE: Partial<Record<PasoSolicitud, PasoSolicitud>> = {
+  nueva: "con_broker",
+  con_broker: "con_cliente",
+  con_cliente: "cerrada",
+};
+
+// El paso al que lleva el botón "Pasar a…"; `null` si la solicitud ya terminó.
+export function siguientePaso(paso: PasoSolicitud): PasoSolicitud | null {
+  return SIGUIENTE[paso] ?? null;
 }
 
 // Etapa del cliente, calculada de sus solicitudes para Captive: "pendiente" si alguna sigue nueva,
@@ -47,7 +58,7 @@ export type VistaClientes = (typeof VISTAS_CLIENTES)[number];
 
 export const POR_PAGINA_CLIENTES = 25;
 export const MAXIMO_NOTA = 2000;
-export const MAXIMO_PROXIMA_ACCION = 300;
+export const MAXIMO_RECORDATORIO = 300;
 
 // "Hoy" para las próximas acciones se cuenta en la hora del centro de México.
 export const ZONA_HORARIA = "America/Mexico_City";

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
   MAXIMO_NOTA,
-  MAXIMO_PROXIMA_ACCION,
+  MAXIMO_RECORDATORIO,
   PASOS_SOLICITUD,
 } from "../../../../../../lib/clientes.ts";
 import { getUsuarioActual } from "../../../../../../server/auth/session.ts";
@@ -16,15 +16,17 @@ import {
 } from "../../../../../../server/http/envelope.ts";
 import { manejarError } from "../../../../../../server/http/handle-error.ts";
 
+// Todo es opcional: avanzar o descartar manda solo `paso`; "¿Qué pasó?" manda `comentario` y
+// `recordatorio` (null lo quita).
 const solicitudSchema = z.object({
-  paso: z.enum(PASOS_SOLICITUD),
-  // Las dos juntas o ninguna (null borra la próxima acción).
-  proxima_accion: z
+  paso: z.enum(PASOS_SOLICITUD).optional(),
+  recordatorio: z
     .object({
-      texto: z.string().trim().min(1).max(MAXIMO_PROXIMA_ACCION),
+      texto: z.string().trim().min(1).max(MAXIMO_RECORDATORIO),
       en: z.iso.datetime({ offset: true }),
     })
-    .nullable(),
+    .nullable()
+    .optional(),
   comentario: z
     .string()
     .trim()
@@ -37,8 +39,8 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-// Actualiza el seguimiento de Captive a una solicitud: paso, próxima acción y comentario opcional.
-// Repetir los mismos datos sin comentario deja el mismo resultado.
+// Actualiza el seguimiento de Captive a una solicitud: paso, recordatorio y lo que pasó. Repetir los
+// mismos datos sin comentario deja el mismo resultado (el comentario es una nota nueva cada vez).
 export async function PATCH(request: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
@@ -49,12 +51,13 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     const parsed = solicitudSchema.safeParse(await request.json().catch(() => null));
     if (!parsed.success) return errorValidacion(parsed.error);
 
-    const { paso, proxima_accion, comentario } = parsed.data;
+    const { paso, recordatorio, comentario } = parsed.data;
     const resultado = await actualizarSolicitud(actor, id, {
       paso,
-      proximaAccion: proxima_accion
-        ? { texto: proxima_accion.texto, en: new Date(proxima_accion.en) }
-        : null,
+      recordatorio:
+        recordatorio === undefined
+          ? undefined
+          : recordatorio && { texto: recordatorio.texto, en: new Date(recordatorio.en) },
       comentario,
     });
     if (!resultado.ok) {

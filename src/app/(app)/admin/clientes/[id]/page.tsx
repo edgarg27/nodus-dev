@@ -173,7 +173,9 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
             <h2 id="titulo-seguimiento" className="text-sm font-bold text-text">
               {textos.seguimientoTitulo}
             </h2>
-            <NotaForm clienteId={cliente.id} />
+            {/* Con solicitudes nuevas se escribe en cada una ("¿Qué pasó?"); aquí solo queda el
+                historial. Un prospecto sin solicitudes se anota aquí. */}
+            {nuevas.length === 0 ? <NotaForm clienteId={cliente.id} /> : null}
             <NotasLista
               notas={cliente.notas}
               etiquetaSolicitud={etiquetaSolicitud}

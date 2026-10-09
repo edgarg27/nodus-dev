@@ -2,11 +2,8 @@ import type { PasoSolicitud } from "@/lib/clientes";
 
 const COLORES: Record<PasoSolicitud, string> = {
   nueva: "bg-warning-foreground text-warning",
-  broker_contactado: "bg-accent/10 text-accent",
-  disponible: "bg-success/15 text-success",
-  no_disponible: "bg-destructive/10 text-destructive",
-  cliente_contactado: "bg-accent/10 text-accent",
-  visita_agendada: "bg-accent/10 text-accent",
+  con_broker: "bg-accent/10 text-accent",
+  con_cliente: "bg-accent/10 text-accent",
   cerrada: "bg-success/15 text-success",
   descartada: "bg-background text-text-muted",
 };

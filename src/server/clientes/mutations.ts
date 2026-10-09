@@ -64,17 +64,19 @@ export async function agregarNotaCliente(
 }
 
 export interface CambiosSolicitud {
-  paso: PasoSolicitud;
-  // `null` borra la próxima acción. Al terminar la solicitud (cerrada/descartada) se borra sola.
-  proximaAccion: { texto: string; en: Date } | null;
-  // Se guarda como nota ligada a la solicitud.
+  // Paso nuevo (avanzar, descartar, reabrir). Sin él, el paso no cambia.
+  paso?: PasoSolicitud;
+  // `null` quita el recordatorio; sin el campo se conserva, salvo al cambiar de paso (el recordatorio
+  // era del paso anterior) o al terminar la solicitud, que lo quitan.
+  recordatorio?: { texto: string; en: Date } | null;
+  // "¿Qué pasó?": se guarda como nota ligada a la solicitud.
   comentario?: string;
 }
 
 export interface SolicitudActualizada {
   id: string;
   paso: PasoSolicitud;
-  proximaAccion: { texto: string; en: Date } | null;
+  recordatorio: { texto: string; en: Date } | null;
 }
 
 export type ResultadoSolicitud =
@@ -82,7 +84,7 @@ export type ResultadoSolicitud =
   | { ok: false; error: ErrorCliente };
 
 // Actualiza el seguimiento de Captive a una solicitud (solo canal "captive": las anteriores son del
-// oferente). Si el paso cambia, queda anotado en la bitácora con quién y cuándo; repetir los mismos
+// oferente). Si el paso cambia, queda anotado en la bitácora con quién y cuándo. Repetir los mismos
 // datos sin comentario no agrega nada.
 export async function actualizarSolicitud(
   actor: ActorAutenticado | null,
@@ -91,50 +93,50 @@ export async function actualizarSolicitud(
 ): Promise<ResultadoSolicitud> {
   if (!requireRol(actor, "admin").ok || !actor) return noEncontrado("Solicitud no encontrada");
 
-  const proximaAccion = pasoTerminado(cambios.paso) ? null : cambios.proximaAccion;
-
   return db.transaction(async (tx) => {
     const [actual] = await tx
       .select({
         id: contactRequest.id,
         buscadorId: contactRequest.buscadorId,
         paso: contactRequest.paso,
+        proximaAccion: contactRequest.proximaAccion,
+        proximaAccionEn: contactRequest.proximaAccionEn,
       })
       .from(contactRequest)
       .where(and(eq(contactRequest.id, solicitudId), eq(contactRequest.canal, "captive")))
       .for("update");
     if (!actual) return noEncontrado("Solicitud no encontrada");
 
+    const pasoActual = actual.paso as PasoSolicitud;
+    const paso = cambios.paso ?? pasoActual;
+    const cambiaPaso = paso !== pasoActual;
+    let recordatorio: { texto: string; en: Date } | null =
+      actual.proximaAccion && actual.proximaAccionEn
+        ? { texto: actual.proximaAccion, en: actual.proximaAccionEn }
+        : null;
+    if (cambios.recordatorio !== undefined) recordatorio = cambios.recordatorio;
+    else if (cambiaPaso) recordatorio = null;
+    if (pasoTerminado(paso)) recordatorio = null;
+
     await tx
       .update(contactRequest)
       .set({
-        paso: cambios.paso,
-        proximaAccion: proximaAccion?.texto ?? null,
-        proximaAccionEn: proximaAccion?.en ?? null,
+        paso,
+        proximaAccion: recordatorio?.texto ?? null,
+        proximaAccionEn: recordatorio?.en ?? null,
       })
       .where(eq(contactRequest.id, solicitudId));
 
     const notas: (typeof seguimientoNota.$inferInsert)[] = [];
-    if (actual.paso !== cambios.paso) {
-      notas.push({
-        buscadorId: actual.buscadorId,
-        contactRequestId: solicitudId,
-        autorId: actor.id,
-        tipo: "paso",
-        texto: cambios.paso,
-      });
-    }
-    if (cambios.comentario) {
-      notas.push({
-        buscadorId: actual.buscadorId,
-        contactRequestId: solicitudId,
-        autorId: actor.id,
-        tipo: "nota",
-        texto: cambios.comentario,
-      });
-    }
+    const base = {
+      buscadorId: actual.buscadorId,
+      contactRequestId: solicitudId,
+      autorId: actor.id,
+    };
+    if (cambiaPaso) notas.push({ ...base, tipo: "paso", texto: paso });
+    if (cambios.comentario) notas.push({ ...base, tipo: "nota", texto: cambios.comentario });
     if (notas.length > 0) await tx.insert(seguimientoNota).values(notas);
 
-    return { ok: true as const, data: { id: solicitudId, paso: cambios.paso, proximaAccion } };
+    return { ok: true as const, data: { id: solicitudId, paso, recordatorio } };
   });
 }

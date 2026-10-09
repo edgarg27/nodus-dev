@@ -309,7 +309,8 @@ export const contactRequest = pgTable(
     // ni se abre chat con él. "directo": las anteriores a ese cambio (migraciones 0019 y 0020), que siguen en
     // la bandeja del oferente.
     canal: text("canal").notNull().default("captive"),
-    // Seguimiento de Captive a esta solicitud (solo canal "captive"): en qué paso va y qué sigue.
+    // Seguimiento de Captive a esta solicitud (solo canal "captive"): en qué paso va y, si alguien
+    // pidió que se le recuerde, el recordatorio (texto y fecha).
     paso: text("paso").notNull().default("nueva"),
     proximaAccion: text("proxima_accion"),
     proximaAccionEn: timestamp("proxima_accion_en", { withTimezone: true }),
@@ -323,7 +324,7 @@ export const contactRequest = pgTable(
     check("chk_contact_request_canal", sql`${t.canal} in ('directo','captive')`),
     check(
       "chk_contact_request_paso",
-      sql`${t.paso} in ('nueva','broker_contactado','disponible','no_disponible','cliente_contactado','visita_agendada','cerrada','descartada')`,
+      sql`${t.paso} in ('nueva','con_broker','con_cliente','cerrada','descartada')`,
     ),
     check(
       "chk_contact_request_proxima_accion",

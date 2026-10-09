@@ -155,6 +155,13 @@
       "when": 1791560013847,
       "tag": "0021_pasos_solicitud",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1791561658478,
+      "tag": "0022_pasos_simples",
+      "breakpoints": true
     }
   ]
 }

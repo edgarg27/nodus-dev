@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { estadoDeCliente, finDelDia, leerParamsClientes } from "./clientes";
+import { estadoDeCliente, finDelDia, leerParamsClientes, siguientePaso } from "./clientes";
 
 describe("estadoDeCliente", () => {
   it("sin solicitudes para Captive no tiene etapa", () => {
@@ -7,12 +7,22 @@ describe("estadoDeCliente", () => {
   });
 
   it("pendiente si alguna solicitud sigue nueva", () => {
-    expect(estadoDeCliente(["cerrada", "nueva", "disponible"])).toBe("pendiente");
+    expect(estadoDeCliente(["cerrada", "nueva", "con_broker"])).toBe("pendiente");
   });
 
   it("cerrado solo si todas terminaron", () => {
     expect(estadoDeCliente(["cerrada", "descartada"])).toBe("cerrado");
-    expect(estadoDeCliente(["cerrada", "visita_agendada"])).toBe("seguimiento");
+    expect(estadoDeCliente(["cerrada", "con_cliente"])).toBe("seguimiento");
+  });
+});
+
+describe("siguientePaso", () => {
+  it("avanza nueva → con el broker → con el cliente → cerrada, y ahí se detiene", () => {
+    expect(siguientePaso("nueva")).toBe("con_broker");
+    expect(siguientePaso("con_broker")).toBe("con_cliente");
+    expect(siguientePaso("con_cliente")).toBe("cerrada");
+    expect(siguientePaso("cerrada")).toBeNull();
+    expect(siguientePaso("descartada")).toBeNull();
   });
 });
 

@@ -144,14 +144,14 @@ describe("Clientes y prospectos — consultas", () => {
     expect(await obtenerCliente(admin, admin.id)).toBeNull();
   });
 
-  it("el contador del menú cuenta solicitudes nuevas y próximas acciones vencidas", async () => {
+  it("el contador del menú cuenta solicitudes nuevas y recordatorios vencidos", async () => {
     const { admin, solicitud } = await preparar();
     expect(await contarClientesPorAtender()).toBe(1);
 
     const ayer = new Date(Date.now() - 24 * 60 * 60 * 1000);
     await db
       .update(contactRequest)
-      .set({ paso: "broker_contactado", proximaAccion: "Llamar al broker", proximaAccionEn: ayer })
+      .set({ paso: "con_broker", proximaAccion: "Llamar al broker", proximaAccionEn: ayer })
       .where(eq(contactRequest.id, solicitud.id));
     expect(await contarClientesPorAtender()).toBe(1);
     const acciones = await listarAccionesPendientes(admin);
@@ -167,52 +167,56 @@ describe("Clientes y prospectos — consultas", () => {
 });
 
 describe("PATCH /api/v1/admin/solicitudes/:id", () => {
-  it("cambia el paso y la próxima acción; el cambio de paso queda en la bitácora", async () => {
+  it("avanzar cambia el paso y lo anota; avanzar de nuevo quita el recordatorio anterior", async () => {
     const { admin, conSolicitud, solicitud } = await preparar();
     vi.mocked(getUsuarioActual).mockResolvedValue(admin);
     const url = `/api/v1/admin/solicitudes/${solicitud.id}`;
-    const cuerpo = {
-      paso: "disponible",
-      proxima_accion: { texto: "Avisar al cliente", en: "2026-10-10T16:00:00.000Z" },
-      comentario: "  El broker confirma disponibilidad  ",
-    };
 
-    const respuesta = await PATCH(peticion(url, "PATCH", cuerpo), rutaCon(solicitud.id));
-    expect(respuesta.status).toBe(200);
-    const [fila] = await db
-      .select()
-      .from(contactRequest)
-      .where(eq(contactRequest.id, solicitud.id));
-    expect(fila?.paso).toBe("disponible");
+    expect(
+      (await PATCH(peticion(url, "PATCH", { paso: "con_broker" }), rutaCon(solicitud.id))).status,
+    ).toBe(200);
+    // "¿Qué pasó?" con recordatorio, sin cambiar el paso.
+    await PATCH(
+      peticion(url, "PATCH", {
+        comentario: "  El broker confirma disponibilidad  ",
+        recordatorio: { texto: "Avisar al cliente", en: "2026-10-10T16:00:00.000Z" },
+      }),
+      rutaCon(solicitud.id),
+    );
+    let [fila] = await db.select().from(contactRequest).where(eq(contactRequest.id, solicitud.id));
+    expect(fila?.paso).toBe("con_broker");
     expect(fila?.proximaAccion).toBe("Avisar al cliente");
 
     const notas = await db.select().from(seguimientoNota);
     expect(notas.map((n) => [n.tipo, n.texto]).sort()).toEqual(
       [
         ["nota", "El broker confirma disponibilidad"],
-        ["paso", "disponible"],
+        ["paso", "con_broker"],
       ].sort(),
     );
     expect(notas.every((n) => n.autorId === admin.id && n.contactRequestId === solicitud.id)).toBe(
       true,
     );
+    expect((await obtenerCliente(admin, conSolicitud.id))?.estado).toBe("seguimiento");
 
-    // Repetir sin comentario no agrega nada a la bitácora.
-    const { comentario: _c, ...sinComentario } = cuerpo;
-    await PATCH(peticion(url, "PATCH", sinComentario), rutaCon(solicitud.id));
+    // Repetir el mismo paso sin comentario no agrega nada ni quita el recordatorio.
+    await PATCH(peticion(url, "PATCH", { paso: "con_broker" }), rutaCon(solicitud.id));
     expect(await db.select().from(seguimientoNota)).toHaveLength(2);
+    [fila] = await db.select().from(contactRequest).where(eq(contactRequest.id, solicitud.id));
+    expect(fila?.proximaAccion).toBe("Avisar al cliente");
 
-    const detalle = await obtenerCliente(admin, conSolicitud.id);
-    expect(detalle?.estado).toBe("seguimiento");
+    await PATCH(peticion(url, "PATCH", { paso: "con_cliente" }), rutaCon(solicitud.id));
+    [fila] = await db.select().from(contactRequest).where(eq(contactRequest.id, solicitud.id));
+    expect(fila?.proximaAccion).toBeNull();
   });
 
-  it("al cerrar la solicitud se borra la próxima acción", async () => {
+  it("al cerrar o descartar se borra el recordatorio", async () => {
     const { admin, solicitud } = await preparar();
     vi.mocked(getUsuarioActual).mockResolvedValue(admin);
     await PATCH(
       peticion(`/api/v1/admin/solicitudes/${solicitud.id}`, "PATCH", {
-        paso: "cerrada",
-        proxima_accion: { texto: "Algo", en: "2026-10-10T16:00:00.000Z" },
+        paso: "descartada",
+        recordatorio: { texto: "Algo", en: "2026-10-10T16:00:00.000Z" },
       }),
       rutaCon(solicitud.id),
     );
@@ -220,7 +224,7 @@ describe("PATCH /api/v1/admin/solicitudes/:id", () => {
       .select()
       .from(contactRequest)
       .where(eq(contactRequest.id, solicitud.id));
-    expect(fila?.paso).toBe("cerrada");
+    expect(fila?.paso).toBe("descartada");
     expect(fila?.proximaAccion).toBeNull();
     expect(fila?.proximaAccionEn).toBeNull();
   });
@@ -228,7 +232,7 @@ describe("PATCH /api/v1/admin/solicitudes/:id", () => {
   it("401 sin sesión, 404 a otro rol o a una solicitud anterior, 422 con un paso inválido", async () => {
     const { admin, oferente, conSolicitud, propia, solicitud } = await preparar();
     const url = `/api/v1/admin/solicitudes/${solicitud.id}`;
-    const valido = { paso: "broker_contactado", proxima_accion: null };
+    const valido = { paso: "con_broker" };
 
     vi.mocked(getUsuarioActual).mockResolvedValue(null);
     expect((await PATCH(peticion(url, "PATCH", valido), rutaCon(solicitud.id))).status).toBe(401);
@@ -238,12 +242,7 @@ describe("PATCH /api/v1/admin/solicitudes/:id", () => {
 
     vi.mocked(getUsuarioActual).mockResolvedValue(admin);
     expect(
-      (
-        await PATCH(
-          peticion(url, "PATCH", { paso: "ganada", proxima_accion: null }),
-          rutaCon(solicitud.id),
-        )
-      ).status,
+      (await PATCH(peticion(url, "PATCH", { paso: "ganada" }), rutaCon(solicitud.id))).status,
     ).toBe(422);
 
     const [anterior] = await db

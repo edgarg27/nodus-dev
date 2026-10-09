@@ -2,8 +2,8 @@ import { CalendarClockIcon, ExternalLinkIcon, MessageCircleIcon, PhoneIcon } fro
 import Link from "next/link";
 import type { Textos } from "@/lib/i18n";
 import type { SolicitudDeCliente } from "@/server/clientes/detalle";
-import { ActualizarSolicitudForm } from "./actualizar-solicitud-form";
 import { PasoBadge } from "./paso-badge";
+import { SeguimientoSolicitud } from "./seguimiento-solicitud";
 
 interface SolicitudClienteCardProps {
   solicitud: SolicitudDeCliente;
@@ -78,7 +78,7 @@ export function SolicitudClienteCard({
       ) : null}
 
       {solicitud.canal === "captive" ? (
-        // Seguimiento de Captive: en qué paso va y qué sigue.
+        // Seguimiento de Captive: en qué paso va y su recordatorio, si tiene.
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <PasoBadge paso={solicitud.paso} etiqueta={textos.pasos[solicitud.paso]} />
           {solicitud.proximaAccion ? (
@@ -93,7 +93,7 @@ export function SolicitudClienteCard({
               {solicitud.proximaAccion.en < ahora ? ` · ${textos.vencida}` : ""}
             </span>
           ) : (
-            <span className="text-sm text-text-muted">{textos.sinProximaAccion}</span>
+            <span className="text-sm text-text-muted">{textos.sinRecordatorio}</span>
           )}
         </div>
       ) : null}
@@ -154,11 +154,11 @@ export function SolicitudClienteCard({
         ) : null}
       </div>
       {solicitud.canal === "captive" ? (
-        <ActualizarSolicitudForm
+        <SeguimientoSolicitud
           key={`${solicitud.paso}-${solicitud.proximaAccion?.en.getTime() ?? ""}`}
           solicitudId={solicitud.id}
           paso={solicitud.paso}
-          proximaAccion={solicitud.proximaAccion}
+          recordatorio={solicitud.proximaAccion}
         />
       ) : null}
     </article>
