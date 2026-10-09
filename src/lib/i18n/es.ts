@@ -542,6 +542,10 @@ export const es = {
       accionesTitulo: "Por hacer hoy",
       accionesDescripcion: "Recordatorios de hoy y los que ya se vencieron.",
       sinAcciones: "No hay recordatorios para hoy.",
+      mensajesTitulo: "Mensajes",
+      mensajesVacio:
+        "Todavía no hay mensajes. Escríbele al cliente: lo verá en su apartado Mensajes como «Equipo Captive».",
+      mensajesNuevos: (n: number) => (n === 1 ? "1 mensaje nuevo" : `${n} mensajes nuevos`),
       seguimientoTitulo: "Seguimiento",
       tiposNota: {
         llamada_broker: "Llamada al broker",
@@ -743,6 +747,10 @@ export const es = {
       enviando: "Enviando…",
       enviar: "Enviar",
       errorEnviar: "No se pudo enviar el mensaje",
+      captiveNombre: "Equipo Captive",
+      captiveDescripcion: "Escríbenos sobre tus solicitudes o cualquier duda.",
+      captiveVacio:
+        "Escríbenos aquí: el equipo de Captive te ayuda con tus solicitudes y te avisa de la disponibilidad.",
     },
     agencia: {
       metaTitulo: "Perfil de la agencia — Captive by Nodus",

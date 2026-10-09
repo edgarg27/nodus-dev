@@ -1,4 +1,4 @@
-import { and, asc, eq, ilike, inArray, isNotNull, lte, notInArray, or, sql } from "drizzle-orm";
+import { and, asc, eq, ilike, inArray, isNotNull, lte, notInArray, or } from "drizzle-orm";
 import {
   type EstadoCliente,
   estadoDeCliente,
@@ -12,6 +12,7 @@ import { db } from "../../lib/db/client.ts";
 import { contactRequest, propiedad, usuario } from "../../lib/db/schema.ts";
 import { requireRol } from "../auth/guards.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
+import { clientesConMensajesSinLeer } from "../messages/captive.ts";
 
 // "Clientes y prospectos" (panel de administración): los buscadores registrados y lo que pidieron.
 // Solo admin: cualquier otro actor recibe vacío, igual que un recurso que no existe. El detalle de
@@ -32,6 +33,8 @@ export interface ClienteResumen {
   quiereFinanciamiento: boolean;
   // La próxima acción más cercana de sus solicitudes abiertas.
   proximaAccion: { texto: string; en: Date } | null;
+  // Mensajes del cliente en el chat con Captive que nadie ha leído.
+  mensajesSinLeer: number;
 }
 
 export interface ListaClientes {
@@ -152,6 +155,7 @@ export async function listarClientes(
     .from(usuario)
     .where(and(...condiciones));
 
+  const sinLeer = await clientesConMensajesSinLeer(filas.map((fila) => fila.id));
   const todos: ClienteResumen[] = filas.map((fila) => {
     const agregado = porCliente.get(fila.id);
     return {
@@ -161,11 +165,14 @@ export async function listarClientes(
       ultimaSolicitud: agregado?.ultima ?? null,
       quiereFinanciamiento: agregado?.financiamiento ?? false,
       proximaAccion: agregado?.proximaAccion ?? null,
+      mensajesSinLeer: sinLeer.get(fila.id) ?? 0,
     };
   });
-  // Primero quien pidió informes más recientemente; luego los registrados más nuevos.
+  // Primero quien tiene mensajes sin leer; luego quien pidió informes más recientemente; luego los
+  // registrados más nuevos.
   todos.sort(
     (a, b) =>
+      Number(b.mensajesSinLeer > 0) - Number(a.mensajesSinLeer > 0) ||
       (b.ultimaSolicitud?.getTime() ?? 0) - (a.ultimaSolicitud?.getTime() ?? 0) ||
       b.registradoEn.getTime() - a.registradoEn.getTime(),
   );
@@ -237,23 +244,26 @@ export async function listarAccionesPendientes(
   }));
 }
 
-// Contador del menú lateral: clientes con alguna solicitud nueva sin atender o con una próxima
-// acción vencida.
+// Contador del menú lateral: clientes con alguna solicitud nueva sin atender, con un recordatorio
+// vencido o con mensajes que Captive no ha leído.
 export async function contarClientesPorAtender(ahora: Date = new Date()): Promise<number> {
-  const [fila] = await db
-    .select({ total: sql<number>`count(distinct ${contactRequest.buscadorId})::int` })
-    .from(contactRequest)
-    .where(
-      and(
-        eq(contactRequest.canal, "captive"),
-        or(
-          eq(contactRequest.paso, "nueva"),
-          and(
-            notInArray(contactRequest.paso, [...PASOS_TERMINADOS]),
-            lte(contactRequest.proximaAccionEn, ahora),
+  const [filas, conMensajes] = await Promise.all([
+    db
+      .selectDistinct({ buscadorId: contactRequest.buscadorId })
+      .from(contactRequest)
+      .where(
+        and(
+          eq(contactRequest.canal, "captive"),
+          or(
+            eq(contactRequest.paso, "nueva"),
+            and(
+              notInArray(contactRequest.paso, [...PASOS_TERMINADOS]),
+              lte(contactRequest.proximaAccionEn, ahora),
+            ),
           ),
         ),
       ),
-    );
-  return fila?.total ?? 0;
+    clientesConMensajesSinLeer(),
+  ]);
+  return new Set([...filas.map((fila) => fila.buscadorId), ...conMensajes.keys()]).size;
 }

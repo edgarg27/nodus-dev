@@ -536,6 +536,10 @@ export const en: Textos = {
       accionesTitulo: "To do today",
       accionesDescripcion: "Today's reminders and the overdue ones.",
       sinAcciones: "No reminders for today.",
+      mensajesTitulo: "Messages",
+      mensajesVacio:
+        "No messages yet. Write to the client: they will see it in their Messages as “Captive team”.",
+      mensajesNuevos: (n: number) => (n === 1 ? "1 new message" : `${n} new messages`),
       seguimientoTitulo: "Follow-up",
       tiposNota: {
         llamada_broker: "Call to broker",
@@ -735,6 +739,10 @@ export const en: Textos = {
       enviando: "Sending…",
       enviar: "Send",
       errorEnviar: "Couldn't send the message",
+      captiveNombre: "Captive team",
+      captiveDescripcion: "Write to us about your requests or any question.",
+      captiveVacio:
+        "Write to us here: the Captive team helps you with your requests and lets you know about availability.",
     },
     agencia: {
       metaTitulo: "Agency profile — Captive by Nodus",

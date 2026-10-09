@@ -340,6 +340,40 @@ export const contactRequest = pgTable(
   ],
 );
 
+// Chat de un cliente con el equipo de Captive (uno por cliente). Cualquier admin escribe a nombre de
+// Captive; el cliente lo ve en Mensajes como "Equipo Captive".
+export const chatCaptive = pgTable("chat_captive", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  buscadorId: uuid("buscador_id")
+    .notNull()
+    .unique()
+    .references(() => usuario.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Mensajes del chat con Captive. `deCaptive`: lo escribió un admin (`autorId` dice cuál). `leidoEn`:
+// cuándo lo leyó el otro lado (el cliente, o cualquier admin).
+export const mensajeCaptive = pgTable(
+  "mensaje_captive",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    chatId: uuid("chat_id")
+      .notNull()
+      .references(() => chatCaptive.id, { onDelete: "cascade" }),
+    autorId: uuid("autor_id")
+      .notNull()
+      .references(() => usuario.id),
+    deCaptive: boolean("de_captive").notNull(),
+    texto: text("texto").notNull(),
+    leidoEn: timestamp("leido_en", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("idx_mensaje_captive_chat").on(t.chatId, t.createdAt),
+    check("chk_mensaje_captive_texto", sql`length(btrim(${t.texto})) between 1 and 2000`),
+  ],
+);
+
 // Bitácora de seguimiento de Captive: llamadas al broker, al cliente, notas y cambios de paso de una
 // solicitud ("paso": `texto` es la clave del paso nuevo). Solo INSERT.
 export const seguimientoNota = pgTable(

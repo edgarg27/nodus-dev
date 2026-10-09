@@ -162,6 +162,20 @@
       "when": 1791561658478,
       "tag": "0022_pasos_simples",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1791568636335,
+      "tag": "0023_chat_captive",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1791568637662,
+      "tag": "0024_chat_captive_lockdown",
+      "breakpoints": true
     }
   ]
 }

@@ -6,6 +6,7 @@ import { EstadoBadge } from "@/components/admin/clientes/estado-badge";
 import { NotaForm } from "@/components/admin/clientes/nota-form";
 import { NotasLista } from "@/components/admin/clientes/notas-lista";
 import { SolicitudClienteCard } from "@/components/admin/clientes/solicitud-cliente-card";
+import { ChatThread } from "@/components/messages/chat-thread";
 import { ZONA_HORARIA } from "@/lib/clientes";
 import { localeDe } from "@/lib/i18n";
 import { iniciales } from "@/lib/initials";
@@ -13,6 +14,7 @@ import { getUsuarioActual } from "@/server/auth/session";
 import { obtenerCliente } from "@/server/clientes/detalle";
 import { esUuid } from "@/server/http/envelope";
 import { obtenerTextos } from "@/server/i18n";
+import { obtenerChatParaCaptive } from "@/server/messages/captive";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await obtenerTextos();
@@ -31,6 +33,8 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
   const [{ idioma, t }, actor] = await Promise.all([obtenerTextos(), getUsuarioActual()]);
   const cliente = await obtenerCliente(actor, id);
   if (!cliente) notFound();
+  // Abrir el detalle marca como leídos los mensajes del cliente.
+  const chat = (await obtenerChatParaCaptive(actor, id)) ?? [];
 
   const textos = t.admin.clientes;
   const locale = localeDe(idioma);
@@ -166,6 +170,26 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
             )}
           </section>
 
+          <section
+            className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-5 shadow-sm"
+            aria-labelledby="titulo-mensajes"
+          >
+            <h2 id="titulo-mensajes" className="text-sm font-bold text-text">
+              {textos.mensajesTitulo}
+            </h2>
+            <ChatThread
+              endpoint={`/api/v1/admin/clientes/${cliente.id}/mensajes`}
+              compacta
+              vacio={textos.mensajesVacio}
+              mensajes={chat.map((mensaje) => ({
+                id: mensaje.id,
+                texto: mensaje.texto,
+                mio: mensaje.mio,
+                autor: mensaje.autor,
+                createdAt: mensaje.createdAt.toISOString(),
+              }))}
+            />
+          </section>
           <section
             className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5 shadow-sm"
             aria-labelledby="titulo-seguimiento"

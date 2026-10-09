@@ -23,6 +23,8 @@ const EN: Record<string, string> = {
   "Foto no encontrada": "Photo not found.",
   "Contacto no encontrado": "Contact not found.",
   "Conversación no encontrada": "Conversation not found.",
+  "El chat con Captive es para clientes": "The Captive chat is for clients.",
+  "Cliente no encontrado": "Client not found.",
   "Lead no encontrado": "Lead not found.",
   "Búsqueda no encontrada": "Saved search not found.",
   "Solicitud no encontrada": "Request not found.",

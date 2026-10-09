@@ -1,9 +1,11 @@
+import { HeadsetIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { localeDe } from "@/lib/i18n";
 import { getUsuarioActual } from "@/server/auth/session";
 import { obtenerTextos } from "@/server/i18n";
+import { resumenChatDelCliente } from "@/server/messages/captive";
 import { listarConversaciones } from "@/server/messages/conversations";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,8 +25,13 @@ export default async function MensajesPage() {
     day: "numeric",
     month: "short",
   });
-  const resultado = await listarConversaciones(actor);
+  const [resultado, chatCaptive] = await Promise.all([
+    listarConversaciones(actor),
+    resumenChatDelCliente(actor.id),
+  ]);
   const conversaciones = resultado.ok ? resultado.data : [];
+  // El chat con Captive va fijo arriba para los clientes (y para quien ya lo usó).
+  const mostrarCaptive = esBuscador || chatCaptive.ultimo !== null;
 
   return (
     <main className="w-full py-10">
@@ -36,7 +43,38 @@ export default async function MensajesPage() {
           </p>
         </header>
 
-        {conversaciones.length === 0 ? (
+        {mostrarCaptive ? (
+          <Link
+            href="/mensajes/captive"
+            className="flex items-center gap-4 rounded-2xl border border-primary/40 bg-surface p-4 shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
+          >
+            <span className="flex h-12 w-16 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <HeadsetIcon className="size-6" aria-hidden="true" />
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="truncate text-[15px] font-semibold text-foreground">
+                {m.captiveNombre}
+              </span>
+              <span className="truncate text-sm text-muted-foreground">
+                {chatCaptive.ultimo?.texto ?? m.captiveDescripcion}
+              </span>
+            </div>
+            <div className="flex shrink-0 flex-col items-end gap-1.5">
+              {chatCaptive.ultimo ? (
+                <span className="text-xs text-muted-foreground">
+                  {formateadorFecha.format(chatCaptive.ultimo.createdAt)}
+                </span>
+              ) : null}
+              {chatCaptive.noLeidos > 0 ? (
+                <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-accent-foreground">
+                  {chatCaptive.noLeidos}
+                </span>
+              ) : null}
+            </div>
+          </Link>
+        ) : null}
+
+        {conversaciones.length === 0 && esBuscador ? null : conversaciones.length === 0 ? (
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-surface px-5 py-14 text-center text-muted-foreground">
             <span className="text-sm">{esBuscador ? m.vacioBuscador : m.vacio}</span>
             <Link

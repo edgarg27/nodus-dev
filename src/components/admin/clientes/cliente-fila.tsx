@@ -37,6 +37,11 @@ export function ClienteFila({
           {cliente.estado ? (
             <EstadoBadge estado={cliente.estado} etiqueta={textos.estados[cliente.estado]} />
           ) : null}
+          {cliente.mensajesSinLeer > 0 ? (
+            <span className="rounded-full bg-accent px-2.5 py-0.5 text-xs font-bold text-accent-foreground">
+              {textos.mensajesNuevos(cliente.mensajesSinLeer)}
+            </span>
+          ) : null}
           {cliente.quiereFinanciamiento ? (
             <span className="rounded-full bg-background px-2.5 py-0.5 text-xs font-semibold text-text-muted">
               {textos.financiamiento}
