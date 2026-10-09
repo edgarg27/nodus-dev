@@ -48,6 +48,12 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
   // Las nuevas (le llegaron a Captive) a la vista; las anteriores (directo al oferente), aparte.
   const nuevas = cliente.solicitudes.filter((s) => s.canal === "captive");
   const anteriores = cliente.solicitudes.filter((s) => s.canal === "directo");
+  // Opciones de "¿De qué espacio?": un espacio por opción aunque lo haya pedido varias veces; la
+  // nota se liga a su solicitud más reciente (vienen de la más reciente a la más antigua).
+  const vistos = new Set<string>();
+  const opcionesNota = cliente.solicitudes
+    .filter((s) => !vistos.has(s.propiedad.id) && vistos.add(s.propiedad.id))
+    .map((s) => ({ id: s.id, etiqueta: s.propiedad.titulo ?? s.propiedad.direccion }));
   const etiquetaSolicitud = new Map(
     cliente.solicitudes.map((s) => [s.id, s.propiedad.titulo ?? s.propiedad.direccion]),
   );
@@ -171,13 +177,7 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
             <h2 id="titulo-seguimiento" className="text-sm font-bold text-text">
               {textos.seguimientoTitulo}
             </h2>
-            <NotaForm
-              clienteId={cliente.id}
-              solicitudes={cliente.solicitudes.map((s) => ({
-                id: s.id,
-                etiqueta: etiquetaSolicitud.get(s.id) ?? s.id,
-              }))}
-            />
+            <NotaForm clienteId={cliente.id} solicitudes={opcionesNota} />
             <NotasLista
               notas={cliente.notas}
               etiquetaSolicitud={etiquetaSolicitud}
