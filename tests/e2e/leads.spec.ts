@@ -81,12 +81,14 @@ test("un oferente ve solo sus propios leads, y el filtro ajeno se ignora", async
       propiedadId: propiedadA.id,
       oferenteId: oferenteA.id,
       quiereFinanciamiento: false,
+      canal: "directo",
     },
     {
       buscadorId: buscador.id,
       propiedadId: propiedadB.id,
       oferenteId: oferenteB.id,
       quiereFinanciamiento: false,
+      canal: "directo",
     },
   ]);
 

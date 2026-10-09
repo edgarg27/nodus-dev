@@ -6,6 +6,7 @@ import { NetworkBanner } from "@/components/panel/network-banner";
 import { PeriodSelector } from "@/components/panel/period-selector";
 import { ViewsChart } from "@/components/panel/views-chart";
 import { localeDe } from "@/lib/i18n";
+import { BANDEJA_VISIBLE_PARA_OFERENTE } from "@/lib/oferente-visibilidad";
 import { periodoValido } from "@/lib/periodos";
 import { obtenerPerfilAgencia } from "@/server/agency/queries";
 import { requireRol } from "@/server/auth/guards";
@@ -81,7 +82,7 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
             <KpiCard valor={numero(totales.visitas)} etiqueta={i.kpiVisitas} />
             <KpiCard
               valor={numero(totales.solicitudes)}
-              href="/leads"
+              href={BANDEJA_VISIBLE_PARA_OFERENTE ? "/leads" : undefined}
               etiqueta={
                 <>
                   {i.kpiSolicitudesDe}{" "}

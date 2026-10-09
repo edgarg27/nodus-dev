@@ -46,7 +46,9 @@ async function crearOferenteConPropiedad() {
   return { oferente, propia };
 }
 
-test("el botón Contactar revela teléfono y enlace, y crea el lead", async ({ page }) => {
+test("el botón Contactar crea la solicitud para Captive sin revelar el teléfono del oferente", async ({
+  page,
+}) => {
   const { propia } = await crearOferenteConPropiedad();
 
   const buscador = await crearUsuarioAuth({ rol: "buscador" });
@@ -60,15 +62,18 @@ test("el botón Contactar revela teléfono y enlace, y crea el lead", async ({ p
   const tarjeta = page.locator("article").filter({ hasText: propia.direccion });
   await tarjeta.getByRole("button", { name: "Contactar" }).click();
 
-  await expect(tarjeta.getByText("4441234567")).toBeVisible();
-  const enlace = tarjeta.getByRole("link", { name: "Escribir por WhatsApp" });
-  await expect(enlace).toHaveAttribute("href", /4441234567/);
+  await expect(
+    tarjeta.getByText(/El equipo de Captive confirmará la disponibilidad/),
+  ).toBeVisible();
+  await expect(tarjeta.getByText("4441234567")).toHaveCount(0);
+  await expect(tarjeta.getByRole("link", { name: "Escribir por WhatsApp" })).toHaveCount(0);
 
   const filas = await db
     .select()
     .from(contactRequest)
     .where(eq(contactRequest.propiedadId, propia.id));
   expect(filas).toHaveLength(1);
+  expect(filas[0]?.canal).toBe("captive");
 });
 
 test("un visitante anónimo que pulsa Contactar termina en /sign-in", async ({ page }) => {

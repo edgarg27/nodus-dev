@@ -58,7 +58,7 @@ export default async function ConversacionPage({ params }: ConversacionPageProps
         </header>
 
         <ChatThread
-          conversacionId={conversacion.id}
+          endpoint={`/api/v1/conversations/${conversacion.id}`}
           mensajes={conversacion.mensajes.map((mensaje) => ({
             ...mensaje,
             createdAt: mensaje.createdAt.toISOString(),

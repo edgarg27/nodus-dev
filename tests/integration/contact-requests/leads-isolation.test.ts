@@ -44,15 +44,22 @@ async function crearPropiedad(oferenteId: string, overrides: Record<string, unkn
   return fila;
 }
 
+// Por omisión, una solicitud que sí le llegó al oferente (canal "directo", las anteriores a que
+// pasaran por Captive).
 async function crearLead(
   buscadorId: string,
   propiedadId: string,
   oferenteId: string,
   overrides: Record<string, unknown> = {},
 ) {
-  await db
-    .insert(contactRequest)
-    .values({ buscadorId, propiedadId, oferenteId, quiereFinanciamiento: false, ...overrides });
+  await db.insert(contactRequest).values({
+    buscadorId,
+    propiedadId,
+    oferenteId,
+    quiereFinanciamiento: false,
+    canal: "directo",
+    ...overrides,
+  });
 }
 
 describe("listarLeadsDelOferente", () => {
@@ -96,6 +103,21 @@ describe("listarLeadsDelOferente", () => {
     const leadsFiltrados = await listarLeadsDelOferente(oferente, propiedadUno.id);
     expect(leadsFiltrados).toHaveLength(1);
     expect(leadsFiltrados[0]?.propiedadId).toBe(propiedadUno.id);
+  });
+
+  it("las solicitudes de canal captive no le llegan al oferente", async () => {
+    await resetTestDatabase();
+    const oferente = await crearOferente("Oferente captive");
+    const buscador = await crearBuscador();
+    const propiedadUno = await crearPropiedad(oferente);
+    const propiedadDos = await crearPropiedad(oferente);
+
+    await crearLead(buscador, propiedadUno.id, oferente);
+    await crearLead(buscador, propiedadDos.id, oferente, { canal: "captive" });
+
+    const leads = await listarLeadsDelOferente(oferente);
+    expect(leads).toHaveLength(1);
+    expect(leads[0]?.propiedadId).toBe(propiedadUno.id);
   });
 
   it("un oferente sin leads recibe una lista vacía", async () => {

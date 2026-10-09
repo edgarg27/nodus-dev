@@ -109,14 +109,13 @@ test("journey: solicitud, aprobación, atribución con ?ref= y revocación", asy
     .where(eq(contactRequest.propiedadId, propia.id));
   expect(leadUno?.brokerId).toBe(oferente.id);
 
+  // La solicitud le llega a Captive (Clientes y prospectos), no a la bandeja del broker.
   await page.context().clearCookies();
-  await iniciarSesion(page, oferente);
-  await page.goto("/leads");
+  await iniciarSesion(page, admin);
+  await page.goto("/admin/clientes");
   await expect(page.getByText(buscador.email)).toBeVisible();
 
   // Revocación: confirmar deshabilitado sin motivo.
-  await page.context().clearCookies();
-  await iniciarSesion(page, admin);
   await page.goto("/admin/brokers");
   const filaBroker = page.locator("article").filter({ hasText: brokerCode });
   await filaBroker.getByRole("button", { name: "Revocar" }).click();

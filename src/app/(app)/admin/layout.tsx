@@ -2,29 +2,24 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminSidebarNav } from "@/components/admin/admin-sidebar-nav";
 import { AdminToastProvider } from "@/components/admin/admin-toast";
-import { SignOutLink } from "@/components/admin/sign-out-link";
-import { iniciales } from "@/lib/initials";
+import { contarParaMenuAdmin } from "@/server/admin/contadores";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
-import { listarBrokersActivos, listarPendientes } from "@/server/broker-requests/queries";
 import { obtenerTextos } from "@/server/i18n";
-import { listarPendientesDeRevision } from "@/server/properties/queries";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const actor = await getUsuarioActual();
   const permiso = requireRol(actor, "admin");
   if (!permiso.ok || !actor) notFound();
 
-  const a = (await obtenerTextos()).t.admin;
-  const [propiedadesPendientes, solicitudesPendientes, brokersActivos] = await Promise.all([
-    listarPendientesDeRevision(),
-    listarPendientes(),
-    listarBrokersActivos(),
-  ]);
+  // Textos y los números del menú (una sola consulta) en paralelo.
+  const [{ t }, contadores] = await Promise.all([obtenerTextos(), contarParaMenuAdmin()]);
+  const a = t.admin;
 
   return (
     <AdminToastProvider>
       <div className="flex min-h-dvh w-full flex-col bg-background text-text">
+        {/* El usuario y "Cerrar sesión" ya están en el menú de la cuenta del encabezado del sitio. */}
         <header className="flex w-full justify-center border-b border-border bg-surface">
           <div className="flex w-full items-center justify-between gap-6 px-8 py-3.5 max-md:px-5">
             <div className="flex items-center gap-3.5">
@@ -40,23 +35,16 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 {a.panel}
               </span>
             </div>
-            <div className="flex min-w-0 shrink items-center gap-3.5">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary font-display text-xs font-bold text-primary-foreground">
-                {iniciales(actor.nombre)}
-              </span>
-              <span className="truncate text-sm font-semibold text-text max-sm:hidden">
-                {actor.nombre}
-              </span>
-              <SignOutLink />
-            </div>
           </div>
         </header>
 
         <div className="admin-shell flex w-full min-h-0 grow max-md:flex-col">
           <AdminSidebarNav
-            pendingPropertiesCount={propiedadesPendientes.length}
-            pendingRequestsCount={solicitudesPendientes.length}
-            activeBrokersCount={brokersActivos.length}
+            pendingPropertiesCount={contadores.propiedadesPendientes}
+            pendingRequestsCount={contadores.solicitudesBroker}
+            activeBrokersCount={contadores.brokersActivos}
+            pendingClientsCount={contadores.clientesPorAtender}
+            unreadChatsCount={contadores.chatsSinLeer}
           />
           <main className="flex min-w-0 grow flex-col gap-6 overflow-y-auto px-10 pt-8 pb-16 max-md:px-5 max-md:pt-6">
             {children}

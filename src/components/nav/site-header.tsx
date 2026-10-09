@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
-import type { Textos } from "@/lib/i18n";
+import { enlacesPorRol } from "@/components/nav/enlaces-por-rol";
 import { iniciales } from "@/lib/initials";
 import { createClient } from "@/lib/supabase/client";
 
@@ -29,46 +29,19 @@ const UMBRAL_SCROLL = 40;
 const ENLACE_BASE =
   "relative rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ease-out after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-accent after:transition-transform after:duration-200 after:ease-out after:content-[''] hover:after:scale-x-100 focus-visible:after:scale-x-100 motion-reduce:after:transition-none md:px-0 md:py-0 md:after:inset-x-0";
 
-interface EnlaceNav {
-  href: string;
-  etiqueta: string;
-  // Contador a la derecha del enlace (por ejemplo, mensajes sin leer).
-  insignia?: number;
-}
-
-function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): EnlaceNav[] {
-  if (actor.rol === "admin") {
-    return [{ href: "/admin/propiedades", etiqueta: t.panelAdmin }];
-  }
-  const guardados = [
-    { href: "/favoritos", etiqueta: t.misFavoritos },
-    { href: "/mis-busquedas", etiqueta: t.misBusquedas },
-  ];
-  if (actor.rol === "oferente") {
-    return [
-      { href: "/panel", etiqueta: t.panel },
-      { href: "/propiedades", etiqueta: t.misPropiedades },
-      { href: "/leads", etiqueta: t.misLeadsBandeja },
-      { href: "/red", etiqueta: t.red },
-      { href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos },
-      { href: "/perfil", etiqueta: t.miPerfil },
-      ...guardados,
-    ];
-  }
-  return [
-    { href: "/buscar", etiqueta: t.buscarEspacios },
-    { href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos },
-    ...guardados,
-    { href: "/publicar", etiqueta: t.publicarEspacio },
-  ];
-}
-
 export function SiteHeader({ actor }: SiteHeaderProps) {
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const esPortada = usePathname() === "/";
+  const pathname = usePathname();
+  const esPortada = pathname === "/";
   const t = useIdioma().t.header;
+  // Dentro del panel de administración no se repite la liga al mismo panel.
+  const enlacesCuenta = actor
+    ? enlacesPorRol(actor, t).filter(
+        (enlace) => !(enlace.href.startsWith("/admin") && pathname?.startsWith("/admin")),
+      )
+    : [];
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -219,7 +192,7 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
                   <div className="mb-1 flex flex-col gap-0.5 border-b border-border px-3 pt-1 pb-3">
                     <span className="text-sm font-bold text-foreground">{actor.nombre}</span>
                   </div>
-                  {enlacesPorRol(actor, t).map((enlace) => (
+                  {enlacesCuenta.map((enlace) => (
                     <Link
                       key={enlace.href}
                       href={enlace.href}
@@ -235,7 +208,7 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
                       ) : null}
                     </Link>
                   ))}
-                  <div className="my-1 h-px bg-border" />
+                  {enlacesCuenta.length > 0 ? <div className="my-1 h-px bg-border" /> : null}
                   <button
                     type="button"
                     role="menuitem"

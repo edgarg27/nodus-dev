@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckIcon, LinkIcon, MessageCircleIcon, PhoneIcon, Share2Icon } from "lucide-react";
+import { CheckIcon, LinkIcon, MessageCircleIcon, Share2Icon } from "lucide-react";
 import Link from "next/link";
 import { useId, useState } from "react";
 import { AgencyAvatar } from "@/components/agency/agency-avatar";
@@ -19,14 +19,15 @@ interface PropertyContactPanelProps {
   tipo: string;
   aceptaFinanciamiento: boolean;
   haySimilares: boolean;
-  // Quién publica: tarjeta bajo el contacto con "Ver teléfono".
+  // Quién publica: tarjeta bajo el contacto (sin su teléfono: las solicitudes las atiende Captive).
   anunciante: { nombre: string; logoUrl: string | null; esBroker: boolean } | null;
 }
 
 const MAXIMO_MENSAJE = 1000;
 
-// Columna fija de la ficha: precio, mensaje con preguntas rápidas, Contactar (crea el lead con el
-// mensaje y revela el teléfono del oferente) y compartir.
+// Columna fija de la ficha: precio, mensaje con preguntas rápidas, Contactar (crea la solicitud con
+// el mensaje; le llega al equipo de Captive, que confirma la disponibilidad con el oferente) y
+// compartir.
 export function PropertyContactPanel({
   propiedadId,
   precio,
@@ -241,23 +242,6 @@ ${pregunta}`
             {anunciante.esBroker ? (
               <span className="text-xs font-bold text-success">{t.ficha.brokerVerificado}</span>
             ) : null}
-            {contacto?.telefono ? (
-              <a href={`tel:${contacto.telefono}`} className="text-base font-bold text-primary">
-                {contacto.telefono}
-              </a>
-            ) : contacto ? null : (
-              // Ver el teléfono es contactar: crea el lead con el mensaje escrito (o el saludo) y abre
-              // el chat, igual que el botón principal.
-              <button
-                type="button"
-                disabled={enviando}
-                onClick={() => void contactar({ mensaje, quiereFinanciamiento })}
-                className="flex w-fit cursor-pointer items-center gap-1.5 text-sm font-bold text-text underline-offset-4 hover:text-primary hover:underline disabled:opacity-60"
-              >
-                <PhoneIcon className="size-4" aria-hidden="true" />
-                {t.ficha.verTelefono}
-              </button>
-            )}
           </div>
         </div>
       ) : null}

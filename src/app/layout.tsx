@@ -7,6 +7,7 @@ import { QueryProvider } from "@/components/providers/query-provider";
 import { COOKIE_IDIOMA, idiomaValido } from "@/lib/i18n";
 import { urlDelSitio } from "@/lib/landing-pages";
 import { getUsuarioActual } from "@/server/auth/session";
+import { contarNoLeidosDeCaptive } from "@/server/messages/captive";
 import { contarMensajesNoLeidos } from "@/server/messages/conversations";
 import "./globals.css";
 
@@ -38,7 +39,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const idioma = idiomaValido(cookieStore.get(COOKIE_IDIOMA)?.value);
   const mensajesNoLeidos =
     actor?.rol === "oferente" || actor?.rol === "buscador"
-      ? await contarMensajesNoLeidos(actor.id)
+      ? // Chats con oferentes más el chat con el equipo de Captive.
+        (
+          await Promise.all([contarMensajesNoLeidos(actor.id), contarNoLeidosDeCaptive(actor.id)])
+        ).reduce((suma, n) => suma + n, 0)
       : 0;
 
   return (

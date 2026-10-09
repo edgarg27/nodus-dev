@@ -26,7 +26,13 @@ export async function cambiarEstadoDeLead(
   const actualizadas = await db
     .update(contactRequest)
     .set({ estado })
-    .where(and(eq(contactRequest.oferenteId, actor.id), eq(contactRequest.buscadorId, buscadorId)))
+    .where(
+      and(
+        eq(contactRequest.oferenteId, actor.id),
+        eq(contactRequest.buscadorId, buscadorId),
+        eq(contactRequest.canal, "directo"),
+      ),
+    )
     .returning({ id: contactRequest.id });
   if (actualizadas.length === 0) {
     return { ok: false, error: { code: "not_found", status: 404, message: "Lead no encontrado" } };

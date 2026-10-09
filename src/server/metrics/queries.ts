@@ -72,6 +72,8 @@ export async function metricasDelOferente(
     .where(
       and(
         eq(contactRequest.oferenteId, oferenteId),
+        // Solo lo que le llegó al oferente: las solicitudes de canal "captive" no las ve.
+        eq(contactRequest.canal, "directo"),
         sql`${contactRequest.createdAt} > now() - make_interval(days => ${dias}::int)`,
       ),
     );
@@ -136,7 +138,9 @@ export async function metricasPorPropiedad(
       total: sql<number>`count(*)::int`,
     })
     .from(contactRequest)
-    .where(inArray(contactRequest.propiedadId, propiedadIds))
+    .where(
+      and(inArray(contactRequest.propiedadId, propiedadIds), eq(contactRequest.canal, "directo")),
+    )
     .groupBy(contactRequest.propiedadId);
   for (const fila of solicitudes) {
     const actual = mapa.get(fila.id);

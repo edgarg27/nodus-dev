@@ -1,6 +1,12 @@
 "use client";
 
-import { ShieldCheckIcon, UsersIcon, WarehouseIcon } from "lucide-react";
+import {
+  MessageCircleIcon,
+  ShieldCheckIcon,
+  UserRoundSearchIcon,
+  UsersIcon,
+  WarehouseIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useIdioma } from "@/components/i18n/idioma-provider";
@@ -9,6 +15,10 @@ interface AdminSidebarNavProps {
   pendingPropertiesCount: number;
   pendingRequestsCount: number;
   activeBrokersCount: number;
+  // Clientes con una solicitud nueva sin atender o con un recordatorio vencido.
+  pendingClientsCount: number;
+  // Clientes con mensajes en el chat con Captive que nadie ha leído.
+  unreadChatsCount: number;
 }
 
 const ITEMS = [
@@ -27,12 +37,24 @@ const ITEMS = [
     icon: ShieldCheckIcon,
     key: "brokers" as const,
   },
+  {
+    href: "/admin/clientes",
+    icon: UserRoundSearchIcon,
+    key: "clientes" as const,
+  },
+  {
+    href: "/admin/mensajes",
+    icon: MessageCircleIcon,
+    key: "mensajes" as const,
+  },
 ];
 
 export function AdminSidebarNav({
   pendingPropertiesCount,
   pendingRequestsCount,
   activeBrokersCount,
+  pendingClientsCount,
+  unreadChatsCount,
 }: AdminSidebarNavProps) {
   const { t } = useIdioma();
   const pathname = usePathname();
@@ -40,6 +62,8 @@ export function AdminSidebarNav({
     propiedades: pendingPropertiesCount,
     requests: pendingRequestsCount,
     brokers: activeBrokersCount,
+    clientes: pendingClientsCount,
+    mensajes: unreadChatsCount,
   };
 
   return (
