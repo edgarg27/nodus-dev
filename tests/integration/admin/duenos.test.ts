@@ -53,8 +53,8 @@ describe("Dueños del panel de administración", () => {
       duenoVerificado: true,
     });
     const sinElegir = await crearUsuario("oferente", { duenoVerificado: true });
-    // Dueño sin verificar (su solicitud sigue pendiente): todavía no aparece.
-    await crearUsuario("oferente", { tipoAnunciante: "particular" });
+    // Dueño sin verificar (su solicitud sigue pendiente): no sale en la lista, pero su ficha abre.
+    const pendiente = await crearUsuario("oferente", { tipoAnunciante: "particular" });
     await crearUsuario("oferente", { tipoAnunciante: "inmobiliaria" });
     await crearUsuario("oferente", { isBroker: true, brokerCode: "BRK-DUENO1" });
     await crearUsuario("buscador");
@@ -72,6 +72,8 @@ describe("Dueños del panel de administración", () => {
 
     const detalle = await obtenerDueno(admin, dueno.id);
     expect(detalle?.propiedades).toHaveLength(2);
+    expect(detalle?.verificado).toBe(true);
+    expect((await obtenerDueno(admin, pendiente.id))?.verificado).toBe(false);
 
     // Solo admin; un broker no es dueño.
     expect(await listarDuenos(dueno)).toEqual([]);

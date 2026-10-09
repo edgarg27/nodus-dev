@@ -59,7 +59,17 @@ export default async function AdminDuenoPage({ params }: AdminDuenoPageProps) {
           {iniciales(dueno.nombre)}
         </span>
         <div className="flex flex-col gap-1">
-          <h1 className="text-[22px] font-bold text-text">{dueno.nombre}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-[22px] font-bold text-text">{dueno.nombre}</h1>
+            {dueno.verificado ? null : (
+              <Link
+                href="/admin/broker-requests"
+                className="rounded-full bg-warning-foreground px-2.5 py-0.5 text-xs font-bold text-warning hover:underline"
+              >
+                {textos.pendienteVerificar}
+              </Link>
+            )}
+          </div>
           <span className="text-sm text-text-muted">
             {textos.registrado(formatoFecha.format(dueno.registradoEn))}
           </span>

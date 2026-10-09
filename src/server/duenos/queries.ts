@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, inArray, or } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, isNull, ne, or } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
 import { propiedad, usuario } from "../../lib/db/schema.ts";
 import { requireRol } from "../auth/guards.ts";
@@ -38,6 +38,8 @@ export interface PropiedadDeDueno {
 }
 
 export interface DetalleDueno extends Omit<DuenoResumen, "propiedades" | "mensajesSinLeer"> {
+  // false mientras su solicitud de dueño siga pendiente (o si la denegaron).
+  verificado: boolean;
   propiedades: PropiedadDeDueno[];
 }
 
@@ -45,12 +47,14 @@ function escaparLike(texto: string): string {
   return texto.replace(/[\\%_]/g, (caracter) => `\\${caracter}`);
 }
 
-// Oferente verificado como dueño y que no es broker.
+// Oferente que publica lo suyo: no es broker ni eligió "Soy broker". La lista solo muestra a los
+// verificados; la ficha abre también a los pendientes (se llega desde Mensajes o Solicitudes).
 const esDueno = and(
   eq(usuario.rol, "oferente"),
   eq(usuario.isBroker, false),
-  eq(usuario.duenoVerificado, true),
+  or(isNull(usuario.tipoAnunciante), ne(usuario.tipoAnunciante, "inmobiliaria")),
 );
+const esDuenoVerificado = and(esDueno, eq(usuario.duenoVerificado, true));
 
 async function conteosPorDueno(ids: string[]): Promise<Map<string, ConteoPropiedades>> {
   const mapa = new Map<string, ConteoPropiedades>();
@@ -92,7 +96,7 @@ export async function listarDuenos(
       registradoEn: usuario.createdAt,
     })
     .from(usuario)
-    .where(and(esDueno, busqueda))
+    .where(and(esDuenoVerificado, busqueda))
     .orderBy(desc(usuario.createdAt));
 
   const ids = filas.map((fila) => fila.id);
@@ -121,6 +125,7 @@ export async function obtenerDueno(
       email: usuario.email,
       telefono: usuario.telefono,
       registradoEn: usuario.createdAt,
+      verificado: usuario.duenoVerificado,
     })
     .from(usuario)
     .where(and(eq(usuario.id, id), esDueno));

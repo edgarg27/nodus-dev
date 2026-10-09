@@ -510,6 +510,7 @@ export const es = {
       verEspacio: "Ver espacio",
       revisar: "Revisar",
       mensajesTitulo: "Mensajes",
+      pendienteVerificar: "Pendiente de verificación",
     },
     clientes: {
       metaTitulo: "Clientes y prospectos — Captive by Nodus",

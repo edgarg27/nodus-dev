@@ -506,6 +506,7 @@ export const en: Textos = {
       verEspacio: "View space",
       revisar: "Review",
       mensajesTitulo: "Messages",
+      pendienteVerificar: "Pending verification",
     },
     clientes: {
       metaTitulo: "Clients and prospects — Captive by Nodus",

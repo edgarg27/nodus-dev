@@ -271,12 +271,14 @@ export async function clienteDelChat(
       email: usuario.email,
       rol: usuario.rol,
       isBroker: usuario.isBroker,
-      duenoVerificado: usuario.duenoVerificado,
+      tipoAnunciante: usuario.tipoAnunciante,
     })
     .from(usuario)
     .where(and(eq(usuario.id, buscadorId), ne(usuario.rol, "admin")));
   if (!fila) return null;
-  const esDueno = fila.rol === "oferente" && !fila.isBroker && fila.duenoVerificado;
+  // La ficha de dueño abre también a los pendientes de verificar.
+  const esDueno =
+    fila.rol === "oferente" && !fila.isBroker && fila.tipoAnunciante !== "inmobiliaria";
   const fichaHref =
     fila.rol === "buscador"
       ? `/admin/clientes/${buscadorId}`
