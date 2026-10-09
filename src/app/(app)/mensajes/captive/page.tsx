@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChatThread } from "@/components/messages/chat-thread";
+import { MENSAJES_VISIBLE_PARA_OFERENTE } from "@/lib/oferente-visibilidad";
 import { getUsuarioActual } from "@/server/auth/session";
 import { obtenerTextos } from "@/server/i18n";
 import { obtenerChatDelCliente } from "@/server/messages/captive";
@@ -23,13 +24,16 @@ export default async function ChatCaptivePage() {
   return (
     <main className="w-full py-10">
       <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 px-4">
-        <Link
-          href="/mensajes"
-          className="flex w-fit items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground"
-        >
-          <ChevronLeftIcon className="size-4" aria-hidden="true" />
-          {m.titulo}
-        </Link>
+        {/* Al oferente se le oculta "Mensajes": llega aquí directo desde el menú de su cuenta. */}
+        {actor.rol === "buscador" || MENSAJES_VISIBLE_PARA_OFERENTE ? (
+          <Link
+            href="/mensajes"
+            className="flex w-fit items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground"
+          >
+            <ChevronLeftIcon className="size-4" aria-hidden="true" />
+            {m.titulo}
+          </Link>
+        ) : null}
 
         <header className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm">
           <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">

@@ -65,6 +65,7 @@ describe("AdminLayout (capa 2: layout de administración)", () => {
     const html = renderToStaticMarkup(arbol);
     expect(html).toContain("/admin/propiedades");
     expect(html).toContain("/admin/brokers");
+    expect(html).toContain("/admin/duenos");
     expect(html).toContain("/admin/clientes");
     expect(html).toContain("/admin/mensajes");
   });

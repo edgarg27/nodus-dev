@@ -36,6 +36,8 @@ export interface OpcionesUsuarioAuth {
   ref?: string;
   /** Por defecto `true`. `false` crea un usuario SIN confirmar (para probar `email_not_confirmed`). */
   confirmado?: boolean;
+  /** Más metadata del registro (por ejemplo `telefono`, `tipo_anunciante`, `empresa` de un oferente). */
+  extra?: Record<string, string>;
 }
 
 export interface OpcionesEnlaceConfirmacion {
@@ -48,8 +50,13 @@ export interface OpcionesEnlaceConfirmacion {
 
 const creados: string[] = [];
 
-function metadataDe(opciones: { rol?: string; nombre?: string; ref?: string }) {
-  const metadata: Record<string, string> = {};
+function metadataDe(opciones: {
+  rol?: string;
+  nombre?: string;
+  ref?: string;
+  extra?: Record<string, string>;
+}) {
+  const metadata: Record<string, string> = { ...opciones.extra };
   if (opciones.rol !== undefined) metadata.rol = opciones.rol;
   if (opciones.nombre !== undefined) metadata.nombre = opciones.nombre;
   if (opciones.ref !== undefined) metadata.ref = opciones.ref;

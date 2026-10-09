@@ -47,12 +47,14 @@ export default async function AdminChatPage({ params }: AdminChatPageProps) {
           <h1 className="truncate font-display text-lg font-bold text-text">{cliente.nombre}</h1>
           <span className="truncate text-xs text-text-muted">{cliente.email}</span>
         </div>
-        <Link
-          href={`/admin/clientes/${id}`}
-          className="shrink-0 text-sm font-semibold text-text underline-offset-4 hover:text-primary hover:underline"
-        >
-          {textos.verCliente}
-        </Link>
+        {cliente.fichaHref ? (
+          <Link
+            href={cliente.fichaHref}
+            className="shrink-0 text-sm font-semibold text-text underline-offset-4 hover:text-primary hover:underline"
+          >
+            {textos.verCliente}
+          </Link>
+        ) : null}
       </header>
 
       <ChatThread

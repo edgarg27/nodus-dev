@@ -75,3 +75,17 @@ export async function crearSolicitudBroker(
     return errorPendiente();
   }
 }
+
+// Mensaje de la solicitud que se abre sola cuando alguien elige "Soy broker" al registrarse (o al
+// pasar a publicar). Lo ve el admin en "Solicitudes de broker".
+export const MENSAJE_SOLICITUD_POR_REGISTRO = "Se registró eligiendo «Soy broker».";
+
+// Quien elige "Soy broker" queda como solicitud pendiente para que Captive lo apruebe (o lo
+// deniegue): elegirlo no lo hace broker. Si ya tiene una pendiente, no hace nada (índice único
+// parcial). La llaman el alta de la cuenta y "Publica tu espacio", que ya validaron al usuario.
+export async function abrirSolicitudPorRegistro(usuarioId: string, empresa: string): Promise<void> {
+  await db
+    .insert(brokerSolicitud)
+    .values({ usuarioId, mensaje: MENSAJE_SOLICITUD_POR_REGISTRO, empresa })
+    .onConflictDoNothing();
+}

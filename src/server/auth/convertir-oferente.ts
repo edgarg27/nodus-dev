@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import type { DatosOferente } from "../../lib/auth/datos-oferente.ts";
 import { db } from "../../lib/db/client.ts";
 import { agenciaPerfil, usuario } from "../../lib/db/schema.ts";
+import { abrirSolicitudPorRegistro } from "../broker-requests/mutations.ts";
 import { requireRol } from "./guards.ts";
 import type { ActorAutenticado } from "./session.ts";
 
@@ -41,5 +42,9 @@ export async function convertirEnOferente(
         .onConflictDoUpdate({ target: agenciaPerfil.usuarioId, set: { nombre: datos.empresa } });
     }
   });
+  // "Soy broker": queda como solicitud de broker para que Captive la apruebe.
+  if (datos.tipoAnunciante === "inmobiliaria" && !actor.isBroker) {
+    await abrirSolicitudPorRegistro(actor.id, datos.empresa ?? "");
+  }
   return { ok: true };
 }

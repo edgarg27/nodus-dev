@@ -37,13 +37,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const dataTheme = theme === "dark" ? "dark" : theme === "light" ? "light" : undefined;
   const actor = await getUsuarioActual();
   const idioma = idiomaValido(cookieStore.get(COOKIE_IDIOMA)?.value);
-  const mensajesNoLeidos =
+  // Chats con oferentes y chat con el equipo de Captive, por separado (al oferente solo se le muestra
+  // el de Captive).
+  const [noLeidosChats, noLeidosCaptive] =
     actor?.rol === "oferente" || actor?.rol === "buscador"
-      ? // Chats con oferentes más el chat con el equipo de Captive.
-        (
-          await Promise.all([contarMensajesNoLeidos(actor.id), contarNoLeidosDeCaptive(actor.id)])
-        ).reduce((suma, n) => suma + n, 0)
-      : 0;
+      ? await Promise.all([contarMensajesNoLeidos(actor.id), contarNoLeidosDeCaptive(actor.id)])
+      : [0, 0];
 
   return (
     <html
@@ -61,7 +60,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                       nombre: actor.nombre,
                       rol: actor.rol,
                       isBroker: actor.isBroker,
-                      mensajesNoLeidos,
+                      mensajesNoLeidos: noLeidosChats + noLeidosCaptive,
+                      mensajesCaptiveNoLeidos: noLeidosCaptive,
                     }
                   : null
               }

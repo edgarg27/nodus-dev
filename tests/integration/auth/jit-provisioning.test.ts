@@ -3,7 +3,7 @@ import { createClient as createClienteSupabase } from "@supabase/supabase-js";
 import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { db } from "../../../src/lib/db/client.ts";
-import { usuario } from "../../../src/lib/db/schema.ts";
+import { brokerSolicitud, usuario } from "../../../src/lib/db/schema.ts";
 import { createClient } from "../../../src/lib/supabase/server.ts";
 import { getUsuarioActual } from "../../../src/server/auth/session.ts";
 import type { UsuarioAuthPrueba } from "../../helpers/auth-users.ts";
@@ -105,6 +105,34 @@ describe("getUsuarioActual — aprovisionamiento just-in-time", () => {
     usarCliente(await clienteConSesion(referidoNoBroker));
     const actorNoBroker = await getUsuarioActual();
     expect(actorNoBroker?.referralBrokerId).toBeNull();
+  });
+
+  it("«Soy broker» deja una solicitud de broker pendiente; «Soy el dueño», no", async () => {
+    const datos = { telefono: "444 123 4567" };
+    const broker = await crearUsuarioAuth({
+      rol: "oferente",
+      extra: { ...datos, tipo_anunciante: "inmobiliaria", empresa: "Ontigón" },
+    });
+    usarCliente(await clienteConSesion(broker));
+    const actorBroker = await getUsuarioActual();
+    expect(actorBroker?.isBroker).toBe(false);
+    // Una segunda llamada no duplica la solicitud.
+    await getUsuarioActual();
+    const solicitudes = await db
+      .select()
+      .from(brokerSolicitud)
+      .where(eq(brokerSolicitud.usuarioId, broker.id));
+    expect(solicitudes.map((s) => [s.estado, s.empresa])).toEqual([["pendiente", "Ontigón"]]);
+
+    const dueno = await crearUsuarioAuth({
+      rol: "oferente",
+      extra: { ...datos, tipo_anunciante: "particular" },
+    });
+    usarCliente(await clienteConSesion(dueno));
+    await getUsuarioActual();
+    expect(
+      await db.select().from(brokerSolicitud).where(eq(brokerSolicitud.usuarioId, dueno.id)),
+    ).toHaveLength(0);
   });
 
   it("sin sesión válida devuelve null sin lanzar", async () => {

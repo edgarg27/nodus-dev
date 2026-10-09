@@ -17,6 +17,8 @@ export interface SiteHeaderActor {
   isBroker: boolean;
   // Mensajes sin leer del chat de la Red (solo oferentes).
   mensajesNoLeidos?: number;
+  // Solo los del chat con el equipo de Captive.
+  mensajesCaptiveNoLeidos?: number;
 }
 
 interface SiteHeaderProps {

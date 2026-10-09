@@ -3,6 +3,7 @@ import { datosOferenteDeMetadata } from "../../lib/auth/datos-oferente.ts";
 import { db } from "../../lib/db/client.ts";
 import { agenciaPerfil, usuario } from "../../lib/db/schema.ts";
 import { createClient } from "../../lib/supabase/server.ts";
+import { abrirSolicitudPorRegistro } from "../broker-requests/mutations.ts";
 
 export interface ActorAutenticado {
   id: string;
@@ -85,6 +86,10 @@ export async function getUsuarioActual(): Promise<ActorAutenticado | null> {
       .insert(agenciaPerfil)
       .values({ usuarioId: id, nombre: datosOferente.empresa })
       .onConflictDoNothing();
+  }
+  // "Soy broker" en el registro: queda como solicitud de broker para que Captive la apruebe.
+  if (insertados.length > 0 && datosOferente?.tipoAnunciante === "inmobiliaria") {
+    await abrirSolicitudPorRegistro(id, datosOferente.empresa ?? "");
   }
 
   const [fila] = await db.select().from(usuario).where(eq(usuario.id, id));

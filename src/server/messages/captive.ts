@@ -258,16 +258,31 @@ export async function listarChatsParaCaptive(
     .sort((a, b) => (b.ultimo?.createdAt.getTime() ?? 0) - (a.ultimo?.createdAt.getTime() ?? 0));
 }
 
-// Datos de cabecera de un chat en el panel: nombre y correo del cliente. Otro rol o un cliente que
-// no existe: null.
+// Datos de cabecera de un chat en el panel: nombre y correo de quien escribe, y a qué ficha lleva
+// "Ver ficha" (cliente o dueño; un broker no tiene ficha). Otro rol o un usuario que no existe: null.
 export async function clienteDelChat(
   actor: ActorAutenticado | null,
   buscadorId: string,
-): Promise<{ nombre: string; email: string } | null> {
+): Promise<{ nombre: string; email: string; fichaHref: string | null } | null> {
   if (actor?.rol !== "admin") return null;
   const [fila] = await db
-    .select({ nombre: usuario.nombre, email: usuario.email })
+    .select({
+      nombre: usuario.nombre,
+      email: usuario.email,
+      rol: usuario.rol,
+      isBroker: usuario.isBroker,
+      tipoAnunciante: usuario.tipoAnunciante,
+    })
     .from(usuario)
     .where(and(eq(usuario.id, buscadorId), ne(usuario.rol, "admin")));
-  return fila ?? null;
+  if (!fila) return null;
+  const esDueno =
+    fila.rol === "oferente" && !fila.isBroker && fila.tipoAnunciante !== "inmobiliaria";
+  const fichaHref =
+    fila.rol === "buscador"
+      ? `/admin/clientes/${buscadorId}`
+      : esDueno
+        ? `/admin/duenos/${buscadorId}`
+        : null;
+  return { nombre: fila.nombre, email: fila.email, fichaHref };
 }
