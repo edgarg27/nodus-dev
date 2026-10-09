@@ -9,6 +9,10 @@ import { useIdioma } from "@/components/i18n/idioma-provider";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
 import type { Textos } from "@/lib/i18n";
 import { iniciales } from "@/lib/initials";
+import {
+  BANDEJA_VISIBLE_PARA_OFERENTE,
+  MENSAJES_VISIBLE_PARA_OFERENTE,
+} from "@/lib/oferente-visibilidad";
 import { createClient } from "@/lib/supabase/client";
 
 export interface SiteHeaderActor {
@@ -36,10 +40,6 @@ interface EnlaceNav {
   insignia?: number;
 }
 
-// Las solicitudes de los clientes ya le llegan a Captive, así que "Mensajes" no se muestra en el menú
-// del oferente. La pantalla sigue existiendo (/mensajes): para volver a mostrarla, poner `true`.
-const MENSAJES_VISIBLE_PARA_OFERENTE = false;
-
 function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): EnlaceNav[] {
   if (actor.rol === "admin") {
     return [{ href: "/admin/propiedades", etiqueta: t.panelAdmin }];
@@ -52,7 +52,7 @@ function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): EnlaceNav[]
     return [
       { href: "/panel", etiqueta: t.panel },
       { href: "/propiedades", etiqueta: t.misPropiedades },
-      { href: "/leads", etiqueta: t.misLeadsBandeja },
+      ...(BANDEJA_VISIBLE_PARA_OFERENTE ? [{ href: "/leads", etiqueta: t.misLeadsBandeja }] : []),
       { href: "/red", etiqueta: t.red },
       ...(MENSAJES_VISIBLE_PARA_OFERENTE
         ? [{ href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos }]
