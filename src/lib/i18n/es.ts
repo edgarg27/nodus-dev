@@ -523,8 +523,6 @@ export const es = {
         nota: "Nota",
       },
       tipoNota: "Tipo",
-      sobre: "¿De qué espacio?",
-      general: "General (todo el cliente)",
       nota: "Nota",
       notaPlaceholder: "Ej. Llamé al broker: sí tiene disponible a partir de noviembre…",
       agregarNota: "Agregar al seguimiento",

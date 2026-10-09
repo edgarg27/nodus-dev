@@ -518,8 +518,6 @@ export const en: Textos = {
         nota: "Note",
       },
       tipoNota: "Type",
-      sobre: "Which space?",
-      general: "General (whole client)",
       nota: "Note",
       notaPlaceholder: "e.g. Called the broker: available starting November…",
       agregarNota: "Add to follow-up",

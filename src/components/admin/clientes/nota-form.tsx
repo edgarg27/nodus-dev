@@ -8,22 +8,18 @@ import { MAXIMO_NOTA, TIPOS_NOTA, type TipoNota } from "@/lib/clientes";
 
 interface NotaFormProps {
   clienteId: string;
-  // Solicitudes del cliente a las que se puede ligar la nota.
-  solicitudes: { id: string; etiqueta: string }[];
 }
 
 // Agrega una llamada o nota a la bitácora (POST /api/v1/admin/clientes/:id/notas).
-export function NotaForm({ clienteId, solicitudes }: NotaFormProps) {
+export function NotaForm({ clienteId }: NotaFormProps) {
   const { t } = useIdioma();
   const textos = t.admin.clientes;
   const router = useRouter();
   const { showToast } = useAdminToast();
   const [tipo, setTipo] = useState<TipoNota>("llamada_broker");
-  const [solicitudId, setSolicitudId] = useState(solicitudes[0]?.id ?? "");
   const [texto, setTexto] = useState("");
   const [guardando, setGuardando] = useState(false);
   const idTipo = useId();
-  const idSobre = useId();
   const idTexto = useId();
 
   async function enviar(evento: React.FormEvent) {
@@ -34,11 +30,7 @@ export function NotaForm({ clienteId, solicitudes }: NotaFormProps) {
       const respuesta = await fetch(`/api/v1/admin/clientes/${clienteId}/notas`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tipo,
-          texto: texto.trim(),
-          contact_request_id: solicitudId || null,
-        }),
+        body: JSON.stringify({ tipo, texto: texto.trim() }),
       });
       if (!respuesta.ok) throw new Error(String(respuesta.status));
       setTexto("");
@@ -56,42 +48,22 @@ export function NotaForm({ clienteId, solicitudes }: NotaFormProps) {
 
   return (
     <form onSubmit={(evento) => void enviar(evento)} className="flex flex-col gap-3">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor={idTipo} className="text-xs font-semibold text-text-muted">
-            {textos.tipoNota}
-          </label>
-          <select
-            id={idTipo}
-            value={tipo}
-            onChange={(evento) => setTipo(evento.target.value as TipoNota)}
-            className={campo}
-          >
-            {TIPOS_NOTA.map((opcion) => (
-              <option key={opcion} value={opcion}>
-                {textos.tiposNota[opcion]}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor={idSobre} className="text-xs font-semibold text-text-muted">
-            {textos.sobre}
-          </label>
-          <select
-            id={idSobre}
-            value={solicitudId}
-            onChange={(evento) => setSolicitudId(evento.target.value)}
-            className={campo}
-          >
-            {solicitudes.map((solicitud) => (
-              <option key={solicitud.id} value={solicitud.id}>
-                {solicitud.etiqueta}
-              </option>
-            ))}
-            <option value="">{textos.general}</option>
-          </select>
-        </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor={idTipo} className="text-xs font-semibold text-text-muted">
+          {textos.tipoNota}
+        </label>
+        <select
+          id={idTipo}
+          value={tipo}
+          onChange={(evento) => setTipo(evento.target.value as TipoNota)}
+          className={campo}
+        >
+          {TIPOS_NOTA.map((opcion) => (
+            <option key={opcion} value={opcion}>
+              {textos.tiposNota[opcion]}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="flex flex-col gap-1.5">
         <label htmlFor={idTexto} className="text-xs font-semibold text-text-muted">
