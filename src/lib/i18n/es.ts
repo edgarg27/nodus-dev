@@ -587,7 +587,7 @@ export const es = {
       telefono: "Teléfono o WhatsApp",
       comoPublicas: "¿Cómo publicas?",
       particular: "Soy el dueño",
-      inmobiliaria: "Inmobiliaria o agente",
+      inmobiliaria: "Soy broker",
       empresa: "Nombre de la inmobiliaria o empresa",
       enviar: "Continuar y publicar",
       enviando: "Guardando…",

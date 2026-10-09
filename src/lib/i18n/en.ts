@@ -581,7 +581,7 @@ export const en: Textos = {
       telefono: "Phone or WhatsApp",
       comoPublicas: "How do you list?",
       particular: "I'm the owner",
-      inmobiliaria: "Agency or agent",
+      inmobiliaria: "I'm a broker",
       empresa: "Agency or company name",
       enviar: "Continue and list",
       enviando: "Saving…",

@@ -22,7 +22,7 @@ const OPCIONES_ROL = [
 
 const OPCIONES_TIPO_ANUNCIANTE = [
   { valor: "particular", etiqueta: "Soy el dueño" },
-  { valor: "inmobiliaria", etiqueta: "Inmobiliaria o agente" },
+  { valor: "inmobiliaria", etiqueta: "Soy broker" },
 ] as const;
 
 interface SignUpFormProps {
