@@ -2,33 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminSidebarNav } from "@/components/admin/admin-sidebar-nav";
 import { AdminToastProvider } from "@/components/admin/admin-toast";
+import { contarParaMenuAdmin } from "@/server/admin/contadores";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
-import { listarBrokersActivos, listarPendientes } from "@/server/broker-requests/queries";
-import { contarClientesPorAtender } from "@/server/clientes/queries";
 import { obtenerTextos } from "@/server/i18n";
-import { clientesConMensajesSinLeer } from "@/server/messages/captive";
-import { listarPendientesDeRevision } from "@/server/properties/queries";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const actor = await getUsuarioActual();
   const permiso = requireRol(actor, "admin");
   if (!permiso.ok || !actor) notFound();
 
-  const a = (await obtenerTextos()).t.admin;
-  const [
-    propiedadesPendientes,
-    solicitudesPendientes,
-    brokersActivos,
-    clientesPorAtender,
-    chatsSinLeer,
-  ] = await Promise.all([
-    listarPendientesDeRevision(),
-    listarPendientes(),
-    listarBrokersActivos(),
-    contarClientesPorAtender(),
-    clientesConMensajesSinLeer(),
-  ]);
+  // Textos y los números del menú (una sola consulta) en paralelo.
+  const [{ t }, contadores] = await Promise.all([obtenerTextos(), contarParaMenuAdmin()]);
+  const a = t.admin;
 
   return (
     <AdminToastProvider>
@@ -54,11 +40,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
         <div className="admin-shell flex w-full min-h-0 grow max-md:flex-col">
           <AdminSidebarNav
-            pendingPropertiesCount={propiedadesPendientes.length}
-            pendingRequestsCount={solicitudesPendientes.length}
-            activeBrokersCount={brokersActivos.length}
-            pendingClientsCount={clientesPorAtender}
-            unreadChatsCount={chatsSinLeer.size}
+            pendingPropertiesCount={contadores.propiedadesPendientes}
+            pendingRequestsCount={contadores.solicitudesBroker}
+            activeBrokersCount={contadores.brokersActivos}
+            pendingClientsCount={contadores.clientesPorAtender}
+            unreadChatsCount={contadores.chatsSinLeer}
           />
           <main className="flex min-w-0 grow flex-col gap-6 overflow-y-auto px-10 pt-8 pb-16 max-md:px-5 max-md:pt-6">
             {children}

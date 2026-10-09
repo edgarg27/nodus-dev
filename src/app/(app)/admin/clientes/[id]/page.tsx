@@ -31,10 +31,13 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
   const { id } = await params;
   if (!esUuid(id)) notFound();
   const [{ idioma, t }, actor] = await Promise.all([obtenerTextos(), getUsuarioActual()]);
-  const cliente = await obtenerCliente(actor, id);
+  // En paralelo (la base es remota). Abrir el detalle marca como leídos los mensajes del cliente.
+  const [cliente, chatCliente] = await Promise.all([
+    obtenerCliente(actor, id),
+    obtenerChatParaCaptive(actor, id),
+  ]);
   if (!cliente) notFound();
-  // Abrir el detalle marca como leídos los mensajes del cliente.
-  const chat = (await obtenerChatParaCaptive(actor, id)) ?? [];
+  const chat = chatCliente ?? [];
 
   const textos = t.admin.clientes;
   const locale = localeDe(idioma);
