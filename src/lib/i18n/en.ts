@@ -1101,11 +1101,11 @@ export const en: Textos = {
         titulo: "Financing",
         resumen: "Spaces with a financing option.",
         descripcion:
-          "Spot the spaces that offer financing and, when you contact the provider, let them know you are interested so they can share the details.",
+          "Spot the spaces that offer financing and, when you request information, mark that you're interested: the Captive team will share the details.",
         puntos: [
           "Filter for spaces with financing",
           '"I\'m interested in financing" option when you get in touch',
-          "The provider explains the terms directly",
+          "The Captive team explains the terms",
         ],
         boton: "See spaces with financing",
       },

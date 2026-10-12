@@ -1116,11 +1116,11 @@ export const es = {
         titulo: "Financiamiento",
         resumen: "Espacios con opción de financiamiento.",
         descripcion:
-          "Identifica los espacios que ofrecen financiamiento y, al contactar al oferente, avísale que te interesa para que te dé los detalles.",
+          "Identifica los espacios que ofrecen financiamiento y, al pedir informes, marca que te interesa: el equipo Captive te da los detalles.",
         puntos: [
           "Filtro de espacios con financiamiento",
-          'Opción "Me interesa el financiamiento" al contactar',
-          "El oferente te explica las condiciones directamente",
+          'Opción "Me interesa el financiamiento" al pedir informes',
+          "El equipo Captive te explica las condiciones",
         ],
         boton: "Ver espacios con financiamiento",
       },
