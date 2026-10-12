@@ -2,6 +2,7 @@ import { CheckIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { PropertyReviewCard } from "@/components/admin/property-review-card";
 import { obtenerTextos } from "@/server/i18n";
+import { posiblesDuplicadosDePendientes } from "@/server/properties/near-duplicates";
 import { listarPendientesDeRevision } from "@/server/properties/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -12,6 +13,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AdminPropiedadesPage() {
   const textos = (await obtenerTextos()).t.admin.propiedades;
   const propiedades = await listarPendientesDeRevision();
+  // Espacios vigentes del mismo tipo a pocos metros de cada pendiente: el admin los ve marcados.
+  const parecidas = await posiblesDuplicadosDePendientes(propiedades);
 
   return (
     <div className="flex flex-col gap-5">
@@ -29,7 +32,10 @@ export default async function AdminPropiedadesPage() {
         <ul className="flex flex-col gap-4">
           {propiedades.map((propiedad) => (
             <li key={propiedad.id}>
-              <PropertyReviewCard propiedad={propiedad} />
+              <PropertyReviewCard
+                propiedad={propiedad}
+                parecidas={parecidas.get(propiedad.id) ?? []}
+              />
             </li>
           ))}
         </ul>

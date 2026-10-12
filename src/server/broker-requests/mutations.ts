@@ -75,3 +75,25 @@ export async function crearSolicitudBroker(
     return errorPendiente();
   }
 }
+
+// Mensajes de la solicitud que se abre sola al registrarse (o al pasar a publicar), según lo que la
+// persona eligió. Los ve el admin en "Solicitudes de broker y dueños".
+export const MENSAJE_SOLICITUD_POR_REGISTRO = {
+  broker: "Se registró eligiendo «Soy broker».",
+  dueno: "Se registró eligiendo «Soy el dueño».",
+} as const;
+
+// Todo oferente nuevo pasa por aprobación de Captive: "Soy broker" abre una solicitud de broker
+// (aprobarla da el código BRK) y "Soy el dueño" una de dueño (aprobarla lo verifica). Si ya tiene una
+// pendiente, no hace nada (índice único parcial). La llaman el alta de la cuenta y "Publica tu
+// espacio", que ya validaron al usuario.
+export async function abrirSolicitudPorRegistro(
+  usuarioId: string,
+  tipo: "broker" | "dueno",
+  empresa = "",
+): Promise<void> {
+  await db
+    .insert(brokerSolicitud)
+    .values({ usuarioId, tipo, mensaje: MENSAJE_SOLICITUD_POR_REGISTRO[tipo], empresa })
+    .onConflictDoNothing();
+}

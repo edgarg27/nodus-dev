@@ -2,7 +2,8 @@
 // Captive (Clientes y prospectos del panel de administración). Las pantallas siguen existiendo
 // (/mensajes y /leads): para volver a mostrar un apartado, poner su valor en `true`.
 
-// "Mensajes" en el menú de la cuenta.
+// "Mensajes" en el menú de la cuenta. Mientras esté oculto, el oferente tiene "Chat con Captive"
+// (/mensajes/captive) en su lugar.
 export const MENSAJES_VISIBLE_PARA_OFERENTE = false;
 
 // "Bandeja de entrada" (/leads) en el menú de la cuenta y la liga desde la tarjeta "Solicitudes"

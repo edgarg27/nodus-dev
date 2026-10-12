@@ -4,14 +4,18 @@ import { Building2Icon, StoreIcon, WarehouseIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAdminToast } from "@/components/admin/admin-toast";
+import { PossibleDuplicatesNotice } from "@/components/admin/possible-duplicates-notice";
 import { PropertyDetailsDialog } from "@/components/admin/property-details-dialog";
 import { RejectPropertyDialog } from "@/components/admin/reject-property-dialog";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
+import type { ParecidaParaAdmin } from "@/server/properties/near-duplicates";
 import type { PropiedadPendienteDeRevision } from "@/server/properties/queries";
 
 interface PropertyReviewCardProps {
   propiedad: PropiedadPendienteDeRevision;
+  // Espacios vigentes del mismo tipo a pocos metros (posibles duplicados).
+  parecidas?: ParecidaParaAdmin[];
 }
 
 type Decision = { decision: "aprobar" } | { decision: "rechazar"; motivo: string };
@@ -22,7 +26,7 @@ const ICONO_POR_TIPO = {
   local_comercial: StoreIcon,
 } as const;
 
-export function PropertyReviewCard({ propiedad }: PropertyReviewCardProps) {
+export function PropertyReviewCard({ propiedad, parecidas = [] }: PropertyReviewCardProps) {
   const { t } = useIdioma();
   const p = t.admin.propiedades;
   const etiquetas = t.etiquetas as {
@@ -106,6 +110,7 @@ export function PropertyReviewCard({ propiedad }: PropertyReviewCardProps) {
         {propiedad.oferente ? (
           <p className="text-xs text-text-muted">{p.publicadaPor(propiedad.oferente.nombre)}</p>
         ) : null}
+        <PossibleDuplicatesNotice parecidas={parecidas} textos={p} />
       </div>
 
       <div className="flex shrink-0 items-center gap-2 max-md:w-full max-md:flex-wrap">

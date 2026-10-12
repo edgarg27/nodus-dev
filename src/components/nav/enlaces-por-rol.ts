@@ -29,9 +29,17 @@ export function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): Enla
       { href: "/red", etiqueta: t.red },
       ...(MENSAJES_VISIBLE_PARA_OFERENTE
         ? [{ href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos }]
-        : []),
+        : [
+            // Sin "Mensajes", el oferente llega directo a su chat con Captive.
+            {
+              href: "/mensajes/captive",
+              etiqueta: t.chatCaptive,
+              insignia: actor.mensajesCaptiveNoLeidos,
+            },
+          ]),
       { href: "/perfil", etiqueta: t.miPerfil },
       ...guardados,
+      { href: "/servicios", etiqueta: t.servicios },
     ];
   }
   return [
@@ -39,5 +47,6 @@ export function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): Enla
     { href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos },
     ...guardados,
     { href: "/publicar", etiqueta: t.publicarEspacio },
+    { href: "/servicios", etiqueta: t.servicios },
   ];
 }

@@ -43,6 +43,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             pendingPropertiesCount={contadores.propiedadesPendientes}
             pendingRequestsCount={contadores.solicitudesBroker}
             activeBrokersCount={contadores.brokersActivos}
+            ownersCount={contadores.duenos}
             pendingClientsCount={contadores.clientesPorAtender}
             unreadChatsCount={contadores.chatsSinLeer}
           />

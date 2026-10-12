@@ -5,7 +5,7 @@ export const en: Textos = {
   meta: {
     tituloInicio: "Captive by Nodus — Industrial, office and retail space, nationwide and abroad",
     descripcionInicio:
-      "Find or list industrial warehouses, offices and retail spaces nationwide and abroad. Nodus connects growing businesses with verified space providers.",
+      "Find or list industrial warehouses, offices and retail spaces nationwide and abroad. Nodus connects companies with verified space providers.",
   },
   etiquetas: {
     tipo: {
@@ -55,6 +55,8 @@ export const en: Textos = {
     red: "Real estate network",
     mensajes: "Messages",
     misLeadsBandeja: "Inbox",
+    chatCaptive: "Chat with Captive",
+    servicios: "Services",
   },
   hero: {
     titulo: "Find the space to grow your business",
@@ -127,7 +129,7 @@ export const en: Textos = {
   },
   porQue: {
     etiqueta: "Why Nodus",
-    titulo: "Built for small businesses and startups",
+    titulo: "Built for companies that want to grow",
     items: [
       {
         titulo: "Build-to-suit projects",
@@ -159,7 +161,7 @@ export const en: Textos = {
   },
   footer: {
     descripcion:
-      "We connect small businesses and startups with the industrial, office and retail spaces that drive their growth.",
+      "We connect companies with the industrial, office and retail spaces that drive their growth.",
     producto: "Product",
     buscarEspacios: "Search spaces",
     publicar: "List a space",
@@ -367,6 +369,58 @@ export const en: Textos = {
     bannerBotonBroker: "My broker code",
     bannerBotonInvitacion: "Apply to be a broker",
   },
+  verificacion: {
+    metaTitulo: "Account verification — Captive by Nodus",
+    titulo: "Complete your verification",
+    intro:
+      "To prevent fraud, the Captive team confirms that every broker and owner is real before they list. Upload your documents and we'll review them.",
+    privacidad: "Your documents are private: only the Captive team can see them.",
+    estado: {
+      faltan: "Documents missing",
+      revision: "Under review",
+      verificado: "Account verified",
+      denegada: "Verification denied",
+    },
+    textoFaltan: "Upload the missing documents so we can review your account.",
+    textoRevision:
+      "We have your documents. The Captive team will review them and you'll see the result here.",
+    textoVerificado: "Your account is verified. You can list your spaces.",
+    textoDenegada: "Check the reason, fix your documents and send them again.",
+    motivo: "Reason:",
+    sinMotivo: "No reason given",
+    documentos: {
+      identificacion: {
+        titulo: "Official ID",
+        ayuda: "Valid INE or passport, fully legible.",
+      },
+      acreditacion_broker: {
+        titulo: "Broker accreditation",
+        ayuda: "Your agency's business card, tax status certificate or professional license.",
+      },
+      comprobante_propiedad: {
+        titulo: "Proof of property",
+        ayuda: "Property tax receipt, deed or utility bill in your name.",
+      },
+    },
+    formatos: "PDF, JPG, PNG or WEBP, up to 4 MB.",
+    subir: "Upload file",
+    reemplazar: "Replace",
+    subiendo: "Uploading…",
+    ver: "View",
+    sinSubir: "Not uploaded",
+    subido: (fecha: string) => `Uploaded ${fecha}`,
+    errorSubida: "The file couldn't be uploaded",
+    reenviar: "Send for review again",
+    reenviando: "Sending…",
+    errorReenvio: "Couldn't send for review",
+    avisoTitulo: "Complete your verification to list",
+    avisoFaltan: "Upload your documents so the Captive team can approve your account.",
+    avisoRevision:
+      "Your documents are under review. You'll be able to list once the Captive team approves your account.",
+    avisoDenegada: "Your verification was denied. Check the reason and send your documents again.",
+    avisoBoton: "Go to verification",
+    volverPanel: "Back to dashboard",
+  },
   csv: {
     propiedades: {
       archivo: "properties.csv",
@@ -410,8 +464,9 @@ export const en: Textos = {
     secciones: "Panel sections",
     nav: {
       propiedades: "Pending properties",
-      requests: "Broker requests",
+      requests: "Broker and owner requests",
       brokers: "Active brokers",
+      duenos: "Owners",
       clientes: "Clients and prospects",
       mensajes: "Messages",
     },
@@ -422,6 +477,11 @@ export const en: Textos = {
         "Every property starts as pending, including those from Nodus staff. Approve it to make it public or reject it with a reason.",
       vacio: "No properties waiting for review.",
       publicadaPor: (nombre: string) => `Listed by ${nombre}`,
+      posibleDuplicado: "Possible duplicate: there are spaces of the same type very close",
+      parecidaDetalle: (m: number, oferente: string) =>
+        `${m <= 1 ? "at the same spot" : `${m} m away`}${oferente ? ` · by ${oferente}` : ""}`,
+      parecidaPublicada: "published",
+      parecidaPendiente: "also under review",
       verDetalles: "View details",
       rechazar: "Reject",
       aprobar: "Approve",
@@ -441,17 +501,31 @@ export const en: Textos = {
       confirmarRechazo: "Confirm rejection",
     },
     solicitudes: {
-      metaTitulo: "Broker requests — Captive by Nodus",
-      titulo: "Broker requests",
+      metaTitulo: "Broker and owner requests — Captive by Nodus",
+      titulo: "Broker and owner requests",
       descripcion:
-        "When you approve, Nodus automatically generates a unique broker code for the lister.",
-      vacio: "No pending broker requests.",
+        "Check the person's documents before approving. An approved broker gets a unique broker code; an approved owner moves to Owners as verified.",
+      vacio: "No pending requests.",
+      tipoBroker: "Broker",
+      tipoDueno: "Owner",
+      aprobadaDueno: "Owner verified: now listed in Owners.",
       solicitado: (fecha: string) => `Requested ${fecha}`,
       denegar: "Deny",
       aprobar: "Approve",
       yaResuelta: "This request has already been resolved.",
       aprobada: (codigo: string) => `Request approved — code ${codigo} generated.`,
-      denegada: "Broker request denied.",
+      denegada: "Request denied.",
+      documentos: "Documents",
+      faltanDocumentos: "Documents missing",
+      sinSubir: "not uploaded",
+      notaTitulo: "Documents are missing. To approve anyway, write why:",
+      notaPlaceholder: "For example: we know them, a Nodus client for years.",
+      confirmarAprobar: "Approve without documents",
+      motivoTitulo: "Reason for denial (the person will see it):",
+      motivoPlaceholder: "For example: the ID isn't legible.",
+      confirmarDenegar: "Confirm denial",
+      cancelar: "Cancel",
+      errorResolver: "The request couldn't be resolved",
     },
     brokers: {
       metaTitulo: "Active brokers — Captive by Nodus",
@@ -476,7 +550,32 @@ export const en: Textos = {
       descripcion: "Clients' conversations with the Captive team.",
       vacio: "No client messages yet.",
       tu: "You",
-      verCliente: "View client",
+      verCliente: "View profile",
+    },
+    duenos: {
+      metaTitulo: "Owners — Captive by Nodus",
+      titulo: "Owners",
+      descripcion:
+        "People who list their own spaces and whom Captive has verified (approved in Broker and owner requests).",
+      buscar: "Search by name, email or phone",
+      buscarBoton: "Search",
+      vacio: "No owners registered yet.",
+      registrado: (fecha: string) => `Registered on ${fecha}`,
+      publicadas: (n: number) => (n === 1 ? "1 published" : `${n} published`),
+      pendientes: (n: number) => (n === 1 ? "1 under review" : `${n} under review`),
+      rechazadas: (n: number) => (n === 1 ? "1 rejected" : `${n} rejected`),
+      sinPropiedades: "No properties",
+      mensajesNuevos: (n: number) => (n === 1 ? "1 new message" : `${n} new messages`),
+      volver: "Owners",
+      datos: "Owner details",
+      sinTelefono: "No phone on file",
+      propiedadesTitulo: "Properties",
+      sinPropiedadesTexto: "Has not listed any space yet.",
+      estados: { pendiente: "Under review", publicada: "Published", rechazada: "Rejected" },
+      verEspacio: "View space",
+      revisar: "Review",
+      mensajesTitulo: "Messages",
+      pendienteVerificar: "Pending verification",
     },
     clientes: {
       metaTitulo: "Clients and prospects — Captive by Nodus",
@@ -581,7 +680,7 @@ export const en: Textos = {
       telefono: "Phone or WhatsApp",
       comoPublicas: "How do you list?",
       particular: "I'm the owner",
-      inmobiliaria: "Agency or agent",
+      inmobiliaria: "I'm a broker",
       empresa: "Agency or company name",
       enviar: "Continue and list",
       enviando: "Saving…",
@@ -851,6 +950,15 @@ export const en: Textos = {
       siguiente: "Next page",
     },
     formulario: {
+      parecidosTitulo: "Is it one of these spaces?",
+      parecidosTexto:
+        "There are already spaces of the same type very close to this location. If yours is one of them, do not list it again. If it is a different one (for example, another office in the same building), continue.",
+      parecidosDistancia: (m: number) => (m <= 1 ? "At the same spot" : `${m} m away`),
+      parecidosTuya: "Yours",
+      parecidosEnRevision: "Under review",
+      parecidosVer: "View",
+      parecidosEsElMismo: "Yes, it's the same: cancel",
+      parecidosEsOtro: "No, it's a different space: continue",
       etiquetaNueva: "List a space",
       etiquetaEditar: "Edit property",
       tituloNueva: "Tell us about your property",
@@ -954,6 +1062,65 @@ export const en: Textos = {
       comisionAyuda:
         "Only other listers in the Network see the commission; it never appears on the public listing.",
       errorNumero: "Enter a valid number",
+    },
+  },
+  servicios: {
+    metaTitulo: "Services — Captive by Nodus",
+    metaDescripcion:
+      "Industrial, office and retail space for rent or sale, build-to-suit projects, financing and tools for owners and brokers on Captive by Nodus.",
+    etiqueta: "Services",
+    titulo: "Everything Captive does for your business",
+    intro:
+      "From finding the right warehouse, office or retail space to building it to suit, financing it or listing it: all in one place.",
+    items: {
+      rentaVenta: {
+        titulo: "Spaces for rent and sale",
+        resumen: "Warehouses, offices and retail spaces ready to move in.",
+        descripcion:
+          "Find industrial warehouses, offices and retail spaces for rent or sale, nationwide and abroad, with photos, square meters, price and location on the map.",
+        puntos: [
+          "Filter by operation, type, location and price",
+          "Compare spaces on the map",
+          "Save your favorites and your searches",
+        ],
+        boton: "Search spaces",
+      },
+      desdeCero: {
+        titulo: "Build-to-suit projects",
+        resumen: "Your space, built to fit.",
+        descripcion:
+          "When no existing property fits, find projects to build your warehouse, office or retail space around what your operation needs.",
+        puntos: [
+          "Spaces designed to fit",
+          "For warehouses, offices and retail",
+          "The Captive team works with the project developer alongside you",
+        ],
+        boton: "See build-to-suit projects",
+      },
+      financiamiento: {
+        titulo: "Financing",
+        resumen: "Spaces with a financing option.",
+        descripcion:
+          "Spot the spaces that offer financing and, when you request information, mark that you're interested: the Captive team will share the details.",
+        puntos: [
+          "Filter for spaces with financing",
+          '"I\'m interested in financing" option when you get in touch',
+          "The Captive team explains the terms",
+        ],
+        boton: "See spaces with financing",
+      },
+      propietarios: {
+        titulo: "For owners and brokers",
+        resumen: "List your spaces and receive requests.",
+        descripcion:
+          "List your properties with photos, description and location; every listing is reviewed before it goes live. If you represent several clients, apply to become a verified broker and join the Real estate network.",
+        puntos: [
+          "Listings reviewed by the Nodus team",
+          "The Captive team handles interested clients and keeps you posted",
+          "Broker program and Real estate network",
+        ],
+        boton: "List a space",
+      },
     },
   },
   landing: {

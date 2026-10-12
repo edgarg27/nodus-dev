@@ -4,7 +4,7 @@ export const es = {
   meta: {
     tituloInicio: "Captive by Nodus — Naves, oficinas y locales a nivel nacional e internacional",
     descripcionInicio:
-      "Encuentra o publica naves industriales, oficinas y locales comerciales a nivel nacional e internacional. Nodus conecta pymes con oferentes verificados.",
+      "Encuentra o publica naves industriales, oficinas y locales comerciales a nivel nacional e internacional. Nodus conecta empresas con oferentes verificados.",
   },
   etiquetas: {
     tipo: {
@@ -55,6 +55,8 @@ export const es = {
     red: "Red inmobiliaria",
     mensajes: "Mensajes",
     misLeadsBandeja: "Bandeja de entrada",
+    chatCaptive: "Chat con Captive",
+    servicios: "Servicios",
   },
   hero: {
     titulo: "Encuentra el espacio para hacer crecer tu negocio",
@@ -128,7 +130,7 @@ export const es = {
   },
   porQue: {
     etiqueta: "Por qué Nodus",
-    titulo: "Pensado para pymes y empresas emergentes",
+    titulo: "Pensado para empresas que quieren crecer",
     items: [
       {
         titulo: "Proyectos desde cero",
@@ -160,7 +162,7 @@ export const es = {
   },
   footer: {
     descripcion:
-      "Conectamos pymes y empresas emergentes con los espacios industriales, de oficina y comerciales que impulsan su crecimiento.",
+      "Conectamos empresas con los espacios industriales, de oficina y comerciales que impulsan su crecimiento.",
     producto: "Producto",
     buscarEspacios: "Buscar espacios",
     publicar: "Publicar un espacio",
@@ -371,6 +373,60 @@ export const es = {
     bannerBotonBroker: "Mi código de broker",
     bannerBotonInvitacion: "Solicitar ser broker",
   },
+  verificacion: {
+    metaTitulo: "Verificación de tu cuenta — Captive by Nodus",
+    titulo: "Completa tu verificación",
+    intro:
+      "Para evitar fraudes, el equipo Captive confirma que cada broker y cada dueño es real antes de que publique. Sube tus documentos y los revisamos.",
+    privacidad: "Tus documentos son privados: solo los ve el equipo Captive.",
+    estado: {
+      faltan: "Faltan documentos",
+      revision: "En revisión",
+      verificado: "Cuenta verificada",
+      denegada: "Verificación denegada",
+    },
+    textoFaltan: "Sube los documentos que faltan para que podamos revisar tu cuenta.",
+    textoRevision:
+      "Ya tenemos tus documentos. El equipo Captive los revisará y aquí verás el resultado.",
+    textoVerificado: "Tu cuenta ya está verificada. Puedes publicar tus espacios.",
+    textoDenegada: "Revisa el motivo, corrige tus documentos y vuelve a enviarlos.",
+    motivo: "Motivo:",
+    sinMotivo: "Sin motivo indicado",
+    documentos: {
+      identificacion: {
+        titulo: "Identificación oficial",
+        ayuda: "INE o pasaporte vigente, que se lea completo.",
+      },
+      acreditacion_broker: {
+        titulo: "Acreditación como broker",
+        ayuda:
+          "Tarjeta de presentación de tu inmobiliaria, constancia de situación fiscal o cédula.",
+      },
+      comprobante_propiedad: {
+        titulo: "Comprobante de la propiedad",
+        ayuda: "Predial, escritura o recibo de servicios a tu nombre.",
+      },
+    },
+    formatos: "PDF, JPG, PNG o WEBP, máximo 4 MB.",
+    subir: "Subir archivo",
+    reemplazar: "Reemplazar",
+    subiendo: "Subiendo…",
+    ver: "Ver",
+    sinSubir: "Sin subir",
+    subido: (fecha: string) => `Subido el ${fecha}`,
+    errorSubida: "No se pudo subir el archivo",
+    reenviar: "Enviar de nuevo a revisión",
+    reenviando: "Enviando…",
+    errorReenvio: "No se pudo enviar a revisión",
+    avisoTitulo: "Completa tu verificación para publicar",
+    avisoFaltan: "Sube tus documentos para que el equipo Captive apruebe tu cuenta.",
+    avisoRevision:
+      "Tus documentos están en revisión. Podrás publicar cuando el equipo Captive apruebe tu cuenta.",
+    avisoDenegada:
+      "Tu verificación fue denegada. Revisa el motivo y vuelve a enviar tus documentos.",
+    avisoBoton: "Ir a verificación",
+    volverPanel: "Volver al panel",
+  },
   csv: {
     propiedades: {
       archivo: "propiedades.csv",
@@ -414,8 +470,9 @@ export const es = {
     secciones: "Secciones del panel",
     nav: {
       propiedades: "Propiedades pendientes",
-      requests: "Solicitudes de broker",
+      requests: "Solicitudes de broker y dueños",
       brokers: "Brokers activos",
+      duenos: "Dueños",
       clientes: "Clientes y prospectos",
       mensajes: "Mensajes",
     },
@@ -426,6 +483,11 @@ export const es = {
         "Toda propiedad nace pendiente, incluidas las del staff de Nodus. Apruébala para que sea pública o recházala indicando un motivo.",
       vacio: "No hay propiedades pendientes de revisión.",
       publicadaPor: (nombre: string) => `Publicada por ${nombre}`,
+      posibleDuplicado: "Posible duplicado: ya hay espacios del mismo tipo muy cerca",
+      parecidaDetalle: (m: number, oferente: string) =>
+        `${m <= 1 ? "en el mismo punto" : `a ${m} m`}${oferente ? ` · de ${oferente}` : ""}`,
+      parecidaPublicada: "publicada",
+      parecidaPendiente: "también en revisión",
       verDetalles: "Ver detalles",
       rechazar: "Rechazar",
       aprobar: "Aprobar",
@@ -445,17 +507,31 @@ export const es = {
       confirmarRechazo: "Confirmar rechazo",
     },
     solicitudes: {
-      metaTitulo: "Solicitudes de broker — Captive by Nodus",
-      titulo: "Solicitudes de broker",
+      metaTitulo: "Solicitudes de broker y dueños — Captive by Nodus",
+      titulo: "Solicitudes de broker y dueños",
       descripcion:
-        "Al aprobar, Nodus genera automáticamente un código de broker único para el oferente.",
-      vacio: "No hay solicitudes de broker pendientes.",
+        "Revisa los documentos de la persona antes de aprobarla. Un broker aprobado recibe su código de broker único; un dueño aprobado pasa a Dueños como verificado.",
+      vacio: "No hay solicitudes pendientes.",
+      tipoBroker: "Broker",
+      tipoDueno: "Dueño",
+      aprobadaDueno: "Dueño verificado: ya aparece en Dueños.",
       solicitado: (fecha: string) => `Solicitado el ${fecha}`,
       denegar: "Denegar",
       aprobar: "Aprobar",
       yaResuelta: "Esta solicitud ya fue resuelta.",
       aprobada: (codigo: string) => `Solicitud aprobada — código ${codigo} generado.`,
-      denegada: "Solicitud de broker denegada.",
+      denegada: "Solicitud denegada.",
+      documentos: "Documentos",
+      faltanDocumentos: "Faltan documentos",
+      sinSubir: "sin subir",
+      notaTitulo: "Faltan documentos. Para aprobar así, escribe por qué:",
+      notaPlaceholder: "Por ejemplo: lo conocemos, es cliente de Nodus desde hace años.",
+      confirmarAprobar: "Aprobar sin documentos",
+      motivoTitulo: "Motivo de la denegación (lo verá la persona):",
+      motivoPlaceholder: "Por ejemplo: la identificación no se alcanza a leer.",
+      confirmarDenegar: "Confirmar denegación",
+      cancelar: "Cancelar",
+      errorResolver: "No se pudo resolver la solicitud",
     },
     brokers: {
       metaTitulo: "Brokers activos — Captive by Nodus",
@@ -480,7 +556,32 @@ export const es = {
       descripcion: "Conversaciones de los clientes con el equipo de Captive.",
       vacio: "Todavía no hay mensajes de clientes.",
       tu: "Tú",
-      verCliente: "Ver cliente",
+      verCliente: "Ver ficha",
+    },
+    duenos: {
+      metaTitulo: "Dueños — Captive by Nodus",
+      titulo: "Dueños",
+      descripcion:
+        "Personas que publican sus propios espacios y que Captive ya verificó (se aprueban en Solicitudes de broker y dueños).",
+      buscar: "Buscar por nombre, correo o teléfono",
+      buscarBoton: "Buscar",
+      vacio: "Todavía no hay dueños registrados.",
+      registrado: (fecha: string) => `Registrado el ${fecha}`,
+      publicadas: (n: number) => (n === 1 ? "1 publicada" : `${n} publicadas`),
+      pendientes: (n: number) => (n === 1 ? "1 en revisión" : `${n} en revisión`),
+      rechazadas: (n: number) => (n === 1 ? "1 rechazada" : `${n} rechazadas`),
+      sinPropiedades: "Sin propiedades",
+      mensajesNuevos: (n: number) => (n === 1 ? "1 mensaje nuevo" : `${n} mensajes nuevos`),
+      volver: "Dueños",
+      datos: "Datos del dueño",
+      sinTelefono: "Sin teléfono registrado",
+      propiedadesTitulo: "Propiedades",
+      sinPropiedadesTexto: "Todavía no ha publicado ningún espacio.",
+      estados: { pendiente: "En revisión", publicada: "Publicada", rechazada: "Rechazada" },
+      verEspacio: "Ver espacio",
+      revisar: "Revisar",
+      mensajesTitulo: "Mensajes",
+      pendienteVerificar: "Pendiente de verificación",
     },
     clientes: {
       metaTitulo: "Clientes y prospectos — Captive by Nodus",
@@ -587,7 +688,7 @@ export const es = {
       telefono: "Teléfono o WhatsApp",
       comoPublicas: "¿Cómo publicas?",
       particular: "Soy el dueño",
-      inmobiliaria: "Inmobiliaria o agente",
+      inmobiliaria: "Soy broker",
       empresa: "Nombre de la inmobiliaria o empresa",
       enviar: "Continuar y publicar",
       enviando: "Guardando…",
@@ -861,6 +962,15 @@ export const es = {
       siguiente: "Página siguiente",
     },
     formulario: {
+      parecidosTitulo: "¿Es alguno de estos espacios?",
+      parecidosTexto:
+        "Ya hay espacios del mismo tipo muy cerca de esta ubicación. Si el tuyo es uno de ellos, no lo publiques de nuevo. Si es otro (por ejemplo, otra oficina del mismo edificio), continúa.",
+      parecidosDistancia: (m: number) => (m <= 1 ? "En el mismo punto" : `A ${m} m`),
+      parecidosTuya: "Es tuya",
+      parecidosEnRevision: "En revisión",
+      parecidosVer: "Ver",
+      parecidosEsElMismo: "Sí, es el mismo: cancelar",
+      parecidosEsOtro: "No, es otro espacio: continuar",
       etiquetaNueva: "Publicar un espacio",
       etiquetaEditar: "Editar propiedad",
       tituloNueva: "Cuéntanos sobre tu inmueble",
@@ -967,6 +1077,65 @@ export const es = {
       comisionAyuda:
         "La comisión solo la ven otros oferentes en la Red; nunca aparece en la ficha pública.",
       errorNumero: "Escribe un número válido",
+    },
+  },
+  servicios: {
+    metaTitulo: "Servicios — Captive by Nodus",
+    metaDescripcion:
+      "Renta y venta de naves, oficinas y locales, proyectos desde cero, financiamiento y herramientas para propietarios y brokers en Captive by Nodus.",
+    etiqueta: "Servicios",
+    titulo: "Todo lo que Captive hace por tu empresa",
+    intro:
+      "Desde encontrar la nave, oficina o local adecuado hasta construirlo a la medida, financiarlo o publicarlo: todo en un solo lugar.",
+    items: {
+      rentaVenta: {
+        titulo: "Renta y venta de espacios",
+        resumen: "Naves, oficinas y locales listos para ocupar.",
+        descripcion:
+          "Encuentra naves industriales, oficinas y locales comerciales en renta o venta a nivel nacional e internacional, con fotos, metros cuadrados, precio y ubicación en el mapa.",
+        puntos: [
+          "Filtra por modalidad, tipo, ubicación y precio",
+          "Compara los espacios en el mapa",
+          "Guarda tus favoritos y tus búsquedas",
+        ],
+        boton: "Buscar espacios",
+      },
+      desdeCero: {
+        titulo: "Proyectos desde cero",
+        resumen: "Tu espacio construido a la medida.",
+        descripcion:
+          "Cuando ningún inmueble existente encaja, encuentra proyectos para construir tu nave, oficina o local según lo que necesita tu operación.",
+        puntos: [
+          "Espacios diseñados a la medida",
+          "Para naves, oficinas y locales",
+          "El equipo Captive te acompaña con quien desarrolla el proyecto",
+        ],
+        boton: "Ver proyectos desde cero",
+      },
+      financiamiento: {
+        titulo: "Financiamiento",
+        resumen: "Espacios con opción de financiamiento.",
+        descripcion:
+          "Identifica los espacios que ofrecen financiamiento y, al pedir informes, marca que te interesa: el equipo Captive te da los detalles.",
+        puntos: [
+          "Filtro de espacios con financiamiento",
+          'Opción "Me interesa el financiamiento" al pedir informes',
+          "El equipo Captive te explica las condiciones",
+        ],
+        boton: "Ver espacios con financiamiento",
+      },
+      propietarios: {
+        titulo: "Para propietarios y brokers",
+        resumen: "Publica tus espacios y recibe solicitudes.",
+        descripcion:
+          "Publica tus inmuebles con fotos, descripción y ubicación; cada publicación se revisa antes de salir. Si representas a varios clientes, solicita ser broker verificado y únete a la Red inmobiliaria.",
+        puntos: [
+          "Publicaciones revisadas por el equipo de Nodus",
+          "El equipo Captive atiende a los interesados y te avisa",
+          "Programa de brokers y Red inmobiliaria",
+        ],
+        boton: "Publicar un espacio",
+      },
     },
   },
   landing: {

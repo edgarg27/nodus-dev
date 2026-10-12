@@ -102,6 +102,7 @@ export const config = {
     "/propiedades/:path*",
     "/leads/:path*",
     "/broker/:path*",
+    "/verificacion/:path*",
     "/favoritos/:path*",
     "/mis-busquedas/:path*",
     "/admin/:path*",

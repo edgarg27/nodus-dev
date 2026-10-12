@@ -18,8 +18,9 @@ export type ResultadoResolucion =
   | { ok: true; data: SolicitudFila }
   | { ok: false; error: ErrorResolucion };
 
+// `brokerCode` es null al aprobar una solicitud de dueño (solo se verifica, no se vuelve broker).
 export type ResultadoAprobacion =
-  | { ok: true; data: SolicitudFila & { brokerCode: string } }
+  | { ok: true; data: SolicitudFila & { brokerCode: string | null } }
   | { ok: false; error: ErrorResolucion };
 
 function errorNotFound(): ResultadoResolucion {
@@ -92,6 +93,15 @@ export async function aprobarSolicitud(
       .where(and(eq(brokerSolicitud.id, id), eq(brokerSolicitud.estado, "pendiente")))
       .returning();
     if (!resuelta) return errorYaResuelta() as ResultadoAprobacion;
+
+    // Solicitud de dueño: aprobarla solo lo verifica (sin broker_code).
+    if (resuelta.tipo === "dueno") {
+      await tx
+        .update(usuario)
+        .set({ duenoVerificado: true })
+        .where(eq(usuario.id, resuelta.usuarioId));
+      return { ok: true, data: { ...resuelta, brokerCode: null } };
+    }
 
     let codigoAsignado: string | null = null;
     for (let intento = 0; intento < MAX_INTENTOS_CODIGO && !codigoAsignado; intento++) {
