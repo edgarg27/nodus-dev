@@ -2,6 +2,7 @@ import { ArrowLeftIcon, ExternalLinkIcon, MailIcon, PhoneIcon } from "lucide-rea
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { RequestDocuments } from "@/components/broker/request-documents";
 import { ChatThread } from "@/components/messages/chat-thread";
 import { ZONA_HORARIA } from "@/lib/clientes";
 import { localeDe } from "@/lib/i18n";
@@ -11,6 +12,7 @@ import { obtenerDueno } from "@/server/duenos/queries";
 import { esUuid } from "@/server/http/envelope";
 import { obtenerTextos } from "@/server/i18n";
 import { obtenerChatParaCaptive } from "@/server/messages/captive";
+import { listarDocumentosDe } from "@/server/verificacion/documentos";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await obtenerTextos();
@@ -36,6 +38,7 @@ export default async function AdminDuenoPage({ params }: AdminDuenoPageProps) {
   const dueno = await obtenerDueno(actor, id);
   if (!dueno) notFound();
   const chat = (await obtenerChatParaCaptive(actor, id)) ?? [];
+  const documentos = await listarDocumentosDe(id);
   const textos = t.admin.duenos;
   const formatoFecha = new Intl.DateTimeFormat(localeDe(idioma), {
     day: "numeric",
@@ -75,6 +78,8 @@ export default async function AdminDuenoPage({ params }: AdminDuenoPageProps) {
           </span>
         </div>
       </div>
+
+      <RequestDocuments tipoSolicitud="dueno" documentos={documentos} t={t} />
 
       <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
         <section className="flex flex-col gap-4" aria-labelledby="titulo-propiedades">

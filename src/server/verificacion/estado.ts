@@ -13,6 +13,9 @@ export type EstadoVerificacion = "verificado" | "pendiente" | "denegada" | "sin_
 
 export interface Verificacion {
   estado: EstadoVerificacion;
+  // Su solicitud más reciente, si sigue abierta. Puede haberla aunque `estado` sea `verificado`: un
+  // dueño ya verificado que pide ser broker.
+  revision: "pendiente" | "denegada" | null;
   // "broker" o "dueno": decide qué documentos se piden.
   tipo: string;
   motivoDenegacion: string | null;
@@ -22,18 +25,20 @@ export interface Verificacion {
 }
 
 async function estadoDe(usuarioId: string) {
-  const [fila] = await db
-    .select({ isBroker: usuario.isBroker, duenoVerificado: usuario.duenoVerificado })
-    .from(usuario)
-    .where(eq(usuario.id, usuarioId));
-  if (fila?.isBroker || fila?.duenoVerificado) {
-    return { estado: "verificado" as const, solicitud: null };
-  }
-  const solicitud = await ultimaSolicitudDe(usuarioId);
-  if (solicitud?.estado === "pendiente" || solicitud?.estado === "denegada") {
-    return { estado: solicitud.estado as "pendiente" | "denegada", solicitud };
-  }
-  return { estado: "sin_solicitud" as const, solicitud };
+  const [[fila], solicitud] = await Promise.all([
+    db
+      .select({ isBroker: usuario.isBroker, duenoVerificado: usuario.duenoVerificado })
+      .from(usuario)
+      .where(eq(usuario.id, usuarioId)),
+    ultimaSolicitudDe(usuarioId),
+  ]);
+  const revision =
+    solicitud?.estado === "pendiente" || solicitud?.estado === "denegada"
+      ? (solicitud.estado as "pendiente" | "denegada")
+      : null;
+  const verificado = Boolean(fila?.isBroker || fila?.duenoVerificado);
+  const estado: EstadoVerificacion = verificado ? "verificado" : (revision ?? "sin_solicitud");
+  return { estado, revision, solicitud };
 }
 
 // Mientras Captive no apruebe a la persona (solicitud pendiente o denegada) no puede publicar.
@@ -43,15 +48,16 @@ export async function puedePublicar(usuarioId: string): Promise<boolean> {
 }
 
 export async function obtenerVerificacion(usuarioId: string): Promise<Verificacion> {
-  const [{ estado, solicitud }, documentos] = await Promise.all([
+  const [{ estado, revision, solicitud }, documentos] = await Promise.all([
     estadoDe(usuarioId),
     listarDocumentosDe(usuarioId),
   ]);
   const tipo = solicitud?.tipo ?? "dueno";
   return {
     estado,
+    revision,
     tipo,
-    motivoDenegacion: estado === "denegada" ? (solicitud?.motivoDenegacion ?? null) : null,
+    motivoDenegacion: revision === "denegada" ? (solicitud?.motivoDenegacion ?? null) : null,
     documentos,
     faltantes: documentosFaltantes(tipo, documentos),
     puedePublicar: estado === "verificado" || estado === "sin_solicitud",
@@ -82,7 +88,7 @@ export async function reenviarVerificacion(
   }
 
   const verificacion = await obtenerVerificacion(actor.id);
-  if (verificacion.estado !== "denegada") {
+  if (verificacion.revision !== "denegada") {
     return {
       ok: false,
       error: {

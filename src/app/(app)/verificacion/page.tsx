@@ -27,20 +27,23 @@ export default async function VerificacionPage() {
   // Cuentas que nunca pasaron por aprobación no tienen nada que verificar.
   if (verificacion.estado === "sin_solicitud") notFound();
 
+  // Una solicitud abierta manda sobre "verificado": el dueño verificado que pide ser broker todavía
+  // tiene documentos que subir.
+  const vista = verificacion.revision ?? "verificado";
   const faltan = verificacion.faltantes.length > 0;
   let etiqueta = t.estado.revision;
   let texto = t.textoRevision;
-  if (verificacion.estado === "verificado") {
+  if (vista === "verificado") {
     etiqueta = t.estado.verificado;
     texto = t.textoVerificado;
-  } else if (verificacion.estado === "denegada") {
+  } else if (vista === "denegada") {
     etiqueta = t.estado.denegada;
     texto = t.textoDenegada;
   } else if (faltan) {
     etiqueta = t.estado.faltan;
     texto = t.textoFaltan;
   }
-  const verificado = verificacion.estado === "verificado";
+  const verificado = vista === "verificado";
   // Ya verificada, solo se listan los documentos que sí subió (pudo aprobarse sin alguno).
   const tipos = documentosRequeridos(verificacion.tipo).filter(
     (tipo) => !verificado || verificacion.documentos.some((documento) => documento.tipo === tipo),
@@ -54,7 +57,7 @@ export default async function VerificacionPage() {
           className={
             verificado
               ? "w-fit bg-success/15 text-success"
-              : verificacion.estado === "denegada"
+              : vista === "denegada"
                 ? "w-fit bg-destructive/10 text-destructive"
                 : "w-fit bg-warning-foreground text-warning"
           }
@@ -64,7 +67,7 @@ export default async function VerificacionPage() {
         <h1 className="font-display text-[28px] font-bold text-foreground">{t.titulo}</h1>
         <p className="text-sm leading-relaxed text-muted-foreground">{t.intro}</p>
         <p className="text-sm font-medium text-foreground">{texto}</p>
-        {verificacion.estado === "denegada" ? (
+        {vista === "denegada" ? (
           <p className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-foreground">
             <strong className="font-semibold">{t.motivo}</strong>{" "}
             {verificacion.motivoDenegacion ?? t.sinMotivo}
@@ -90,7 +93,7 @@ export default async function VerificacionPage() {
         </section>
       ) : null}
 
-      {verificacion.estado === "denegada" ? <ResubmitButton disabled={faltan} /> : null}
+      {vista === "denegada" ? <ResubmitButton disabled={faltan} /> : null}
 
       <Link
         href="/panel"
