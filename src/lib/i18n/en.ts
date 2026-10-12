@@ -424,6 +424,11 @@ export const en: Textos = {
         "Every property starts as pending, including those from Nodus staff. Approve it to make it public or reject it with a reason.",
       vacio: "No properties waiting for review.",
       publicadaPor: (nombre: string) => `Listed by ${nombre}`,
+      posibleDuplicado: "Possible duplicate: there are spaces of the same type very close",
+      parecidaDetalle: (m: number, oferente: string) =>
+        `${m <= 1 ? "at the same spot" : `${m} m away`}${oferente ? ` · by ${oferente}` : ""}`,
+      parecidaPublicada: "published",
+      parecidaPendiente: "also under review",
       verDetalles: "View details",
       rechazar: "Reject",
       aprobar: "Approve",
@@ -881,6 +886,15 @@ export const en: Textos = {
       siguiente: "Next page",
     },
     formulario: {
+      parecidosTitulo: "Is it one of these spaces?",
+      parecidosTexto:
+        "There are already spaces of the same type very close to this location. If yours is one of them, do not list it again. If it is a different one (for example, another office in the same building), continue.",
+      parecidosDistancia: (m: number) => (m <= 1 ? "At the same spot" : `${m} m away`),
+      parecidosTuya: "Yours",
+      parecidosEnRevision: "Under review",
+      parecidosVer: "View",
+      parecidosEsElMismo: "Yes, it's the same: cancel",
+      parecidosEsOtro: "No, it's a different space: continue",
       etiquetaNueva: "List a space",
       etiquetaEditar: "Edit property",
       tituloNueva: "Tell us about your property",

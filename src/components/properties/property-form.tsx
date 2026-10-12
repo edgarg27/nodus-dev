@@ -11,6 +11,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
 import type { Sugerencia } from "./address-autocomplete";
+import {
+  buscarPosiblesDuplicados,
+  type PosibleDuplicado,
+  PossibleDuplicatesDialog,
+} from "./possible-duplicates-dialog";
 import { PropertyFormBasicsFields } from "./property-form-basics-fields";
 import { PropertyFormDetailsFields } from "./property-form-details-fields";
 import { PropertyFormLocationField } from "./property-form-location-field";
@@ -118,6 +123,11 @@ export function PropertyForm({ propiedad, contactos = [] }: PropertyFormProps) {
   const [mostrarExito, setMostrarExito] = useState(false);
   // Valores ya validados en espera de que el oferente acepte devolver la propiedad a revisión.
   const [valoresPorConfirmar, setValoresPorConfirmar] = useState<PropertyFormValues | null>(null);
+  // Espacios del mismo tipo a pocos metros: se preguntan antes de enviar (no bloquean).
+  const [parecidos, setParecidos] = useState<{
+    lista: PosibleDuplicado[];
+    valores: PropertyFormValues;
+  } | null>(null);
 
   const lat = watch("lat");
   const tipo = watch("tipo");
@@ -213,7 +223,29 @@ export function PropertyForm({ propiedad, contactos = [] }: PropertyFormProps) {
     }
   }
 
-  function onSubmit(valores: PropertyFormValues) {
+  // Antes de enviar: si ya hay espacios muy cerca, quien publica confirma que el suyo es otro.
+  // Al editar solo se pregunta si cambió la ubicación o el tipo.
+  async function onSubmit(valores: PropertyFormValues) {
+    const mismaUbicacion =
+      propiedad !== undefined &&
+      Number(propiedad.lat) === valores.lat &&
+      Number(propiedad.lng) === valores.lng &&
+      propiedad.tipo === valores.tipo;
+    if (mismaUbicacion) return continuarEnvio(valores);
+    const lista = await buscarPosiblesDuplicados({
+      lat: valores.lat,
+      lng: valores.lng,
+      tipo: valores.tipo,
+      excluir: propiedad?.id,
+    });
+    if (lista.length > 0) {
+      setParecidos({ lista, valores });
+      return;
+    }
+    return continuarEnvio(valores);
+  }
+
+  function continuarEnvio(valores: PropertyFormValues) {
     if (propiedad?.estadoPublicacion === "publicada") {
       setValoresPorConfirmar(valores);
       return;
@@ -396,6 +428,15 @@ export function PropertyForm({ propiedad, contactos = [] }: PropertyFormProps) {
         </div>
       </form>
 
+      <PossibleDuplicatesDialog
+        parecidos={parecidos?.lista ?? []}
+        onCancelar={() => setParecidos(null)}
+        onContinuar={() => {
+          const valores = parecidos?.valores;
+          setParecidos(null);
+          if (valores) void continuarEnvio(valores);
+        }}
+      />
       <PropertyFormReviewDialog
         open={valoresPorConfirmar !== null}
         onOpenChange={(abierto) => {

@@ -428,6 +428,11 @@ export const es = {
         "Toda propiedad nace pendiente, incluidas las del staff de Nodus. Apruébala para que sea pública o recházala indicando un motivo.",
       vacio: "No hay propiedades pendientes de revisión.",
       publicadaPor: (nombre: string) => `Publicada por ${nombre}`,
+      posibleDuplicado: "Posible duplicado: ya hay espacios del mismo tipo muy cerca",
+      parecidaDetalle: (m: number, oferente: string) =>
+        `${m <= 1 ? "en el mismo punto" : `a ${m} m`}${oferente ? ` · de ${oferente}` : ""}`,
+      parecidaPublicada: "publicada",
+      parecidaPendiente: "también en revisión",
       verDetalles: "Ver detalles",
       rechazar: "Rechazar",
       aprobar: "Aprobar",
@@ -891,6 +896,15 @@ export const es = {
       siguiente: "Página siguiente",
     },
     formulario: {
+      parecidosTitulo: "¿Es alguno de estos espacios?",
+      parecidosTexto:
+        "Ya hay espacios del mismo tipo muy cerca de esta ubicación. Si el tuyo es uno de ellos, no lo publiques de nuevo. Si es otro (por ejemplo, otra oficina del mismo edificio), continúa.",
+      parecidosDistancia: (m: number) => (m <= 1 ? "En el mismo punto" : `A ${m} m`),
+      parecidosTuya: "Es tuya",
+      parecidosEnRevision: "En revisión",
+      parecidosVer: "Ver",
+      parecidosEsElMismo: "Sí, es el mismo: cancelar",
+      parecidosEsOtro: "No, es otro espacio: continuar",
       etiquetaNueva: "Publicar un espacio",
       etiquetaEditar: "Editar propiedad",
       tituloNueva: "Cuéntanos sobre tu inmueble",
