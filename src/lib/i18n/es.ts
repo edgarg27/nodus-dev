@@ -183,14 +183,12 @@ export const es = {
     cita: "Publicamos nuestra nave en menos de diez minutos y en la primera semana ya teníamos tres empresas interesadas contactándonos directamente.",
     cargo: "Directora de operaciones, Grupo Cordero Logística",
   },
-  ctaFinal: {
-    tituloConCuenta: "Sigue impulsando el crecimiento de tu empresa",
-    tituloSinCuenta: "Impulsa el crecimiento de tu empresa desde el primer día",
-    textoConCuenta: "Retoma tu búsqueda o publica un nuevo espacio en minutos.",
-    textoSinCuenta: "Crea tu cuenta gratis y empieza a buscar o publicar espacios en minutos.",
-    botonConCuenta: "Buscar espacios",
-    botonSinCuenta: "Crear cuenta gratis",
-    publicar: "Publicar un espacio",
+  bannerAyuda: {
+    titulo: "¿No encontraste lo que buscabas?",
+    texto:
+      "Cuéntale a Captive qué necesitas y el equipo te ayuda a encontrar una opción que se ajuste.",
+    boton: "Escribir a Captive",
+    botonVisitante: "Inicia sesión para escribir a Captive",
   },
   footer: {
     descripcion:

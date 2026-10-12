@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import { cookies } from "next/headers";
 import { IdiomaProvider } from "@/components/i18n/idioma-provider";
+import { CaptiveHelpGlobal } from "@/components/marketing/captive-help-global";
 import { SiteHeader } from "@/components/nav/site-header";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { hrefAyudaCaptive } from "@/lib/captive-ayuda";
 import { COOKIE_IDIOMA, idiomaValido } from "@/lib/i18n";
 import { urlDelSitio } from "@/lib/landing-pages";
 import { getUsuarioActual } from "@/server/auth/session";
@@ -67,6 +69,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               }
             />
             {children}
+            {/* Un admin no tiene chat con Captive: no se le ofrece la ayuda. */}
+            {actor?.rol === "admin" ? null : (
+              <CaptiveHelpGlobal
+                href={hrefAyudaCaptive(actor !== null, {})}
+                autenticado={actor !== null}
+              />
+            )}
           </QueryProvider>
         </IdiomaProvider>
       </body>

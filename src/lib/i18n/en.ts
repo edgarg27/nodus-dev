@@ -182,14 +182,11 @@ export const en: Textos = {
     cita: "We listed our warehouse in under ten minutes, and in the first week three companies were already contacting us directly.",
     cargo: "Director of Operations, Grupo Cordero Logística",
   },
-  ctaFinal: {
-    tituloConCuenta: "Keep growing your business",
-    tituloSinCuenta: "Grow your business from day one",
-    textoConCuenta: "Pick up your search or list a new space in minutes.",
-    textoSinCuenta: "Create your free account and start searching or listing spaces in minutes.",
-    botonConCuenta: "Search spaces",
-    botonSinCuenta: "Create free account",
-    publicar: "List a space",
+  bannerAyuda: {
+    titulo: "Didn't find what you were looking for?",
+    texto: "Tell Captive what you need and the team will help you find an option that fits.",
+    boton: "Write to Captive",
+    botonVisitante: "Sign in to write to Captive",
   },
   footer: {
     descripcion:

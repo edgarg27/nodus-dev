@@ -9,11 +9,13 @@ interface CaptiveHelpProps {
   // Chat con Captive (con la búsqueda como borrador) o, sin sesión, iniciar sesión primero.
   href: string;
   autenticado: boolean;
+  // El del layout raíz (sin búsqueda); se oculta si la página trae el suyo, que lleva la búsqueda.
+  global?: boolean;
 }
 
 // Botón de ayuda fijo abajo a la derecha de las pantallas de búsqueda: "¿No encontraste tu
 // espacio?" lleva al chat con Captive. En móvil sube para no tapar el botón "Ver mapa".
-export function CaptiveHelp({ href, autenticado }: CaptiveHelpProps) {
+export function CaptiveHelp({ href, autenticado, global = false }: CaptiveHelpProps) {
   const { t } = useIdioma();
   const r = t.resultados;
   const idTitulo = useId();
@@ -29,7 +31,10 @@ export function CaptiveHelp({ href, autenticado }: CaptiveHelpProps) {
   }, [abierto]);
 
   return (
-    <div className="fixed right-4 bottom-24 z-30 flex flex-col items-end gap-3 lg:right-6 lg:bottom-6">
+    <div
+      data-captive-help={global ? undefined : ""}
+      className="fixed right-4 bottom-24 z-30 flex flex-col items-end gap-3 lg:right-6 lg:bottom-6"
+    >
       {abierto ? (
         <section
           aria-labelledby={idTitulo}
@@ -69,7 +74,7 @@ export function CaptiveHelp({ href, autenticado }: CaptiveHelpProps) {
         type="button"
         onClick={() => setAbierto((previo) => !previo)}
         aria-expanded={abierto}
-        className="flex h-12 cursor-pointer items-center gap-2 rounded-full bg-primary px-4 text-sm font-bold text-primary-foreground shadow-md transition-transform duration-150 ease-out hover:-translate-y-px motion-reduce:transition-none"
+        className="flex h-12 cursor-pointer items-center gap-2 rounded-full bg-accent px-4 text-sm font-bold text-accent-foreground shadow-md transition-transform duration-150 ease-out hover:-translate-y-px motion-reduce:transition-none"
       >
         <HeadsetIcon className="size-5" aria-hidden="true" />
         <span className="hidden sm:inline">{r.ayudaFlotante}</span>
