@@ -31,6 +31,23 @@ interface SignUpFormProps {
   rolInicial?: "buscador" | "oferente";
 }
 
+// Pregunta al servidor si el correo ya tiene una cuenta confirmada. Ante cualquier fallo de red o
+// de la ruta responde `false`: el registro sigue su curso normal y Supabase decide.
+async function consultarCorreoRegistrado(email: string): Promise<boolean> {
+  try {
+    const respuesta = await fetch("/api/v1/auth/email-status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    if (!respuesta.ok) return false;
+    const cuerpo = await respuesta.json();
+    return cuerpo?.data?.registrado === true;
+  } catch {
+    return false;
+  }
+}
+
 function traducirErrorSignUp(mensaje: string): string {
   if (/already registered|already exists/i.test(mensaje)) {
     return "Este correo ya está registrado";
@@ -56,6 +73,8 @@ export function SignUpForm({ ref, rolInicial = "buscador" }: SignUpFormProps) {
 
   const [vista, setVista] = useState<"formulario" | "revisa-correo">("formulario");
   const [emailEnviado, setEmailEnviado] = useState("");
+  // Correo (ya normalizado) para el que se detectó una cuenta existente; `null` si no hay aviso.
+  const [correoRegistrado, setCorreoRegistrado] = useState<string | null>(null);
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
   const [segundosParaReenvio, setSegundosParaReenvio] = useState(0);
   const [mensajeReenvio, setMensajeReenvio] = useState<string | null>(null);
@@ -109,14 +128,37 @@ export function SignUpForm({ ref, rolInicial = "buscador" }: SignUpFormProps) {
     if (siguiente) seleccionarRol(siguiente.valor);
   }
 
+  // Al salir del campo de correo avisa de inmediato si ya está registrado.
+  async function revisarCorreo(valor: string) {
+    const email = valor.trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(email)) return;
+    const registrado = await consultarCorreoRegistrado(email);
+    setCorreoRegistrado(registrado ? email : null);
+  }
+
   async function onSubmit(data: SignUpInput) {
     setErrorEnvio(null);
+    const email = data.email.trim().toLowerCase();
+
+    // Si ya existe una cuenta confirmada no se registra ni se manda ningún correo: se ofrece
+    // iniciar sesión o recuperar la contraseña.
+    if (await consultarCorreoRegistrado(email)) {
+      setCorreoRegistrado(email);
+      return;
+    }
+
     const supabase = createClient();
     const args = buildSignUpArgs(data, ref, window.location.origin);
-    const { error } = await supabase.auth.signUp(args);
+    const { data: resultado, error } = await supabase.auth.signUp(args);
 
     if (error) {
       setErrorEnvio(traducirErrorSignUp(error.message));
+      return;
+    }
+    // Respaldo: con la confirmación de correo activa, Supabase responde sin error pero con una
+    // lista de identidades vacía cuando el correo ya existía.
+    if (resultado.user && resultado.user.identities?.length === 0) {
+      setCorreoRegistrado(email);
       return;
     }
 
@@ -252,13 +294,36 @@ export function SignUpForm({ ref, rolInicial = "buscador" }: SignUpFormProps) {
             type="email"
             placeholder="tu@empresa.com"
             className="h-[46px] rounded-lg border-border bg-background px-3.5 text-[15px]"
-            {...register("email")}
-            aria-invalid={!!errors.email}
+            {...register("email", {
+              onChange: () => setCorreoRegistrado(null),
+              onBlur: (evento) => void revisarCorreo(evento.target.value),
+            })}
+            aria-invalid={!!errors.email || correoRegistrado !== null}
           />
           {errors.email ? (
             <p role="alert" className="text-sm text-destructive">
               {errors.email.message}
             </p>
+          ) : null}
+          {correoRegistrado ? (
+            <div
+              role="alert"
+              className="flex flex-col gap-2 rounded-lg border border-warning/30 bg-warning-foreground px-3.5 py-3 text-sm text-warning"
+            >
+              <p className="font-semibold">Este correo ya está registrado.</p>
+              <p>
+                No necesitas crear otra cuenta: inicia sesión o, si olvidaste tu contraseña,
+                recupérala.
+              </p>
+              <div className="flex flex-wrap gap-x-5 gap-y-1 font-semibold">
+                <Link href="/sign-in" className="underline underline-offset-4">
+                  Iniciar sesión
+                </Link>
+                <Link href="/recuperar" className="underline underline-offset-4">
+                  Recuperar contraseña
+                </Link>
+              </div>
+            </div>
           ) : null}
         </div>
 
@@ -414,7 +479,7 @@ export function SignUpForm({ ref, rolInicial = "buscador" }: SignUpFormProps) {
 
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || correoRegistrado !== null}
           aria-busy={isSubmitting}
           className="h-12 rounded-lg bg-accent text-[15px] font-bold text-accent-foreground shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0 disabled:opacity-60"
         >

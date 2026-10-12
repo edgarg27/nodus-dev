@@ -56,6 +56,7 @@ export const en: Textos = {
     mensajes: "Messages",
     misLeadsBandeja: "Inbox",
     chatCaptive: "Chat with Captive",
+    servicios: "Services",
   },
   hero: {
     titulo: "Find the space to grow your business",
@@ -998,6 +999,65 @@ export const en: Textos = {
       comisionAyuda:
         "Only other listers in the Network see the commission; it never appears on the public listing.",
       errorNumero: "Enter a valid number",
+    },
+  },
+  servicios: {
+    metaTitulo: "Services — Captive by Nodus",
+    metaDescripcion:
+      "Industrial, office and retail space for rent or sale, build-to-suit projects, financing and tools for owners and brokers on Captive by Nodus.",
+    etiqueta: "Services",
+    titulo: "Everything Captive does for your business",
+    intro:
+      "From finding the right warehouse, office or retail space to building it to suit, financing it or listing it: all in one place.",
+    items: {
+      rentaVenta: {
+        titulo: "Spaces for rent and sale",
+        resumen: "Warehouses, offices and retail spaces ready to move in.",
+        descripcion:
+          "Find industrial warehouses, offices and retail spaces for rent or sale, nationwide and abroad, with photos, square meters, price and location on the map.",
+        puntos: [
+          "Filter by operation, type, location and price",
+          "Compare spaces on the map",
+          "Save your favorites and your searches",
+        ],
+        boton: "Search spaces",
+      },
+      desdeCero: {
+        titulo: "Build-to-suit projects",
+        resumen: "Your space, built to fit.",
+        descripcion:
+          "When no existing property fits, find projects to build your warehouse, office or retail space around what your operation needs.",
+        puntos: [
+          "Spaces designed to fit",
+          "For warehouses, offices and retail",
+          "The Captive team works with the project developer alongside you",
+        ],
+        boton: "See build-to-suit projects",
+      },
+      financiamiento: {
+        titulo: "Financing",
+        resumen: "Spaces with a financing option.",
+        descripcion:
+          "Spot the spaces that offer financing and, when you contact the provider, let them know you are interested so they can share the details.",
+        puntos: [
+          "Filter for spaces with financing",
+          '"I\'m interested in financing" option when you get in touch',
+          "The provider explains the terms directly",
+        ],
+        boton: "See spaces with financing",
+      },
+      propietarios: {
+        titulo: "For owners and brokers",
+        resumen: "List your spaces and receive requests.",
+        descripcion:
+          "List your properties with photos, description and location; every listing is reviewed before it goes live. If you represent several clients, apply to become a verified broker and join the Real estate network.",
+        puntos: [
+          "Listings reviewed by the Nodus team",
+          "The Captive team handles interested clients and keeps you posted",
+          "Broker program and Real estate network",
+        ],
+        boton: "List a space",
+      },
     },
   },
   landing: {

@@ -56,6 +56,7 @@ export const es = {
     mensajes: "Mensajes",
     misLeadsBandeja: "Bandeja de entrada",
     chatCaptive: "Chat con Captive",
+    servicios: "Servicios",
   },
   hero: {
     titulo: "Encuentra el espacio para hacer crecer tu negocio",
@@ -1011,6 +1012,65 @@ export const es = {
       comisionAyuda:
         "La comisión solo la ven otros oferentes en la Red; nunca aparece en la ficha pública.",
       errorNumero: "Escribe un número válido",
+    },
+  },
+  servicios: {
+    metaTitulo: "Servicios — Captive by Nodus",
+    metaDescripcion:
+      "Renta y venta de naves, oficinas y locales, proyectos desde cero, financiamiento y herramientas para propietarios y brokers en Captive by Nodus.",
+    etiqueta: "Servicios",
+    titulo: "Todo lo que Captive hace por tu empresa",
+    intro:
+      "Desde encontrar la nave, oficina o local adecuado hasta construirlo a la medida, financiarlo o publicarlo: todo en un solo lugar.",
+    items: {
+      rentaVenta: {
+        titulo: "Renta y venta de espacios",
+        resumen: "Naves, oficinas y locales listos para ocupar.",
+        descripcion:
+          "Encuentra naves industriales, oficinas y locales comerciales en renta o venta a nivel nacional e internacional, con fotos, metros cuadrados, precio y ubicación en el mapa.",
+        puntos: [
+          "Filtra por modalidad, tipo, ubicación y precio",
+          "Compara los espacios en el mapa",
+          "Guarda tus favoritos y tus búsquedas",
+        ],
+        boton: "Buscar espacios",
+      },
+      desdeCero: {
+        titulo: "Proyectos desde cero",
+        resumen: "Tu espacio construido a la medida.",
+        descripcion:
+          "Cuando ningún inmueble existente encaja, encuentra proyectos para construir tu nave, oficina o local según lo que necesita tu operación.",
+        puntos: [
+          "Espacios diseñados a la medida",
+          "Para naves, oficinas y locales",
+          "El equipo Captive te acompaña con quien desarrolla el proyecto",
+        ],
+        boton: "Ver proyectos desde cero",
+      },
+      financiamiento: {
+        titulo: "Financiamiento",
+        resumen: "Espacios con opción de financiamiento.",
+        descripcion:
+          "Identifica los espacios que ofrecen financiamiento y, al contactar al oferente, avísale que te interesa para que te dé los detalles.",
+        puntos: [
+          "Filtro de espacios con financiamiento",
+          'Opción "Me interesa el financiamiento" al contactar',
+          "El oferente te explica las condiciones directamente",
+        ],
+        boton: "Ver espacios con financiamiento",
+      },
+      propietarios: {
+        titulo: "Para propietarios y brokers",
+        resumen: "Publica tus espacios y recibe solicitudes.",
+        descripcion:
+          "Publica tus inmuebles con fotos, descripción y ubicación; cada publicación se revisa antes de salir. Si representas a varios clientes, solicita ser broker verificado y únete a la Red inmobiliaria.",
+        puntos: [
+          "Publicaciones revisadas por el equipo de Nodus",
+          "El equipo Captive atiende a los interesados y te avisa",
+          "Programa de brokers y Red inmobiliaria",
+        ],
+        boton: "Publicar un espacio",
+      },
     },
   },
   landing: {

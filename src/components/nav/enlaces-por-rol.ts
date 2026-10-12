@@ -39,6 +39,7 @@ export function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): Enla
           ]),
       { href: "/perfil", etiqueta: t.miPerfil },
       ...guardados,
+      { href: "/servicios", etiqueta: t.servicios },
     ];
   }
   return [
@@ -46,5 +47,6 @@ export function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): Enla
     { href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos },
     ...guardados,
     { href: "/publicar", etiqueta: t.publicarEspacio },
+    { href: "/servicios", etiqueta: t.servicios },
   ];
 }
