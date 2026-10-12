@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  AwardIcon,
   HouseIcon,
   MessageCircleIcon,
   ShieldCheckIcon,
@@ -54,6 +55,11 @@ const ITEMS = [
     icon: MessageCircleIcon,
     key: "mensajes" as const,
   },
+  {
+    href: "/admin/casos-exito",
+    icon: AwardIcon,
+    key: "casos" as const,
+  },
 ];
 
 export function AdminSidebarNav({
@@ -73,6 +79,8 @@ export function AdminSidebarNav({
     duenos: ownersCount,
     clientes: pendingClientsCount,
     mensajes: unreadChatsCount,
+    // Sin contador: no hay nada "pendiente" que atender en los casos de éxito.
+    casos: 0,
   };
 
   return (
@@ -98,17 +106,19 @@ export function AdminSidebarNav({
           >
             <Icon className="size-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
             <span className="grow">{t.admin.nav[item.key]}</span>
-            <span
-              className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${
-                isActive
-                  ? "bg-primary-foreground/[0.18] text-primary-foreground"
-                  : hasUrgentCount
-                    ? "bg-warning-foreground text-warning"
-                    : "bg-background text-text-muted"
-              }`}
-            >
-              {count}
-            </span>
+            {item.key === "casos" ? null : (
+              <span
+                className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${
+                  isActive
+                    ? "bg-primary-foreground/[0.18] text-primary-foreground"
+                    : hasUrgentCount
+                      ? "bg-warning-foreground text-warning"
+                      : "bg-background text-text-muted"
+                }`}
+              >
+                {count}
+              </span>
+            )}
           </Link>
         );
       })}

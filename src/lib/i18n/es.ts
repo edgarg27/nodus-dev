@@ -147,6 +147,38 @@ export const es = {
       },
     ],
   },
+  apoyo: {
+    etiqueta: "Servicios de apoyo",
+    titulo: "Encuentra tu servicio de apoyo",
+    texto:
+      "Además del espacio, tu empresa necesita un lugar listo para operar. Nodus Flex Center ofrece oficinas, coworking y espacios corporativos.",
+    boton: "Conocer Nodus",
+    casosTitulo: "Casos de éxito",
+    casosTexto: "Aquí aparecerán los casos reales de empresas que ya resolvieron su espacio.",
+    ejemplo: "Ejemplo",
+    casosTextoReales: "Historias de empresas que encontraron su espacio.",
+    fotoAlt: "Persona sonriendo frente a una laptop en una oficina compartida",
+    casos: [
+      {
+        sector: "Logística",
+        titulo: "Una nave lista para operar",
+        texto:
+          "Caso de ejemplo. Aquí se contará qué necesitaba la empresa, qué espacio encontró y cómo la apoyó Nodus.",
+      },
+      {
+        sector: "Tecnología",
+        titulo: "Una oficina flexible para crecer",
+        texto:
+          "Caso de ejemplo. Aquí se contará qué necesitaba la empresa, qué espacio encontró y cómo la apoyó Nodus.",
+      },
+      {
+        sector: "Servicios",
+        titulo: "Un local para abrir su sucursal",
+        texto:
+          "Caso de ejemplo. Aquí se contará qué necesitaba la empresa, qué espacio encontró y cómo la apoyó Nodus.",
+      },
+    ],
+  },
   testimonio: {
     cita: "Publicamos nuestra nave en menos de diez minutos y en la primera semana ya teníamos tres empresas interesadas contactándonos directamente.",
     cargo: "Directora de operaciones, Grupo Cordero Logística",
@@ -179,6 +211,14 @@ export const es = {
     resultadosDeBusqueda: "Resultados de búsqueda",
     encontrados: (n: number) => `${n} ${n === 1 ? "espacio encontrado" : "espacios encontrados"}`,
     sinResultados: "No encontramos espacios con esos filtros.",
+    ayudaTitulo: "¿No encontraste tu espacio?",
+    ayudaTexto:
+      "Cuéntale a Captive qué necesitas y el equipo te ayuda a encontrar una opción que se ajuste.",
+    ayudaBoton: "Escribir a Captive",
+    ayudaBotonVisitante: "Inicia sesión para escribir a Captive",
+    ayudaCrearCuenta: "¿No tienes cuenta? Créala gratis",
+    ayudaFlotante: "¿Necesitas ayuda?",
+    ayudaCerrar: "Cerrar ayuda",
     ningunoEnZona: "Ningún espacio en esta zona del mapa.",
     alejaZoom: "Aleja el zoom o desplaza el mapa para ver más resultados.",
     cargando: "Cargando…",
@@ -475,6 +515,7 @@ export const es = {
       duenos: "Dueños",
       clientes: "Clientes y prospectos",
       mensajes: "Mensajes",
+      casos: "Casos de éxito",
     },
     propiedades: {
       metaTitulo: "Propiedades pendientes — Captive by Nodus",
@@ -549,6 +590,59 @@ export const es = {
       cerrar: "Cerrar",
       yaNoEsBroker: "Este usuario ya no es broker.",
       revocado: "Acceso de broker revocado.",
+    },
+    casos: {
+      metaTitulo: "Casos de éxito — Captive by Nodus",
+      titulo: "Casos de éxito",
+      descripcion:
+        "Historias que se muestran en la portada, en «Encuentra tu servicio de apoyo». La portada tiene tres lugares (1, 2 y 3) y cada lugar lo ocupa un solo caso. Mientras ningún caso tenga lugar, la portada muestra tarjetas de ejemplo.",
+      nuevo: "Nuevo caso",
+      vacio: "Aún no hay casos de éxito. Crea el primero y reemplazará los ejemplos de la portada.",
+      sinFoto: "Sin foto",
+      sector: "Sector",
+      sectorEjemplo: "Logística",
+      campoTitulo: "Título",
+      texto: "Texto",
+      versionIngles: "Versión en inglés (opcional)",
+      ayudaIngles: "Si la dejas vacía, el sitio en inglés muestra el texto en español.",
+      foto: "Fotografía",
+      ayudaFoto: "JPG, PNG o WebP de hasta 4 MB.",
+      elegirFoto: "Elegir foto",
+      cambiarFoto: "Cambiar foto",
+      quitarFoto: "Quitar foto",
+      lugar: "Lugar en la portada",
+      ayudaLugar:
+        "Cada lugar lo ocupa un solo caso; los ocupados aparecen deshabilitados. «Fuera de la portada» lo deja guardado sin mostrarlo.",
+      fueraDePortada: "Fuera de la portada",
+      lugarN: (n: number) => `Lugar ${n}`,
+      ocupadoPor: (titulo: string) => `ocupado por «${titulo}»`,
+      enPortadaLugar: (n: number) => `En portada · lugar ${n}`,
+      ponerEnPortada: "Poner en la portada",
+      quitarDePortada: "Quitar de la portada",
+      quitada: "Caso quitado de la portada.",
+      lugarTitulo: "Lugar en la portada",
+      guardarLugar: "Guardar lugar",
+      lugarGuardado: "Lugar actualizado.",
+      guardar: "Guardar caso",
+      guardando: "Guardando…",
+      cancelar: "Cancelar",
+      editar: "Editar",
+      borrar: "Borrar",
+      confirmarBorrar: "¿Borrar este caso? También se borra su foto.",
+      siBorrar: "Sí, borrar",
+      creado: "Caso creado.",
+      guardado: "Caso guardado.",
+      borrado: "Caso borrado.",
+      fotoSubida: "Foto actualizada.",
+      fotoQuitada: "Foto quitada.",
+      errorGuardar: "No se pudo guardar el caso.",
+      errorFoto: "No se pudo subir la foto.",
+      errorBorrar: "No se pudo borrar el caso.",
+      buscar: "Buscar casos por sector, título o texto",
+      buscarPlaceholder: "Buscar casos…",
+      sinCoincidencias: "Ningún caso coincide con tu búsqueda.",
+      leyendaPortada: (max: number) =>
+        `La portada muestra hasta ${max} casos, uno por lugar; los marcados con color son los que se ven hoy.`,
     },
     mensajes: {
       metaTitulo: "Mensajes — Captive by Nodus",
@@ -859,6 +953,10 @@ export const es = {
       captiveDescripcion: "Escríbenos sobre tus solicitudes o cualquier duda.",
       captiveVacio:
         "Escríbenos aquí: el equipo de Captive te ayuda con tus solicitudes y te avisa de la disponibilidad.",
+      borradorBusqueda: (busqueda: string) =>
+        `Hola, no encontré un espacio que se ajuste a lo que necesito. Estaba buscando: ${busqueda}. ¿Me pueden ayudar?`,
+      borradorAyuda:
+        "Hola, no encontré un espacio que se ajuste a lo que necesito. ¿Me pueden ayudar?",
     },
     agencia: {
       metaTitulo: "Perfil de la agencia — Captive by Nodus",

@@ -23,12 +23,20 @@ interface ChatThreadProps {
   compacta?: boolean;
   // Texto cuando todavía no hay mensajes.
   vacio?: string;
+  // Borrador con el que arranca el cuadro de texto (por ejemplo, la búsqueda que no dio resultados).
+  textoInicial?: string;
 }
 
 // Intervalo con el que se revisan mensajes nuevos mientras la conversación está abierta.
 const REVISION_MS = 10_000;
 
-export function ChatThread({ endpoint, mensajes, compacta = false, vacio }: ChatThreadProps) {
+export function ChatThread({
+  endpoint,
+  mensajes,
+  compacta = false,
+  vacio,
+  textoInicial = "",
+}: ChatThreadProps) {
   const { idioma, t } = useIdioma();
   const m = t.panel.mensajes;
   const formateadorHora = new Intl.DateTimeFormat(localeDe(idioma), {
@@ -39,7 +47,7 @@ export function ChatThread({ endpoint, mensajes, compacta = false, vacio }: Chat
   });
   const router = useRouter();
   const idCampo = useId();
-  const [texto, setTexto] = useState("");
+  const [texto, setTexto] = useState(textoInicial);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const finRef = useRef<HTMLDivElement>(null);

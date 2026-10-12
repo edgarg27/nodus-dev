@@ -51,6 +51,8 @@ export async function cargarResultados(filtros: FiltrosBusqueda, orden: OrdenBus
   return {
     consulta,
     autenticado: actor !== null,
+    // Un admin no tiene chat con Captive: no se le ofrece el botón de ayuda.
+    puedeEscribirACaptive: actor?.rol !== "admin",
     total,
     favoritos,
     guardada,

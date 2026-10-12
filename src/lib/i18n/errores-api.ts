@@ -34,6 +34,8 @@ const EN: Record<string, string> = {
   "El contacto elegido no es tuyo": "The selected contact isn't yours.",
   "Tipo de archivo no permitido": "File type not allowed.",
   "El archivo supera 4 MB": "The file is larger than 4 MB.",
+  "Ese lugar de la portada ya está ocupado por otro caso":
+    "That home page slot is already taken by another story.",
   "Falta el archivo": "The file is missing.",
   "Falta el parámetro foto": "The photo parameter is missing.",
   "La propiedad ya fue revisada": "This property has already been reviewed.",

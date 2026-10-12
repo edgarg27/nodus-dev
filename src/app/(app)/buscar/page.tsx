@@ -1,10 +1,12 @@
 import { ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
+import { CaptiveHelp } from "@/components/marketing/captive-help";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SaveSearchButton } from "@/components/properties/save-search-button";
 import { SearchFilters } from "@/components/properties/search-filters";
 import { SearchResults } from "@/components/properties/search-results";
 import { SortSelect } from "@/components/properties/sort-select";
+import { hrefAyudaCaptive } from "@/lib/captive-ayuda";
 import { leerBusqueda } from "@/lib/search-params";
 import { obtenerTextos } from "@/server/i18n";
 import { cargarResultados } from "../../_shared/cargar-resultados";
@@ -22,8 +24,18 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
 
   // Un parámetro inválido en la URL se ignora (la API, en cambio, responde 422).
   const { filtros, orden } = leerBusqueda(leer);
-  const { consulta, autenticado, total, favoritos, guardada, propiedades, hasMore, nextCursor } =
-    await cargarResultados(filtros, orden);
+  const {
+    consulta,
+    autenticado,
+    puedeEscribirACaptive,
+    total,
+    favoritos,
+    guardada,
+    propiedades,
+    hasMore,
+    nextCursor,
+  } = await cargarResultados(filtros, orden);
+  const hrefAyuda = puedeEscribirACaptive ? hrefAyudaCaptive(autenticado, filtros) : null;
   const { idioma, t } = await obtenerTextos();
 
   return (
@@ -61,6 +73,7 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
             key={consulta}
             favoritos={favoritos}
             autenticado={autenticado}
+            hrefAyuda={hrefAyuda}
             propiedadesIniciales={propiedades}
             hasMoreInicial={hasMore}
             nextCursorInicial={nextCursor}
@@ -70,6 +83,7 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
         </div>
       </main>
 
+      {hrefAyuda ? <CaptiveHelp href={hrefAyuda} autenticado={autenticado} /> : null}
       <SiteFooter idioma={idioma} />
     </>
   );
