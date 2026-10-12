@@ -5,7 +5,7 @@ export const en: Textos = {
   meta: {
     tituloInicio: "Captive by Nodus — Industrial, office and retail space, nationwide and abroad",
     descripcionInicio:
-      "Find or list industrial warehouses, offices and retail spaces nationwide and abroad. Nodus connects growing businesses with verified space providers.",
+      "Find or list industrial warehouses, offices and retail spaces nationwide and abroad. Nodus connects established companies with verified space providers.",
   },
   etiquetas: {
     tipo: {
@@ -128,7 +128,7 @@ export const en: Textos = {
   },
   porQue: {
     etiqueta: "Why Nodus",
-    titulo: "Built for small businesses and startups",
+    titulo: "Built for established companies",
     items: [
       {
         titulo: "Build-to-suit projects",
@@ -160,7 +160,7 @@ export const en: Textos = {
   },
   footer: {
     descripcion:
-      "We connect small businesses and startups with the industrial, office and retail spaces that drive their growth.",
+      "We connect established companies with the industrial, office and retail spaces that drive their expansion.",
     producto: "Product",
     buscarEspacios: "Search spaces",
     publicar: "List a space",

@@ -4,7 +4,7 @@ export const es = {
   meta: {
     tituloInicio: "Captive by Nodus — Naves, oficinas y locales a nivel nacional e internacional",
     descripcionInicio:
-      "Encuentra o publica naves industriales, oficinas y locales comerciales a nivel nacional e internacional. Nodus conecta pymes con oferentes verificados.",
+      "Encuentra o publica naves industriales, oficinas y locales comerciales a nivel nacional e internacional. Nodus conecta empresas consolidadas con oferentes verificados.",
   },
   etiquetas: {
     tipo: {
@@ -129,7 +129,7 @@ export const es = {
   },
   porQue: {
     etiqueta: "Por qué Nodus",
-    titulo: "Pensado para pymes y empresas emergentes",
+    titulo: "Pensado para empresas consolidadas",
     items: [
       {
         titulo: "Proyectos desde cero",
@@ -161,7 +161,7 @@ export const es = {
   },
   footer: {
     descripcion:
-      "Conectamos pymes y empresas emergentes con los espacios industriales, de oficina y comerciales que impulsan su crecimiento.",
+      "Conectamos empresas consolidadas con los espacios industriales, de oficina y comerciales que impulsan su expansión.",
     producto: "Producto",
     buscarEspacios: "Buscar espacios",
     publicar: "Publicar un espacio",
