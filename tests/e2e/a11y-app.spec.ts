@@ -322,6 +322,9 @@ test("un 409 al resolver una solicitud de broker se anuncia con role=alert o ari
   await page.goto("/admin/broker-requests");
   const fila = page.locator("article").filter({ hasText: solicitante.email });
   await fila.getByRole("button", { name: "Aprobar" }).click();
+  // La persona no subió documentos: aprobar así pide dejar escrito por qué.
+  await fila.getByLabel(/Para aprobar así, escribe por qué/).fill("La conocemos en persona");
+  await fila.getByRole("button", { name: "Aprobar sin documentos" }).click();
 
   const anuncio = page.locator('[role="alert"], [aria-live]').filter({
     hasText: "Esta solicitud ya fue resuelta",

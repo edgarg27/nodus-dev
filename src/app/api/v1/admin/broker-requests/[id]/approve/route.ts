@@ -1,8 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { requireRol } from "../../../../../../../server/auth/guards.ts";
 import { getUsuarioActual } from "../../../../../../../server/auth/session.ts";
-import { aprobarSolicitud } from "../../../../../../../server/broker-requests/resolve.ts";
+import { aprobarSolicitudRevisada } from "../../../../../../../server/verificacion/aprobar.ts";
+
+// `nota`: por qué se aprueba aunque falten documentos de verificación (obligatoria solo entonces).
+const approveSchema = z.object({
+  nota: z.string().trim().max(500).optional(),
+});
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -22,7 +28,7 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-export async function POST(_request: Request, { params }: RouteParams) {
+export async function POST(request: Request, { params }: RouteParams) {
   const { id } = await params;
   const actor = await getUsuarioActual();
   if (!actor) {
@@ -42,7 +48,15 @@ export async function POST(_request: Request, { params }: RouteParams) {
     });
   }
 
-  const resultado = await aprobarSolicitud(actor, id);
+  const body = await request.json().catch(() => ({}));
+  const parsed = approveSchema.safeParse(body ?? {});
+  if (!parsed.success) {
+    return NextResponse.json(errorEnvelope("validation_error", "Datos inválidos"), {
+      status: 422,
+    });
+  }
+
+  const resultado = await aprobarSolicitudRevisada(actor, id, parsed.data.nota);
   if (!resultado.ok) {
     return NextResponse.json(errorEnvelope(resultado.error.code, resultado.error.message), {
       status: resultado.error.status,

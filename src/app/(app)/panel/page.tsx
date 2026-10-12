@@ -5,6 +5,7 @@ import { KpiCard } from "@/components/panel/kpi-card";
 import { NetworkBanner } from "@/components/panel/network-banner";
 import { PeriodSelector } from "@/components/panel/period-selector";
 import { ViewsChart } from "@/components/panel/views-chart";
+import { VerificationNotice } from "@/components/verificacion/verification-notice";
 import { localeDe } from "@/lib/i18n";
 import { BANDEJA_VISIBLE_PARA_OFERENTE } from "@/lib/oferente-visibilidad";
 import { periodoValido } from "@/lib/periodos";
@@ -14,6 +15,7 @@ import { getUsuarioActual } from "@/server/auth/session";
 import { obtenerTextos } from "@/server/i18n";
 import { metricasDelOferente } from "@/server/metrics/queries";
 import { estadisticasDeLaRed } from "@/server/network/queries";
+import { obtenerVerificacion } from "@/server/verificacion/estado";
 
 interface PanelPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -30,10 +32,11 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
   const params = await searchParams;
   const dias = periodoValido(typeof params.dias === "string" ? params.dias : undefined);
 
-  const [perfil, metricas, red] = await Promise.all([
+  const [perfil, metricas, red, verificacion] = await Promise.all([
     obtenerPerfilAgencia(actor.id),
     metricasDelOferente(actor.id, dias),
     estadisticasDeLaRed(),
+    obtenerVerificacion(actor.id),
   ]);
   const { totales, serie } = metricas;
 
@@ -54,6 +57,14 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
             {t.panel.publicaciones.publicarEspacio}
           </Link>
         </header>
+
+        {verificacion.estado === "pendiente" || verificacion.estado === "denegada" ? (
+          <VerificationNotice
+            idioma={idioma}
+            estado={verificacion.estado}
+            faltanDocumentos={verificacion.faltantes.length > 0}
+          />
+        ) : null}
 
         <NetworkBanner
           propiedades={red.propiedades}

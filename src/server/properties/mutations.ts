@@ -9,6 +9,7 @@ import {
 } from "../../lib/property-details.ts";
 import { requireRol } from "../auth/guards.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
+import { puedePublicar } from "../verificacion/estado.ts";
 import { buscarDuplicadoActivo } from "./duplicate-check.ts";
 
 export interface CrearPropiedadInput extends DetallesPropiedadInput {
@@ -77,6 +78,7 @@ async function contactoEsDelOferente(oferenteId: string, contactoId: string): Pr
 
 export type ErrorPropiedad =
   | { code: "forbidden"; status: 403; message: string }
+  | { code: "forbidden_not_verified"; status: 403; message: string }
   | { code: "validation_error"; status: 422; message: string }
   | { code: "not_found"; status: 404; message: string }
   | {
@@ -94,6 +96,17 @@ function errorForbidden(): ResultadoPropiedad {
   return {
     ok: false,
     error: { code: "forbidden", status: 403, message: "Se requiere el rol oferente" },
+  };
+}
+
+function errorSinVerificar(): ResultadoPropiedad {
+  return {
+    ok: false,
+    error: {
+      code: "forbidden_not_verified",
+      status: 403,
+      message: "Tu cuenta está en revisión: podrás publicar cuando Captive la apruebe",
+    },
   };
 }
 
@@ -137,6 +150,8 @@ export async function crearPropiedad(
 ): Promise<ResultadoPropiedad> {
   const permiso = requireRol(actor, "oferente");
   if (!permiso.ok || !actor) return errorForbidden();
+  // Quien todavía no pasa la aprobación de Captive (o fue denegado) no publica.
+  if (!(await puedePublicar(actor.id))) return errorSinVerificar();
 
   if (input.contactoId && !(await contactoEsDelOferente(actor.id, input.contactoId))) {
     return errorContactoInvalido();

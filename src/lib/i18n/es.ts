@@ -373,6 +373,60 @@ export const es = {
     bannerBotonBroker: "Mi código de broker",
     bannerBotonInvitacion: "Solicitar ser broker",
   },
+  verificacion: {
+    metaTitulo: "Verificación de tu cuenta — Captive by Nodus",
+    titulo: "Completa tu verificación",
+    intro:
+      "Para evitar fraudes, el equipo Captive confirma que cada broker y cada dueño es real antes de que publique. Sube tus documentos y los revisamos.",
+    privacidad: "Tus documentos son privados: solo los ve el equipo Captive.",
+    estado: {
+      faltan: "Faltan documentos",
+      revision: "En revisión",
+      verificado: "Cuenta verificada",
+      denegada: "Verificación denegada",
+    },
+    textoFaltan: "Sube los documentos que faltan para que podamos revisar tu cuenta.",
+    textoRevision:
+      "Ya tenemos tus documentos. El equipo Captive los revisará y aquí verás el resultado.",
+    textoVerificado: "Tu cuenta ya está verificada. Puedes publicar tus espacios.",
+    textoDenegada: "Revisa el motivo, corrige tus documentos y vuelve a enviarlos.",
+    motivo: "Motivo:",
+    sinMotivo: "Sin motivo indicado",
+    documentos: {
+      identificacion: {
+        titulo: "Identificación oficial",
+        ayuda: "INE o pasaporte vigente, que se lea completo.",
+      },
+      acreditacion_broker: {
+        titulo: "Acreditación como broker",
+        ayuda:
+          "Tarjeta de presentación de tu inmobiliaria, constancia de situación fiscal o cédula.",
+      },
+      comprobante_propiedad: {
+        titulo: "Comprobante de la propiedad",
+        ayuda: "Predial, escritura o recibo de servicios a tu nombre.",
+      },
+    },
+    formatos: "PDF, JPG, PNG o WEBP, máximo 4 MB.",
+    subir: "Subir archivo",
+    reemplazar: "Reemplazar",
+    subiendo: "Subiendo…",
+    ver: "Ver",
+    sinSubir: "Sin subir",
+    subido: (fecha: string) => `Subido el ${fecha}`,
+    errorSubida: "No se pudo subir el archivo",
+    reenviar: "Enviar de nuevo a revisión",
+    reenviando: "Enviando…",
+    errorReenvio: "No se pudo enviar a revisión",
+    avisoTitulo: "Completa tu verificación para publicar",
+    avisoFaltan: "Sube tus documentos para que el equipo Captive apruebe tu cuenta.",
+    avisoRevision:
+      "Tus documentos están en revisión. Podrás publicar cuando el equipo Captive apruebe tu cuenta.",
+    avisoDenegada:
+      "Tu verificación fue denegada. Revisa el motivo y vuelve a enviar tus documentos.",
+    avisoBoton: "Ir a verificación",
+    volverPanel: "Volver al panel",
+  },
   csv: {
     propiedades: {
       archivo: "propiedades.csv",
@@ -456,7 +510,7 @@ export const es = {
       metaTitulo: "Solicitudes de broker y dueños — Captive by Nodus",
       titulo: "Solicitudes de broker y dueños",
       descripcion:
-        "Revisa que la persona sea real antes de aprobarla. Un broker aprobado recibe su código de broker único; un dueño aprobado pasa a Dueños como verificado.",
+        "Revisa los documentos de la persona antes de aprobarla. Un broker aprobado recibe su código de broker único; un dueño aprobado pasa a Dueños como verificado.",
       vacio: "No hay solicitudes pendientes.",
       tipoBroker: "Broker",
       tipoDueno: "Dueño",
@@ -467,6 +521,17 @@ export const es = {
       yaResuelta: "Esta solicitud ya fue resuelta.",
       aprobada: (codigo: string) => `Solicitud aprobada — código ${codigo} generado.`,
       denegada: "Solicitud denegada.",
+      documentos: "Documentos",
+      faltanDocumentos: "Faltan documentos",
+      sinSubir: "sin subir",
+      notaTitulo: "Faltan documentos. Para aprobar así, escribe por qué:",
+      notaPlaceholder: "Por ejemplo: lo conocemos, es cliente de Nodus desde hace años.",
+      confirmarAprobar: "Aprobar sin documentos",
+      motivoTitulo: "Motivo de la denegación (lo verá la persona):",
+      motivoPlaceholder: "Por ejemplo: la identificación no se alcanza a leer.",
+      confirmarDenegar: "Confirmar denegación",
+      cancelar: "Cancelar",
+      errorResolver: "No se pudo resolver la solicitud",
     },
     brokers: {
       metaTitulo: "Brokers activos — Captive by Nodus",

@@ -65,6 +65,11 @@ test("journey: solicitud, aprobación, atribución con ?ref= y revocación", asy
   const filaSolicitud = page.locator("article").filter({ hasText: oferente.email });
   await expect(filaSolicitud).toContainText("Inmobiliaria del Centro, 8 años en SLP");
   await filaSolicitud.getByRole("button", { name: "Aprobar" }).click();
+  // La persona no subió documentos: aprobar así pide dejar escrito por qué.
+  await filaSolicitud
+    .getByLabel(/Para aprobar así, escribe por qué/)
+    .fill("La conocemos en persona");
+  await filaSolicitud.getByRole("button", { name: "Aprobar sin documentos" }).click();
   await expect(page.getByText(/Solicitud aprobada — código/)).toBeVisible();
   await expect(page.locator("article").filter({ hasText: oferente.email })).toHaveCount(0);
 
@@ -172,6 +177,7 @@ test("denegar con motivo deja la solicitud visible en /broker del oferente", asy
 
   const fila = page.locator("article").filter({ hasText: oferente.email });
   await fila.getByRole("button", { name: "Denegar" }).click();
+  await fila.getByRole("button", { name: "Confirmar denegación" }).click();
   await expect(page.getByText("Solicitud denegada.")).toBeVisible();
   await expect(fila).toHaveCount(0);
 

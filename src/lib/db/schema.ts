@@ -419,6 +419,8 @@ export const brokerSolicitud = pgTable(
     tipo: text("tipo").notNull().default("broker"),
     estado: text("estado").notNull().default("pendiente"),
     motivoDenegacion: text("motivo_denegacion"),
+    // Por qué Captive aprobó sin que la persona subiera todos sus documentos de verificación.
+    notaAprobacion: text("nota_aprobacion"),
     resueltaPor: uuid("resuelta_por").references(() => usuario.id),
     resueltaEn: timestamp("resuelta_en", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -439,6 +441,31 @@ export const brokerSolicitud = pgTable(
     check(
       "chk_broker_solicitud_motivo",
       sql`${t.motivoDenegacion} is null or ${t.estado} = 'denegada'`,
+    ),
+  ],
+);
+
+// Documentos con los que un broker o dueño comprueba quién es (src/lib/verificacion.ts). Uno por tipo
+// y persona: subir otro lo reemplaza. El archivo vive en el bucket privado `verificacion-documentos`;
+// aquí solo se guarda su ruta, nunca una URL pública.
+export const verificacionDocumento = pgTable(
+  "verificacion_documento",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    usuarioId: uuid("usuario_id")
+      .notNull()
+      .references(() => usuario.id),
+    tipo: text("tipo").notNull(),
+    storagePath: text("storage_path").notNull(),
+    nombreArchivo: text("nombre_archivo").notNull(),
+    contentType: text("content_type").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("uq_verificacion_documento_usuario_tipo").on(t.usuarioId, t.tipo),
+    check(
+      "chk_verificacion_documento_tipo",
+      sql`${t.tipo} in ('identificacion','acreditacion_broker','comprobante_propiedad')`,
     ),
   ],
 );
