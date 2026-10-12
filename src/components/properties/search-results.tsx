@@ -1,6 +1,7 @@
 "use client";
 
 import { MapIcon, SearchIcon, XIcon } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { type DetallesPropiedad, extraerDetalles } from "@/lib/property-details";
@@ -32,6 +33,8 @@ interface SearchResultsProps {
   // Ids de todos los favoritos del usuario (también cubren las filas de "Cargar más").
   favoritos?: string[];
   autenticado?: boolean;
+  // Enlace de "¿No encontraste tu espacio?" (chat con Captive); nulo si no aplica (admin).
+  hrefAyuda?: string | null;
 }
 
 interface ApiRow extends Partial<Record<keyof DetallesPropiedad, unknown>> {
@@ -64,6 +67,7 @@ export function SearchResults({
   orden,
   favoritos = [],
   autenticado = false,
+  hrefAyuda = null,
 }: SearchResultsProps) {
   const { t } = useIdioma();
   const favoritosSet = new Set(favoritos);
@@ -133,6 +137,17 @@ export function SearchResults({
       <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border bg-surface px-6 py-16 text-center text-text-muted">
         <SearchIcon className="size-8" strokeWidth={1.6} aria-hidden="true" />
         <span className="text-sm">{t.resultados.sinResultados}</span>
+        {hrefAyuda ? (
+          <>
+            <span className="max-w-[420px] text-[13px]">{t.resultados.ayudaTexto}</span>
+            <Link
+              href={hrefAyuda}
+              className="mt-2 flex h-11 items-center rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 motion-reduce:transition-none"
+            >
+              {autenticado ? t.resultados.ayudaBoton : t.resultados.ayudaBotonVisitante}
+            </Link>
+          </>
+        ) : null}
       </div>
     );
   }

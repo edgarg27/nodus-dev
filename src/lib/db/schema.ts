@@ -555,6 +555,37 @@ export const mensaje = pgTable(
   ],
 );
 
+// Casos de éxito de la portada, capturados por el admin. El español es obligatorio; el inglés es
+// opcional. Un caso sale en la portada si tiene `posicion` (1 a 3); sin ella queda guardado.
+export const casoExito = pgTable(
+  "caso_exito",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    sector: text("sector").notNull(),
+    titulo: text("titulo").notNull(),
+    texto: text("texto").notNull(),
+    sectorEn: text("sector_en"),
+    tituloEn: text("titulo_en"),
+    textoEn: text("texto_en"),
+    fotoUrl: text("foto_url"),
+    // Lugar en la portada (1 a 3, sin repetirse); nulo = guardado pero fuera de la portada.
+    posicion: integer("posicion"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("uq_caso_exito_posicion").on(t.posicion).where(sql`${t.posicion} is not null`),
+    check("chk_caso_exito_posicion", sql`${t.posicion} is null or ${t.posicion} between 1 and 3`),
+    check(
+      "chk_caso_exito_textos",
+      sql`length(btrim(${t.sector})) between 1 and 60 and length(btrim(${t.titulo})) between 1 and 120 and length(btrim(${t.texto})) between 1 and 600`,
+    ),
+    check(
+      "chk_caso_exito_textos_en",
+      sql`length(coalesce(${t.sectorEn}, '')) <= 60 and length(coalesce(${t.tituloEn}, '')) <= 120 and length(coalesce(${t.textoEn}, '')) <= 600`,
+    ),
+  ],
+);
+
 export const usuarioRelations = relations(usuario, ({ many, one }) => ({
   propiedades: many(propiedad),
   referidoPor: one(usuario, {

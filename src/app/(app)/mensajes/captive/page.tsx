@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChatThread } from "@/components/messages/chat-thread";
+import { contarFiltrosActivos, describirBusqueda, leerBusqueda } from "@/lib/search-params";
 import { getUsuarioActual } from "@/server/auth/session";
 import { obtenerTextos } from "@/server/i18n";
 import { obtenerChatDelCliente } from "@/server/messages/captive";
@@ -13,12 +14,31 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Chat del cliente con el equipo de Captive. Abrirlo marca como leídos los mensajes de Captive.
-export default async function ChatCaptivePage() {
+interface ChatCaptivePageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function ChatCaptivePage({ searchParams }: ChatCaptivePageProps) {
   const actor = await getUsuarioActual();
   if (!actor || (actor.rol !== "oferente" && actor.rol !== "buscador")) notFound();
   const resultado = await obtenerChatDelCliente(actor);
   if (!resultado.ok) notFound();
   const m = (await obtenerTextos()).t.panel.mensajes;
+
+  // Si llegó desde "¿No encontraste tu espacio?", el cuadro de texto arranca con un borrador (la
+  // persona lo revisa y lo envía; nada se manda solo).
+  const query = await searchParams;
+  const busqueda = typeof query.busqueda === "string" ? query.busqueda : undefined;
+  let borrador: string | undefined;
+  if (busqueda) {
+    const filtros = leerBusqueda((clave) => new URLSearchParams(busqueda).get(clave) ?? undefined);
+    borrador =
+      contarFiltrosActivos(filtros.filtros) > 0
+        ? m.borradorBusqueda(describirBusqueda(filtros.filtros))
+        : m.borradorAyuda;
+  } else if (query.ayuda === "1") {
+    borrador = m.borradorAyuda;
+  }
 
   return (
     <main className="w-full py-10">
@@ -46,6 +66,7 @@ export default async function ChatCaptivePage() {
         <ChatThread
           endpoint="/api/v1/captive-chat"
           vacio={m.captiveVacio}
+          textoInicial={borrador}
           mensajes={resultado.data.map((mensaje) => ({
             id: mensaje.id,
             texto: mensaje.texto,

@@ -1,10 +1,12 @@
 import { ChevronRightIcon, SlidersHorizontalIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CaptiveHelp } from "@/components/marketing/captive-help";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SaveSearchButton } from "@/components/properties/save-search-button";
 import { SearchResults } from "@/components/properties/search-results";
 import { SortSelect } from "@/components/properties/sort-select";
+import { hrefAyudaCaptive } from "@/lib/captive-ayuda";
 import { type Idioma, textosDe } from "@/lib/i18n";
 import {
   type Landing,
@@ -31,6 +33,9 @@ export function metadataDeLanding(landing: Landing): Metadata {
 export async function LandingView({ landing, idioma }: { landing: Landing; idioma: Idioma }) {
   const datos = await cargarResultados(landing.filtros, "relevancia");
   const { modalidad, tipo, lugar } = landing;
+  const hrefAyuda = datos.puedeEscribirACaptive
+    ? hrefAyudaCaptive(datos.autenticado, landing.filtros)
+    : null;
   const t = textosDe(idioma);
   const plural = (valor: string) => t.etiquetas.tipoPlural[valor] ?? valor;
   const operacion = (valor: string) => t.etiquetas.operacion[valor] ?? valor;
@@ -124,6 +129,7 @@ export async function LandingView({ landing, idioma }: { landing: Landing; idiom
             key={datos.consulta}
             favoritos={datos.favoritos}
             autenticado={datos.autenticado}
+            hrefAyuda={hrefAyuda}
             propiedadesIniciales={datos.propiedades}
             hasMoreInicial={datos.hasMore}
             nextCursorInicial={datos.nextCursor}
@@ -149,6 +155,7 @@ export async function LandingView({ landing, idioma }: { landing: Landing; idiom
         </div>
       </main>
 
+      {hrefAyuda ? <CaptiveHelp href={hrefAyuda} autenticado={datos.autenticado} /> : null}
       <SiteFooter idioma={idioma} />
     </>
   );

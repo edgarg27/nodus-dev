@@ -176,6 +176,41 @@
       "when": 1791568637662,
       "tag": "0024_chat_captive_lockdown",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1791822398927,
+      "tag": "0025_dizzy_maelstrom",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1791822400724,
+      "tag": "0026_caso_exito_lockdown",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1791825185418,
+      "tag": "0027_peaceful_iron_monger",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1791825186883,
+      "tag": "0028_caso_exito_posicion_datos",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1791825195163,
+      "tag": "0029_conscious_famine",
+      "breakpoints": true
     }
   ]
 }

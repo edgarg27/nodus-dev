@@ -98,6 +98,7 @@ empiezan con `=`, `+`, `-` o `@`.
 | Normalización de dirección (dedupe) | `src/lib/normalize-address.ts` — única implementación, usada al crear/editar y en las pruebas |
 | Métricas, leads y Red del oferente | `src/server/metrics/`, `src/server/contact-requests/{inbox,lead-status}.ts`, `src/server/network/queries.ts`, `src/server/messages/conversations.ts`; parámetros de URL en `src/lib/{mis-propiedades-params,leads,red-params,periodos}.ts` |
 | Perfil de agencia y contactos | `src/server/agency/{queries,mutations}.ts` |
+| Casos de éxito de la portada | `src/server/casos-exito/` (tabla `caso_exito`, foto en el bucket bajo `casos-exito/`), se administran en `/admin/casos-exito`; sin casos publicados la portada muestra tarjetas de ejemplo (`apoyo.casos` en i18n). Banner de Nodus: `src/components/marketing/support-services.tsx`, enlace y foto en `src/lib/servicios-apoyo.ts` |
 
 ## Reglas de código
 
