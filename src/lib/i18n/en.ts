@@ -156,7 +156,7 @@ export const en: Textos = {
     casosTexto: "Real stories from companies that already solved their space will appear here.",
     ejemplo: "Example",
     casosTextoReales: "Stories of companies that found their space.",
-    fotoAlt: "Smiling person in front of a laptop in a shared office",
+    logoAlt: "Nodus Flex Center",
     casos: [
       {
         sector: "Logistics",
