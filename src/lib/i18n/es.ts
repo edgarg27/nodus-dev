@@ -157,7 +157,7 @@ export const es = {
     casosTexto: "Aquí aparecerán los casos reales de empresas que ya resolvieron su espacio.",
     ejemplo: "Ejemplo",
     casosTextoReales: "Historias de empresas que encontraron su espacio.",
-    fotoAlt: "Persona sonriendo frente a una laptop en una oficina compartida",
+    logoAlt: "Nodus Flex Center",
     casos: [
       {
         sector: "Logística",

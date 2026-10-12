@@ -2,7 +2,7 @@ import { ArrowUpRightIcon, BuildingIcon } from "lucide-react";
 import Image from "next/image";
 import type { CasoExitoVista } from "@/lib/casos-exito";
 import { type Idioma, textosDe } from "@/lib/i18n";
-import { FOTO_BANNER, FOTO_BANNER_ALTO, FOTO_BANNER_ANCHO, URL_NODUS } from "@/lib/servicios-apoyo";
+import { LOGO_BANNER, LOGO_BANNER_ALTO, LOGO_BANNER_ANCHO, URL_NODUS } from "@/lib/servicios-apoyo";
 import { Reveal } from "./reveal";
 
 interface SupportServicesProps {
@@ -12,7 +12,7 @@ interface SupportServicesProps {
   casos: CasoExitoVista[];
 }
 
-// "Encuentra tu servicio de apoyo": banner publicitario de Nodus (con su fotografía) y casos de
+// "Encuentra tu servicio de apoyo": banner publicitario de Nodus (con su logotipo) y casos de
 // éxito, que el admin captura en /admin/casos-exito.
 export function SupportServices({ idioma, casos }: SupportServicesProps) {
   const t = textosDe(idioma).apoyo;
@@ -56,14 +56,15 @@ export function SupportServices({ idioma, casos }: SupportServicesProps) {
               <ArrowUpRightIcon className="size-4" aria-hidden="true" />
             </a>
           </div>
-          <Image
-            src={FOTO_BANNER}
-            alt={t.fotoAlt}
-            width={FOTO_BANNER_ANCHO}
-            height={FOTO_BANNER_ALTO}
-            sizes="(min-width: 768px) 320px, 280px"
-            className="h-auto w-full max-w-[280px] rounded-2xl object-cover md:max-w-[320px]"
-          />
+          <div className="flex w-[280px] max-w-full items-center justify-center rounded-2xl bg-white px-8 py-12 md:w-[320px]">
+            <Image
+              src={LOGO_BANNER}
+              alt={t.logoAlt}
+              width={LOGO_BANNER_ANCHO}
+              height={LOGO_BANNER_ALTO}
+              className="h-auto w-full"
+            />
+          </div>
         </div>
 
         <div className="flex flex-col gap-6">
