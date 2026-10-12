@@ -54,8 +54,11 @@ async function crearSolicitudPendiente(usuarioId: string, overrides: Record<stri
 
 function requestApprove(id: string) {
   return {
+    // Las solicitudes de estas pruebas no traen documentos: aprobar así exige la nota.
     request: new Request(`http://localhost/api/v1/admin/broker-requests/${id}/approve`, {
       method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ nota: "La conocemos en persona" }),
     }),
     params: { params: Promise.resolve({ id }) },
   };

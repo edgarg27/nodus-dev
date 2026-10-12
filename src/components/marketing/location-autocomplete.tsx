@@ -5,22 +5,29 @@ import { type KeyboardEvent, useCallback, useEffect, useId, useRef, useState } f
 import { createPortal } from "react-dom";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { useDebouncedValue } from "@/components/properties/use-debounced-value";
+import { type CodigoEstado, ESTADOS_MX } from "@/lib/estados";
 
 interface Ciudad {
   ciudad: string;
   estado: string;
 }
 
-// Lo que se ve al enfocar el campo sin texto (como la lista de ciudades del artefacto).
-const CIUDADES_PRINCIPALES: Ciudad[] = [
-  { ciudad: "San Luis Potosí", estado: "San Luis Potosí" },
-  { ciudad: "Aguascalientes", estado: "Aguascalientes" },
-  { ciudad: "León", estado: "Guanajuato" },
-  { ciudad: "Ciudad de México", estado: "Ciudad de México" },
-  { ciudad: "Monterrey", estado: "Nuevo León" },
-  { ciudad: "Guadalajara", estado: "Jalisco" },
-  { ciudad: "Querétaro", estado: "Querétaro" },
-];
+// Una opción de la lista: un estado completo (filtra /buscar por `estado`) o una ciudad (`ciudad`).
+interface Sugerencia {
+  clave: string;
+  etiqueta: string;
+  // Lo que queda escrito en el campo al elegirla.
+  valor: string;
+  estado?: CodigoEstado;
+}
+
+// Lo que se ve al enfocar el campo sin texto: los 32 estados.
+const ESTADOS: Sugerencia[] = ESTADOS_MX.map((estado) => ({
+  clave: `estado|${estado.codigo}`,
+  etiqueta: estado.nombre,
+  valor: estado.nombre,
+  estado: estado.codigo,
+}));
 
 const MIN_CARACTERES = 2;
 const DEBOUNCE_MS = 250;
@@ -36,16 +43,24 @@ interface LocationAutocompleteProps {
   className?: string;
 }
 
-function etiqueta({ ciudad, estado }: Ciudad) {
-  return ciudad === estado ? ciudad : `${ciudad}, ${estado}`;
+function sinAcentos(texto: string) {
+  return texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
 }
 
-function coincide(ciudad: Ciudad, texto: string) {
-  return etiqueta(ciudad).toLowerCase().includes(texto.toLowerCase());
+function coincide(sugerencia: Sugerencia, texto: string) {
+  return sinAcentos(sugerencia.etiqueta).includes(sinAcentos(texto));
 }
 
-// Campo `ciudad` del buscador con lista de sugerencias (MapTiler vía `/api/v1/geocode/ciudades`).
-// Al elegir una opción el input conserva solo el nombre de la ciudad: es lo que filtra /buscar.
+function sugerenciaDeCiudad({ ciudad, estado }: Ciudad): Sugerencia {
+  return { clave: `ciudad|${ciudad}|${estado}`, etiqueta: `${ciudad}, ${estado}`, valor: ciudad };
+}
+
+// Campo de ubicación del buscador: sin texto lista los estados; al escribir suma las ciudades que
+// sugiere MapTiler (`/api/v1/geocode/ciudades`). Un estado elegido se envía como `estado` (su
+// código); una ciudad, o el texto libre, como `ciudad`: son los dos filtros de /buscar.
 export function LocationAutocomplete({
   id,
   placeholder,
@@ -58,6 +73,7 @@ export function LocationAutocomplete({
   const inputRef = useRef<HTMLInputElement>(null);
   const { t } = useIdioma();
   const [valor, setValor] = useState("");
+  const [estadoElegido, setEstadoElegido] = useState<CodigoEstado | null>(null);
   const [abierto, setAbierto] = useState(false);
   const [indiceActivo, setIndiceActivo] = useState(-1);
   const [remotas, setRemotas] = useState<Ciudad[] | null>(null);
@@ -100,12 +116,16 @@ export function LocationAutocomplete({
 
   const sugerencias =
     texto.length < MIN_CARACTERES
-      ? CIUDADES_PRINCIPALES
-      : (remotas ?? CIUDADES_PRINCIPALES.filter((ciudad) => coincide(ciudad, texto)));
+      ? ESTADOS
+      : [
+          ...ESTADOS.filter((estado) => coincide(estado, texto)),
+          ...(remotas ?? []).map(sugerenciaDeCiudad),
+        ];
   const listaVisible = abierto && sugerencias.length > 0;
 
-  function seleccionar(ciudad: Ciudad) {
-    setValor(ciudad.ciudad);
+  function seleccionar(sugerencia: Sugerencia) {
+    setValor(sugerencia.valor);
+    setEstadoElegido(sugerencia.estado ?? null);
     setAbierto(false);
     setIndiceActivo(-1);
   }
@@ -142,22 +162,22 @@ export function LocationAutocomplete({
         flotante ? "fixed" : "absolute top-[calc(100%+6px)] right-0 left-0",
       )}
     >
-      {sugerencias.map((ciudad, indice) => (
+      {sugerencias.map((sugerencia, indice) => (
         <button
-          key={`${ciudad.ciudad}|${ciudad.estado}`}
+          key={sugerencia.clave}
           type="button"
           id={`${idListbox}-${indice}`}
           role="option"
           aria-selected={indice === indiceActivo}
           tabIndex={-1}
           onMouseDown={(evento) => evento.preventDefault()}
-          onClick={() => seleccionar(ciudad)}
+          onClick={() => seleccionar(sugerencia)}
           className={cn(
             "block w-full cursor-pointer rounded-lg border-0 px-2.5 py-[9px] text-left text-sm text-foreground transition-colors duration-150 ease-out hover:bg-muted motion-reduce:transition-none",
             indice === indiceActivo && "bg-muted",
           )}
         >
-          {etiqueta(ciudad)}
+          {sugerencia.etiqueta}
         </button>
       ))}
     </div>
@@ -168,7 +188,7 @@ export function LocationAutocomplete({
       <input
         ref={inputRef}
         id={id}
-        name="ciudad"
+        name={estadoElegido ? undefined : "ciudad"}
         type="text"
         role="combobox"
         autoComplete="off"
@@ -181,6 +201,7 @@ export function LocationAutocomplete({
         value={valor}
         onChange={(evento) => {
           setValor(evento.target.value);
+          setEstadoElegido(null);
           setIndiceActivo(-1);
           setAbierto(true);
         }}
@@ -192,6 +213,7 @@ export function LocationAutocomplete({
           compacto ? "h-[42px] rounded-lg px-3 text-sm" : "h-[46px] px-3.5 text-[15px]",
         )}
       />
+      {estadoElegido ? <input type="hidden" name="estado" value={estadoElegido} /> : null}
       {/* Portal: el hero tiene overflow-hidden y backdrop-blur, que recortan o desplazan un `fixed`. */}
       {flotante && lista ? createPortal(lista, document.body) : lista}
     </div>

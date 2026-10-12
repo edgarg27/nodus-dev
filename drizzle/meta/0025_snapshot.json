@@ -1,5 +1,5 @@
 {
-  "id": "3316741c-7f57-4329-a193-9c32e639ec8d",
+  "id": "51750b15-05cb-4219-9886-054d2fc32757",
   "prevId": "a79ccae5-fdfd-4c96-9449-5125ca3daa2e",
   "version": "7",
   "dialect": "postgresql",
@@ -457,6 +457,13 @@
           "notNull": true,
           "default": "''"
         },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'broker'"
+        },
         "estado": {
           "name": "estado",
           "type": "text",
@@ -575,6 +582,10 @@
           "name": "chk_broker_solicitud_estado",
           "value": "\"broker_solicitud\".\"estado\" in ('pendiente','aprobada','denegada')"
         },
+        "chk_broker_solicitud_tipo": {
+          "name": "chk_broker_solicitud_tipo",
+          "value": "\"broker_solicitud\".\"tipo\" in ('broker','dueno')"
+        },
         "chk_broker_solicitud_mensaje": {
           "name": "chk_broker_solicitud_mensaje",
           "value": "length(btrim(\"broker_solicitud\".\"mensaje\")) > 0"
@@ -679,115 +690,6 @@
         "chk_busqueda_guardada_nombre": {
           "name": "chk_busqueda_guardada_nombre",
           "value": "length(btrim(\"busqueda_guardada\".\"nombre\")) between 1 and 120"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.caso_exito": {
-      "name": "caso_exito",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "sector": {
-          "name": "sector",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "titulo": {
-          "name": "titulo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "texto": {
-          "name": "texto",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sector_en": {
-          "name": "sector_en",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "titulo_en": {
-          "name": "titulo_en",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "texto_en": {
-          "name": "texto_en",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "foto_url": {
-          "name": "foto_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "publicado": {
-          "name": "publicado",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "orden": {
-          "name": "orden",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "idx_caso_exito_publicado_orden": {
-          "name": "idx_caso_exito_publicado_orden",
-          "columns": [
-            {
-              "expression": "orden",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "where": "\"caso_exito\".\"publicado\" = true",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "chk_caso_exito_textos": {
-          "name": "chk_caso_exito_textos",
-          "value": "length(btrim(\"caso_exito\".\"sector\")) between 1 and 60 and length(btrim(\"caso_exito\".\"titulo\")) between 1 and 120 and length(btrim(\"caso_exito\".\"texto\")) between 1 and 600"
-        },
-        "chk_caso_exito_textos_en": {
-          "name": "chk_caso_exito_textos_en",
-          "value": "length(coalesce(\"caso_exito\".\"sector_en\", '')) <= 60 and length(coalesce(\"caso_exito\".\"titulo_en\", '')) <= 120 and length(coalesce(\"caso_exito\".\"texto_en\", '')) <= 600"
         }
       },
       "isRLSEnabled": false
@@ -2311,6 +2213,13 @@
         },
         "is_broker": {
           "name": "is_broker",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "dueno_verificado": {
+          "name": "dueno_verificado",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,

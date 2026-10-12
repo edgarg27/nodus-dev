@@ -2,6 +2,7 @@
 
 import {
   AwardIcon,
+  HouseIcon,
   MessageCircleIcon,
   ShieldCheckIcon,
   UserRoundSearchIcon,
@@ -16,6 +17,7 @@ interface AdminSidebarNavProps {
   pendingPropertiesCount: number;
   pendingRequestsCount: number;
   activeBrokersCount: number;
+  ownersCount: number;
   // Clientes con una solicitud nueva sin atender o con un recordatorio vencido.
   pendingClientsCount: number;
   // Clientes con mensajes en el chat con Captive que nadie ha leído.
@@ -39,6 +41,11 @@ const ITEMS = [
     key: "brokers" as const,
   },
   {
+    href: "/admin/duenos",
+    icon: HouseIcon,
+    key: "duenos" as const,
+  },
+  {
     href: "/admin/clientes",
     icon: UserRoundSearchIcon,
     key: "clientes" as const,
@@ -59,6 +66,7 @@ export function AdminSidebarNav({
   pendingPropertiesCount,
   pendingRequestsCount,
   activeBrokersCount,
+  ownersCount,
   pendingClientsCount,
   unreadChatsCount,
 }: AdminSidebarNavProps) {
@@ -68,6 +76,7 @@ export function AdminSidebarNav({
     propiedades: pendingPropertiesCount,
     requests: pendingRequestsCount,
     brokers: activeBrokersCount,
+    duenos: ownersCount,
     clientes: pendingClientsCount,
     mensajes: unreadChatsCount,
     // Sin contador: no hay nada "pendiente" que atender en los casos de éxito.
@@ -83,7 +92,7 @@ export function AdminSidebarNav({
         const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
         const Icon = item.icon;
         const count = counts[item.key];
-        const hasUrgentCount = item.key !== "brokers" && count > 0;
+        const hasUrgentCount = item.key !== "brokers" && item.key !== "duenos" && count > 0;
         return (
           <Link
             key={item.href}

@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { LanguageSwitch } from "@/components/i18n/language-switch";
 import { enlacesPorRol } from "@/components/nav/enlaces-por-rol";
+import { ServicesMenu } from "@/components/nav/services-menu";
 import { iniciales } from "@/lib/initials";
 import { createClient } from "@/lib/supabase/client";
 
@@ -17,6 +18,8 @@ export interface SiteHeaderActor {
   isBroker: boolean;
   // Mensajes sin leer del chat de la Red (solo oferentes).
   mensajesNoLeidos?: number;
+  // Solo los del chat con el equipo de Captive.
+  mensajesCaptiveNoLeidos?: number;
 }
 
 interface SiteHeaderProps {
@@ -141,6 +144,11 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
         <div className="flex items-center gap-3">
           <LanguageSwitch claro={inmersivo} />
           {actor ? (
+            <div className="hidden md:block">
+              <ServicesMenu className={enlaceClase} />
+            </div>
+          ) : null}
+          {actor ? (
             <div ref={userMenuRef} className="relative shrink-0">
               <button
                 type="button"
@@ -248,6 +256,12 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
                 <Link href="/buscar" className={enlaceClase}>
                   {t.buscar}
                 </Link>
+                <Link href="/servicios" className={cn(enlaceClase, "md:hidden")}>
+                  {t.servicios}
+                </Link>
+                <div className="hidden md:block">
+                  <ServicesMenu className={enlaceClase} />
+                </div>
                 <Link href="/publicar" className={enlaceClase}>
                   {t.publicarEspacio}
                 </Link>

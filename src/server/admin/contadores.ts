@@ -5,6 +5,8 @@ export interface ContadoresAdmin {
   propiedadesPendientes: number;
   solicitudesBroker: number;
   brokersActivos: number;
+  // Dueños verificados (no brokers): mismo criterio que listarDuenos.
+  duenos: number;
   // Clientes con alguna solicitud nueva sin atender o con un recordatorio vencido.
   clientesPorAtender: number;
   // Clientes con mensajes en el chat con Captive que nadie ha leído.
@@ -21,6 +23,7 @@ export async function contarParaMenuAdmin(ahora: Date = new Date()): Promise<Con
     propiedades: number;
     solicitudes: number;
     brokers: number;
+    duenos: number;
     clientes: number;
     chats: number;
   }>(sql`
@@ -29,6 +32,8 @@ export async function contarParaMenuAdmin(ahora: Date = new Date()): Promise<Con
         where activo and estado_publicacion = 'pendiente') as propiedades,
       (select count(*)::int from broker_solicitud where estado = 'pendiente') as solicitudes,
       (select count(*)::int from usuario where is_broker) as brokers,
+      (select count(*)::int from usuario
+        where rol = 'oferente' and not is_broker and dueno_verificado) as duenos,
       (select count(distinct buscador_id)::int from contact_request
         where canal = 'captive'
           and (paso = 'nueva'
@@ -43,6 +48,7 @@ export async function contarParaMenuAdmin(ahora: Date = new Date()): Promise<Con
     propiedadesPendientes: fila?.propiedades ?? 0,
     solicitudesBroker: fila?.solicitudes ?? 0,
     brokersActivos: fila?.brokers ?? 0,
+    duenos: fila?.duenos ?? 0,
     clientesPorAtender: fila?.clientes ?? 0,
     chatsSinLeer: fila?.chats ?? 0,
   };

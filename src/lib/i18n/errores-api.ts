@@ -45,6 +45,15 @@ const EN: Record<string, string> = {
   "No puedes resolver tu propia solicitud": "You can't resolve your own request.",
   "La solicitud ya fue resuelta": "This request has already been resolved.",
   "Este usuario no es broker": "This user isn't a broker.",
+  "Documento no encontrado": "Document not found.",
+  "Tu cuenta no tiene una verificación pendiente": "Your account has no pending verification.",
+  "Ese documento no corresponde a tu solicitud": "That document isn't part of your request.",
+  "No se pudo guardar el archivo": "The file couldn't be saved. Please try again.",
+  "Faltan documentos por subir": "Some documents are still missing.",
+  "Faltan documentos: escribe por qué apruebas sin ellos":
+    "Documents are missing: write why you're approving without them.",
+  "Tu cuenta está en revisión: podrás publicar cuando Captive la apruebe":
+    "Your account is under review: you'll be able to list once Captive approves it.",
   "Correo inválido": "Invalid email.",
   "El teléfono es obligatorio": "Phone number is required.",
   "Elige cómo publicas": "Choose how you list.",

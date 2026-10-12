@@ -1,6 +1,6 @@
 {
-  "id": "1c882f96-5696-409d-86a3-c407de60fc61",
-  "prevId": "c1582e1f-e1d8-40cc-9e76-39c0b233e915",
+  "id": "5a4bd322-b566-4602-96a0-3adcca75ada5",
+  "prevId": "35ea666c-afac-4ce8-a126-ef3303e17247",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -53,9 +53,9 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         },
         "uq_agencia_contacto_usuario_tipo_valor": {
           "name": "uq_agencia_contacto_usuario_tipo_valor",
@@ -80,24 +80,24 @@
             }
           ],
           "isUnique": true,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "agencia_contacto_usuario_id_usuario_id_fk": {
           "name": "agencia_contacto_usuario_id_usuario_id_fk",
           "tableFrom": "agencia_contacto",
-          "tableTo": "usuario",
           "columnsFrom": [
             "usuario_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -171,24 +171,24 @@
             }
           ],
           "isUnique": true,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "agencia_perfil_usuario_id_usuario_id_fk": {
           "name": "agencia_perfil_usuario_id_usuario_id_fk",
           "tableFrom": "agencia_perfil",
-          "tableTo": "usuario",
           "columnsFrom": [
             "usuario_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -269,9 +269,9 @@
             }
           ],
           "isUnique": true,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         },
         "idx_broker_atribucion_historica_usuario_id": {
           "name": "idx_broker_atribucion_historica_usuario_id",
@@ -284,37 +284,37 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "broker_atribucion_historica_broker_revocacion_id_broker_revocacion_id_fk": {
           "name": "broker_atribucion_historica_broker_revocacion_id_broker_revocacion_id_fk",
           "tableFrom": "broker_atribucion_historica",
-          "tableTo": "broker_revocacion",
           "columnsFrom": [
             "broker_revocacion_id"
           ],
+          "tableTo": "broker_revocacion",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "broker_atribucion_historica_usuario_id_usuario_id_fk": {
           "name": "broker_atribucion_historica_usuario_id_usuario_id_fk",
           "tableFrom": "broker_atribucion_historica",
-          "tableTo": "usuario",
           "columnsFrom": [
             "usuario_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -383,37 +383,37 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "broker_revocacion_usuario_id_usuario_id_fk": {
           "name": "broker_revocacion_usuario_id_usuario_id_fk",
           "tableFrom": "broker_revocacion",
-          "tableTo": "usuario",
           "columnsFrom": [
             "usuario_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "broker_revocacion_revocada_por_usuario_id_fk": {
           "name": "broker_revocacion_revocada_por_usuario_id_fk",
           "tableFrom": "broker_revocacion",
-          "tableTo": "usuario",
           "columnsFrom": [
             "revocada_por"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -457,6 +457,13 @@
           "notNull": true,
           "default": "''"
         },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'broker'"
+        },
         "estado": {
           "name": "estado",
           "type": "text",
@@ -466,6 +473,12 @@
         },
         "motivo_denegacion": {
           "name": "motivo_denegacion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nota_aprobacion": {
+          "name": "nota_aprobacion",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -502,10 +515,10 @@
             }
           ],
           "isUnique": true,
-          "where": "\"broker_solicitud\".\"estado\" = 'pendiente'",
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "where": "\"broker_solicitud\".\"estado\" = 'pendiente'",
+          "concurrently": false
         },
         "idx_broker_solicitud_usuario_id": {
           "name": "idx_broker_solicitud_usuario_id",
@@ -518,9 +531,9 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         },
         "idx_broker_solicitud_pendientes": {
           "name": "idx_broker_solicitud_pendientes",
@@ -533,38 +546,38 @@
             }
           ],
           "isUnique": false,
-          "where": "\"broker_solicitud\".\"estado\" = 'pendiente'",
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "where": "\"broker_solicitud\".\"estado\" = 'pendiente'",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "broker_solicitud_usuario_id_usuario_id_fk": {
           "name": "broker_solicitud_usuario_id_usuario_id_fk",
           "tableFrom": "broker_solicitud",
-          "tableTo": "usuario",
           "columnsFrom": [
             "usuario_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "broker_solicitud_resuelta_por_usuario_id_fk": {
           "name": "broker_solicitud_resuelta_por_usuario_id_fk",
           "tableFrom": "broker_solicitud",
-          "tableTo": "usuario",
           "columnsFrom": [
             "resuelta_por"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -574,6 +587,10 @@
         "chk_broker_solicitud_estado": {
           "name": "chk_broker_solicitud_estado",
           "value": "\"broker_solicitud\".\"estado\" in ('pendiente','aprobada','denegada')"
+        },
+        "chk_broker_solicitud_tipo": {
+          "name": "chk_broker_solicitud_tipo",
+          "value": "\"broker_solicitud\".\"tipo\" in ('broker','dueno')"
         },
         "chk_broker_solicitud_mensaje": {
           "name": "chk_broker_solicitud_mensaje",
@@ -652,24 +669,24 @@
             }
           ],
           "isUnique": true,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "busqueda_guardada_usuario_id_usuario_id_fk": {
           "name": "busqueda_guardada_usuario_id_usuario_id_fk",
           "tableFrom": "busqueda_guardada",
-          "tableTo": "usuario",
           "columnsFrom": [
             "usuario_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -679,141 +696,6 @@
         "chk_busqueda_guardada_nombre": {
           "name": "chk_busqueda_guardada_nombre",
           "value": "length(btrim(\"busqueda_guardada\".\"nombre\")) between 1 and 120"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.caso_exito": {
-      "name": "caso_exito",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "sector": {
-          "name": "sector",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "titulo": {
-          "name": "titulo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "texto": {
-          "name": "texto",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sector_en": {
-          "name": "sector_en",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "titulo_en": {
-          "name": "titulo_en",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "texto_en": {
-          "name": "texto_en",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "foto_url": {
-          "name": "foto_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "publicado": {
-          "name": "publicado",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "orden": {
-          "name": "orden",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "posicion": {
-          "name": "posicion",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "idx_caso_exito_publicado_orden": {
-          "name": "idx_caso_exito_publicado_orden",
-          "columns": [
-            {
-              "expression": "orden",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "where": "\"caso_exito\".\"publicado\" = true",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "uq_caso_exito_posicion": {
-          "name": "uq_caso_exito_posicion",
-          "columns": [
-            {
-              "expression": "posicion",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"caso_exito\".\"posicion\" is not null",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "chk_caso_exito_posicion": {
-          "name": "chk_caso_exito_posicion",
-          "value": "\"caso_exito\".\"posicion\" is null or \"caso_exito\".\"posicion\" between 1 and 3"
-        },
-        "chk_caso_exito_textos": {
-          "name": "chk_caso_exito_textos",
-          "value": "length(btrim(\"caso_exito\".\"sector\")) between 1 and 60 and length(btrim(\"caso_exito\".\"titulo\")) between 1 and 120 and length(btrim(\"caso_exito\".\"texto\")) between 1 and 600"
-        },
-        "chk_caso_exito_textos_en": {
-          "name": "chk_caso_exito_textos_en",
-          "value": "length(coalesce(\"caso_exito\".\"sector_en\", '')) <= 60 and length(coalesce(\"caso_exito\".\"titulo_en\", '')) <= 120 and length(coalesce(\"caso_exito\".\"texto_en\", '')) <= 600"
         }
       },
       "isRLSEnabled": false
@@ -848,25 +730,25 @@
         "chat_captive_buscador_id_usuario_id_fk": {
           "name": "chat_captive_buscador_id_usuario_id_fk",
           "tableFrom": "chat_captive",
-          "tableTo": "usuario",
           "columnsFrom": [
             "buscador_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "chat_captive_buscador_id_unique": {
           "name": "chat_captive_buscador_id_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "buscador_id"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       },
       "policies": {},
@@ -974,9 +856,9 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         },
         "idx_contact_request_broker_id": {
           "name": "idx_contact_request_broker_id",
@@ -989,10 +871,10 @@
             }
           ],
           "isUnique": false,
-          "where": "\"contact_request\".\"broker_id\" is not null",
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "where": "\"contact_request\".\"broker_id\" is not null",
+          "concurrently": false
         },
         "idx_contact_request_propiedad_id": {
           "name": "idx_contact_request_propiedad_id",
@@ -1005,63 +887,63 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "contact_request_buscador_id_usuario_id_fk": {
           "name": "contact_request_buscador_id_usuario_id_fk",
           "tableFrom": "contact_request",
-          "tableTo": "usuario",
           "columnsFrom": [
             "buscador_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "contact_request_propiedad_id_propiedad_id_fk": {
           "name": "contact_request_propiedad_id_propiedad_id_fk",
           "tableFrom": "contact_request",
-          "tableTo": "propiedad",
           "columnsFrom": [
             "propiedad_id"
           ],
+          "tableTo": "propiedad",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "contact_request_oferente_id_usuario_id_fk": {
           "name": "contact_request_oferente_id_usuario_id_fk",
           "tableFrom": "contact_request",
-          "tableTo": "usuario",
           "columnsFrom": [
             "oferente_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "contact_request_broker_id_usuario_id_fk": {
           "name": "contact_request_broker_id_usuario_id_fk",
           "tableFrom": "contact_request",
-          "tableTo": "usuario",
           "columnsFrom": [
             "broker_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -1146,9 +1028,9 @@
             }
           ],
           "isUnique": true,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         },
         "idx_conversacion_iniciador_id": {
           "name": "idx_conversacion_iniciador_id",
@@ -1161,9 +1043,9 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         },
         "idx_conversacion_dueno_id": {
           "name": "idx_conversacion_dueno_id",
@@ -1176,50 +1058,50 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "conversacion_propiedad_id_propiedad_id_fk": {
           "name": "conversacion_propiedad_id_propiedad_id_fk",
           "tableFrom": "conversacion",
-          "tableTo": "propiedad",
           "columnsFrom": [
             "propiedad_id"
           ],
+          "tableTo": "propiedad",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "conversacion_iniciador_id_usuario_id_fk": {
           "name": "conversacion_iniciador_id_usuario_id_fk",
           "tableFrom": "conversacion",
-          "tableTo": "usuario",
           "columnsFrom": [
             "iniciador_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "conversacion_dueno_id_usuario_id_fk": {
           "name": "conversacion_dueno_id_usuario_id_fk",
           "tableFrom": "conversacion",
-          "tableTo": "usuario",
           "columnsFrom": [
             "dueno_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -1282,37 +1164,37 @@
             }
           ],
           "isUnique": true,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "favorito_usuario_id_usuario_id_fk": {
           "name": "favorito_usuario_id_usuario_id_fk",
           "tableFrom": "favorito",
-          "tableTo": "usuario",
           "columnsFrom": [
             "usuario_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "favorito_propiedad_id_propiedad_id_fk": {
           "name": "favorito_propiedad_id_propiedad_id_fk",
           "tableFrom": "favorito",
-          "tableTo": "propiedad",
           "columnsFrom": [
             "propiedad_id"
           ],
+          "tableTo": "propiedad",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -1382,37 +1264,37 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "mensaje_conversacion_id_conversacion_id_fk": {
           "name": "mensaje_conversacion_id_conversacion_id_fk",
           "tableFrom": "mensaje",
-          "tableTo": "conversacion",
           "columnsFrom": [
             "conversacion_id"
           ],
+          "tableTo": "conversacion",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "mensaje_autor_id_usuario_id_fk": {
           "name": "mensaje_autor_id_usuario_id_fk",
           "tableFrom": "mensaje",
-          "tableTo": "usuario",
           "columnsFrom": [
             "autor_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -1493,37 +1375,37 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "mensaje_captive_chat_id_chat_captive_id_fk": {
           "name": "mensaje_captive_chat_id_chat_captive_id_fk",
           "tableFrom": "mensaje_captive",
-          "tableTo": "chat_captive",
           "columnsFrom": [
             "chat_id"
           ],
+          "tableTo": "chat_captive",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         },
         "mensaje_captive_autor_id_usuario_id_fk": {
           "name": "mensaje_captive_autor_id_usuario_id_fk",
           "tableFrom": "mensaje_captive",
-          "tableTo": "usuario",
           "columnsFrom": [
             "autor_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -1596,8 +1478,8 @@
           "primaryKey": false,
           "notNull": true,
           "generated": {
-            "as": "round(lat, 5)",
-            "type": "stored"
+            "type": "stored",
+            "as": "round(lat, 5)"
           }
         },
         "lng_redondeada": {
@@ -1606,8 +1488,8 @@
           "primaryKey": false,
           "notNull": true,
           "generated": {
-            "as": "round(lng, 5)",
-            "type": "stored"
+            "type": "stored",
+            "as": "round(lng, 5)"
           }
         },
         "estado": {
@@ -1800,9 +1682,9 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         },
         "idx_propiedad_busqueda": {
           "name": "idx_propiedad_busqueda",
@@ -1833,10 +1715,10 @@
             }
           ],
           "isUnique": false,
-          "where": "\"propiedad\".\"activo\" = true",
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "where": "\"propiedad\".\"activo\" = true",
+          "concurrently": false
         },
         "idx_propiedad_revision": {
           "name": "idx_propiedad_revision",
@@ -1849,10 +1731,10 @@
             }
           ],
           "isUnique": false,
-          "where": "\"propiedad\".\"activo\" = true and \"propiedad\".\"estado_publicacion\" = 'pendiente'",
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "where": "\"propiedad\".\"activo\" = true and \"propiedad\".\"estado_publicacion\" = 'pendiente'",
+          "concurrently": false
         },
         "uq_propiedad_duplicado": {
           "name": "uq_propiedad_duplicado",
@@ -1877,10 +1759,10 @@
             }
           ],
           "isUnique": true,
-          "where": "\"propiedad\".\"activo\" = true and \"propiedad\".\"estado_publicacion\" <> 'rechazada'",
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "where": "\"propiedad\".\"activo\" = true and \"propiedad\".\"estado_publicacion\" <> 'rechazada'",
+          "concurrently": false
         },
         "idx_propiedad_red": {
           "name": "idx_propiedad_red",
@@ -1893,51 +1775,51 @@
             }
           ],
           "isUnique": false,
-          "where": "\"propiedad\".\"compartida_en_red\" = true and \"propiedad\".\"activo\" = true",
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "where": "\"propiedad\".\"compartida_en_red\" = true and \"propiedad\".\"activo\" = true",
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "propiedad_oferente_id_usuario_id_fk": {
           "name": "propiedad_oferente_id_usuario_id_fk",
           "tableFrom": "propiedad",
-          "tableTo": "usuario",
           "columnsFrom": [
             "oferente_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "propiedad_contacto_id_agencia_contacto_id_fk": {
           "name": "propiedad_contacto_id_agencia_contacto_id_fk",
           "tableFrom": "propiedad",
-          "tableTo": "agencia_contacto",
           "columnsFrom": [
             "contacto_id"
           ],
+          "tableTo": "agencia_contacto",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "set null"
         },
         "propiedad_revisada_por_usuario_id_fk": {
           "name": "propiedad_revisada_por_usuario_id_fk",
           "tableFrom": "propiedad",
-          "tableTo": "usuario",
           "columnsFrom": [
             "revisada_por"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -2041,24 +1923,24 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "propiedad_foto_propiedad_id_propiedad_id_fk": {
           "name": "propiedad_foto_propiedad_id_propiedad_id_fk",
           "tableFrom": "propiedad_foto",
-          "tableTo": "propiedad",
           "columnsFrom": [
             "propiedad_id"
           ],
+          "tableTo": "propiedad",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {},
@@ -2103,15 +1985,15 @@
         "propiedad_metrica_diaria_propiedad_id_propiedad_id_fk": {
           "name": "propiedad_metrica_diaria_propiedad_id_propiedad_id_fk",
           "tableFrom": "propiedad_metrica_diaria",
-          "tableTo": "propiedad",
           "columnsFrom": [
             "propiedad_id"
           ],
+          "tableTo": "propiedad",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "cascade"
         }
       },
       "compositePrimaryKeys": {
@@ -2234,50 +2116,50 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
+          "with": {},
           "method": "btree",
-          "with": {}
+          "concurrently": false
         }
       },
       "foreignKeys": {
         "seguimiento_nota_buscador_id_usuario_id_fk": {
           "name": "seguimiento_nota_buscador_id_usuario_id_fk",
           "tableFrom": "seguimiento_nota",
-          "tableTo": "usuario",
           "columnsFrom": [
             "buscador_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "seguimiento_nota_contact_request_id_contact_request_id_fk": {
           "name": "seguimiento_nota_contact_request_id_contact_request_id_fk",
           "tableFrom": "seguimiento_nota",
-          "tableTo": "contact_request",
           "columnsFrom": [
             "contact_request_id"
           ],
+          "tableTo": "contact_request",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         },
         "seguimiento_nota_autor_id_usuario_id_fk": {
           "name": "seguimiento_nota_autor_id_usuario_id_fk",
           "tableFrom": "seguimiento_nota",
-          "tableTo": "usuario",
           "columnsFrom": [
             "autor_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -2342,6 +2224,13 @@
           "notNull": true,
           "default": false
         },
+        "dueno_verificado": {
+          "name": "dueno_verificado",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "broker_code": {
           "name": "broker_code",
           "type": "text",
@@ -2374,32 +2263,32 @@
         "usuario_referral_broker_id_usuario_id_fk": {
           "name": "usuario_referral_broker_id_usuario_id_fk",
           "tableFrom": "usuario",
-          "tableTo": "usuario",
           "columnsFrom": [
             "referral_broker_id"
           ],
+          "tableTo": "usuario",
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "usuario_email_unique": {
           "name": "usuario_email_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "email"
-          ]
+          ],
+          "nullsNotDistinct": false
         },
         "usuario_broker_code_unique": {
           "name": "usuario_broker_code_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "broker_code"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       },
       "policies": {},
@@ -2418,14 +2307,112 @@
         }
       },
       "isRLSEnabled": false
+    },
+    "public.verificacion_documento": {
+      "name": "verificacion_documento",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "storage_path": {
+          "name": "storage_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nombre_archivo": {
+          "name": "nombre_archivo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content_type": {
+          "name": "content_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "uq_verificacion_documento_usuario_tipo": {
+          "name": "uq_verificacion_documento_usuario_tipo",
+          "columns": [
+            {
+              "expression": "usuario_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "tipo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "verificacion_documento_usuario_id_usuario_id_fk": {
+          "name": "verificacion_documento_usuario_id_usuario_id_fk",
+          "tableFrom": "verificacion_documento",
+          "columnsFrom": [
+            "usuario_id"
+          ],
+          "tableTo": "usuario",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "chk_verificacion_documento_tipo": {
+          "name": "chk_verificacion_documento_tipo",
+          "value": "\"verificacion_documento\".\"tipo\" in ('identificacion','acreditacion_broker','comprobante_propiedad')"
+        }
+      },
+      "isRLSEnabled": false
     }
   },
   "enums": {},
   "schemas": {},
+  "views": {},
   "sequences": {},
   "roles": {},
   "policies": {},
-  "views": {},
   "_meta": {
     "columns": {},
     "schemas": {},
