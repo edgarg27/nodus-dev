@@ -181,6 +181,7 @@ Todos los valores salen del dashboard del proyecto Supabase (`blueprint.md` §10
 | `NEXT_PUBLIC_MAPTILER_KEY` | sí | `src/components/map/*.tsx` | MapTiler account → Keys (https://cloud.maptiler.com/account/keys/) |
 | `MAPTILER_API_KEY` | sí | `src/app/api/v1/geocode/route.ts` | MapTiler account → Keys (puede ser el mismo valor) |
 | `NEXT_PUBLIC_SUPPORT_WHATSAPP` | no | `src/components/panel/help-card.tsx` | WhatsApp de soporte (solo dígitos con lada); sin él la tarjeta de ayuda no muestra el botón |
+| `NEXT_PUBLIC_CAPTIVE_WHATSAPP` | no | `src/lib/captive-ayuda.ts` | WhatsApp del equipo Captive (solo dígitos con lada); sin él "¿Necesitas ayuda?" lleva al chat de la web |
 | `NODUS_ALLOW_DB_RESET`, `NODUS_DEV_PROJECT_REF`, `NODUS_PROD_PROJECT_REF` | solo dev | `src/lib/db/dev-guard.ts` | `.env` de desarrollo a mano — **nunca en Vercel ni producción** |
 | `NODUS_TEST_PROJECT_REF` (+ conexiones y llaves del proyecto de pruebas) | solo pruebas | `assertSafeToResetTests`, `vitest.config.ts`, `playwright.config.ts` | `.env.test` (tiene prioridad sobre `.env` en las pruebas) |
 

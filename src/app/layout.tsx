@@ -72,7 +72,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             {/* Un admin no tiene chat con Captive: no se le ofrece la ayuda. */}
             {actor?.rol === "admin" ? null : (
               <CaptiveHelpGlobal
-                href={hrefAyudaCaptive(actor !== null, {})}
+                href={hrefAyudaCaptive(actor !== null, {}, idioma)}
                 autenticado={actor !== null}
               />
             )}

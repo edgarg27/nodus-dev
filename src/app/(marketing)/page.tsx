@@ -47,7 +47,7 @@ export default async function MarketingPage() {
       {actor?.rol === "admin" ? null : (
         <NotFoundBanner
           autenticado={!!actor}
-          ayudaHref={hrefAyudaCaptive(!!actor, {})}
+          ayudaHref={hrefAyudaCaptive(!!actor, {}, idioma)}
           idioma={idioma}
         />
       )}

@@ -4,9 +4,11 @@ import { HeadsetIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
+import { CaptiveHelpLink } from "@/components/marketing/captive-help-link";
+import { esEnlaceWhatsapp } from "@/lib/captive-ayuda";
 
 interface CaptiveHelpProps {
-  // Chat con Captive (con la búsqueda como borrador) o, sin sesión, iniciar sesión primero.
+  // WhatsApp de Captive con la búsqueda ya escrita o, sin número configurado, el chat de la web.
   href: string;
   autenticado: boolean;
   // El del layout raíz (sin búsqueda); se oculta si la página trae el suyo, que lleva la búsqueda.
@@ -19,6 +21,8 @@ export function CaptiveHelp({ href, autenticado, global = false }: CaptiveHelpPr
   const { t } = useIdioma();
   const r = t.resultados;
   const idTitulo = useId();
+  // Por WhatsApp no hace falta cuenta: ni "inicia sesión" ni "crea tu cuenta".
+  const porWhatsapp = esEnlaceWhatsapp(href);
   const [abierto, setAbierto] = useState(false);
 
   useEffect(() => {
@@ -54,13 +58,17 @@ export function CaptiveHelp({ href, autenticado, global = false }: CaptiveHelpPr
             </button>
           </div>
           <p className="text-sm leading-relaxed text-muted-foreground">{r.ayudaTexto}</p>
-          <Link
+          <CaptiveHelpLink
             href={href}
             className="flex h-11 items-center justify-center rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 motion-reduce:transition-none"
           >
-            {autenticado ? r.ayudaBoton : r.ayudaBotonVisitante}
-          </Link>
-          {autenticado ? null : (
+            {porWhatsapp
+              ? r.ayudaBotonWhatsapp
+              : autenticado
+                ? r.ayudaBoton
+                : r.ayudaBotonVisitante}
+          </CaptiveHelpLink>
+          {autenticado || porWhatsapp ? null : (
             <Link
               href="/sign-up"
               className="text-center text-[13px] font-semibold text-foreground underline underline-offset-4"

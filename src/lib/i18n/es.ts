@@ -214,6 +214,7 @@ export const es = {
       "Cuéntale a Captive qué necesitas y el equipo te ayuda a encontrar una opción que se ajuste.",
     ayudaBoton: "Escribir a Captive",
     ayudaBotonVisitante: "Inicia sesión para escribir a Captive",
+    ayudaBotonWhatsapp: "Escribir por WhatsApp",
     ayudaCrearCuenta: "¿No tienes cuenta? Créala gratis",
     ayudaFlotante: "¿Necesitas ayuda?",
     ayudaCerrar: "Cerrar ayuda",

@@ -35,8 +35,8 @@ export default async function BuscarPage({ searchParams }: BuscarPageProps) {
     hasMore,
     nextCursor,
   } = await cargarResultados(filtros, orden);
-  const hrefAyuda = puedeEscribirACaptive ? hrefAyudaCaptive(autenticado, filtros) : null;
   const { idioma, t } = await obtenerTextos();
+  const hrefAyuda = puedeEscribirACaptive ? hrefAyudaCaptive(autenticado, filtros, idioma) : null;
 
   return (
     <>

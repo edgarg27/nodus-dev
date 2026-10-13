@@ -34,7 +34,7 @@ export async function LandingView({ landing, idioma }: { landing: Landing; idiom
   const datos = await cargarResultados(landing.filtros, "relevancia");
   const { modalidad, tipo, lugar } = landing;
   const hrefAyuda = datos.puedeEscribirACaptive
-    ? hrefAyudaCaptive(datos.autenticado, landing.filtros)
+    ? hrefAyudaCaptive(datos.autenticado, landing.filtros, idioma)
     : null;
   const t = textosDe(idioma);
   const plural = (valor: string) => t.etiquetas.tipoPlural[valor] ?? valor;

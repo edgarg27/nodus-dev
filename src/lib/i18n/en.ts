@@ -211,6 +211,7 @@ export const en: Textos = {
     ayudaTexto: "Tell Captive what you need and the team will help you find an option that fits.",
     ayudaBoton: "Write to Captive",
     ayudaBotonVisitante: "Sign in to write to Captive",
+    ayudaBotonWhatsapp: "Message us on WhatsApp",
     ayudaCrearCuenta: "No account yet? Create one for free",
     ayudaFlotante: "Need help?",
     ayudaCerrar: "Close help",

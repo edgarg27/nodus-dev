@@ -11,6 +11,9 @@ export const env = {
   // WhatsApp de soporte para la tarjeta de ayuda del panel del oferente (opcional, solo dígitos con
   // lada, por ejemplo 5214766009999; sin él la tarjeta no muestra el botón de WhatsApp).
   NEXT_PUBLIC_SUPPORT_WHATSAPP: process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP,
+  // WhatsApp del equipo Captive para "¿Necesitas ayuda?" (opcional, solo dígitos con lada; sin él
+  // esos botones llevan al chat con Captive de la web).
+  NEXT_PUBLIC_CAPTIVE_WHATSAPP: process.env.NEXT_PUBLIC_CAPTIVE_WHATSAPP,
 } satisfies Record<string, string | undefined>;
 
 export function requireEnv(keys: (keyof typeof env)[]): void {
