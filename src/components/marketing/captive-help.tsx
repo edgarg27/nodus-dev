@@ -23,6 +23,8 @@ export function CaptiveHelp({ href, autenticado, global = false }: CaptiveHelpPr
   const idTitulo = useId();
   // Por WhatsApp no hace falta cuenta: ni "inicia sesión" ni "crea tu cuenta".
   const porWhatsapp = esEnlaceWhatsapp(href);
+  // En las pantallas de búsqueda el botón habla de la búsqueda; en el resto del sitio, de ayuda.
+  const etiqueta = global ? r.ayudaFlotante : r.ayudaTitulo;
   const [abierto, setAbierto] = useState(false);
 
   useEffect(() => {
@@ -85,8 +87,8 @@ export function CaptiveHelp({ href, autenticado, global = false }: CaptiveHelpPr
         className="flex h-12 cursor-pointer items-center gap-2 rounded-full bg-accent px-4 text-sm font-bold text-accent-foreground shadow-md transition-transform duration-150 ease-out hover:-translate-y-px motion-reduce:transition-none"
       >
         <HeadsetIcon className="size-5" aria-hidden="true" />
-        <span className="hidden sm:inline">{r.ayudaFlotante}</span>
-        <span className="sr-only sm:hidden">{r.ayudaFlotante}</span>
+        <span className="hidden sm:inline">{etiqueta}</span>
+        <span className="sr-only sm:hidden">{etiqueta}</span>
       </button>
     </div>
   );
