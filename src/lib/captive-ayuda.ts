@@ -18,7 +18,7 @@ export function hrefAyudaCaptive(
   filtros: FiltrosBusqueda,
   idioma: Idioma,
 ): string {
-  const whatsapp = env.NEXT_PUBLIC_CAPTIVE_WHATSAPP?.replace(/\D/g, "");
+  const whatsapp = numeroWhatsapp(env.NEXT_PUBLIC_CAPTIVE_WHATSAPP);
   if (whatsapp) {
     const m = textosDe(idioma).panel.mensajes;
     const mensaje =
@@ -31,6 +31,13 @@ export function hrefAyudaCaptive(
   const consulta = busquedaAParams(filtros).toString();
   const chat = `/mensajes/captive${consulta ? `?busqueda=${encodeURIComponent(consulta)}` : "?ayuda=1"}`;
   return autenticado ? chat : `/sign-in?next=${encodeURIComponent(chat)}`;
+}
+
+// wa.me exige la lada del país. Un número de 10 dígitos es un celular de México sin ella: se le
+// antepone el 52.
+function numeroWhatsapp(valor: string | undefined): string {
+  const digitos = valor?.replace(/\D/g, "") ?? "";
+  return digitos.length === 10 ? `52${digitos}` : digitos;
 }
 
 // El enlace de ayuda sale del sitio (WhatsApp) o es el chat de la web.

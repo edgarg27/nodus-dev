@@ -25,6 +25,12 @@ describe("hrefAyudaCaptive", () => {
     expect(mensaje).toContain("Aguascalientes");
   });
 
+  it("a un número de 10 dígitos (sin lada del país) le antepone el 52 de México", async () => {
+    const { hrefAyudaCaptive } = await cargar("449 123 4567");
+
+    expect(new URL(hrefAyudaCaptive(false, {}, "es")).pathname).toBe("/524491234567");
+  });
+
   it("sin filtros manda el mensaje general, en el idioma del visitante", async () => {
     const { hrefAyudaCaptive } = await cargar("5214491234567");
 
