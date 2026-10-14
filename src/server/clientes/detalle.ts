@@ -31,6 +31,10 @@ export interface SolicitudDeCliente {
     tipo: string;
     modalidad: string;
     publicada: boolean;
+    // Precio capturado por el propietario: solo lo ve Captive, para cotizar.
+    precio: number | null;
+    moneda: string;
+    precioUnidad: string;
   };
   // A quién hay que llamarle para confirmar la disponibilidad.
   propietario: {
@@ -104,6 +108,9 @@ export async function obtenerCliente(
       ciudad: propiedad.ciudad,
       tipo: propiedad.tipo,
       modalidad: propiedad.modalidad,
+      precio: propiedad.precio,
+      moneda: propiedad.moneda,
+      precioUnidad: propiedad.precioUnidad,
       activo: propiedad.activo,
       estadoPublicacion: propiedad.estadoPublicacion,
       contactoId: propiedad.contactoId,
@@ -146,6 +153,9 @@ export async function obtenerCliente(
           tipo: fila.tipo,
           modalidad: fila.modalidad,
           publicada: fila.activo && fila.estadoPublicacion === "publicada",
+          precio: fila.precio,
+          moneda: fila.moneda,
+          precioUnidad: fila.precioUnidad,
         },
         propietario: {
           id: fila.propietarioId,

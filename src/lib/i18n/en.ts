@@ -341,7 +341,7 @@ export const en: Textos = {
       `${tipo} ${operacion} in ${ciudad}`,
   },
   detalles: {
-    precioAConsultar: "Price on request",
+    precioAConsultar: "Price upon quote",
     porMes: " /mo",
     banos: (n: number) => `${n} ${n === 1 ? "bathroom" : "bathrooms"}`,
     estacionamientos: (n: number) => `${n} ${n === 1 ? "parking space" : "parking spaces"}`,
@@ -506,6 +506,8 @@ export const en: Textos = {
       testimonio: "Testimonial",
     },
     propiedades: {
+      precioCaptive: "Price (only Captive sees it)",
+      precioSinCapturar: "The owner didn't enter it",
       metaTitulo: "Pending properties — Captive by Nodus",
       titulo: "Pending properties",
       descripcion:
@@ -721,6 +723,8 @@ export const en: Textos = {
         "This client signed up but has not requested information on any space yet.",
       verEspacio: "View space",
       noPublicado: "No longer published",
+      precioCaptive: "Price (only Captive sees it)",
+      precioSinCapturar: "The owner didn't enter it",
       confirmarCon: "Confirm availability with",
       brokerVerificado: (codigo: string) => `Verified broker · ${codigo}`,
       referidoPor: (nombre: string) => `Client referred by broker ${nombre}`,
@@ -1105,7 +1109,7 @@ export const en: Textos = {
       placeholderDescripcion: "Included offices, zoning, access conditions, etc.",
       precioMedidas: "Price and size",
       precioMedidasAyuda:
-        "Optional, but spaces with price and square meters get more inquiries. Without a price it shows “Price on request”.",
+        "Only you and the Captive team see the price, to quote it to whoever requests information; the site shows “Price upon quote”. Square meters are public.",
       rentaMensual: "Monthly rent",
       precioVenta: "Sale price",
       precio: "Price",

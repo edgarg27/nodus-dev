@@ -4,6 +4,7 @@ import { propiedad, usuario } from "../../lib/db/schema.ts";
 import { POR_PAGINA_RED } from "../../lib/red-params.ts";
 import type { OrdenBusqueda } from "../../lib/search-params.ts";
 import { nombresDeAgencia } from "../agency/queries.ts";
+import { sinPrecioPublico } from "../properties/public.ts";
 import {
   condicionesBusquedaPublica,
   type FiltrosBusquedaPropiedad,
@@ -112,29 +113,33 @@ export async function listarPropiedadesDeLaRed(
   ]);
 
   return {
-    filas: filas.map(({ propiedad: p, esBroker }) => ({
-      id: p.id,
-      tipo: p.tipo,
-      modalidad: p.modalidad,
-      titulo: p.titulo,
-      direccion: p.direccion,
-      ciudad: p.ciudad,
-      estado: p.estado,
-      descripcion: p.descripcion,
-      precio: p.precio,
-      moneda: p.moneda,
-      precioUnidad: p.precioUnidad,
-      superficieConstruidaM2: p.superficieConstruidaM2,
-      superficieTerrenoM2: p.superficieTerrenoM2,
-      exclusiva: p.exclusiva,
-      comisionPct: p.comisionPct,
-      comisionEstimada: comisionEstimada(p),
-      fotoUrl: fotos.get(p.id)?.storageUrl ?? null,
-      propietarioId: p.propietarioId,
-      agenciaNombre: agencias.get(p.propietarioId) ?? "",
-      esBroker,
-      publicadaEn: p.revisadaEn ?? p.createdAt,
-    })),
+    filas: filas.map(({ propiedad: fila, esBroker }) => {
+      // Entre propietarios tampoco se ve el precio (ni, por lo tanto, la comisión en pesos).
+      const p = sinPrecioPublico(fila);
+      return {
+        id: p.id,
+        tipo: p.tipo,
+        modalidad: p.modalidad,
+        titulo: p.titulo,
+        direccion: p.direccion,
+        ciudad: p.ciudad,
+        estado: p.estado,
+        descripcion: p.descripcion,
+        precio: p.precio,
+        moneda: p.moneda,
+        precioUnidad: p.precioUnidad,
+        superficieConstruidaM2: p.superficieConstruidaM2,
+        superficieTerrenoM2: p.superficieTerrenoM2,
+        exclusiva: p.exclusiva,
+        comisionPct: p.comisionPct,
+        comisionEstimada: comisionEstimada(p),
+        fotoUrl: fotos.get(p.id)?.storageUrl ?? null,
+        propietarioId: p.propietarioId,
+        agenciaNombre: agencias.get(p.propietarioId) ?? "",
+        esBroker,
+        publicadaEn: p.revisadaEn ?? p.createdAt,
+      };
+    }),
     total: totalFila?.total ?? 0,
     pagina,
     porPagina: POR_PAGINA_RED,

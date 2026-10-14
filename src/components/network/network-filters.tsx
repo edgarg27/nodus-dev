@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ESTADOS_MX } from "@/lib/estados";
 import { type Idioma, textosDe } from "@/lib/i18n";
+import { PRECIO_PUBLICO } from "@/lib/precio-visibilidad";
 import type { ParamsRed } from "@/lib/red-params";
 
 const selectClase =
@@ -63,26 +64,30 @@ export function NetworkFilters({ params, idioma }: NetworkFiltersProps) {
             className={inputClase}
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs font-semibold text-muted-foreground">
-          {r.precioMin}
-          <input
-            name="precio_min"
-            type="number"
-            min={0}
-            defaultValue={filtros.precioMin ?? ""}
-            className={inputClase}
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-semibold text-muted-foreground">
-          {r.precioMax}
-          <input
-            name="precio_max"
-            type="number"
-            min={0}
-            defaultValue={filtros.precioMax ?? ""}
-            className={inputClase}
-          />
-        </label>
+        {PRECIO_PUBLICO ? (
+          <>
+            <label className="flex flex-col gap-1 text-xs font-semibold text-muted-foreground">
+              {r.precioMin}
+              <input
+                name="precio_min"
+                type="number"
+                min={0}
+                defaultValue={filtros.precioMin ?? ""}
+                className={inputClase}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs font-semibold text-muted-foreground">
+              {r.precioMax}
+              <input
+                name="precio_max"
+                type="number"
+                min={0}
+                defaultValue={filtros.precioMax ?? ""}
+                className={inputClase}
+              />
+            </label>
+          </>
+        ) : null}
         <label className="flex flex-col gap-1 text-xs font-semibold text-muted-foreground">
           {r.superficieMin}
           <input

@@ -24,6 +24,7 @@ import {
 } from "../../lib/mis-propiedades-params.ts";
 import type { FiltrosBusqueda, OrdenBusqueda } from "../../lib/search-params.ts";
 import { type MetricasDePropiedad, metricasPorPropiedad } from "../metrics/queries.ts";
+import { sinPrecioPublico } from "./public.ts";
 
 const LIMITE_MAXIMO_BUSQUEDA = 50;
 
@@ -104,7 +105,7 @@ export async function obtenerPropiedadPublicaPorId(id: string) {
         eq(propiedad.estadoPublicacion, "publicada"),
       ),
     );
-  return fila ?? null;
+  return fila ? sinPrecioPublico(fila) : null;
 }
 
 // Detalle del dueño: su propia fila en cualquier estado, con `estadoPublicacion` y
@@ -178,7 +179,7 @@ export async function buscarPropiedadesPublicas(
       .offset(desplazamiento);
     const hasMore = filas.length > limite;
     return {
-      data: hasMore ? filas.slice(0, limite) : filas,
+      data: (hasMore ? filas.slice(0, limite) : filas).map(sinPrecioPublico),
       hasMore,
       nextCursor: hasMore ? `o:${desplazamiento + limite}` : null,
     };
@@ -218,7 +219,7 @@ export async function buscarPropiedadesPublicas(
         : ultima.id
       : null;
 
-  return { data: pagina, hasMore, nextCursor };
+  return { data: pagina.map(sinPrecioPublico), hasMore, nextCursor };
 }
 
 // Los precios en MXN y en USD no se comparan entre sí: al ordenar por precio, los de MXN van
@@ -272,7 +273,7 @@ export async function listarPropiedadesPublicadasRecientes(
     .orderBy(desc(propiedad.createdAt))
     .limit(limite);
 
-  return conPrimeraFoto(filas);
+  return conPrimeraFoto(filas.map(sinPrecioPublico));
 }
 
 // Fotos de una propiedad, en el orden en que se subieron — usado por el formulario de edición.
@@ -366,7 +367,7 @@ export async function listarPropiedadesSimilares(
     )
     .orderBy(sql`${propiedad.modalidad} <> ${base.modalidad}`, desc(propiedad.createdAt))
     .limit(limite);
-  return conPrimeraFoto(filas);
+  return conPrimeraFoto(filas.map(sinPrecioPublico));
 }
 
 // Para el sitemap: cada espacio público con su última modificación.

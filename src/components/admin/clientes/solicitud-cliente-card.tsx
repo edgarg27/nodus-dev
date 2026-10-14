@@ -1,10 +1,11 @@
 import { CalendarClockIcon, ExternalLinkIcon, MessageCircleIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
+import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 import type { Textos } from "@/lib/i18n";
+import { formatearPrecio } from "@/lib/property-details";
 import type { SolicitudDeCliente } from "@/server/clientes/detalle";
 import { PasoBadge } from "./paso-badge";
 import { SeguimientoSolicitud } from "./seguimiento-solicitud";
-import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 
 interface SolicitudClienteCardProps {
   solicitud: SolicitudDeCliente;
@@ -44,6 +45,14 @@ export function SolicitudClienteCard({
           <span className="text-sm text-text-muted">
             {propiedad.titulo ? `${propiedad.direccion} · ` : ""}
             {propiedad.ciudad}
+          </span>
+          <span className="text-sm text-text">
+            {textos.precioCaptive}:{" "}
+            <strong className="font-semibold">
+              {propiedad.precio === null
+                ? textos.precioSinCapturar
+                : formatearPrecio(propiedad, propiedad.modalidad)}
+            </strong>
           </span>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1 text-xs text-text-muted">

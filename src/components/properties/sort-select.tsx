@@ -5,7 +5,7 @@ import { useIdioma } from "@/components/i18n/idioma-provider";
 import {
   busquedaAParams,
   type FiltrosBusqueda,
-  ORDENES_BUSQUEDA,
+  ORDENES_VISIBLES,
   type OrdenBusqueda,
 } from "@/lib/search-params";
 
@@ -37,7 +37,7 @@ export function SortSelect({ filtros, orden }: SortSelectProps) {
         onChange={(evento) => alCambiar(evento.target.value as OrdenBusqueda)}
         className="h-[42px] rounded-lg border border-input bg-background px-3 text-sm text-text"
       >
-        {ORDENES_BUSQUEDA.map((opcion) => (
+        {ORDENES_VISIBLES.map((opcion) => (
           <option key={opcion} value={opcion}>
             {t.orden[opcion]}
           </option>
