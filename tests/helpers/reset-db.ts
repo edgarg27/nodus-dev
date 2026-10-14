@@ -29,6 +29,8 @@
 //     y dueños), en el mismo commit que crea la tabla.
 //   - `caso_exito`: agregada con la migración 0028 (casos de éxito de la portada, administrados
 //     en /admin/casos-exito), en el mismo commit que crea la tabla.
+//   - `testimonio`: agregada con la migración 0033 (testimonio de la portada administrable), en el
+//     mismo commit que crea la tabla.
 //   - `rate_limit_hit`: no existe hasta el paso 36 (hardening); el paso 36 EDITA este archivo otra
 //     vez para agregarla, en el mismo commit que agrega la tabla.
 // Nunca antes — mismo patrón de "staging" que `tsconfig.tests.json`/`tsconfig.scripts.json`.
@@ -42,6 +44,6 @@ export async function resetTestDatabase(): Promise<void> {
   assertSafeToResetTests(process.env);
   const { db } = await import("../../src/lib/db/client.ts");
   await db.execute(
-    sql`truncate table caso_exito, verificacion_documento, mensaje_captive, chat_captive, seguimiento_nota, mensaje, conversacion, propiedad_metrica_diaria, agencia_contacto, agencia_perfil, favorito, busqueda_guardada, rate_limit_hit, broker_atribucion_historica, broker_revocacion, broker_solicitud, contact_request, propiedad_foto, propiedad, usuario restart identity cascade;`,
+    sql`truncate table testimonio, caso_exito, verificacion_documento, mensaje_captive, chat_captive, seguimiento_nota, mensaje, conversacion, propiedad_metrica_diaria, agencia_contacto, agencia_perfil, favorito, busqueda_guardada, rate_limit_hit, broker_atribucion_historica, broker_revocacion, broker_solicitud, contact_request, propiedad_foto, propiedad, usuario restart identity cascade;`,
   );
 }

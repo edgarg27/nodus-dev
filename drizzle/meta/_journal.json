@@ -232,6 +232,20 @@
       "when": 1791824662304,
       "tag": "0032_conscious_famine",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1791924720626,
+      "tag": "0033_testimonio",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1791924722052,
+      "tag": "0034_testimonio_lockdown",
+      "breakpoints": true
     }
   ]
 }

@@ -4,6 +4,7 @@ import {
   AwardIcon,
   HouseIcon,
   MessageCircleIcon,
+  QuoteIcon,
   ShieldCheckIcon,
   UserRoundSearchIcon,
   UsersIcon,
@@ -60,6 +61,11 @@ const ITEMS = [
     icon: AwardIcon,
     key: "casos" as const,
   },
+  {
+    href: "/admin/testimonio",
+    icon: QuoteIcon,
+    key: "testimonio" as const,
+  },
 ];
 
 export function AdminSidebarNav({
@@ -79,8 +85,9 @@ export function AdminSidebarNav({
     duenos: ownersCount,
     clientes: pendingClientsCount,
     mensajes: unreadChatsCount,
-    // Sin contador: no hay nada "pendiente" que atender en los casos de éxito.
+    // Sin contador: no hay nada "pendiente" que atender en los casos de éxito ni en el testimonio.
     casos: 0,
+    testimonio: 0,
   };
 
   return (
@@ -106,7 +113,7 @@ export function AdminSidebarNav({
           >
             <Icon className="size-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
             <span className="grow">{t.admin.nav[item.key]}</span>
-            {item.key === "casos" ? null : (
+            {item.key === "casos" || item.key === "testimonio" ? null : (
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${
                   isActive

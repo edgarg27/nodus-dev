@@ -179,10 +179,6 @@ export const es = {
       },
     ],
   },
-  testimonio: {
-    cita: "Publicamos nuestra nave en menos de diez minutos y en la primera semana ya teníamos tres empresas interesadas contactándonos directamente.",
-    cargo: "Directora de operaciones, Grupo Cordero Logística",
-  },
   bannerAyuda: {
     titulo: "¿No encontraste lo que buscabas?",
     texto:
@@ -515,6 +511,7 @@ export const es = {
       clientes: "Clientes y prospectos",
       mensajes: "Mensajes",
       casos: "Casos de éxito",
+      testimonio: "Testimonio",
     },
     propiedades: {
       metaTitulo: "Propiedades pendientes — Captive by Nodus",
@@ -589,6 +586,26 @@ export const es = {
       cerrar: "Cerrar",
       yaNoEsBroker: "Este usuario ya no es broker.",
       revocado: "Acceso de broker revocado.",
+    },
+    testimonio: {
+      metaTitulo: "Testimonio — Captive by Nodus",
+      titulo: "Testimonio",
+      descripcion:
+        "La frase de un cliente que se muestra en grande en la portada, antes del cierre. Hay un solo testimonio; mientras no guardes uno, o si apagas «Mostrar en la portada», esa sección no aparece.",
+      cita: "Frase del cliente",
+      citaEjemplo: "Encontramos la nave que necesitábamos en dos semanas…",
+      nombre: "Nombre",
+      cargo: "Cargo y empresa",
+      cargoEjemplo: "Director de operaciones, Empresa",
+      versionIngles: "Versión en inglés (opcional)",
+      ayudaIngles: "Si la dejas vacía, el sitio en inglés muestra el texto en español.",
+      mostrar: "Mostrar en la portada",
+      ayudaMostrar: "Apagado, el testimonio queda guardado pero la portada no muestra la sección.",
+      guardar: "Guardar testimonio",
+      guardando: "Guardando…",
+      guardadoVisible: "Testimonio guardado: ya se muestra en la portada.",
+      guardadoOculto: "Testimonio guardado, fuera de la portada.",
+      errorGuardar: "No se pudo guardar el testimonio",
     },
     casos: {
       metaTitulo: "Casos de éxito — Captive by Nodus",

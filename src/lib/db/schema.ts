@@ -590,6 +590,33 @@ export const mensaje = pgTable(
 
 // Casos de éxito de la portada, capturados por el admin. El español es obligatorio; el inglés es
 // opcional. Un caso sale en la portada si tiene `posicion` (1 a 3); sin ella queda guardado.
+// Testimonio de la portada (src/lib/testimonio.ts). Hay uno solo: la aplicación siempre actualiza
+// la misma fila. Cambia con el tiempo pero no lleva `updated_at`: nada lo consulta.
+export const testimonio = pgTable(
+  "testimonio",
+  {
+    id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+    cita: text("cita").notNull(),
+    nombre: text("nombre").notNull(),
+    cargo: text("cargo").notNull(),
+    citaEn: text("cita_en"),
+    cargoEn: text("cargo_en"),
+    // Apagado, queda guardado pero la portada no muestra la sección.
+    visible: boolean("visible").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    check(
+      "chk_testimonio_textos",
+      sql`length(btrim(${t.cita})) between 1 and 400 and length(btrim(${t.nombre})) between 1 and 80 and length(btrim(${t.cargo})) between 1 and 120`,
+    ),
+    check(
+      "chk_testimonio_textos_en",
+      sql`length(coalesce(${t.citaEn}, '')) <= 400 and length(coalesce(${t.cargoEn}, '')) <= 120`,
+    ),
+  ],
+);
+
 export const casoExito = pgTable(
   "caso_exito",
   {
