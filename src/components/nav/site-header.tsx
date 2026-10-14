@@ -14,9 +14,9 @@ import { createClient } from "@/lib/supabase/client";
 
 export interface SiteHeaderActor {
   nombre: string;
-  rol: "buscador" | "oferente" | "admin";
+  rol: "buscador" | "propietario" | "admin";
   isBroker: boolean;
-  // Mensajes sin leer del chat de la Red (solo oferentes).
+  // Mensajes sin leer del chat de la Red (solo propietarios).
   mensajesNoLeidos?: number;
   // Solo los del chat con el equipo de Captive.
   mensajesCaptiveNoLeidos?: number;

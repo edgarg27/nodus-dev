@@ -13,13 +13,13 @@ beforeAll(() => {
 });
 
 describe("scripts/seed.ts", () => {
-  it("inserta 2 oferentes, 1 buscador, ningún admin y 3 propiedades publicadas", async () => {
+  it("inserta 2 propietarios, 1 buscador, ningún admin y 3 propiedades publicadas", async () => {
     const porRol = (await db.execute(
       sql`select rol, count(*) from usuario group by rol`,
     )) as unknown as { rol: string; count: string }[];
     const conteos = Object.fromEntries(porRol.map((f) => [f.rol, Number(f.count)]));
 
-    expect(conteos.oferente).toBe(2);
+    expect(conteos.propietario).toBe(2);
     expect(conteos.buscador).toBe(1);
     expect(conteos.admin).toBeUndefined();
 

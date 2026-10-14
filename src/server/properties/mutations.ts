@@ -22,7 +22,7 @@ export interface CrearPropiedadInput extends DetallesPropiedadInput {
   ciudad: string;
   descripcion: string;
   aceptaFinanciamiento?: boolean;
-  // Identificación y Red inmobiliaria (panel del oferente). Nulo borra el valor.
+  // Identificación y Red inmobiliaria (panel del propietario). Nulo borra el valor.
   referencia?: string | null;
   titulo?: string | null;
   contactoId?: string | null;
@@ -48,7 +48,7 @@ function detallesParaGuardar(input: DetallesPropiedadInput, tipoFinal: string) {
   return valores as Partial<Pick<PropiedadFila, (typeof CAMPOS_DETALLE)[number]>>;
 }
 
-// Campos propios del oferente que no pasan por la revisión del admin (salvo `titulo`, que es texto
+// Campos propios del propietario que no pasan por la revisión del admin (salvo `titulo`, que es texto
 // público y sí la reinicia).
 const CAMPOS_PROPIOS = [
   "referencia",
@@ -67,12 +67,15 @@ function camposPropiosParaGuardar(input: Partial<CrearPropiedadInput>) {
   return valores;
 }
 
-// El contacto elegido tiene que ser del propio oferente: un id ajeno se rechaza.
-async function contactoEsDelOferente(oferenteId: string, contactoId: string): Promise<boolean> {
+// El contacto elegido tiene que ser del propio propietario: un id ajeno se rechaza.
+async function contactoEsDelPropietario(
+  propietarioId: string,
+  contactoId: string,
+): Promise<boolean> {
   const [fila] = await db
     .select({ id: agenciaContacto.id })
     .from(agenciaContacto)
-    .where(and(eq(agenciaContacto.id, contactoId), eq(agenciaContacto.usuarioId, oferenteId)));
+    .where(and(eq(agenciaContacto.id, contactoId), eq(agenciaContacto.usuarioId, propietarioId)));
   return fila !== undefined;
 }
 
@@ -95,7 +98,7 @@ export type ResultadoPropiedad =
 function errorForbidden(): ResultadoPropiedad {
   return {
     ok: false,
-    error: { code: "forbidden", status: 403, message: "Se requiere el rol oferente" },
+    error: { code: "forbidden", status: 403, message: "Se requiere el rol propietario" },
   };
 }
 
@@ -148,12 +151,12 @@ export async function crearPropiedad(
   actor: ActorAutenticado | null,
   input: CrearPropiedadInput,
 ): Promise<ResultadoPropiedad> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) return errorForbidden();
   // Quien todavía no pasa la aprobación de Captive (o fue denegado) no publica.
   if (!(await puedePublicar(actor.id))) return errorSinVerificar();
 
-  if (input.contactoId && !(await contactoEsDelOferente(actor.id, input.contactoId))) {
+  if (input.contactoId && !(await contactoEsDelPropietario(actor.id, input.contactoId))) {
     return errorContactoInvalido();
   }
 
@@ -165,7 +168,7 @@ export async function crearPropiedad(
     const [fila] = await db
       .insert(propiedad)
       .values({
-        oferenteId: actor.id,
+        propietarioId: actor.id,
         tipo: input.tipo,
         modalidad: input.modalidad,
         direccion: input.direccion,
@@ -198,13 +201,13 @@ export async function editarPropiedad(
   id: string,
   parche: EditarPropiedadInput,
 ): Promise<ResultadoPropiedad> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) return errorForbidden();
 
   const [existente] = await db.select().from(propiedad).where(eq(propiedad.id, id));
-  if (!existente || existente.oferenteId !== actor.id) return errorNotFound();
+  if (!existente || existente.propietarioId !== actor.id) return errorNotFound();
 
-  if (parche.contactoId && !(await contactoEsDelOferente(actor.id, parche.contactoId))) {
+  if (parche.contactoId && !(await contactoEsDelPropietario(actor.id, parche.contactoId))) {
     return errorContactoInvalido();
   }
 
@@ -287,11 +290,11 @@ export async function darDeBajaPropiedad(
   actor: ActorAutenticado | null,
   id: string,
 ): Promise<ResultadoPropiedad> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) return errorForbidden();
 
   const [existente] = await db.select().from(propiedad).where(eq(propiedad.id, id));
-  if (!existente || existente.oferenteId !== actor.id) return errorNotFound();
+  if (!existente || existente.propietarioId !== actor.id) return errorNotFound();
 
   const [fila] = await db
     .update(propiedad)

@@ -18,7 +18,7 @@ export function AgencyAvatar({ nombre, logoUrl, className }: AgencyAvatarProps) 
       )}
     >
       {logoUrl ? (
-        // biome-ignore lint/performance/noImgElement: logo subido por el oferente
+        // biome-ignore lint/performance/noImgElement: logo subido por el propietario
         <img src={logoUrl} alt="" className="h-full w-full bg-white object-contain" />
       ) : (
         iniciales(nombre) || "?"

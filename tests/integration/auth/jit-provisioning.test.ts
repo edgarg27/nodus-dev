@@ -54,7 +54,7 @@ describe("getUsuarioActual — aprovisionamiento just-in-time", () => {
     expect(actor?.nombre).toBe(cuenta.email.split("@")[0]);
   });
 
-  it("un rol distinto de oferente en la metadata (admin, desconocido) aprovisiona buscador", async () => {
+  it("un rol distinto de propietario en la metadata (admin, desconocido) aprovisiona buscador", async () => {
     const admin = await crearUsuarioAuth({ rol: "admin" });
     const clienteAdmin = await clienteConSesion(admin);
     usarCliente(clienteAdmin);
@@ -67,11 +67,11 @@ describe("getUsuarioActual — aprovisionamiento just-in-time", () => {
     const actorRoot = await getUsuarioActual();
     expect(actorRoot?.rol).toBe("buscador");
 
-    const oferente = await crearUsuarioAuth({ rol: "oferente" });
-    const clienteOferente = await clienteConSesion(oferente);
-    usarCliente(clienteOferente);
-    const actorOferente = await getUsuarioActual();
-    expect(actorOferente?.rol).toBe("oferente");
+    const propietario = await crearUsuarioAuth({ rol: "propietario" });
+    const clientePropietario = await clienteConSesion(propietario);
+    usarCliente(clientePropietario);
+    const actorPropietario = await getUsuarioActual();
+    expect(actorPropietario?.rol).toBe("propietario");
   });
 
   it("ref válido copia referral_broker_id; ref inexistente o de un no-broker deja null", async () => {
@@ -79,7 +79,7 @@ describe("getUsuarioActual — aprovisionamiento just-in-time", () => {
       id: randomUUID(),
       email: `nodus-test+${randomUUID()}@example.com`,
       nombre: "Broker sembrado",
-      rol: "oferente",
+      rol: "propietario",
       isBroker: true,
       brokerCode: "BRK-JITTST",
     };
@@ -87,7 +87,7 @@ describe("getUsuarioActual — aprovisionamiento just-in-time", () => {
       id: randomUUID(),
       email: `nodus-test+${randomUUID()}@example.com`,
       nombre: "No broker",
-      rol: "oferente",
+      rol: "propietario",
     };
     await db.insert(usuario).values([broker, noBroker]);
 
@@ -107,10 +107,10 @@ describe("getUsuarioActual — aprovisionamiento just-in-time", () => {
     expect(actorNoBroker?.referralBrokerId).toBeNull();
   });
 
-  it("todo oferente nuevo queda como solicitud pendiente: de broker o de dueño", async () => {
+  it("todo propietario nuevo queda como solicitud pendiente: de broker o de dueño", async () => {
     const datos = { telefono: "444 123 4567" };
     const broker = await crearUsuarioAuth({
-      rol: "oferente",
+      rol: "propietario",
       extra: { ...datos, tipo_anunciante: "inmobiliaria", empresa: "Ontigón" },
     });
     usarCliente(await clienteConSesion(broker));
@@ -127,7 +127,7 @@ describe("getUsuarioActual — aprovisionamiento just-in-time", () => {
     ]);
 
     const dueno = await crearUsuarioAuth({
-      rol: "oferente",
+      rol: "propietario",
       extra: { ...datos, tipo_anunciante: "particular" },
     });
     usarCliente(await clienteConSesion(dueno));

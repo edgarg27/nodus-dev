@@ -21,7 +21,7 @@ const { POST: DENY } = await import(
 
 type ActorFixture = Awaited<ReturnType<typeof getUsuarioActual>>;
 
-function actorFixture(rol: "buscador" | "oferente" | "admin"): NonNullable<ActorFixture> {
+function actorFixture(rol: "buscador" | "propietario" | "admin"): NonNullable<ActorFixture> {
   return {
     id: randomUUID(),
     email: `nodus-test+${randomUUID()}@example.com`,
@@ -87,13 +87,13 @@ describe("autorización de /api/v1/admin/broker-requests", () => {
     expect((await DENY(reqDeny, paramsDeny)).status).toBe(401);
   });
 
-  it("buscador y oferente reciben 404 en las 3 rutas, sin cambiar la solicitud", async () => {
+  it("buscador y propietario reciben 404 en las 3 rutas, sin cambiar la solicitud", async () => {
     await resetTestDatabase();
-    const oferenteDueno = actorFixture("oferente");
-    await insertarUsuario(oferenteDueno);
-    const solicitud = await crearSolicitudPendiente(oferenteDueno.id);
+    const propietarioDueno = actorFixture("propietario");
+    await insertarUsuario(propietarioDueno);
+    const solicitud = await crearSolicitudPendiente(propietarioDueno.id);
 
-    for (const rol of ["buscador", "oferente"] as const) {
+    for (const rol of ["buscador", "propietario"] as const) {
       const actor = actorFixture(rol);
       await insertarUsuario(actor);
       actuarComo(actor);
@@ -118,17 +118,17 @@ describe("GET /api/v1/admin/broker-requests", () => {
     await resetTestDatabase();
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
-    const oferenteUno = actorFixture("oferente");
-    const oferenteDos = actorFixture("oferente");
-    const oferenteTres = actorFixture("oferente");
-    await insertarUsuario(oferenteUno);
-    await insertarUsuario(oferenteDos);
-    await insertarUsuario(oferenteTres);
+    const propietarioUno = actorFixture("propietario");
+    const propietarioDos = actorFixture("propietario");
+    const propietarioTres = actorFixture("propietario");
+    await insertarUsuario(propietarioUno);
+    await insertarUsuario(propietarioDos);
+    await insertarUsuario(propietarioTres);
 
-    const vieja = await crearSolicitudPendiente(oferenteUno.id);
+    const vieja = await crearSolicitudPendiente(propietarioUno.id);
     await new Promise((resolve) => setTimeout(resolve, 20));
-    const nueva = await crearSolicitudPendiente(oferenteDos.id);
-    await crearSolicitudPendiente(oferenteTres.id, {
+    const nueva = await crearSolicitudPendiente(propietarioDos.id);
+    await crearSolicitudPendiente(propietarioTres.id, {
       estado: "aprobada",
       resueltaPor: admin.id,
       resueltaEn: new Date(),
@@ -141,7 +141,10 @@ describe("GET /api/v1/admin/broker-requests", () => {
     expect(cuerpo.data).toHaveLength(2);
     expect(cuerpo.data[0].id).toBe(vieja.id);
     expect(cuerpo.data[1].id).toBe(nueva.id);
-    expect(cuerpo.data[0].usuario).toMatchObject({ id: oferenteUno.id, email: oferenteUno.email });
+    expect(cuerpo.data[0].usuario).toMatchObject({
+      id: propietarioUno.id,
+      email: propietarioUno.email,
+    });
   });
 });
 
@@ -150,16 +153,16 @@ describe("aprobar y denegar", () => {
     await resetTestDatabase();
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
-    const oferenteAprobar = actorFixture("oferente");
-    const oferenteDenegarConMotivo = actorFixture("oferente");
-    const oferenteDenegarSinMotivo = actorFixture("oferente");
-    await insertarUsuario(oferenteAprobar);
-    await insertarUsuario(oferenteDenegarConMotivo);
-    await insertarUsuario(oferenteDenegarSinMotivo);
+    const propietarioAprobar = actorFixture("propietario");
+    const propietarioDenegarConMotivo = actorFixture("propietario");
+    const propietarioDenegarSinMotivo = actorFixture("propietario");
+    await insertarUsuario(propietarioAprobar);
+    await insertarUsuario(propietarioDenegarConMotivo);
+    await insertarUsuario(propietarioDenegarSinMotivo);
 
-    const solicitudAprobar = await crearSolicitudPendiente(oferenteAprobar.id);
-    const solicitudDenegarConMotivo = await crearSolicitudPendiente(oferenteDenegarConMotivo.id);
-    const solicitudDenegarSinMotivo = await crearSolicitudPendiente(oferenteDenegarSinMotivo.id);
+    const solicitudAprobar = await crearSolicitudPendiente(propietarioAprobar.id);
+    const solicitudDenegarConMotivo = await crearSolicitudPendiente(propietarioDenegarConMotivo.id);
+    const solicitudDenegarSinMotivo = await crearSolicitudPendiente(propietarioDenegarSinMotivo.id);
 
     actuarComo(admin);
     const { request: reqApprove, params: paramsApprove } = requestApprove(solicitudAprobar.id);
@@ -170,7 +173,7 @@ describe("aprobar y denegar", () => {
     const [filaAprobado] = await db
       .select()
       .from(usuario)
-      .where(eq(usuario.id, oferenteAprobar.id));
+      .where(eq(usuario.id, propietarioAprobar.id));
     expect(filaAprobado?.isBroker).toBe(true);
 
     const { request: reqDenyConMotivo, params: paramsDenyConMotivo } = requestDeny(
@@ -203,9 +206,9 @@ describe("409 y 404 de re-resolución e id inválido", () => {
     await resetTestDatabase();
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    const solicitud = await crearSolicitudPendiente(oferente.id);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    const solicitud = await crearSolicitudPendiente(propietario.id);
     actuarComo(admin);
 
     const primera = requestApprove(solicitud.id);
@@ -230,9 +233,9 @@ describe("validación del motivo al denegar", () => {
     await resetTestDatabase();
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    const solicitud = await crearSolicitudPendiente(oferente.id);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    const solicitud = await crearSolicitudPendiente(propietario.id);
     actuarComo(admin);
 
     const { request, params } = requestDeny(solicitud.id, { motivo: "a".repeat(501) });

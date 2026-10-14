@@ -7,13 +7,13 @@ import { PeriodSelector } from "@/components/panel/period-selector";
 import { ViewsChart } from "@/components/panel/views-chart";
 import { VerificationNotice } from "@/components/verificacion/verification-notice";
 import { localeDe } from "@/lib/i18n";
-import { BANDEJA_VISIBLE_PARA_OFERENTE } from "@/lib/oferente-visibilidad";
+import { BANDEJA_VISIBLE_PARA_PROPIETARIO } from "@/lib/propietario-visibilidad";
 import { periodoValido } from "@/lib/periodos";
 import { obtenerPerfilAgencia } from "@/server/agency/queries";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
 import { obtenerTextos } from "@/server/i18n";
-import { metricasDelOferente } from "@/server/metrics/queries";
+import { metricasDelPropietario } from "@/server/metrics/queries";
 import { estadisticasDeLaRed } from "@/server/network/queries";
 import { obtenerVerificacion } from "@/server/verificacion/estado";
 
@@ -23,7 +23,7 @@ interface PanelPageProps {
 
 export default async function PanelPage({ searchParams }: PanelPageProps) {
   const actor = await getUsuarioActual();
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) notFound();
 
   const { idioma, t } = await obtenerTextos();
@@ -34,7 +34,7 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
 
   const [perfil, metricas, red, verificacion] = await Promise.all([
     obtenerPerfilAgencia(actor.id),
-    metricasDelOferente(actor.id, dias),
+    metricasDelPropietario(actor.id, dias),
     estadisticasDeLaRed(),
     obtenerVerificacion(actor.id),
   ]);
@@ -93,7 +93,7 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
             <KpiCard valor={numero(totales.visitas)} etiqueta={i.kpiVisitas} />
             <KpiCard
               valor={numero(totales.solicitudes)}
-              href={BANDEJA_VISIBLE_PARA_OFERENTE ? "/leads" : undefined}
+              href={BANDEJA_VISIBLE_PARA_PROPIETARIO ? "/leads" : undefined}
               etiqueta={
                 <>
                   {i.kpiSolicitudesDe}{" "}

@@ -7,24 +7,24 @@ import { propiedad, usuario } from "../../lib/db/schema.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
 import { crearPropiedad, editarPropiedad } from "./mutations.ts";
 
-function actorOferente(id: string): ActorAutenticado {
+function actorPropietario(id: string): ActorAutenticado {
   return {
     id,
     email: `nodus-test+${id}@example.com`,
-    nombre: "Oferente de prueba",
-    rol: "oferente",
+    nombre: "Propietario de prueba",
+    rol: "propietario",
     isBroker: false,
     brokerCode: null,
     referralBrokerId: null,
   };
 }
 
-async function crearFilaOferente(): Promise<ActorAutenticado> {
+async function crearFilaPropietario(): Promise<ActorAutenticado> {
   const id = randomUUID();
-  const actor = actorOferente(id);
+  const actor = actorPropietario(id);
   await db
     .insert(usuario)
-    .values({ id, email: actor.email, nombre: actor.nombre, rol: "oferente" });
+    .values({ id, email: actor.email, nombre: actor.nombre, rol: "propietario" });
   return actor;
 }
 
@@ -45,7 +45,7 @@ function inputBase(overrides: Record<string, unknown> = {}) {
 describe("crearPropiedad / aceptaFinanciamiento", () => {
   it("sin aceptaFinanciamiento inserta la fila con acepta_financiamiento = false", async () => {
     await resetTestDatabase();
-    const actor = await crearFilaOferente();
+    const actor = await crearFilaPropietario();
 
     const resultado = await crearPropiedad(actor, inputBase());
     expect(resultado.ok).toBe(true);
@@ -55,7 +55,7 @@ describe("crearPropiedad / aceptaFinanciamiento", () => {
 
   it("con aceptaFinanciamiento: true inserta la fila con acepta_financiamiento = true", async () => {
     await resetTestDatabase();
-    const actor = await crearFilaOferente();
+    const actor = await crearFilaPropietario();
 
     const resultado = await crearPropiedad(actor, inputBase({ aceptaFinanciamiento: true }));
     expect(resultado.ok).toBe(true);
@@ -67,13 +67,13 @@ describe("crearPropiedad / aceptaFinanciamiento", () => {
 describe("editarPropiedad / aceptaFinanciamiento", () => {
   it("cambiar solo aceptaFinanciamiento actualiza la columna sin devolver una publicada a pendiente", async () => {
     await resetTestDatabase();
-    const actor = await crearFilaOferente();
+    const actor = await crearFilaPropietario();
 
     const [publicada] = await db
       .insert(propiedad)
       .values({
         ...inputBase(),
-        oferenteId: actor.id,
+        propietarioId: actor.id,
         direccionNormalizada: `financiamiento ${randomUUID()}`,
         estadoPublicacion: "publicada",
       })

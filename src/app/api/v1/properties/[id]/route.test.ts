@@ -15,23 +15,28 @@ const { PATCH } = await import("./route.ts");
 
 async function prepararPropiedad(overrides: Record<string, unknown> = {}) {
   await resetTestDatabase();
-  const oferente = {
+  const propietario = {
     id: randomUUID(),
     email: `nodus-test+${randomUUID()}@example.com`,
-    nombre: "Oferente de prueba",
-    rol: "oferente" as const,
+    nombre: "Propietario de prueba",
+    rol: "propietario" as const,
     isBroker: false,
     brokerCode: null,
     referralBrokerId: null,
   };
   await db
     .insert(usuario)
-    .values({ id: oferente.id, email: oferente.email, nombre: oferente.nombre, rol: "oferente" });
-  vi.mocked(getUsuarioActual).mockResolvedValue(oferente);
+    .values({
+      id: propietario.id,
+      email: propietario.email,
+      nombre: propietario.nombre,
+      rol: "propietario",
+    });
+  vi.mocked(getUsuarioActual).mockResolvedValue(propietario);
   const [fila] = await db
     .insert(propiedad)
     .values({
-      oferenteId: oferente.id,
+      propietarioId: propietario.id,
       tipo: "nave_industrial",
       modalidad: "renta",
       direccion: `Av. Edición ${randomUUID()}`,
@@ -42,7 +47,7 @@ async function prepararPropiedad(overrides: Record<string, unknown> = {}) {
       ciudad: "San Luis Potosí",
       descripcion: "Nave de prueba",
       estadoPublicacion: "publicada",
-      revisadaPor: oferente.id,
+      revisadaPor: propietario.id,
       revisadaEn: new Date(),
       ...overrides,
     })

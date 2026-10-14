@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { datosOferenteDeMetadata } from "../../src/lib/auth/datos-oferente.ts";
+import { datosPropietarioDeMetadata } from "../../src/lib/auth/datos-propietario.ts";
 import {
   buildSignUpArgs,
   contrasenaProvisional,
@@ -13,9 +13,9 @@ const base = {
   aceptaTerminos: true,
 };
 
-const oferente = {
+const propietario = {
   ...base,
-  rol: "oferente",
+  rol: "propietario",
   telefono: "+52 444 123 4567",
   tipoAnunciante: "particular",
 };
@@ -32,11 +32,11 @@ describe("validarSignUp", () => {
     if (!resultadoEspacios.ok) expect(resultadoEspacios.error.status).toBe(422);
   });
 
-  it("rol admin o root → 422; buscador/oferente pasan", () => {
+  it("rol admin o root → 422; buscador/propietario pasan", () => {
     expect(validarSignUp({ ...base, rol: "admin" }).ok).toBe(false);
     expect(validarSignUp({ ...base, rol: "root" }).ok).toBe(false);
     expect(validarSignUp({ ...base, rol: "buscador" }).ok).toBe(true);
-    expect(validarSignUp(oferente).ok).toBe(true);
+    expect(validarSignUp(propietario).ok).toBe(true);
   });
 
   it("no pide contraseña: el registro pasa sin ella", () => {
@@ -49,28 +49,28 @@ describe("validarSignUp", () => {
     expect(validarSignUp({ ...base, aceptaTerminos: false }).ok).toBe(false);
   });
 
-  it("un oferente debe dar teléfono válido y cómo publica", () => {
-    const sinTelefono = validarSignUp({ ...oferente, telefono: "" });
+  it("un propietario debe dar teléfono válido y cómo publica", () => {
+    const sinTelefono = validarSignUp({ ...propietario, telefono: "" });
     expect(sinTelefono.ok).toBe(false);
     if (!sinTelefono.ok) {
       expect(sinTelefono.error.details.map((d) => d.field)).toContain("telefono");
     }
-    expect(validarSignUp({ ...oferente, telefono: "12345" }).ok).toBe(false);
-    expect(validarSignUp({ ...oferente, telefono: "44a123b4567" }).ok).toBe(false);
-    expect(validarSignUp({ ...oferente, tipoAnunciante: undefined }).ok).toBe(false);
-    expect(validarSignUp({ ...oferente, tipoAnunciante: "admin" }).ok).toBe(false);
+    expect(validarSignUp({ ...propietario, telefono: "12345" }).ok).toBe(false);
+    expect(validarSignUp({ ...propietario, telefono: "44a123b4567" }).ok).toBe(false);
+    expect(validarSignUp({ ...propietario, tipoAnunciante: undefined }).ok).toBe(false);
+    expect(validarSignUp({ ...propietario, tipoAnunciante: "admin" }).ok).toBe(false);
   });
 
   it("una inmobiliaria debe dar el nombre de la empresa", () => {
-    const sinEmpresa = validarSignUp({ ...oferente, tipoAnunciante: "inmobiliaria" });
+    const sinEmpresa = validarSignUp({ ...propietario, tipoAnunciante: "inmobiliaria" });
     expect(sinEmpresa.ok).toBe(false);
     if (!sinEmpresa.ok) expect(sinEmpresa.error.details.map((d) => d.field)).toContain("empresa");
     expect(
-      validarSignUp({ ...oferente, tipoAnunciante: "inmobiliaria", empresa: "Ontigón" }).ok,
+      validarSignUp({ ...propietario, tipoAnunciante: "inmobiliaria", empresa: "Ontigón" }).ok,
     ).toBe(true);
   });
 
-  it("un buscador no necesita datos de oferente", () => {
+  it("un buscador no necesita datos de propietario", () => {
     expect(validarSignUp({ ...base, telefono: "" }).ok).toBe(true);
   });
 });
@@ -100,9 +100,9 @@ describe("buildSignUpArgs", () => {
     expect("ref" in args.options.data).toBe(false);
   });
 
-  it("un oferente manda teléfono, tipo y empresa en la metadata", () => {
+  it("un propietario manda teléfono, tipo y empresa en la metadata", () => {
     const validado = validarSignUp({
-      ...oferente,
+      ...propietario,
       tipoAnunciante: "inmobiliaria",
       empresa: " Ontigón ",
     });
@@ -111,12 +111,12 @@ describe("buildSignUpArgs", () => {
     const args = buildSignUpArgs(validado.data, undefined, "http://localhost:3000");
 
     expect(args.options.data).toMatchObject({
-      rol: "oferente",
+      rol: "propietario",
       telefono: "+52 444 123 4567",
       tipo_anunciante: "inmobiliaria",
       empresa: "Ontigón",
     });
-    expect(datosOferenteDeMetadata(args.options.data)).toEqual({
+    expect(datosPropietarioDeMetadata(args.options.data)).toEqual({
       telefono: "+52 444 123 4567",
       tipoAnunciante: "inmobiliaria",
       empresa: "Ontigón",
@@ -137,12 +137,12 @@ describe("buildSignUpArgs", () => {
   });
 });
 
-describe("datosOferenteDeMetadata", () => {
+describe("datosPropietarioDeMetadata", () => {
   it("ignora metadata inválida (la fija el cliente)", () => {
-    expect(datosOferenteDeMetadata({ telefono: "x", tipo_anunciante: "particular" })).toBeNull();
+    expect(datosPropietarioDeMetadata({ telefono: "x", tipo_anunciante: "particular" })).toBeNull();
     expect(
-      datosOferenteDeMetadata({ telefono: "4441234567", tipo_anunciante: "admin" }),
+      datosPropietarioDeMetadata({ telefono: "4441234567", tipo_anunciante: "admin" }),
     ).toBeNull();
-    expect(datosOferenteDeMetadata({})).toBeNull();
+    expect(datosPropietarioDeMetadata({})).toBeNull();
   });
 });

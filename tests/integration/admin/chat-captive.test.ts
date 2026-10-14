@@ -24,7 +24,7 @@ const { POST: POST_ADMIN } = await import(
 
 type ActorFixture = NonNullable<Awaited<ReturnType<typeof getUsuarioActual>>>;
 
-async function crearUsuario(rol: "buscador" | "oferente" | "admin"): Promise<ActorFixture> {
+async function crearUsuario(rol: "buscador" | "propietario" | "admin"): Promise<ActorFixture> {
   const actor: ActorFixture = {
     id: randomUUID(),
     email: `nodus-test+${randomUUID()}@example.com`,
@@ -97,7 +97,7 @@ describe("Chat del cliente con Captive", () => {
   it("un admin no usa el chat de cliente; otro rol no escribe como Captive", async () => {
     await resetTestDatabase();
     const admin = await crearUsuario("admin");
-    const oferente = await crearUsuario("oferente");
+    const propietario = await crearUsuario("propietario");
     const cliente = await crearUsuario("buscador");
 
     vi.mocked(getUsuarioActual).mockResolvedValue(admin);
@@ -105,7 +105,7 @@ describe("Chat del cliente con Captive", () => {
       403,
     );
 
-    vi.mocked(getUsuarioActual).mockResolvedValue(oferente);
+    vi.mocked(getUsuarioActual).mockResolvedValue(propietario);
     const ajeno = await POST_ADMIN(
       peticion(`/api/v1/admin/clientes/${cliente.id}/mensajes`, { texto: "Hola" }),
       { params: Promise.resolve({ id: cliente.id }) },

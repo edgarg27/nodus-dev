@@ -10,7 +10,7 @@ const TIPOS_PERMITIDOS = new Set(["email", "signup", "recovery"]);
 const CREAR_CONTRASENA = "/crear-contrasena";
 
 function destinoPorRol(rol: string | undefined): string {
-  if (rol === "oferente") return "/panel";
+  if (rol === "propietario") return "/panel";
   if (rol === "admin") return "/admin/propiedades";
   return "/buscar";
 }

@@ -4,12 +4,12 @@ import { getUsuarioActual } from "../../../../../server/auth/session.ts";
 import { respuestaError, sinSesion } from "../../../../../server/http/envelope.ts";
 import { estadisticasDeLaRed } from "../../../../../server/network/queries.ts";
 
-// Números del banner de la Red. Solo lectura, solo oferentes.
+// Números del banner de la Red. Solo lectura, solo propietarios.
 export async function GET() {
   const actor = await getUsuarioActual();
   if (!actor) return sinSesion();
-  if (!requireRol(actor, "oferente").ok) {
-    return respuestaError(403, "forbidden", "Se requiere el rol oferente");
+  if (!requireRol(actor, "propietario").ok) {
+    return respuestaError(403, "forbidden", "Se requiere el rol propietario");
   }
   return NextResponse.json({ data: await estadisticasDeLaRed() });
 }

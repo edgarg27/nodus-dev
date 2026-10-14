@@ -14,7 +14,8 @@ interface ConversacionPageProps {
 export default async function ConversacionPage({ params }: ConversacionPageProps) {
   const { id } = await params;
   const actor = await getUsuarioActual();
-  if (!actor || (actor.rol !== "oferente" && actor.rol !== "buscador") || !esUuid(id)) notFound();
+  if (!actor || (actor.rol !== "propietario" && actor.rol !== "buscador") || !esUuid(id))
+    notFound();
 
   // Abrirla marca como leídos los mensajes del otro participante.
   const resultado = await obtenerConversacion(actor, id);
@@ -36,7 +37,7 @@ export default async function ConversacionPage({ params }: ConversacionPageProps
         <header className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm">
           <div className="h-12 w-16 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-primary/80 to-primary">
             {conversacion.propiedad.fotoUrl ? (
-              // biome-ignore lint/performance/noImgElement: foto subida por el oferente
+              // biome-ignore lint/performance/noImgElement: foto subida por el propietario
               <img
                 src={conversacion.propiedad.fotoUrl}
                 alt=""
@@ -46,7 +47,7 @@ export default async function ConversacionPage({ params }: ConversacionPageProps
           </div>
           <div className="flex min-w-0 flex-col gap-0.5">
             <h1 className="truncate font-display text-lg font-bold text-foreground">
-              {conversacion.otro.nombre || m.oferente}
+              {conversacion.otro.nombre || m.propietario}
             </h1>
             <Link
               href={`/espacios/${conversacion.propiedad.id}`}

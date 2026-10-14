@@ -9,18 +9,18 @@ export type ResultadoEstadoLead =
   | { ok: true; data: { buscadorId: string; estado: EstadoLead; actualizadas: number } }
   | { ok: false; error: { code: "forbidden" | "not_found"; status: 403 | 404; message: string } };
 
-// Cambia el estado de todas las solicitudes de un buscador a este oferente. Idempotente: repetir
-// el mismo estado deja el mismo resultado. Un buscador que no le escribió a este oferente → 404.
+// Cambia el estado de todas las solicitudes de un buscador a este propietario. Idempotente: repetir
+// el mismo estado deja el mismo resultado. Un buscador que no le escribió a este propietario → 404.
 export async function cambiarEstadoDeLead(
   actor: ActorAutenticado | null,
   buscadorId: string,
   estado: EstadoLead,
 ): Promise<ResultadoEstadoLead> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) {
     return {
       ok: false,
-      error: { code: "forbidden", status: 403, message: "Se requiere el rol oferente" },
+      error: { code: "forbidden", status: 403, message: "Se requiere el rol propietario" },
     };
   }
   const actualizadas = await db
@@ -28,7 +28,7 @@ export async function cambiarEstadoDeLead(
     .set({ estado })
     .where(
       and(
-        eq(contactRequest.oferenteId, actor.id),
+        eq(contactRequest.propietarioId, actor.id),
         eq(contactRequest.buscadorId, buscadorId),
         eq(contactRequest.canal, "directo"),
       ),

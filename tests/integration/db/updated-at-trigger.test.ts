@@ -13,18 +13,18 @@ describe("trigger set_updated_at", () => {
   it("un UPDATE sobre propiedad.descripcion sube updated_at sin que el código lo escriba", async () => {
     await resetTestDatabase();
 
-    const oferente = {
+    const propietario = {
       id: randomUUID(),
       email: `nodus-test+${randomUUID()}@example.com`,
-      nombre: "Oferente de prueba",
-      rol: "oferente",
+      nombre: "Propietario de prueba",
+      rol: "propietario",
     };
-    await db.insert(usuario).values(oferente);
+    await db.insert(usuario).values(propietario);
 
     const filasCreadas = await db
       .insert(propiedad)
       .values({
-        oferenteId: oferente.id,
+        propietarioId: propietario.id,
         tipo: "nave_industrial",
         modalidad: "renta",
         direccion: "Av. Industrias 100",

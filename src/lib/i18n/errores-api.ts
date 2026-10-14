@@ -16,7 +16,7 @@ const EN: Record<string, string> = {
   "Sin resultados": "No results.",
   "No se pudo consultar el mapa": "Couldn't reach the map service. Please try again.",
   "Demasiadas solicitudes": "Too many requests. Please wait a moment and try again.",
-  "Se requiere el rol oferente": "You need a lister account to do this.",
+  "Se requiere el rol propietario": "You need a lister account to do this.",
   "Se requiere el rol buscador": "You need a buyer account to do this.",
   "Se requiere el rol admin": "You need an administrator account to do this.",
   "Propiedad no encontrada": "Property not found.",

@@ -10,7 +10,7 @@ const { contarParaMenuAdmin } = await import("../../../src/server/admin/contador
 type Actor = NonNullable<Parameters<typeof listarDuenos>[0]>;
 
 async function crearUsuario(
-  rol: "buscador" | "oferente" | "admin",
+  rol: "buscador" | "propietario" | "admin",
   extra: Partial<typeof usuario.$inferInsert> = {},
 ): Promise<Actor> {
   const id = randomUUID();
@@ -27,9 +27,9 @@ async function crearUsuario(
   };
 }
 
-async function crearPropiedad(oferenteId: string, estadoPublicacion: string) {
+async function crearPropiedad(propietarioId: string, estadoPublicacion: string) {
   await db.insert(propiedad).values({
-    oferenteId,
+    propietarioId,
     tipo: "oficina",
     modalidad: "renta",
     direccion: `Av. Dueños ${randomUUID()}`,
@@ -48,15 +48,15 @@ describe("Dueños del panel de administración", () => {
   it("solo dueños verificados que no son brokers, con sus propiedades", async () => {
     await resetTestDatabase();
     const admin = await crearUsuario("admin");
-    const dueno = await crearUsuario("oferente", {
+    const dueno = await crearUsuario("propietario", {
       tipoAnunciante: "particular",
       duenoVerificado: true,
     });
-    const sinElegir = await crearUsuario("oferente", { duenoVerificado: true });
+    const sinElegir = await crearUsuario("propietario", { duenoVerificado: true });
     // Dueño sin verificar (su solicitud sigue pendiente): no sale en la lista, pero su ficha abre.
-    const pendiente = await crearUsuario("oferente", { tipoAnunciante: "particular" });
-    await crearUsuario("oferente", { tipoAnunciante: "inmobiliaria" });
-    await crearUsuario("oferente", { isBroker: true, brokerCode: "BRK-DUENO1" });
+    const pendiente = await crearUsuario("propietario", { tipoAnunciante: "particular" });
+    await crearUsuario("propietario", { tipoAnunciante: "inmobiliaria" });
+    await crearUsuario("propietario", { isBroker: true, brokerCode: "BRK-DUENO1" });
     await crearUsuario("buscador");
     await crearPropiedad(dueno.id, "publicada");
     await crearPropiedad(dueno.id, "pendiente");

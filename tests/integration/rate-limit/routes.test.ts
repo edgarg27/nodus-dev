@@ -18,7 +18,7 @@ const { GET: getGeocode } = await import("../../../src/app/api/v1/geocode/route.
 type ActorFixture = Awaited<ReturnType<typeof getUsuarioActual>>;
 
 function actorFixture(
-  rol: "buscador" | "oferente" | "admin",
+  rol: "buscador" | "propietario" | "admin",
   overrides: Record<string, unknown> = {},
 ): NonNullable<ActorFixture> {
   return {
@@ -49,9 +49,9 @@ async function insertarUsuario(actor: NonNullable<ActorFixture>) {
   });
 }
 
-function propiedadFixture(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadFixture(propietarioId: string, overrides: Record<string, unknown> = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: `Av. Rate Limit ${randomUUID()}`,
@@ -109,9 +109,12 @@ afterEach(() => {
 
 describe("POST /api/v1/contact-requests: límite de 10 por minuto por IP", () => {
   it("permite 10, bloquea la 11 con Retry-After, otra IP sigue y tras 61s la misma IP vuelve", async () => {
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    const [propia] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    const [propia] = await db
+      .insert(propiedad)
+      .values(propiedadFixture(propietario.id))
+      .returning();
     if (!propia) throw new Error("fixture no se creó");
 
     const buscador = actorFixture("buscador");

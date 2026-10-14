@@ -76,7 +76,7 @@ export function FeaturedListings({ propiedades, idioma }: FeaturedListingsProps)
             <article className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[0_16px_32px_-8px_rgba(11,30,61,0.15)]">
               <div className="relative flex h-[170px] items-center justify-center bg-primary text-primary-foreground/40">
                 {propiedad.foto ? (
-                  // biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático
+                  // biome-ignore lint/performance/noImgElement: foto subida por el propietario, no un asset estático
                   <img
                     src={propiedad.foto.storageUrl}
                     alt={propiedad.direccion}

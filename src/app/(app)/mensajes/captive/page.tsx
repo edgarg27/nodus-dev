@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChatThread } from "@/components/messages/chat-thread";
-import { MENSAJES_VISIBLE_PARA_OFERENTE } from "@/lib/oferente-visibilidad";
+import { MENSAJES_VISIBLE_PARA_PROPIETARIO } from "@/lib/propietario-visibilidad";
 import { contarFiltrosActivos, describirBusqueda, leerBusqueda } from "@/lib/search-params";
 import { getUsuarioActual } from "@/server/auth/session";
 import { obtenerTextos } from "@/server/i18n";
@@ -21,7 +21,7 @@ interface ChatCaptivePageProps {
 
 export default async function ChatCaptivePage({ searchParams }: ChatCaptivePageProps) {
   const actor = await getUsuarioActual();
-  if (!actor || (actor.rol !== "oferente" && actor.rol !== "buscador")) notFound();
+  if (!actor || (actor.rol !== "propietario" && actor.rol !== "buscador")) notFound();
   const resultado = await obtenerChatDelCliente(actor);
   if (!resultado.ok) notFound();
   const m = (await obtenerTextos()).t.panel.mensajes;
@@ -44,8 +44,8 @@ export default async function ChatCaptivePage({ searchParams }: ChatCaptivePageP
   return (
     <main className="w-full py-10">
       <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6 px-4">
-        {/* Al oferente se le oculta "Mensajes": llega aquí directo desde el menú de su cuenta. */}
-        {actor.rol === "buscador" || MENSAJES_VISIBLE_PARA_OFERENTE ? (
+        {/* Al propietario se le oculta "Mensajes": llega aquí directo desde el menú de su cuenta. */}
+        {actor.rol === "buscador" || MENSAJES_VISIBLE_PARA_PROPIETARIO ? (
           <Link
             href="/mensajes"
             className="flex w-fit items-center gap-1 text-sm font-semibold text-muted-foreground hover:text-foreground"

@@ -102,7 +102,7 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
   after(() =>
     registrarVisita({
       propiedadId: propiedad.id,
-      oferenteId: propiedad.oferenteId,
+      propietarioId: propiedad.propietarioId,
       actorId: actor?.id ?? null,
       ip,
     }),
@@ -110,7 +110,7 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
   const [similares, favoritos, agencia] = await Promise.all([
     listarPropiedadesSimilares(propiedad),
     actor ? idsFavoritos(actor.id, [propiedad.id]) : Promise.resolve([]),
-    obtenerIdentidadPublica(propiedad.oferenteId),
+    obtenerIdentidadPublica(propiedad.propietarioId),
   ]);
   const esFavorito = favoritos.length > 0;
   const anunciante = {
@@ -280,7 +280,7 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
                       >
                         <div className="h-28 bg-gradient-to-br from-primary/70 to-primary">
                           {similar.foto ? (
-                            // biome-ignore lint/performance/noImgElement: foto subida por el oferente
+                            // biome-ignore lint/performance/noImgElement: foto subida por el propietario
                             <img
                               src={similar.foto.storageUrl}
                               alt=""

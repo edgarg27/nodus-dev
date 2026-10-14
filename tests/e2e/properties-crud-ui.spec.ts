@@ -17,9 +17,9 @@ test.afterAll(async () => {
 const PNG_1X1_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
 
-function propiedadFixture(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadFixture(propietarioId: string, overrides: Record<string, unknown> = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: "Av. Formulario 1",
@@ -35,12 +35,12 @@ function propiedadFixture(oferenteId: string, overrides: Record<string, unknown>
   };
 }
 
-async function crearOferente(nombre: string) {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
+async function crearPropietario(nombre: string) {
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
   await db
     .insert(usuario)
-    .values({ id: oferente.id, email: oferente.email, nombre, rol: "oferente" });
-  return oferente;
+    .values({ id: propietario.id, email: propietario.email, nombre, rol: "propietario" });
+  return propietario;
 }
 
 async function llenarFormulario(
@@ -60,8 +60,8 @@ async function llenarFormulario(
 test("alta con dirección, lat/lng manuales y una foto crea la propiedad En revisión", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Oferente alta");
-  await iniciarSesion(page, oferente);
+  const propietario = await crearPropietario("Propietario alta");
+  await iniciarSesion(page, propietario);
   await page.goto("/propiedades/nueva");
 
   await llenarFormulario(page, {
@@ -87,11 +87,11 @@ test("alta con dirección, lat/lng manuales y una foto crea la propiedad En revi
 test("dirección/coordenadas duplicadas muestran el mensaje con enlace a la propiedad existente", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Oferente duplicado");
+  const propietario = await crearPropietario("Propietario duplicado");
   const [existente] = await db
     .insert(propiedad)
     .values(
-      propiedadFixture(oferente.id, {
+      propiedadFixture(propietario.id, {
         direccion: "Av. Duplicada 200",
         direccionNormalizada: "av duplicada 200",
         lat: "22.300000",
@@ -101,7 +101,7 @@ test("dirección/coordenadas duplicadas muestran el mensaje con enlace a la prop
     .returning();
   if (!existente) throw new Error("fixture no se creó");
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/propiedades/nueva");
 
   await llenarFormulario(page, {
@@ -120,11 +120,11 @@ test("dirección/coordenadas duplicadas muestran el mensaje con enlace a la prop
 });
 
 test("corregir una propiedad rechazada y reenviarla la deja En revisión", async ({ page }) => {
-  const oferente = await crearOferente("Oferente rechazado");
+  const propietario = await crearPropietario("Propietario rechazado");
   const [rechazada] = await db
     .insert(propiedad)
     .values(
-      propiedadFixture(oferente.id, {
+      propiedadFixture(propietario.id, {
         direccion: "Av. Rechazada 300",
         direccionNormalizada: "av rechazada 300",
         estadoPublicacion: "rechazada",
@@ -134,7 +134,7 @@ test("corregir una propiedad rechazada y reenviarla la deja En revisión", async
     .returning();
   if (!rechazada) throw new Error("fixture no se creó");
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto(`/propiedades/${rechazada.id}/editar`);
 
   await expect(page.getByText("Motivo de rechazo: Foto ilegible")).toBeVisible();
@@ -148,8 +148,8 @@ test("corregir una propiedad rechazada y reenviarla la deja En revisión", async
 test("el pin movido con el teclado gana sobre un geocode posterior y se guarda", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Oferente pin teclado");
-  await iniciarSesion(page, oferente);
+  const propietario = await crearPropietario("Propietario pin teclado");
+  await iniciarSesion(page, propietario);
 
   await page.route("**/api/v1/geocode**", async (route) => {
     await route.fulfill({
@@ -206,8 +206,8 @@ test("el pin movido con el teclado gana sobre un geocode posterior y se guarda",
 test("los inputs de latitud y longitud siguen editables junto al selector de mapa", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Oferente inputs editables");
-  await iniciarSesion(page, oferente);
+  const propietario = await crearPropietario("Propietario inputs editables");
+  await iniciarSesion(page, propietario);
   await page.goto("/propiedades/nueva");
 
   await expect(page.getByRole("button", { name: /Ubicación de la propiedad/ })).toBeVisible();
@@ -238,11 +238,11 @@ test("los inputs de latitud y longitud siguen editables junto al selector de map
 test("editar el contenido de una propiedad publicada avisa que vuelve a revisión", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Oferente publicada");
+  const propietario = await crearPropietario("Propietario publicada");
   const [publicada] = await db
     .insert(propiedad)
     .values(
-      propiedadFixture(oferente.id, {
+      propiedadFixture(propietario.id, {
         direccion: "Av. Publicada 400",
         direccionNormalizada: "av publicada 400",
         estadoPublicacion: "publicada",
@@ -251,7 +251,7 @@ test("editar el contenido de una propiedad publicada avisa que vuelve a revisió
     .returning();
   if (!publicada) throw new Error("fixture no se creó");
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto(`/propiedades/${publicada.id}/editar`);
 
   await page.getByLabel("Descripción").fill("Descripción actualizada");

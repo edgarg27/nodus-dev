@@ -32,12 +32,12 @@ const INPUT_BASE = {
 };
 
 describe("crearPropiedad sin broker_code", () => {
-  it("oferente con is_broker=false y broker_code=null crea la propiedad pendiente", async () => {
+  it("propietario con is_broker=false y broker_code=null crea la propiedad pendiente", async () => {
     await resetTestDatabase();
-    const actor = actorFixture("oferente");
+    const actor = actorFixture("propietario");
     await db
       .insert(usuario)
-      .values({ id: actor.id, email: actor.email, nombre: actor.nombre, rol: "oferente" });
+      .values({ id: actor.id, email: actor.email, nombre: actor.nombre, rol: "propietario" });
 
     const resultado = await crearPropiedad(actor, INPUT_BASE);
     expect(resultado.ok).toBe(true);

@@ -11,7 +11,7 @@ function errorEnvelope(code: string, message: string) {
   return { error: { code, message, request_id: `req_${randomUUID()}` } };
 }
 
-// Sube (o reemplaza) un documento de verificación del oferente con sesión. No es idempotente a
+// Sube (o reemplaza) un documento de verificación del propietario con sesión. No es idempotente a
 // propósito: cada envío guarda el archivo nuevo y descarta el anterior del mismo tipo.
 export async function POST(request: Request) {
   const actor = await getUsuarioActual();

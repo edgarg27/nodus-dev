@@ -15,7 +15,7 @@ const { GET, POST } = await import("./route.ts");
 type ActorFixture = Awaited<ReturnType<typeof getUsuarioActual>>;
 
 function actorFixture(
-  rol: "buscador" | "oferente" | "admin" = "oferente",
+  rol: "buscador" | "propietario" | "admin" = "propietario",
 ): NonNullable<ActorFixture> {
   return {
     id: randomUUID(),
@@ -38,9 +38,9 @@ async function insertarUsuario(actor: NonNullable<ActorFixture>) {
     .values({ id: actor.id, email: actor.email, nombre: actor.nombre, rol: actor.rol });
 }
 
-function propiedadFixture(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadFixture(propietarioId: string, overrides: Record<string, unknown> = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: `Av. Financiamiento API ${randomUUID()}`,
@@ -82,9 +82,9 @@ const INPUT_VALIDO = {
 describe("POST /api/v1/properties / aceptaFinanciamiento", () => {
   it("con aceptaFinanciamiento: true responde 201 con la fila creada reflejando el valor", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const respuesta = await POST(requestPost({ ...INPUT_VALIDO, aceptaFinanciamiento: true }));
     expect(respuesta.status).toBe(201);
@@ -96,16 +96,16 @@ describe("POST /api/v1/properties / aceptaFinanciamiento", () => {
 describe("GET /api/v1/properties?financiamiento=", () => {
   it("financiamiento=true devuelve solo propiedades con acepta_financiamiento = true", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture();
-    await insertarUsuario(oferente);
+    const propietario = actorFixture();
+    await insertarUsuario(propietario);
 
     const [conFinanciamiento] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { aceptaFinanciamiento: true }))
+      .values(propiedadFixture(propietario.id, { aceptaFinanciamiento: true }))
       .returning();
     await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { aceptaFinanciamiento: false }));
+      .values(propiedadFixture(propietario.id, { aceptaFinanciamiento: false }));
     if (!conFinanciamiento) throw new Error("fixture no se creó");
 
     const respuesta = await GET(requestSearch("financiamiento=true"));
@@ -125,15 +125,15 @@ describe("GET /api/v1/properties?financiamiento=", () => {
 
   it("sin el parámetro devuelve resultados sin filtrar por financiamiento", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture();
-    await insertarUsuario(oferente);
+    const propietario = actorFixture();
+    await insertarUsuario(propietario);
 
     await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { aceptaFinanciamiento: true }));
+      .values(propiedadFixture(propietario.id, { aceptaFinanciamiento: true }));
     await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { aceptaFinanciamiento: false }));
+      .values(propiedadFixture(propietario.id, { aceptaFinanciamiento: false }));
 
     const respuesta = await GET(requestSearch(""));
     expect(respuesta.status).toBe(200);
@@ -145,9 +145,9 @@ describe("GET /api/v1/properties?financiamiento=", () => {
 describe("POST /api/v1/properties / datos del espacio", () => {
   it("guarda precio, moneda, superficies y datos industriales de una nave", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const respuesta = await POST(
       requestPost({
@@ -184,9 +184,9 @@ describe("POST /api/v1/properties / datos del espacio", () => {
 
   it("sin datos del espacio crea la fila con precio nulo y MXN por defecto", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const respuesta = await POST(requestPost(INPUT_VALIDO));
     expect(respuesta.status).toBe(201);
@@ -198,9 +198,9 @@ describe("POST /api/v1/properties / datos del espacio", () => {
 
   it("descarta los datos industriales si el espacio no es una nave", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const respuesta = await POST(
       requestPost({ ...INPUT_VALIDO, tipo: "oficina", andenes: 2, alturaLibreM: 9 }),
@@ -213,9 +213,9 @@ describe("POST /api/v1/properties / datos del espacio", () => {
 
   it("responde 422 con un precio negativo o una moneda no soportada", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const negativo = await POST(requestPost({ ...INPUT_VALIDO, precio: -1 }));
     expect(negativo.status).toBe(422);
@@ -227,9 +227,9 @@ describe("POST /api/v1/properties / datos del espacio", () => {
 describe("GET /api/v1/properties / foto y datos del espacio", () => {
   it("cada fila incluye fotoUrl y el precio guardado", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    await db.insert(propiedad).values(propiedadFixture(oferente.id, { precio: 38000 }));
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    await db.insert(propiedad).values(propiedadFixture(propietario.id, { precio: 38000 }));
 
     const respuesta = await GET(requestSearch("estado=SLP"));
     expect(respuesta.status).toBe(200);
@@ -243,14 +243,14 @@ describe("GET /api/v1/properties / foto y datos del espacio", () => {
 describe("GET /api/v1/properties / filtros de precio y orden", () => {
   it("aplica precio_min y orden=precio_asc", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
     await db
       .insert(propiedad)
       .values([
-        propiedadFixture(oferente.id, { precio: 80000 }),
-        propiedadFixture(oferente.id, { precio: 20000 }),
-        propiedadFixture(oferente.id, { precio: 50000 }),
+        propiedadFixture(propietario.id, { precio: 80000 }),
+        propiedadFixture(propietario.id, { precio: 20000 }),
+        propiedadFixture(propietario.id, { precio: 50000 }),
       ]);
 
     const respuesta = await GET(requestSearch("precio_min=30000&orden=precio_asc"));

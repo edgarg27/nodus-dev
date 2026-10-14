@@ -5,7 +5,7 @@ import { errorValidacion, respuestaError, sinSesion } from "../../../../../serve
 import { manejarError } from "../../../../../server/http/handle-error.ts";
 import {
   buscarPropiedadesCercanas,
-  paraOferente,
+  paraPropietario,
 } from "../../../../../server/properties/near-duplicates.ts";
 
 const consultaSchema = z.object({
@@ -16,7 +16,7 @@ const consultaSchema = z.object({
 });
 
 // Propiedades vigentes del mismo tipo a pocos metros del punto: el formulario las muestra antes de
-// enviar ("¿es alguna de estas?"). Solo lectura, y solo para oferentes. De una propiedad ajena que
+// enviar ("¿es alguna de estas?"). Solo lectura, y solo para propietarios. De una propiedad ajena que
 // aún no es pública solo se devuelve la dirección.
 export async function GET(request: Request) {
   try {
@@ -27,13 +27,13 @@ export async function GET(request: Request) {
       Object.fromEntries(new URL(request.url).searchParams.entries()),
     );
     if (!parsed.success) return errorValidacion(parsed.error);
-    if (actor.rol !== "oferente") {
-      return respuestaError(403, "forbidden", "Se requiere el rol oferente");
+    if (actor.rol !== "propietario") {
+      return respuestaError(403, "forbidden", "Se requiere el rol propietario");
     }
 
     const { lat, lng, tipo, excluir } = parsed.data;
     const cercanas = await buscarPropiedadesCercanas({ lat, lng, tipo, excluirId: excluir });
-    return NextResponse.json({ data: paraOferente(cercanas, actor.id) });
+    return NextResponse.json({ data: paraPropietario(cercanas, actor.id) });
   } catch (err) {
     return manejarError(err, request);
   }

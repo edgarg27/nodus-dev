@@ -5,13 +5,13 @@ import { getUsuarioActual } from "../../../../server/auth/session.ts";
 import { respuestaError, sinSesion } from "../../../../server/http/envelope.ts";
 import { listarPropiedadesDeLaRed } from "../../../../server/network/queries.ts";
 
-// Directorio de la Red inmobiliaria: solo oferentes. Los filtros son los de /buscar más
+// Directorio de la Red inmobiliaria: solo propietarios. Los filtros son los de /buscar más
 // `exclusiva=1`, `ocultar_propias=1` y `pagina`. Solo lectura.
 export async function GET(request: Request) {
   const actor = await getUsuarioActual();
   if (!actor) return sinSesion();
-  if (!requireRol(actor, "oferente").ok) {
-    return respuestaError(403, "forbidden", "Se requiere el rol oferente");
+  if (!requireRol(actor, "propietario").ok) {
+    return respuestaError(403, "forbidden", "Se requiere el rol propietario");
   }
 
   const url = new URL(request.url);
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
       ...filtros,
       aceptaFinanciamiento: financiamiento === undefined ? undefined : financiamiento === "true",
       exclusiva: params.exclusiva || undefined,
-      excluirOferenteId: params.ocultarPropias ? actor.id : undefined,
+      excluirPropietarioId: params.ocultarPropias ? actor.id : undefined,
     },
     { orden: params.orden, pagina: params.pagina },
   );

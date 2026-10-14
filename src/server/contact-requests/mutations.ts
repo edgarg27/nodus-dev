@@ -14,13 +14,13 @@ export type ErrorContactRequest =
   | { code: "forbidden"; status: 403; message: string }
   | { code: "not_found"; status: 404; message: string };
 
-// La solicitud llega solo a Captive (canal "captive"): no se abre chat con el oferente ni se le da
+// La solicitud llega solo a Captive (canal "captive"): no se abre chat con el propietario ni se le da
 // al buscador su teléfono. Los tres campos siguen en la respuesta (siempre `null`) para no romper
 // a los clientes de la API.
 export interface ContactRequestCreada {
   id: string;
   conversacionId: null;
-  telefonoOferente: null;
+  telefonoPropietario: null;
   whatsappUrl: null;
 }
 
@@ -42,7 +42,7 @@ function errorNotFound(): ResultadoContactRequest {
   };
 }
 
-// Lee `propiedad.oferente_id` (solo de propiedades activo y publicada) y el
+// Lee `propiedad.propietario_id` (solo de propiedades activo y publicada) y el
 // `referral_broker_id` del buscador actual, copiando `broker_id` únicamente si ese usuario es
 // broker en este momento — ningún cálculo de atribución ocurre en la UI.
 export async function crearContactRequest(
@@ -66,7 +66,7 @@ export async function crearContactRequest(
     .values({
       buscadorId: actor.id,
       propiedadId: prop.id,
-      oferenteId: prop.oferenteId,
+      propietarioId: prop.propietarioId,
       brokerId,
       quiereFinanciamiento: input.quiereFinanciamiento,
       mensaje: input.mensaje ?? null,
@@ -78,6 +78,6 @@ export async function crearContactRequest(
   // Nace en el paso "nueva": Captive la atiende desde "Clientes y prospectos".
   return {
     ok: true,
-    data: { id: fila.id, conversacionId: null, telefonoOferente: null, whatsappUrl: null },
+    data: { id: fila.id, conversacionId: null, telefonoPropietario: null, whatsappUrl: null },
   };
 }

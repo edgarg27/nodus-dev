@@ -36,7 +36,7 @@ export interface OpcionesUsuarioAuth {
   ref?: string;
   /** Por defecto `true`. `false` crea un usuario SIN confirmar (para probar `email_not_confirmed`). */
   confirmado?: boolean;
-  /** Más metadata del registro (por ejemplo `telefono`, `tipo_anunciante`, `empresa` de un oferente). */
+  /** Más metadata del registro (por ejemplo `telefono`, `tipo_anunciante`, `empresa` de un propietario). */
   extra?: Record<string, string>;
 }
 

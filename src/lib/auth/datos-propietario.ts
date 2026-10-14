@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Datos que pedimos a quien publica espacios: en el registro como oferente y cuando un buscador
+// Datos que pedimos a quien publica espacios: en el registro como propietario y cuando un buscador
 // pasa a publicar ("Publica tu espacio"). Fuente única de las reglas para el formulario y la API.
 
 export const TIPOS_ANUNCIANTE = ["particular", "inmobiliaria"] as const;
@@ -13,7 +13,7 @@ export function digitosTelefono(telefono: string): number {
   return telefono.replace(/\D/g, "").length;
 }
 
-export const datosOferenteSchema = z
+export const datosPropietarioSchema = z
   .object({
     telefono: z
       .string()
@@ -32,12 +32,14 @@ export const datosOferenteSchema = z
     message: "Escribe el nombre de tu inmobiliaria o empresa",
   });
 
-export type DatosOferente = z.infer<typeof datosOferenteSchema>;
+export type DatosPropietario = z.infer<typeof datosPropietarioSchema>;
 
-// Lee los datos del oferente de la metadata del registro (la fija el propio cliente: se valida
+// Lee los datos del propietario de la metadata del registro (la fija el propio cliente: se valida
 // igual que el formulario y lo inválido se ignora).
-export function datosOferenteDeMetadata(metadata: Record<string, unknown>): DatosOferente | null {
-  const resultado = datosOferenteSchema.safeParse({
+export function datosPropietarioDeMetadata(
+  metadata: Record<string, unknown>,
+): DatosPropietario | null {
+  const resultado = datosPropietarioSchema.safeParse({
     telefono: metadata.telefono,
     tipoAnunciante: metadata.tipo_anunciante,
     empresa:

@@ -18,7 +18,7 @@ interface EditarPropiedadPageProps {
 export default async function EditarPropiedadPage({ params }: EditarPropiedadPageProps) {
   const { id } = await params;
   const actor = await getUsuarioActual();
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) notFound();
 
   const propiedad = await obtenerPropiedadDelDuenoPorId(actor.id, id);

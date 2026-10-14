@@ -36,7 +36,7 @@ paths:
 - Los scripts de `scripts/**` corren con `node --env-file-if-exists=.env` (el comando carga el `.env`, no
   el script) y todo módulo que importen — `env.ts`, `db/{client,schema,dev-guard}.ts`,
   `supabase/admin.ts`, `tests/helpers/reset-db.ts` — usa imports relativos con `.ts`, nunca `@/`.
-- `usuario.rol` admite `buscador`, `oferente` y `admin`; nada del registro ni de la metadata de Auth
+- `usuario.rol` admite `buscador`, `propietario` y `admin`; nada del registro ni de la metadata de Auth
   puede producir `admin`.
 - El índice único parcial `uq_propiedad_duplicado` sobre
   `(direccion_normalizada, lat_redondeada, lng_redondeada) WHERE activo AND estado_publicacion <>

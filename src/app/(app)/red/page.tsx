@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RedPage({ searchParams }: RedPageProps) {
   const actor = await getUsuarioActual();
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) notFound();
 
   const { idioma, t } = await obtenerTextos();
@@ -39,7 +39,7 @@ export default async function RedPage({ searchParams }: RedPageProps) {
       ...filtros,
       aceptaFinanciamiento: financiamiento === undefined ? undefined : financiamiento === "true",
       exclusiva: params.exclusiva || undefined,
-      excluirOferenteId: params.ocultarPropias ? actor.id : undefined,
+      excluirPropietarioId: params.ocultarPropias ? actor.id : undefined,
     },
     { orden: params.orden, pagina: params.pagina },
   );
@@ -65,7 +65,7 @@ export default async function RedPage({ searchParams }: RedPageProps) {
                 <NetworkCard
                   key={propiedad.id}
                   propiedad={propiedad}
-                  esPropia={propiedad.oferenteId === actor.id}
+                  esPropia={propiedad.propietarioId === actor.id}
                   idioma={idioma}
                 />
               ))}

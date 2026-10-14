@@ -8,24 +8,24 @@ import type { ActorAutenticado } from "../../../src/server/auth/session.ts";
 import { crearPropiedad, darDeBajaPropiedad } from "../../../src/server/properties/mutations.ts";
 import { resetTestDatabase } from "../../helpers/reset-db.ts";
 
-function actorOferente(id: string): ActorAutenticado {
+function actorPropietario(id: string): ActorAutenticado {
   return {
     id,
     email: `nodus-test+${id}@example.com`,
-    nombre: "Oferente de prueba",
-    rol: "oferente",
+    nombre: "Propietario de prueba",
+    rol: "propietario",
     isBroker: false,
     brokerCode: null,
     referralBrokerId: null,
   };
 }
 
-async function crearFilaOferente(): Promise<ActorAutenticado> {
+async function crearFilaPropietario(): Promise<ActorAutenticado> {
   const id = randomUUID();
-  const actor = actorOferente(id);
+  const actor = actorPropietario(id);
   await db
     .insert(usuario)
-    .values({ id, email: actor.email, nombre: actor.nombre, rol: "oferente" });
+    .values({ id, email: actor.email, nombre: actor.nombre, rol: "propietario" });
   return actor;
 }
 
@@ -36,7 +36,7 @@ const LNG_FIJA = "-100.978890";
 describe("buscarDuplicadoActivo / crearPropiedad", () => {
   it("B duplicada de A vigente es rechazada, sin insertarse", async () => {
     await resetTestDatabase();
-    const actor = await crearFilaOferente();
+    const actor = await crearFilaPropietario();
 
     const resultadoA = await crearPropiedad(actor, {
       tipo: "nave_industrial",
@@ -74,7 +74,7 @@ describe("buscarDuplicadoActivo / crearPropiedad", () => {
 
   it("dos creaciones simultáneas con datos idénticos dejan exactamente una ok", async () => {
     await resetTestDatabase();
-    const actor = await crearFilaOferente();
+    const actor = await crearFilaPropietario();
 
     const input = {
       tipo: "oficina" as const,
@@ -101,7 +101,7 @@ describe("buscarDuplicadoActivo / crearPropiedad", () => {
 
   it("una A dada de baja permite crear B con la misma dirección/coordenadas", async () => {
     await resetTestDatabase();
-    const actor = await crearFilaOferente();
+    const actor = await crearFilaPropietario();
 
     const resultadoA = await crearPropiedad(actor, {
       tipo: "local_comercial",

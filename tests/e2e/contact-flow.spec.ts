@@ -15,20 +15,20 @@ test.afterAll(async () => {
   await limpiarUsuariosAuth();
 });
 
-async function crearOferenteConPropiedad() {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
+async function crearPropietarioConPropiedad() {
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
   await db.insert(usuario).values({
-    id: oferente.id,
-    email: oferente.email,
-    nombre: "Oferente con teléfono",
-    rol: "oferente",
+    id: propietario.id,
+    email: propietario.email,
+    nombre: "Propietario con teléfono",
+    rol: "propietario",
     telefono: "4441234567",
   });
   const direccion = `Av. Contacto E2E ${randomUUID()}`;
   const [propia] = await db
     .insert(propiedad)
     .values({
-      oferenteId: oferente.id,
+      propietarioId: propietario.id,
       tipo: "nave_industrial",
       modalidad: "renta",
       direccion,
@@ -43,13 +43,13 @@ async function crearOferenteConPropiedad() {
     })
     .returning();
   if (!propia) throw new Error("fixture no se creó");
-  return { oferente, propia };
+  return { propietario, propia };
 }
 
-test("el botón Contactar crea la solicitud para Captive sin revelar el teléfono del oferente", async ({
+test("el botón Contactar crea la solicitud para Captive sin revelar el teléfono del propietario", async ({
   page,
 }) => {
-  const { propia } = await crearOferenteConPropiedad();
+  const { propia } = await crearPropietarioConPropiedad();
 
   const buscador = await crearUsuarioAuth({ rol: "buscador" });
   await db
@@ -77,7 +77,7 @@ test("el botón Contactar crea la solicitud para Captive sin revelar el teléfon
 });
 
 test("un visitante anónimo que pulsa Contactar termina en /sign-in", async ({ page }) => {
-  const { propia } = await crearOferenteConPropiedad();
+  const { propia } = await crearPropietarioConPropiedad();
 
   await page.goto("/buscar");
   const tarjeta = page.locator("article").filter({ hasText: propia.direccion });

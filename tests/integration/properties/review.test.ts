@@ -19,7 +19,7 @@ const { PATCH } = await import("../../../src/app/api/v1/properties/[id]/route.ts
 
 type ActorFixture = Awaited<ReturnType<typeof getUsuarioActual>>;
 
-function actorFixture(rol: "buscador" | "oferente" | "admin"): NonNullable<ActorFixture> {
+function actorFixture(rol: "buscador" | "propietario" | "admin"): NonNullable<ActorFixture> {
   return {
     id: randomUUID(),
     email: `nodus-test+${randomUUID()}@example.com`,
@@ -48,9 +48,9 @@ async function insertarUsuario(
   });
 }
 
-function propiedadFixture(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadFixture(propietarioId: string, overrides: Record<string, unknown> = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: `Av. Revisión ${randomUUID()}`,
@@ -78,29 +78,29 @@ function requestReview(id: string, body: unknown) {
 }
 
 describe("GET /api/v1/admin/properties", () => {
-  it("solo lista pendiente y activa, en orden de espera, con fotos y oferente", async () => {
+  it("solo lista pendiente y activa, en orden de espera, con fotos y propietario", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente, { telefono: "4441234567" });
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario, { telefono: "4441234567" });
 
     const [pendienteVieja] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id))
+      .values(propiedadFixture(propietario.id))
       .returning();
     await new Promise((resolve) => setTimeout(resolve, 20));
     const [pendienteNueva] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id))
+      .values(propiedadFixture(propietario.id))
       .returning();
     await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { estadoPublicacion: "publicada" }));
+      .values(propiedadFixture(propietario.id, { estadoPublicacion: "publicada" }));
     await db
       .insert(propiedad)
       .values(
-        propiedadFixture(oferente.id, { estadoPublicacion: "rechazada", motivoRechazo: "x" }),
+        propiedadFixture(propietario.id, { estadoPublicacion: "rechazada", motivoRechazo: "x" }),
       );
-    await db.insert(propiedad).values(propiedadFixture(oferente.id, { activo: false }));
+    await db.insert(propiedad).values(propiedadFixture(propietario.id, { activo: false }));
     if (!pendienteVieja || !pendienteNueva) throw new Error("fixtures no se crearon");
 
     await db.insert(propiedadFoto).values([
@@ -117,21 +117,24 @@ describe("GET /api/v1/admin/properties", () => {
     expect(cuerpo.data[0].id).toBe(pendienteVieja.id);
     expect(cuerpo.data[1].id).toBe(pendienteNueva.id);
     expect(cuerpo.data[0].fotos).toHaveLength(2);
-    expect(cuerpo.data[0].oferente).toMatchObject({ id: oferente.id, email: oferente.email });
+    expect(cuerpo.data[0].propietario).toMatchObject({
+      id: propietario.id,
+      email: propietario.email,
+    });
   });
 });
 
 describe("POST /api/v1/admin/properties/:id/review — aprobar", () => {
   it("deja la propiedad publicada con revisada_por y revisada_en", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
 
     const [pendiente] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id))
+      .values(propiedadFixture(propietario.id))
       .returning();
     if (!pendiente) throw new Error("fixture no se creó");
 
@@ -151,15 +154,15 @@ describe("POST /api/v1/admin/properties/:id/review — aprobar", () => {
 describe("POST /api/v1/admin/properties/:id/review — rechazar", () => {
   it("con motivo deja rechazada; sin motivo, vacío o solo espacios responde 422 sin cambiar la fila", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
     actuarComo(admin);
 
     const [conMotivo] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id))
+      .values(propiedadFixture(propietario.id))
       .returning();
     if (!conMotivo) throw new Error("fixture no se creó");
     const { request: reqConMotivo, params: paramsConMotivo } = requestReview(conMotivo.id, {
@@ -175,7 +178,7 @@ describe("POST /api/v1/admin/properties/:id/review — rechazar", () => {
     for (const motivo of [undefined, "", "   "]) {
       const [pendiente] = await db
         .insert(propiedad)
-        .values(propiedadFixture(oferente.id))
+        .values(propiedadFixture(propietario.id))
         .returning();
       if (!pendiente) throw new Error("fixture no se creó");
       const body: Record<string, unknown> = { decision: "rechazar" };
@@ -192,15 +195,15 @@ describe("POST /api/v1/admin/properties/:id/review — rechazar", () => {
 describe("POST /api/v1/admin/properties/:id/review — 409 y 404", () => {
   it("una segunda revisión, dos simultáneas, id inexistente/no-uuid y baja responden con el código correcto", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
     actuarComo(admin);
 
     const [yaAprobada] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id))
+      .values(propiedadFixture(propietario.id))
       .returning();
     if (!yaAprobada) throw new Error("fixture no se creó");
     const { request: primeraReq, params: primerosParams } = requestReview(yaAprobada.id, {
@@ -221,7 +224,10 @@ describe("POST /api/v1/admin/properties/:id/review — 409 y 404", () => {
     const respuestaRechazoTrasAprobar = await POST_REVIEW(rechazoTrasAprobar, paramsRechazo);
     expect(respuestaRechazoTrasAprobar.status).toBe(409);
 
-    const [carrera] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+    const [carrera] = await db
+      .insert(propiedad)
+      .values(propiedadFixture(propietario.id))
+      .returning();
     if (!carrera) throw new Error("fixture no se creó");
     const solicitudA = requestReview(carrera.id, { decision: "aprobar" });
     const solicitudB = requestReview(carrera.id, { decision: "aprobar" });
@@ -244,7 +250,7 @@ describe("POST /api/v1/admin/properties/:id/review — 409 y 404", () => {
 
     const [deBaja] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { activo: false }))
+      .values(propiedadFixture(propietario.id, { activo: false }))
       .returning();
     if (!deBaja) throw new Error("fixture no se creó");
     const { request: reqDeBaja, params: paramsDeBaja } = requestReview(deBaja.id, {
@@ -255,13 +261,13 @@ describe("POST /api/v1/admin/properties/:id/review — 409 y 404", () => {
 });
 
 describe("Autorización de las rutas de revisión", () => {
-  it("sin sesión 401 en ambas rutas; buscador y oferente 404 sin cambiar la fila", async () => {
+  it("sin sesión 401 en ambas rutas; buscador y propietario 404 sin cambiar la fila", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
     const [pendiente] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id))
+      .values(propiedadFixture(propietario.id))
       .returning();
     if (!pendiente) throw new Error("fixture no se creó");
 
@@ -272,7 +278,7 @@ describe("Autorización de las rutas de revisión", () => {
     });
     expect((await POST_REVIEW(reqAnonimo, paramsAnonimo)).status).toBe(401);
 
-    for (const rol of ["buscador", "oferente"] as const) {
+    for (const rol of ["buscador", "propietario"] as const) {
       const actor = actorFixture(rol);
       await insertarUsuario(actor);
       actuarComo(actor);
@@ -289,12 +295,15 @@ describe("Autorización de las rutas de revisión", () => {
 describe("Un admin no edita contenido de propiedades", () => {
   it("PATCH /api/v1/properties/:id sobre una propiedad ajena responde 403 sin cambiar campos", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
 
-    const [propia] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+    const [propia] = await db
+      .insert(propiedad)
+      .values(propiedadFixture(propietario.id))
+      .returning();
     if (!propia) throw new Error("fixture no se creó");
 
     actuarComo(admin);

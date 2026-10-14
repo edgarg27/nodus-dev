@@ -14,17 +14,17 @@ test.afterAll(async () => {
   await limpiarUsuariosAuth();
 });
 
-async function crearOferente(nombre: string) {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
+async function crearPropietario(nombre: string) {
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
   await db
     .insert(usuario)
-    .values({ id: oferente.id, email: oferente.email, nombre, rol: "oferente" });
-  return oferente;
+    .values({ id: propietario.id, email: propietario.email, nombre, rol: "propietario" });
+  return propietario;
 }
 
-function propiedadPublicada(oferenteId: string, direccion: string, overrides = {}) {
+function propiedadPublicada(propietarioId: string, direccion: string, overrides = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion,
@@ -46,8 +46,8 @@ function propiedadPublicada(oferenteId: string, direccion: string, overrides = {
 test("publicar eligiendo una sugerencia de dirección y marcando Sí en financiamiento", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Oferente financiamiento");
-  await iniciarSesion(page, oferente);
+  const propietario = await crearPropietario("Propietario financiamiento");
+  await iniciarSesion(page, propietario);
 
   // MapTiler es un servicio externo: se simula la respuesta del proxy para que el escenario sea
   // determinista (el proxy en sí lo cubren sus pruebas de integración).
@@ -108,17 +108,20 @@ test("publicar eligiendo una sugerencia de dirección y marcando Sí en financia
     page.getByRole("heading", { name: "Tu propiedad fue enviada a revisión" }),
   ).toBeVisible();
 
-  const [fila] = await db.select().from(propiedad).where(eq(propiedad.oferenteId, oferente.id));
+  const [fila] = await db
+    .select()
+    .from(propiedad)
+    .where(eq(propiedad.propietarioId, propietario.id));
   expect(fila?.direccion).toBe("Av. Industrias 100, San Luis Potosí");
   expect(fila?.aceptaFinanciamiento).toBe(true);
 });
 
 test("buscar con estado + financiamiento refleja la URL y los resultados", async ({ page }) => {
-  const oferente = await crearOferente("Oferente búsqueda financiamiento");
+  const propietario = await crearPropietario("Propietario búsqueda financiamiento");
   await db.insert(propiedad).values([
-    propiedadPublicada(oferente.id, "Av. Financiable SLP 1", { aceptaFinanciamiento: true }),
-    propiedadPublicada(oferente.id, "Av. Contado SLP 2", { aceptaFinanciamiento: false }),
-    propiedadPublicada(oferente.id, "Av. Financiable AGS 3", {
+    propiedadPublicada(propietario.id, "Av. Financiable SLP 1", { aceptaFinanciamiento: true }),
+    propiedadPublicada(propietario.id, "Av. Contado SLP 2", { aceptaFinanciamiento: false }),
+    propiedadPublicada(propietario.id, "Av. Financiable AGS 3", {
       aceptaFinanciamiento: true,
       estado: "Aguascalientes",
       ciudad: "Aguascalientes",
@@ -149,12 +152,12 @@ test("buscar con estado + financiamiento refleja la URL y los resultados", async
 test("solicitar broker muestra nombre y correo de la cuenta y envía la empresa", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Ana Pérez Broker");
-  await iniciarSesion(page, oferente);
+  const propietario = await crearPropietario("Ana Pérez Broker");
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
 
   await expect(page.getByRole("main").getByText("Ana Pérez Broker")).toBeVisible();
-  await expect(page.getByRole("main").getByText(oferente.email)).toBeVisible();
+  await expect(page.getByRole("main").getByText(propietario.email)).toBeVisible();
   await expect(page.getByRole("textbox", { name: /nombre|correo/i })).toHaveCount(0);
 
   await page.getByRole("button", { name: "Enviar solicitud" }).click();
@@ -174,7 +177,7 @@ test("solicitar broker muestra nombre y correo de la cuenta y envía la empresa"
   const [solicitud] = await db
     .select()
     .from(brokerSolicitud)
-    .where(eq(brokerSolicitud.usuarioId, oferente.id));
+    .where(eq(brokerSolicitud.usuarioId, propietario.id));
   expect(solicitud?.empresa).toBe("Inmobiliaria Norte");
   expect(solicitud?.mensaje).toBe("12 años en SLP");
 });

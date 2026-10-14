@@ -8,7 +8,7 @@ interface VerificationNoticeProps {
   faltanDocumentos: boolean;
 }
 
-// Aviso para el oferente que todavía no puede publicar: le dice qué falta y lo lleva a /verificacion.
+// Aviso para el propietario que todavía no puede publicar: le dice qué falta y lo lleva a /verificacion.
 export function VerificationNotice({ idioma, estado, faltanDocumentos }: VerificationNoticeProps) {
   const t = textosDe(idioma).verificacion;
   let texto = t.avisoRevision;

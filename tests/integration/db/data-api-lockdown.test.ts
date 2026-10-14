@@ -102,7 +102,7 @@ describe("aislamiento de la Data API", () => {
     expect(intento3.error !== null || (intento3.data?.length ?? 0) === 0).toBe(true);
 
     const intento4 = await clienteAutenticado.from("propiedad").insert({
-      oferente_id: u1.id,
+      propietario_id: u1.id,
       tipo: "nave_industrial",
       modalidad: "renta",
       direccion: "Av. Ataque 1",

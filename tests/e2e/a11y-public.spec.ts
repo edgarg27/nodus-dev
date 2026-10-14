@@ -33,12 +33,17 @@ async function interceptarSignUp(page: Page) {
 test.beforeAll(async () => {
   await resetTestDatabase();
 
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
   await db
     .insert(usuario)
-    .values({ id: oferente.id, email: oferente.email, nombre: "Oferente a11y", rol: "oferente" });
+    .values({
+      id: propietario.id,
+      email: propietario.email,
+      nombre: "Propietario a11y",
+      rol: "propietario",
+    });
   await db.insert(propiedad).values({
-    oferenteId: oferente.id,
+    propietarioId: propietario.id,
     tipo: "nave_industrial",
     modalidad: "renta",
     direccion: "Av. Accesibilidad 1",

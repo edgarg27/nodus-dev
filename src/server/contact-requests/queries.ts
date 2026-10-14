@@ -2,7 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
 import { contactRequest, propiedad, usuario } from "../../lib/db/schema.ts";
 
-export interface LeadOferente {
+export interface LeadPropietario {
   id: string;
   propiedadId: string;
   direccionPropiedad: string;
@@ -14,15 +14,15 @@ export interface LeadOferente {
   createdAt: Date;
 }
 
-// Siempre filtra por `oferente_id === actor.id` — un `propiedadId` que no pertenece al oferente
+// Siempre filtra por `propietario_id === actor.id` — un `propiedadId` que no pertenece al propietario
 // se ignora en vez de devolver los leads de otro dueño (§14). Solo canal "directo": las solicitudes
 // nuevas llegan únicamente a Captive.
-export async function listarLeadsDelOferente(
-  oferenteId: string,
+export async function listarLeadsDelPropietario(
+  propietarioId: string,
   propiedadId?: string,
-): Promise<LeadOferente[]> {
+): Promise<LeadPropietario[]> {
   const condiciones = [
-    eq(contactRequest.oferenteId, oferenteId),
+    eq(contactRequest.propietarioId, propietarioId),
     eq(contactRequest.canal, "directo"),
   ];
 
@@ -30,7 +30,7 @@ export async function listarLeadsDelOferente(
     const [propiedadPropia] = await db
       .select({ id: propiedad.id })
       .from(propiedad)
-      .where(and(eq(propiedad.id, propiedadId), eq(propiedad.oferenteId, oferenteId)));
+      .where(and(eq(propiedad.id, propiedadId), eq(propiedad.propietarioId, propietarioId)));
     if (propiedadPropia) condiciones.push(eq(contactRequest.propiedadId, propiedadId));
   }
 

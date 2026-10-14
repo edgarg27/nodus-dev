@@ -13,7 +13,7 @@ paths:
   servicio (`src/server/**`), nunca solo en el handler de la ruta.
 - Todo handler que muta datos (`POST`/`PATCH`/`DELETE`) es idempotente cuando aplica o documenta
   explícitamente por qué no lo es.
-- **Regla única de autorización fuera de `/api/v1/admin/**`:** un rol equivocado recibe `403` y un oferente
+- **Regla única de autorización fuera de `/api/v1/admin/**`:** un rol equivocado recibe `403` y un propietario
   que no es el dueño del recurso recibe `404` (no confirma que exista).
 - Las rutas bajo `/api/v1/admin/**` exigen `rol = 'admin'` (`requireRol` dentro de la función de
   servicio) y responden **404, no 403**, a cualquier otro actor autenticado y `401` sin sesión. El

@@ -278,7 +278,7 @@ export async function clienteDelChat(
   if (!fila) return null;
   // La ficha de dueño abre también a los pendientes de verificar.
   const esDueno =
-    fila.rol === "oferente" && !fila.isBroker && fila.tipoAnunciante !== "inmobiliaria";
+    fila.rol === "propietario" && !fila.isBroker && fila.tipoAnunciante !== "inmobiliaria";
   const fichaHref =
     fila.rol === "buscador"
       ? `/admin/clientes/${buscadorId}`

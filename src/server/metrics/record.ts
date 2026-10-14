@@ -12,7 +12,7 @@ const MAX_VISITAS_POR_MINUTO = 3;
 
 interface DatosVisita {
   propiedadId: string;
-  oferenteId: string;
+  propietarioId: string;
   // `null` si quien abre la ficha no tiene sesión.
   actorId: string | null;
   ip: string;
@@ -22,7 +22,7 @@ interface DatosVisita {
 // No cuenta al dueño de la propiedad y recorta las ráfagas de una misma IP.
 export async function registrarVisita(datos: DatosVisita): Promise<void> {
   try {
-    if (datos.actorId === datos.oferenteId) return;
+    if (datos.actorId === datos.propietarioId) return;
     const limite = await verificarLimite(`visita:${datos.ip}:${datos.propiedadId}`, {
       max: MAX_VISITAS_POR_MINUTO,
     });

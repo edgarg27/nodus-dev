@@ -6,7 +6,7 @@ import { requireRol } from "../auth/guards.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
 import { obtenerPrimerasFotos } from "../properties/queries.ts";
 
-// Chat sobre una propiedad. Dos orígenes: un oferente escribe sobre una propiedad ajena de la Red
+// Chat sobre una propiedad. Dos orígenes: un propietario escribe sobre una propiedad ajena de la Red
 // (iniciarConversacion), o un buscador contacta un espacio publicado (abrirConversacionDeContacto,
 // desde la solicitud de contacto). El otro participante es siempre el dueño de la propiedad, y solo
 // ellos dos ven la conversación.
@@ -19,7 +19,7 @@ export type ResultadoChat<T> = { ok: true; data: T } | { ok: false; error: Error
 
 const SIN_PERMISO: ResultadoChat<never> = {
   ok: false,
-  error: { code: "forbidden", status: 403, message: "Se requiere el rol oferente" },
+  error: { code: "forbidden", status: 403, message: "Se requiere el rol propietario" },
 };
 const NO_ENCONTRADA: ResultadoChat<never> = {
   ok: false,
@@ -33,7 +33,7 @@ export interface PropiedadDeConversacion {
   fotoUrl: string | null;
 }
 
-// `esCliente`: el otro participante es un buscador (no otro oferente de la Red).
+// `esCliente`: el otro participante es un buscador (no otro propietario de la Red).
 export interface OtroParticipante {
   id: string;
   nombre: string;
@@ -62,9 +62,9 @@ export interface DetalleConversacion {
   mensajes: MensajeDeConversacion[];
 }
 
-// Oferentes y buscadores chatean; el admin no participa.
+// Propietarios y buscadores chatean; el admin no participa.
 function puedeChatear(actor: ActorAutenticado | null): actor is ActorAutenticado {
-  return actor !== null && (actor.rol === "oferente" || actor.rol === "buscador");
+  return actor !== null && (actor.rol === "propietario" || actor.rol === "buscador");
 }
 
 // Una conversación por propiedad e iniciador: la crea si no existe y agrega el mensaje.
@@ -103,13 +103,13 @@ async function agregarMensajeEnConversacion(datos: {
 export function abrirConversacionDeContacto(datos: {
   propiedadId: string;
   buscadorId: string;
-  oferenteId: string;
+  propietarioId: string;
   texto: string;
 }): Promise<string> {
   return agregarMensajeEnConversacion({
     propiedadId: datos.propiedadId,
     iniciadorId: datos.buscadorId,
-    duenoId: datos.oferenteId,
+    duenoId: datos.propietarioId,
     texto: datos.texto,
   });
 }
@@ -136,18 +136,18 @@ async function participantes(ids: string[]): Promise<Map<string, OtroParticipant
   return mapa;
 }
 
-// Chat de la Red, entre oferentes. Idempotente en la conversación; cada llamada agrega un mensaje.
+// Chat de la Red, entre propietarios. Idempotente en la conversación; cada llamada agrega un mensaje.
 export async function iniciarConversacion(
   actor: ActorAutenticado | null,
   propiedadId: string,
   texto: string,
 ): Promise<ResultadoChat<{ conversacionId: string }>> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) return SIN_PERMISO;
 
-  // Solo propiedades de la Red, publicadas y de otro oferente; si no, responde como inexistente.
+  // Solo propiedades de la Red, publicadas y de otro propietario; si no, responde como inexistente.
   const [prop] = await db
-    .select({ id: propiedad.id, oferenteId: propiedad.oferenteId })
+    .select({ id: propiedad.id, propietarioId: propiedad.propietarioId })
     .from(propiedad)
     .where(
       and(
@@ -155,7 +155,7 @@ export async function iniciarConversacion(
         eq(propiedad.activo, true),
         eq(propiedad.estadoPublicacion, "publicada"),
         eq(propiedad.compartidaEnRed, true),
-        ne(propiedad.oferenteId, actor.id),
+        ne(propiedad.propietarioId, actor.id),
       ),
     );
   if (!prop) return NO_ENCONTRADA;
@@ -163,7 +163,7 @@ export async function iniciarConversacion(
   const conversacionId = await agregarMensajeEnConversacion({
     propiedadId: prop.id,
     iniciadorId: actor.id,
-    duenoId: prop.oferenteId,
+    duenoId: prop.propietarioId,
     texto,
   });
   return { ok: true, data: { conversacionId } };

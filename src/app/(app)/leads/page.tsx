@@ -7,7 +7,7 @@ import { PaginationBar } from "@/components/properties/pagination-bar";
 import { bandejaAParams, leerBandeja, POR_PAGINA_LEADS } from "@/lib/leads";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
-import { listarBandejaDelOferente } from "@/server/contact-requests/inbox";
+import { listarBandejaDelPropietario } from "@/server/contact-requests/inbox";
 import { obtenerTextos } from "@/server/i18n";
 
 interface LeadsPageProps {
@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LeadsPage({ searchParams }: LeadsPageProps) {
   const actor = await getUsuarioActual();
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) notFound();
 
   const { idioma, t: textos } = await obtenerTextos();
@@ -33,7 +33,7 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
     return typeof valor === "string" ? valor : undefined;
   });
 
-  const bandeja = await listarBandejaDelOferente(actor.id, {
+  const bandeja = await listarBandejaDelPropietario(actor.id, {
     q: params.q,
     estado: params.estado,
     pagina: params.pagina,

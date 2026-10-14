@@ -13,9 +13,9 @@ test.afterAll(async () => {
   await limpiarUsuariosAuth();
 });
 
-function propiedadFixture(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadFixture(propietarioId: string, overrides: Record<string, unknown> = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: "Av. Listado 1",
@@ -31,13 +31,20 @@ function propiedadFixture(oferenteId: string, overrides: Record<string, unknown>
   };
 }
 
-test("oferente sin propiedades ve el estado vacío con la acción de publicar", async ({ page }) => {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
+test("propietario sin propiedades ve el estado vacío con la acción de publicar", async ({
+  page,
+}) => {
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
   await db
     .insert(usuario)
-    .values({ id: oferente.id, email: oferente.email, nombre: "Oferente vacío", rol: "oferente" });
+    .values({
+      id: propietario.id,
+      email: propietario.email,
+      nombre: "Propietario vacío",
+      rol: "propietario",
+    });
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/propiedades");
 
   await expect(page.getByText("Aún no tienes propiedades")).toBeVisible();
@@ -48,27 +55,27 @@ test("oferente sin propiedades ve el estado vacío con la acción de publicar", 
 test("muestra el estado de cada propiedad, el motivo de rechazo y Corregir y reenviar solo en la rechazada", async ({
   page,
 }) => {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
   await db.insert(usuario).values({
-    id: oferente.id,
-    email: oferente.email,
-    nombre: "Oferente con propiedades",
-    rol: "oferente",
+    id: propietario.id,
+    email: propietario.email,
+    nombre: "Propietario con propiedades",
+    rol: "propietario",
   });
 
   const [pendiente, publicada, rechazada] = await db
     .insert(propiedad)
     .values([
-      propiedadFixture(oferente.id, {
+      propiedadFixture(propietario.id, {
         direccion: "Av. Uno 100",
         direccionNormalizada: "av uno 100",
       }),
-      propiedadFixture(oferente.id, {
+      propiedadFixture(propietario.id, {
         direccion: "Av. Dos 200",
         direccionNormalizada: "av dos 200",
         estadoPublicacion: "publicada",
       }),
-      propiedadFixture(oferente.id, {
+      propiedadFixture(propietario.id, {
         direccion: "Av. Tres 300",
         direccionNormalizada: "av tres 300",
         estadoPublicacion: "rechazada",
@@ -78,7 +85,7 @@ test("muestra el estado de cada propiedad, el motivo de rechazo y Corregir y ree
     .returning();
   if (!pendiente || !publicada || !rechazada) throw new Error("fixtures no se crearon");
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/propiedades");
 
   await expect(page.getByText("En revisión")).toBeVisible();
@@ -91,23 +98,23 @@ test("muestra el estado de cada propiedad, el motivo de rechazo y Corregir y ree
   await expect(enlacesCorregir).toHaveAttribute("href", `/propiedades/${rechazada.id}/editar`);
 });
 
-test("no muestra propiedades de otro oferente", async ({ page }) => {
-  const oferenteA = await crearUsuarioAuth({ rol: "oferente" });
-  const oferenteB = await crearUsuarioAuth({ rol: "oferente" });
+test("no muestra propiedades de otro propietario", async ({ page }) => {
+  const propietarioA = await crearUsuarioAuth({ rol: "propietario" });
+  const propietarioB = await crearUsuarioAuth({ rol: "propietario" });
   await db.insert(usuario).values([
-    { id: oferenteA.id, email: oferenteA.email, nombre: "Oferente A", rol: "oferente" },
-    { id: oferenteB.id, email: oferenteB.email, nombre: "Oferente B", rol: "oferente" },
+    { id: propietarioA.id, email: propietarioA.email, nombre: "Propietario A", rol: "propietario" },
+    { id: propietarioB.id, email: propietarioB.email, nombre: "Propietario B", rol: "propietario" },
   ]);
 
   await db.insert(propiedad).values(
-    propiedadFixture(oferenteB.id, {
+    propiedadFixture(propietarioB.id, {
       direccion: "Av. Ajena 1",
       direccionNormalizada: "av ajena 1",
       descripcion: "Propiedad de B",
     }),
   );
 
-  await iniciarSesion(page, oferenteA);
+  await iniciarSesion(page, propietarioA);
   await page.goto("/propiedades");
 
   await expect(page.getByText("Av. Ajena 1")).toHaveCount(0);

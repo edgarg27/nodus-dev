@@ -17,7 +17,7 @@ const DURACION_AUTO_DESCARTE_MS = 6000;
 
 const OPCIONES_ROL = [
   { valor: "buscador", etiqueta: "Busco un espacio" },
-  { valor: "oferente", etiqueta: "Ofrezco un espacio" },
+  { valor: "propietario", etiqueta: "Ofrezco un espacio" },
 ] as const;
 
 const OPCIONES_TIPO_ANUNCIANTE = [
@@ -27,8 +27,8 @@ const OPCIONES_TIPO_ANUNCIANTE = [
 
 interface SignUpFormProps {
   ref?: string;
-  // "oferente" cuando se llega desde "Publica tu espacio".
-  rolInicial?: "buscador" | "oferente";
+  // "propietario" cuando se llega desde "Publica tu espacio".
+  rolInicial?: "buscador" | "propietario";
 }
 
 // Pregunta al servidor si el correo ya tiene una cuenta confirmada. Ante cualquier fallo de red o
@@ -366,7 +366,7 @@ export function SignUpForm({ ref, rolInicial = "buscador" }: SignUpFormProps) {
           ) : null}
         </div>
 
-        {rol === "oferente" ? (
+        {rol === "propietario" ? (
           <div className="flex flex-col gap-4 rounded-xl border border-border bg-background/60 p-4">
             <p className="text-[13px] text-muted-foreground">
               Para publicar necesitamos saber quién eres y cómo contactarte.

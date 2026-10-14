@@ -9,7 +9,7 @@ import { obtenerVerificacion } from "@/server/verificacion/estado";
 
 export default async function NuevaPropiedadPage() {
   const actor = await getUsuarioActual();
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) notFound();
 
   // Mientras Captive no apruebe la cuenta no hay formulario: se le manda a completar su verificación.

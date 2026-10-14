@@ -17,9 +17,9 @@
 //   - `favorito`, `busqueda_guardada`: agregadas con la migración 0009 (favoritos y búsquedas
 //     guardadas), en el mismo commit que crea las tablas.
 //   - `agencia_perfil`, `agencia_contacto`: agregadas con la migración 0014 (perfil de agencia del
-//     oferente), en el mismo commit que crea las tablas.
+//     propietario), en el mismo commit que crea las tablas.
 //   - `propiedad_metrica_diaria`, `conversacion`, `mensaje`: agregadas con la migración 0016
-//     (métricas y chat del panel del oferente), en el mismo commit que crea las tablas.
+//     (métricas y chat del panel del propietario), en el mismo commit que crea las tablas.
 //   - `seguimiento_nota`: agregada con la migración 0019 (Clientes y prospectos del panel de
 //     administración), en el mismo commit que crea la tabla. (`seguimiento_cliente` nació en la 0019
 //     y la quitó la 0021.)

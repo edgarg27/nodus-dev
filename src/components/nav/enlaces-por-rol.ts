@@ -1,9 +1,9 @@
 import type { SiteHeaderActor } from "@/components/nav/site-header";
 import type { Textos } from "@/lib/i18n";
 import {
-  BANDEJA_VISIBLE_PARA_OFERENTE,
-  MENSAJES_VISIBLE_PARA_OFERENTE,
-} from "@/lib/oferente-visibilidad";
+  BANDEJA_VISIBLE_PARA_PROPIETARIO,
+  MENSAJES_VISIBLE_PARA_PROPIETARIO,
+} from "@/lib/propietario-visibilidad";
 
 // Enlaces del menú de la cuenta (avatar del encabezado), según el rol.
 interface EnlaceNav {
@@ -21,16 +21,18 @@ export function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): Enla
     { href: "/favoritos", etiqueta: t.misFavoritos },
     { href: "/mis-busquedas", etiqueta: t.misBusquedas },
   ];
-  if (actor.rol === "oferente") {
+  if (actor.rol === "propietario") {
     return [
       { href: "/panel", etiqueta: t.panel },
       { href: "/propiedades", etiqueta: t.misPropiedades },
-      ...(BANDEJA_VISIBLE_PARA_OFERENTE ? [{ href: "/leads", etiqueta: t.misLeadsBandeja }] : []),
+      ...(BANDEJA_VISIBLE_PARA_PROPIETARIO
+        ? [{ href: "/leads", etiqueta: t.misLeadsBandeja }]
+        : []),
       { href: "/red", etiqueta: t.red },
-      ...(MENSAJES_VISIBLE_PARA_OFERENTE
+      ...(MENSAJES_VISIBLE_PARA_PROPIETARIO
         ? [{ href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos }]
         : [
-            // Sin "Mensajes", el oferente llega directo a su chat con Captive.
+            // Sin "Mensajes", el propietario llega directo a su chat con Captive.
             {
               href: "/mensajes/captive",
               etiqueta: t.chatCaptive,

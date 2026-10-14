@@ -30,10 +30,10 @@ interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-async function verificarPropiedadDelDueno(id: string, oferenteId: string) {
+async function verificarPropiedadDelDueno(id: string, propietarioId: string) {
   if (!esUuid(id)) return null;
   const [prop] = await db.select().from(propiedad).where(eq(propiedad.id, id));
-  if (!prop || prop.oferenteId !== oferenteId) return null;
+  if (!prop || prop.propietarioId !== propietarioId) return null;
   return prop;
 }
 
@@ -46,9 +46,9 @@ export async function POST(request: Request, { params }: RouteParams) {
     });
   }
 
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok) {
-    return NextResponse.json(errorEnvelope("forbidden", "Se requiere el rol oferente"), {
+    return NextResponse.json(errorEnvelope("forbidden", "Se requiere el rol propietario"), {
       status: 403,
     });
   }
@@ -97,9 +97,9 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     });
   }
 
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok) {
-    return NextResponse.json(errorEnvelope("forbidden", "Se requiere el rol oferente"), {
+    return NextResponse.json(errorEnvelope("forbidden", "Se requiere el rol propietario"), {
       status: 403,
     });
   }

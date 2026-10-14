@@ -15,8 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function MensajesPage() {
   const actor = await getUsuarioActual();
-  // Oferentes (clientes y Red) y buscadores (los espacios que contactaron).
-  if (!actor || (actor.rol !== "oferente" && actor.rol !== "buscador")) notFound();
+  // Propietarios (clientes y Red) y buscadores (los espacios que contactaron).
+  if (!actor || (actor.rol !== "propietario" && actor.rol !== "buscador")) notFound();
   const esBuscador = actor.rol === "buscador";
 
   const { idioma, t } = await obtenerTextos();
@@ -94,7 +94,7 @@ export default async function MensajesPage() {
                 >
                   <div className="h-12 w-16 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-primary/80 to-primary">
                     {conversacion.propiedad.fotoUrl ? (
-                      // biome-ignore lint/performance/noImgElement: foto subida por el oferente
+                      // biome-ignore lint/performance/noImgElement: foto subida por el propietario
                       <img
                         src={conversacion.propiedad.fotoUrl}
                         alt=""
@@ -104,7 +104,7 @@ export default async function MensajesPage() {
                   </div>
                   <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                     <span className="flex items-center gap-2 truncate text-[15px] font-semibold text-foreground">
-                      {conversacion.otro.nombre || m.oferente}
+                      {conversacion.otro.nombre || m.propietario}
                       {conversacion.otro.esCliente ? (
                         <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-bold text-accent">
                           {m.cliente}

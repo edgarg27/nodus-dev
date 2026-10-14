@@ -57,8 +57,8 @@ test("registro con la red interceptada muestra Revisa tu correo y permite reenvi
 });
 
 test("usuarios confirmados inician sesión y terminan en el panel de su rol", async ({ page }) => {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
-  await iniciarSesion(page, oferente);
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
+  await iniciarSesion(page, propietario);
   expect(page.url()).toContain("/propiedades");
 
   await page.context().clearCookies();
@@ -73,8 +73,8 @@ test("usuarios confirmados inician sesión y terminan en el panel de su rol", as
 });
 
 test("con sesión iniciada, visitar /sign-in redirige al panel del rol", async ({ page }) => {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
-  await iniciarSesion(page, oferente);
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
+  await iniciarSesion(page, propietario);
 
   await page.goto("/sign-in");
   await expect(page).toHaveURL(/\/propiedades/);
@@ -97,7 +97,7 @@ test("un usuario sin confirmar ve Confirma tu correo y no llega a ningún panel"
 test("el enlace de confirmación real lleva al panel del rol", async ({ page }) => {
   const email = `nodus-test+${randomUUID()}@example.com`;
   const password = `Pw-${randomUUID()}`;
-  const { tokenHash } = await generarEnlaceConfirmacion({ email, password, rol: "oferente" });
+  const { tokenHash } = await generarEnlaceConfirmacion({ email, password, rol: "propietario" });
 
   await page.goto(`/auth/confirm?token_hash=${tokenHash}&type=signup`);
   await expect(page).toHaveURL(/\/propiedades/);

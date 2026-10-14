@@ -9,7 +9,7 @@ export interface ContactoConPropiedades extends AgenciaContactoFila {
   propiedadesAsociadas: number;
 }
 
-// Perfil del oferente; si aún no lo creó, el nombre de su cuenta hace de nombre de agencia.
+// Perfil del propietario; si aún no lo creó, el nombre de su cuenta hace de nombre de agencia.
 export async function obtenerPerfilAgencia(usuarioId: string) {
   const [perfil] = await db
     .select()
@@ -24,7 +24,7 @@ export async function obtenerPerfilAgencia(usuarioId: string) {
   return { nombre: cuenta?.nombre ?? "", descripcion: "", logoUrl: null as string | null };
 }
 
-// Contactos del oferente con el número de propiedades activas que usan cada uno.
+// Contactos del propietario con el número de propiedades activas que usan cada uno.
 export async function listarContactosDeAgencia(
   usuarioId: string,
 ): Promise<ContactoConPropiedades[]> {
@@ -38,7 +38,7 @@ export async function listarContactosDeAgencia(
   const usos = await db
     .select({ contactoId: propiedad.contactoId, total: count() })
     .from(propiedad)
-    .where(and(eq(propiedad.oferenteId, usuarioId), eq(propiedad.activo, true)))
+    .where(and(eq(propiedad.propietarioId, usuarioId), eq(propiedad.activo, true)))
     .groupBy(propiedad.contactoId);
   const porContacto = new Map(usos.map((uso) => [uso.contactoId, uso.total]));
   return contactos.map((contacto) => ({
@@ -54,24 +54,24 @@ export interface ContactoPublico {
   email: string | null;
 }
 
-// Cómo se contacta al oferente de una propiedad: el contacto que eligió (si lo hay) y, para lo
+// Cómo se contacta al propietario de una propiedad: el contacto que eligió (si lo hay) y, para lo
 // que falte, el teléfono de su cuenta. El nombre de la agencia sale del perfil o de la cuenta.
 export async function obtenerContactoPublico(
-  oferenteId: string,
+  propietarioId: string,
   contactoId: string | null,
 ): Promise<ContactoPublico> {
-  const perfil = await obtenerPerfilAgencia(oferenteId);
+  const perfil = await obtenerPerfilAgencia(propietarioId);
   const [cuenta] = await db
     .select({ telefono: usuario.telefono })
     .from(usuario)
-    .where(eq(usuario.id, oferenteId));
+    .where(eq(usuario.id, propietarioId));
 
   let elegido: AgenciaContactoFila | undefined;
   if (contactoId) {
     [elegido] = await db
       .select()
       .from(agenciaContacto)
-      .where(and(eq(agenciaContacto.id, contactoId), eq(agenciaContacto.usuarioId, oferenteId)));
+      .where(and(eq(agenciaContacto.id, contactoId), eq(agenciaContacto.usuarioId, propietarioId)));
   }
 
   return {
@@ -82,7 +82,7 @@ export async function obtenerContactoPublico(
   };
 }
 
-// Nombres de agencia de varios oferentes a la vez (tarjetas de la Red, chat).
+// Nombres de agencia de varios propietarios a la vez (tarjetas de la Red, chat).
 export async function nombresDeAgencia(usuarioIds: string[]): Promise<Map<string, string>> {
   const ids = [...new Set(usuarioIds)];
   const mapa = new Map<string, string>();
@@ -101,9 +101,9 @@ export async function nombresDeAgencia(usuarioIds: string[]): Promise<Map<string
 
 // Identidad que se muestra en la ficha pública: nombre de la agencia y si es broker aprobado.
 // También alimenta "Información del anunciante": descripción, antigüedad y espacios publicados.
-export async function obtenerIdentidadPublica(oferenteId: string) {
+export async function obtenerIdentidadPublica(propietarioId: string) {
   const [perfil, [cuenta], [publicadas]] = await Promise.all([
-    obtenerPerfilAgencia(oferenteId),
+    obtenerPerfilAgencia(propietarioId),
     db
       .select({
         isBroker: usuario.isBroker,
@@ -111,13 +111,13 @@ export async function obtenerIdentidadPublica(oferenteId: string) {
         tipoAnunciante: usuario.tipoAnunciante,
       })
       .from(usuario)
-      .where(eq(usuario.id, oferenteId)),
+      .where(eq(usuario.id, propietarioId)),
     db
       .select({ total: count() })
       .from(propiedad)
       .where(
         and(
-          eq(propiedad.oferenteId, oferenteId),
+          eq(propiedad.propietarioId, propietarioId),
           eq(propiedad.activo, true),
           eq(propiedad.estadoPublicacion, "publicada"),
         ),

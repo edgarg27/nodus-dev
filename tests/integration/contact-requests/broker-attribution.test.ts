@@ -18,7 +18,7 @@ const { POST } = await import("../../../src/app/api/v1/contact-requests/route.ts
 type ActorFixture = Awaited<ReturnType<typeof getUsuarioActual>>;
 
 function actorFixture(
-  rol: "buscador" | "oferente" | "admin",
+  rol: "buscador" | "propietario" | "admin",
   overrides: Record<string, unknown> = {},
 ): NonNullable<ActorFixture> {
   return {
@@ -53,9 +53,9 @@ async function insertarUsuario(
   });
 }
 
-function propiedadFixture(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadFixture(propietarioId: string, overrides: Record<string, unknown> = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: `Av. Contacto ${randomUUID()}`,
@@ -82,9 +82,12 @@ function request(body: unknown) {
 describe("POST /api/v1/contact-requests", () => {
   it("buscador sin referral_broker_id crea el lead con broker_id null", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente, { telefono: "4441234567" });
-    const [propia] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario, { telefono: "4441234567" });
+    const [propia] = await db
+      .insert(propiedad)
+      .values(propiedadFixture(propietario.id))
+      .returning();
     if (!propia) throw new Error("fixture no se creó");
 
     const buscador = actorFixture("buscador");
@@ -105,12 +108,15 @@ describe("POST /api/v1/contact-requests", () => {
 
   it("buscador con broker vigente copia el broker_id automáticamente", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente, { telefono: "4441234567" });
-    const [propia] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario, { telefono: "4441234567" });
+    const [propia] = await db
+      .insert(propiedad)
+      .values(propiedadFixture(propietario.id))
+      .returning();
     if (!propia) throw new Error("fixture no se creó");
 
-    const broker = actorFixture("oferente");
+    const broker = actorFixture("propietario");
     await insertarUsuario(broker, {
       isBroker: true,
       brokerCode: `BRK-${randomUUID().slice(0, 6)}`,
@@ -132,18 +138,21 @@ describe("POST /api/v1/contact-requests", () => {
     expect(fila?.brokerId).toBe(broker.id);
   });
 
-  it("oferente y admin reciben 403", async () => {
+  it("propietario y admin reciben 403", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente, { telefono: "4441234567" });
-    const [propia] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario, { telefono: "4441234567" });
+    const [propia] = await db
+      .insert(propiedad)
+      .values(propiedadFixture(propietario.id))
+      .returning();
     if (!propia) throw new Error("fixture no se creó");
 
-    actuarComo(oferente);
-    const respuestaOferente = await POST(
+    actuarComo(propietario);
+    const respuestaPropietario = await POST(
       request({ propiedad_id: propia.id, quiere_financiamiento: false }),
     );
-    expect(respuestaOferente.status).toBe(403);
+    expect(respuestaPropietario.status).toBe(403);
 
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
@@ -156,19 +165,21 @@ describe("POST /api/v1/contact-requests", () => {
 
   it("propiedad inactiva, pendiente o rechazada responde 404 sin insertar fila", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente, { telefono: "4441234567" });
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario, { telefono: "4441234567" });
     const [inactiva] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { activo: false }))
+      .values(propiedadFixture(propietario.id, { activo: false }))
       .returning();
     const [pendiente] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { estadoPublicacion: "pendiente" }))
+      .values(propiedadFixture(propietario.id, { estadoPublicacion: "pendiente" }))
       .returning();
     const [rechazada] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { estadoPublicacion: "rechazada", motivoRechazo: "x" }))
+      .values(
+        propiedadFixture(propietario.id, { estadoPublicacion: "rechazada", motivoRechazo: "x" }),
+      )
       .returning();
     if (!inactiva || !pendiente || !rechazada) throw new Error("fixtures no se crearon");
 
@@ -189,12 +200,15 @@ describe("POST /api/v1/contact-requests", () => {
 
   it("un broker revocado no recibe atribución nueva y sus leads previos no cambian", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente, { telefono: "4441234567" });
-    const [propia] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario, { telefono: "4441234567" });
+    const [propia] = await db
+      .insert(propiedad)
+      .values(propiedadFixture(propietario.id))
+      .returning();
     if (!propia) throw new Error("fixture no se creó");
 
-    const broker = actorFixture("oferente");
+    const broker = actorFixture("propietario");
     await insertarUsuario(broker, {
       isBroker: true,
       brokerCode: `BRK-${randomUUID().slice(0, 6)}`,
@@ -217,7 +231,7 @@ describe("POST /api/v1/contact-requests", () => {
 
     const [otraPropia] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id))
+      .values(propiedadFixture(propietario.id))
       .returning();
     if (!otraPropia) throw new Error("fixture no se creó");
 
@@ -233,11 +247,14 @@ describe("POST /api/v1/contact-requests", () => {
     expect(leadNuevo?.brokerId).toBeNull();
   });
 
-  it("la solicitud llega solo a Captive: sin teléfono, WhatsApp ni chat con el oferente", async () => {
+  it("la solicitud llega solo a Captive: sin teléfono, WhatsApp ni chat con el propietario", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente, { telefono: "444 123 4567" });
-    const [propia] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario, { telefono: "444 123 4567" });
+    const [propia] = await db
+      .insert(propiedad)
+      .values(propiedadFixture(propietario.id))
+      .returning();
     if (!propia) throw new Error("fixture no se creó");
 
     const buscador = actorFixture("buscador");
@@ -247,7 +264,7 @@ describe("POST /api/v1/contact-requests", () => {
     const respuesta = await POST(request({ propiedad_id: propia.id, quiere_financiamiento: true }));
     expect(respuesta.status).toBe(201);
     const cuerpo = await respuesta.json();
-    expect(cuerpo.data.telefono_oferente).toBeNull();
+    expect(cuerpo.data.telefono_propietario).toBeNull();
     expect(cuerpo.data.whatsapp_url).toBeNull();
     expect(cuerpo.data.conversacion_id).toBeNull();
 
@@ -266,9 +283,12 @@ describe("POST /api/v1/contact-requests", () => {
 describe("POST /api/v1/contact-requests — mensaje", () => {
   async function preparar() {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente, { telefono: "444 123 4567" });
-    const [propia] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario, { telefono: "444 123 4567" });
+    const [propia] = await db
+      .insert(propiedad)
+      .values(propiedadFixture(propietario.id))
+      .returning();
     if (!propia) throw new Error("fixture no se creó");
     const buscador = actorFixture("buscador");
     await insertarUsuario(buscador);

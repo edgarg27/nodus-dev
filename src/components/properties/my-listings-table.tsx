@@ -233,7 +233,7 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
                     <div className="flex min-w-[260px] items-start gap-3">
                       <div className="flex h-[52px] w-[72px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-primary/80 to-primary">
                         {propiedad.fotoUrl ? (
-                          // biome-ignore lint/performance/noImgElement: foto subida por el oferente
+                          // biome-ignore lint/performance/noImgElement: foto subida por el propietario
                           <img
                             src={propiedad.fotoUrl}
                             alt=""

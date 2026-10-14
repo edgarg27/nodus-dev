@@ -55,7 +55,7 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
     timeZone: ZONA_HORARIA,
   });
   const ahora = new Date();
-  // Las nuevas (le llegaron a Captive) a la vista; las anteriores (directo al oferente), aparte.
+  // Las nuevas (le llegaron a Captive) a la vista; las anteriores (directo al propietario), aparte.
   const nuevas = cliente.solicitudes.filter((s) => s.canal === "captive");
   const anteriores = cliente.solicitudes.filter((s) => s.canal === "directo");
   const etiquetaSolicitud = new Map(
@@ -115,7 +115,7 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
           )}
 
           {anteriores.length > 0 ? (
-            // Las que le llegaron directo al oferente antes del cambio: cerradas hasta que se
+            // Las que le llegaron directo al propietario antes del cambio: cerradas hasta que se
             // pidan, para no mezclarlas con las nuevas.
             <details className="group flex flex-col gap-4">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl border border-border bg-surface px-5 py-4 text-sm font-semibold text-text transition-colors hover:border-primary [&::-webkit-details-marker]:hidden">

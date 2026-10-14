@@ -57,7 +57,7 @@ describe("GET /auth/confirm", () => {
     const { tokenHash } = await generarEnlaceConfirmacion({
       email,
       password,
-      rol: "oferente",
+      rol: "propietario",
       nombre: "Ana",
     });
 
@@ -71,7 +71,7 @@ describe("GET /auth/confirm", () => {
     expect(cookieJar.size).toBeGreaterThan(0);
 
     const [fila] = await db.select().from(usuario).where(eq(usuario.email, email));
-    expect(fila?.rol).toBe("oferente");
+    expect(fila?.rol).toBe("propietario");
     expect(fila?.nombre).toBe("Ana");
   });
 

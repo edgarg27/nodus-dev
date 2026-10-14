@@ -18,9 +18,9 @@ test.afterAll(async () => {
   await limpiarUsuariosAuth();
 });
 
-function propiedadFixture(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadFixture(propietarioId: string, overrides: Record<string, unknown> = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: `Av. Revisión E2E ${randomUUID()}`,
@@ -36,20 +36,23 @@ function propiedadFixture(oferenteId: string, overrides: Record<string, unknown>
   };
 }
 
-async function crearOferente(nombre: string) {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
+async function crearPropietario(nombre: string) {
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
   await db
     .insert(usuario)
-    .values({ id: oferente.id, email: oferente.email, nombre, rol: "oferente" });
-  return oferente;
+    .values({ id: propietario.id, email: propietario.email, nombre, rol: "propietario" });
+  return propietario;
 }
 
 test("el admin inicia sesión y termina en /admin/propiedades, con la cola y sus fotos", async ({
   page,
 }) => {
   const admin = await crearAdminDePrueba();
-  const oferente = await crearOferente("Oferente con fotos");
-  const [pendiente] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+  const propietario = await crearPropietario("Propietario con fotos");
+  const [pendiente] = await db
+    .insert(propiedad)
+    .values(propiedadFixture(propietario.id))
+    .returning();
   if (!pendiente) throw new Error("fixture no se creó");
   await db.insert(propiedadFoto).values([
     { propiedadId: pendiente.id, storageUrl: "https://placehold.co/120x120.png", orden: 0 },
@@ -64,7 +67,7 @@ test("el admin inicia sesión y termina en /admin/propiedades, con la cola y sus
 
   const tarjeta = page.locator("article").filter({ hasText: pendiente.direccion });
   await expect(tarjeta).toBeVisible();
-  await expect(tarjeta.getByText("Oferente con fotos")).toBeVisible();
+  await expect(tarjeta.getByText("Propietario con fotos")).toBeVisible();
   await expect(tarjeta.locator("img")).toHaveCount(2);
 });
 
@@ -73,8 +76,11 @@ test("aprobar quita la propiedad de la cola y la hace visible en /buscar para un
   browser,
 }) => {
   const admin = await crearAdminDePrueba();
-  const oferente = await crearOferente("Oferente a aprobar");
-  const [pendiente] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+  const propietario = await crearPropietario("Propietario a aprobar");
+  const [pendiente] = await db
+    .insert(propiedad)
+    .values(propiedadFixture(propietario.id))
+    .returning();
   if (!pendiente) throw new Error("fixture no se creó");
 
   await iniciarSesion(page, admin);
@@ -89,12 +95,15 @@ test("aprobar quita la propiedad de la cola y la hace visible en /buscar para un
   await paginaAnonima.close();
 });
 
-test("rechazar exige motivo; con motivo, sale de la cola y el oferente ve el motivo", async ({
+test("rechazar exige motivo; con motivo, sale de la cola y el propietario ve el motivo", async ({
   page,
 }) => {
   const admin = await crearAdminDePrueba();
-  const oferente = await crearOferente("Oferente a rechazar");
-  const [pendiente] = await db.insert(propiedad).values(propiedadFixture(oferente.id)).returning();
+  const propietario = await crearPropietario("Propietario a rechazar");
+  const [pendiente] = await db
+    .insert(propiedad)
+    .values(propiedadFixture(propietario.id))
+    .returning();
   if (!pendiente) throw new Error("fixture no se creó");
 
   await iniciarSesion(page, admin);
@@ -111,7 +120,7 @@ test("rechazar exige motivo; con motivo, sale de la cola y el oferente ve el mot
   await expect(tarjeta).toHaveCount(0);
 
   await page.context().clearCookies();
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/propiedades");
   await expect(page.getByText("Rechazada")).toBeVisible();
   await expect(page.getByText("Foto ilegible")).toBeVisible();
@@ -121,14 +130,14 @@ test("editar la descripción de una propiedad aprobada la regresa a la cola del 
   page,
 }) => {
   const admin = await crearAdminDePrueba();
-  const oferente = await crearOferente("Oferente que reedita");
+  const propietario = await crearPropietario("Propietario que reedita");
   const [publicada] = await db
     .insert(propiedad)
-    .values(propiedadFixture(oferente.id, { estadoPublicacion: "publicada" }))
+    .values(propiedadFixture(propietario.id, { estadoPublicacion: "publicada" }))
     .returning();
   if (!publicada) throw new Error("fixture no se creó");
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto(`/propiedades/${publicada.id}/editar`);
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByLabel("Descripción").fill("Descripción reeditada tras aprobación");
@@ -141,7 +150,7 @@ test("editar la descripción de una propiedad aprobada la regresa a la cola del 
   await expect(page.locator("article").filter({ hasText: publicada.direccion })).toBeVisible();
 });
 
-test("un buscador u oferente reciben 404 en /admin/propiedades, y un anónimo va a /sign-in", async ({
+test("un buscador u propietario reciben 404 en /admin/propiedades, y un anónimo va a /sign-in", async ({
   page,
 }) => {
   const buscador = await crearUsuarioAuth({ rol: "buscador" });
@@ -149,11 +158,11 @@ test("un buscador u oferente reciben 404 en /admin/propiedades, y un anónimo va
   const respuestaBuscador = await page.goto("/admin/propiedades");
   expect(respuestaBuscador?.status()).toBe(404);
 
-  const oferente = await crearOferente("Oferente sin acceso admin");
+  const propietario = await crearPropietario("Propietario sin acceso admin");
   await page.context().clearCookies();
-  await iniciarSesion(page, oferente);
-  const respuestaOferente = await page.goto("/admin/propiedades");
-  expect(respuestaOferente?.status()).toBe(404);
+  await iniciarSesion(page, propietario);
+  const respuestaPropietario = await page.goto("/admin/propiedades");
+  expect(respuestaPropietario?.status()).toBe(404);
 
   await page.context().clearCookies();
   await page.goto("/admin/propiedades");

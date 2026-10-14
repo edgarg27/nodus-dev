@@ -35,7 +35,7 @@ export function NetworkCard({ propiedad, esPropia, idioma }: NetworkCardProps) {
     <article className="flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-sm">
       <div className="relative flex h-44 items-center justify-center bg-gradient-to-br from-primary/80 to-primary">
         {propiedad.fotoUrl ? (
-          // biome-ignore lint/performance/noImgElement: foto subida por el oferente
+          // biome-ignore lint/performance/noImgElement: foto subida por el propietario
           <img src={propiedad.fotoUrl} alt="" className="h-full w-full object-cover" />
         ) : (
           <Icono

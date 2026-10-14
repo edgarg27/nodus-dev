@@ -8,7 +8,7 @@ paths:
 
 - El mapa (`maplibre-gl`) es siempre un Client Component. Nunca lo importes desde un Server
   Component directamente — pásale las propiedades ya resueltas como props.
-- La geocodificación (MapTiler Geocoding) es solo un **punto de partida**. El oferente puede
+- La geocodificación (MapTiler Geocoding) es solo un **punto de partida**. El propietario puede
   arrastrar el pin manualmente al crear o editar una propiedad, y la posición final arrastrada es
   la que se guarda en `lat`/`lng` — nunca se sobrescribe con un nuevo geocode automático después de
   que el usuario ajustó el pin a mano.

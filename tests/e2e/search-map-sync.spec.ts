@@ -12,9 +12,9 @@ test.afterAll(async () => {
   await limpiarUsuariosAuth();
 });
 
-function propiedadFixture(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadFixture(propietarioId: string, overrides: Record<string, unknown> = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: "Av. Búsqueda 1",
@@ -30,27 +30,27 @@ function propiedadFixture(oferenteId: string, overrides: Record<string, unknown>
   };
 }
 
-async function crearOferente(nombre: string) {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
+async function crearPropietario(nombre: string) {
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
   await db
     .insert(usuario)
-    .values({ id: oferente.id, email: oferente.email, nombre, rol: "oferente" });
-  return oferente;
+    .values({ id: propietario.id, email: propietario.email, nombre, rol: "propietario" });
+  return propietario;
 }
 
 test("un anónimo ve /buscar en 200 solo con propiedades activo y publicada", async ({ page }) => {
-  const oferente = await crearOferente("Oferente búsqueda anónima");
+  const propietario = await crearPropietario("Propietario búsqueda anónima");
   await db.insert(propiedad).values([
-    propiedadFixture(oferente.id, {
+    propiedadFixture(propietario.id, {
       direccion: "Av. Pública 100",
       direccionNormalizada: "av publica 100",
     }),
-    propiedadFixture(oferente.id, {
+    propiedadFixture(propietario.id, {
       direccion: "Av. Pendiente 200",
       direccionNormalizada: "av pendiente 200",
       estadoPublicacion: "pendiente",
     }),
-    propiedadFixture(oferente.id, {
+    propiedadFixture(propietario.id, {
       direccion: "Av. Baja 300",
       direccionNormalizada: "av baja 300",
       activo: false,
@@ -66,17 +66,17 @@ test("un anónimo ve /buscar en 200 solo con propiedades activo y publicada", as
 });
 
 test("clic en un pin resalta la tarjeta y clic en una tarjeta centra el pin", async ({ page }) => {
-  const oferente = await crearOferente("Oferente búsqueda sincronizada");
+  const propietario = await crearPropietario("Propietario búsqueda sincronizada");
   const [propiedadUno, propiedadDos] = await db
     .insert(propiedad)
     .values([
-      propiedadFixture(oferente.id, {
+      propiedadFixture(propietario.id, {
         direccion: "Av. Sincronía Uno 400",
         direccionNormalizada: "av sincronia uno 400",
         lat: "22.200000",
         lng: "-100.900000",
       }),
-      propiedadFixture(oferente.id, {
+      propiedadFixture(propietario.id, {
         direccion: "Av. Sincronía Dos 500",
         direccionNormalizada: "av sincronia dos 500",
         lat: "22.300000",
@@ -100,21 +100,21 @@ test("clic en un pin resalta la tarjeta y clic en una tarjeta centra el pin", as
 });
 
 test("filtros por query string muestran solo lo que cumple ambas condiciones", async ({ page }) => {
-  const oferente = await crearOferente("Oferente búsqueda filtrada");
+  const propietario = await crearPropietario("Propietario búsqueda filtrada");
   await db.insert(propiedad).values([
-    propiedadFixture(oferente.id, {
+    propiedadFixture(propietario.id, {
       direccion: "Av. Filtro Coincide 600",
       direccionNormalizada: "av filtro coincide 600",
       modalidad: "renta",
       estado: "SLP",
     }),
-    propiedadFixture(oferente.id, {
+    propiedadFixture(propietario.id, {
       direccion: "Av. Filtro Modalidad 700",
       direccionNormalizada: "av filtro modalidad 700",
       modalidad: "venta",
       estado: "SLP",
     }),
-    propiedadFixture(oferente.id, {
+    propiedadFixture(propietario.id, {
       direccion: "Av. Filtro Estado 800",
       direccionNormalizada: "av filtro estado 800",
       modalidad: "renta",

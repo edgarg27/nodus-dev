@@ -87,7 +87,7 @@ export function PossibleDuplicatesDialog({
             >
               <div className="h-12 w-16 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-primary/80 to-primary">
                 {parecido.fotoUrl ? (
-                  // biome-ignore lint/performance/noImgElement: foto subida por el oferente
+                  // biome-ignore lint/performance/noImgElement: foto subida por el propietario
                   <img src={parecido.fotoUrl} alt="" className="h-full w-full object-cover" />
                 ) : null}
               </div>

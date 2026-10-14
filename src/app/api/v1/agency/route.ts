@@ -19,8 +19,8 @@ const perfilSchema = z.object({
 export async function GET() {
   const actor = await getUsuarioActual();
   if (!actor) return sinSesion();
-  if (!requireRol(actor, "oferente").ok) {
-    return respuestaError(403, "forbidden", "Se requiere el rol oferente");
+  if (!requireRol(actor, "propietario").ok) {
+    return respuestaError(403, "forbidden", "Se requiere el rol propietario");
   }
   const [perfil, contactos] = await Promise.all([
     obtenerPerfilAgencia(actor.id),
@@ -29,7 +29,7 @@ export async function GET() {
   return NextResponse.json({ data: { perfil, contactos } });
 }
 
-// Idempotente: el perfil es único por oferente, repetir el mismo cuerpo deja el mismo resultado.
+// Idempotente: el perfil es único por propietario, repetir el mismo cuerpo deja el mismo resultado.
 export async function PUT(request: Request) {
   const actor = await getUsuarioActual();
   if (!actor) return sinSesion();

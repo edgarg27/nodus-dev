@@ -16,7 +16,7 @@ export interface MensajeVista {
 }
 
 interface ChatThreadProps {
-  // A dónde se envía con POST { texto }: el chat con un oferente o el chat con Captive.
+  // A dónde se envía con POST { texto }: el chat con un propietario o el chat con Captive.
   endpoint: string;
   mensajes: MensajeVista[];
   // Altura de la lista de mensajes; "compacta" para un panel lateral.

@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import type { DatosOferente } from "../../lib/auth/datos-oferente.ts";
+import type { DatosPropietario } from "../../lib/auth/datos-propietario.ts";
 import { db } from "../../lib/db/client.ts";
 import { agenciaPerfil, usuario } from "../../lib/db/schema.ts";
 import { abrirSolicitudPorRegistro } from "../broker-requests/mutations.ts";
@@ -10,12 +10,12 @@ export type ResultadoConvertir =
   | { ok: true }
   | { ok: false; error: { code: "forbidden"; status: 403; message: string } };
 
-// "Publica tu espacio": un buscador pasa a oferente con los mismos datos que pide el registro
+// "Publica tu espacio": un buscador pasa a propietario con los mismos datos que pide el registro
 // (teléfono, cómo publica y, si es inmobiliaria, su nombre). Solo buscadores: un admin no publica y
-// un oferente ya puede hacerlo. Conserva su historial como buscador (favoritos, chats, solicitudes).
-export async function convertirEnOferente(
+// un propietario ya puede hacerlo. Conserva su historial como buscador (favoritos, chats, solicitudes).
+export async function convertirEnPropietario(
   actor: ActorAutenticado | null,
-  datos: DatosOferente,
+  datos: DatosPropietario,
 ): Promise<ResultadoConvertir> {
   const permiso = requireRol(actor, "buscador");
   if (!permiso.ok || !actor) {
@@ -29,7 +29,7 @@ export async function convertirEnOferente(
     await tx
       .update(usuario)
       .set({
-        rol: "oferente",
+        rol: "propietario",
         telefono: datos.telefono,
         tipoAnunciante: datos.tipoAnunciante,
         updatedAt: new Date(),

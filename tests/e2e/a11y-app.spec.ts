@@ -39,17 +39,23 @@ async function avanzarConTabHasta(page: Page, objetivo: Locator, maxTabs: number
   await expect(objetivo).toBeFocused();
 }
 
-async function crearOferente(nombre: string, overrides: Record<string, unknown> = {}) {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
+async function crearPropietario(nombre: string, overrides: Record<string, unknown> = {}) {
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
   await db
     .insert(usuario)
-    .values({ id: oferente.id, email: oferente.email, nombre, rol: "oferente", ...overrides });
-  return oferente;
+    .values({
+      id: propietario.id,
+      email: propietario.email,
+      nombre,
+      rol: "propietario",
+      ...overrides,
+    });
+  return propietario;
 }
 
-function propiedadFixture(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadFixture(propietarioId: string, overrides: Record<string, unknown> = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: `Av. A11y App ${randomUUID()}`,
@@ -65,9 +71,9 @@ function propiedadFixture(oferenteId: string, overrides: Record<string, unknown>
   };
 }
 
-let oferenteConCola: Awaited<ReturnType<typeof crearOferente>>;
-let oferenteConLead: Awaited<ReturnType<typeof crearOferente>>;
-let brokerActivo: Awaited<ReturnType<typeof crearOferente>>;
+let propietarioConCola: Awaited<ReturnType<typeof crearPropietario>>;
+let propietarioConLead: Awaited<ReturnType<typeof crearPropietario>>;
+let brokerActivo: Awaited<ReturnType<typeof crearPropietario>>;
 let admin: Awaited<ReturnType<typeof crearAdminDePrueba>>;
 
 test.beforeAll(async () => {
@@ -75,10 +81,10 @@ test.beforeAll(async () => {
 
   admin = await crearAdminDePrueba();
 
-  oferenteConCola = await crearOferente("Oferente con cola");
+  propietarioConCola = await crearPropietario("Propietario con cola");
   const [pendiente] = await db
     .insert(propiedad)
-    .values(propiedadFixture(oferenteConCola.id, { estadoPublicacion: "pendiente" }))
+    .values(propiedadFixture(propietarioConCola.id, { estadoPublicacion: "pendiente" }))
     .returning();
   if (!pendiente) throw new Error("fixture pendiente no se creó");
   await db.insert(propiedadFoto).values({
@@ -87,10 +93,10 @@ test.beforeAll(async () => {
     orden: 0,
   });
 
-  oferenteConLead = await crearOferente("Oferente con lead");
+  propietarioConLead = await crearPropietario("Propietario con lead");
   const [publicada] = await db
     .insert(propiedad)
-    .values(propiedadFixture(oferenteConLead.id, { estadoPublicacion: "publicada" }))
+    .values(propiedadFixture(propietarioConLead.id, { estadoPublicacion: "publicada" }))
     .returning();
   if (!publicada) throw new Error("fixture publicada no se creó");
   const buscador = await crearUsuarioAuth({ rol: "buscador" });
@@ -100,23 +106,23 @@ test.beforeAll(async () => {
   await db.insert(contactRequest).values({
     buscadorId: buscador.id,
     propiedadId: publicada.id,
-    oferenteId: oferenteConLead.id,
-    // Le llegó al oferente (bandeja /leads); otra igual de canal "captive" llena la lista de Captive.
+    propietarioId: propietarioConLead.id,
+    // Le llegó al propietario (bandeja /leads); otra igual de canal "captive" llena la lista de Captive.
     canal: "directo",
   });
   await db.insert(contactRequest).values({
     buscadorId: buscador.id,
     propiedadId: publicada.id,
-    oferenteId: oferenteConLead.id,
+    propietarioId: propietarioConLead.id,
     canal: "captive",
   });
 
-  brokerActivo = await crearOferente("Broker activo a11y", {
+  brokerActivo = await crearPropietario("Broker activo a11y", {
     isBroker: true,
     brokerCode: "BRK-A11YOK",
   });
 
-  const solicitante = await crearOferente("Oferente solicitud pendiente");
+  const solicitante = await crearPropietario("Propietario solicitud pendiente");
   await db.insert(brokerSolicitud).values({
     usuarioId: solicitante.id,
     mensaje: "Quiero ser broker para pruebas de accesibilidad",
@@ -131,8 +137,8 @@ const RUTAS_AUTENTICADAS: Array<{
   ruta: string;
   login: () => Promise<{ email: string; password: string }>;
 }> = [
-  { ruta: "/propiedades", login: async () => oferenteConCola },
-  { ruta: "/leads", login: async () => oferenteConLead },
+  { ruta: "/propiedades", login: async () => propietarioConCola },
+  { ruta: "/leads", login: async () => propietarioConLead },
   { ruta: "/broker", login: async () => brokerActivo },
   { ruta: "/admin/propiedades", login: async () => admin },
   { ruta: "/admin/broker-requests", login: async () => admin },
@@ -168,8 +174,8 @@ for (const width of [640, 320]) {
 test("el pin y los controles del mapa del alta de propiedad miden al menos 24x24 px", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Oferente tamaño de pin");
-  await iniciarSesion(page, oferente);
+  const propietario = await crearPropietario("Propietario tamaño de pin");
+  await iniciarSesion(page, propietario);
   await page.goto("/propiedades/nueva");
 
   const pin = page.getByRole("button", { name: /Ubicación de la propiedad/ });
@@ -183,9 +189,9 @@ test("el pin y los controles del mapa del alta de propiedad miden al menos 24x24
 test("el alta de propiedad se recorre con teclado en orden tipo, modalidad, estado, ciudad, descripcion, lat, lng, pin, fotos y envío", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Oferente teclado alta");
+  const propietario = await crearPropietario("Propietario teclado alta");
   await bloquearGeocode(page);
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/propiedades/nueva");
 
   await page.locator("#tipo").focus();
@@ -236,10 +242,10 @@ test("el alta de propiedad se recorre con teclado en orden tipo, modalidad, esta
 });
 
 test("el mensaje de duplicado se anuncia en un elemento role=alert", async ({ page }) => {
-  const oferente = await crearOferente("Oferente duplicado a11y");
+  const propietario = await crearPropietario("Propietario duplicado a11y");
   const direccion = `Av. Duplicado A11y ${randomUUID()}`;
   await db.insert(propiedad).values(
-    propiedadFixture(oferente.id, {
+    propiedadFixture(propietario.id, {
       direccion,
       direccionNormalizada: normalizeAddress(direccion),
       estadoPublicacion: "pendiente",
@@ -247,7 +253,7 @@ test("el mensaje de duplicado se anuncia en un elemento role=alert", async ({ pa
   );
 
   await bloquearGeocode(page);
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/propiedades/nueva");
   await page.getByLabel("Tipo").selectOption("nave_industrial");
   await page.getByLabel("Modalidad").selectOption("renta");
@@ -264,18 +270,18 @@ test("el mensaje de duplicado se anuncia en un elemento role=alert", async ({ pa
   ).toBeVisible();
 });
 
-async function crearOferenteConPendiente(nombre: string) {
-  const oferente = await crearOferente(nombre);
+async function crearPropietarioConPendiente(nombre: string) {
+  const propietario = await crearPropietario(nombre);
   const [pendiente] = await db
     .insert(propiedad)
-    .values(propiedadFixture(oferente.id, { estadoPublicacion: "pendiente" }))
+    .values(propiedadFixture(propietario.id, { estadoPublicacion: "pendiente" }))
     .returning();
   if (!pendiente) throw new Error("fixture no se creó");
-  return { oferente, pendiente };
+  return { propietario, pendiente };
 }
 
 test("un 409 al revisar una propiedad se anuncia con role=alert o aria-live", async ({ page }) => {
-  const { pendiente } = await crearOferenteConPendiente("Oferente revisión conflicto");
+  const { pendiente } = await crearPropietarioConPendiente("Propietario revisión conflicto");
 
   await page.route(`**/api/v1/admin/properties/${pendiente.id}/review`, async (route) => {
     await route.fulfill({
@@ -301,7 +307,7 @@ test("un 409 al revisar una propiedad se anuncia con role=alert o aria-live", as
 test("un 409 al resolver una solicitud de broker se anuncia con role=alert o aria-live", async ({
   page,
 }) => {
-  const solicitante = await crearOferente("Oferente solicitud conflicto");
+  const solicitante = await crearPropietario("Propietario solicitud conflicto");
   const [solicitud] = await db
     .insert(brokerSolicitud)
     .values({ usuarioId: solicitante.id, mensaje: "Solicitud de conflicto" })
@@ -335,7 +341,7 @@ test("un 409 al resolver una solicitud de broker se anuncia con role=alert o ari
 test("un 409 al enviar una solicitud de broker se anuncia con role=alert o aria-live", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Oferente envío conflicto");
+  const propietario = await crearPropietario("Propietario envío conflicto");
 
   await page.route("**/api/v1/broker-requests", async (route) => {
     await route.fulfill({
@@ -350,7 +356,7 @@ test("un 409 al enviar una solicitud de broker se anuncia con role=alert o aria-
     });
   });
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
   await page.getByLabel("Empresa y nota para el equipo de Nodus").fill("Otra solicitud");
   await page.getByRole("button", { name: "Enviar solicitud" }).click();
