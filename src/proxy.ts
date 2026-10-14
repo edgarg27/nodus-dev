@@ -22,6 +22,31 @@ function apiNoEncontrado() {
   );
 }
 
+// Rutas que exigen sesión. El resto del sitio es público, pero pasa igual por el proxy para refrescar
+// el token: un Server Component no puede guardar cookies, así que si el token vence en una página
+// pública y nadie lo refresca aquí, Supabase rota el refresh token sin que el navegador lo reciba y
+// la siguiente petición cierra la sesión.
+const PREFIJOS_PROTEGIDOS = [
+  "/panel",
+  "/perfil",
+  "/red",
+  "/mensajes",
+  "/propiedades",
+  "/leads",
+  "/broker",
+  "/verificacion",
+  "/favoritos",
+  "/mis-busquedas",
+  "/admin",
+  "/api/v1/admin",
+];
+
+function esRutaProtegida(pathname: string): boolean {
+  return PREFIJOS_PROTEGIDOS.some(
+    (prefijo) => pathname === prefijo || pathname.startsWith(`${prefijo}/`),
+  );
+}
+
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -53,6 +78,9 @@ export async function proxy(request: NextRequest) {
 
   const esApiAdmin = request.nextUrl.pathname.startsWith("/api/v1/admin");
   const esSuperficieAdmin = esApiAdmin || request.nextUrl.pathname.startsWith("/admin");
+
+  // Página pública: la sesión ya quedó refrescada en `response`; no se exige nada más.
+  if (!esRutaProtegida(request.nextUrl.pathname)) return response;
 
   if (!haySesion) {
     if (esApiAdmin) return apiNoAutenticado();
@@ -94,18 +122,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
+  // Todas las páginas (para refrescar la sesión), menos estáticos e imágenes. Las rutas /api/*
+  // quedan fuera: un Route Handler sí puede guardar cookies; solo /api/v1/admin exige el proxy.
   matcher: [
-    "/panel/:path*",
-    "/perfil/:path*",
-    "/red/:path*",
-    "/mensajes/:path*",
-    "/propiedades/:path*",
-    "/leads/:path*",
-    "/broker/:path*",
-    "/verificacion/:path*",
-    "/favoritos/:path*",
-    "/mis-busquedas/:path*",
-    "/admin/:path*",
+    "/((?!api|_next/static|_next/image|favicon.ico|brand|demo|nodus|vendor|videos|.*[.](?:svg|png|jpg|jpeg|gif|webp|ico|mjs|js|css|woff2?)$).*)",
     "/api/v1/admin/:path*",
   ],
 };

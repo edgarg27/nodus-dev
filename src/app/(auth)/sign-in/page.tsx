@@ -1,28 +1,13 @@
-import { redirect } from "next/navigation";
 import { SignInForm } from "@/components/auth/sign-in-form";
-import { getUsuarioActual } from "@/server/auth/session";
+import { redirigirSiHaySesion } from "@/server/auth/redirigir-con-sesion";
 
 interface SignInPageProps {
   searchParams: Promise<{ next?: string; error?: string }>;
 }
 
-function destinoPorRol(rol: string): string {
-  if (rol === "propietario") return "/panel";
-  if (rol === "admin") return "/admin/propiedades";
-  return "/buscar";
-}
-
-function esRutaRelativaSegura(next: string | undefined): next is string {
-  return !!next && next.startsWith("/") && !next.startsWith("//");
-}
-
 export default async function SignInPage({ searchParams }: SignInPageProps) {
   const { next, error } = await searchParams;
-  const actor = await getUsuarioActual();
-
-  if (actor) {
-    redirect(esRutaRelativaSegura(next) ? next : destinoPorRol(actor.rol));
-  }
+  await redirigirSiHaySesion(next);
 
   return (
     <main className="flex min-h-[calc(100vh-64px)] w-full items-center justify-center bg-background px-5 py-12">
