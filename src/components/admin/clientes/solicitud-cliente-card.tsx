@@ -1,5 +1,6 @@
 import { CalendarClockIcon, ExternalLinkIcon, MessageCircleIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
+import { OwnerNumber } from "@/components/admin/owner-number";
 import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 import type { Textos } from "@/lib/i18n";
 import { formatearPrecio } from "@/lib/property-details";
@@ -123,6 +124,10 @@ export function SolicitudClienteCard({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-0.5">
             <span className="font-semibold text-text">{propietario.agencia}</span>
+            <OwnerNumber
+              numero={propietario.numeroPropietario}
+              etiqueta={textos.numeroPropietario}
+            />
             <span className="text-sm text-text-muted">
               {propietario.nombre !== propietario.agencia ? `${propietario.nombre} · ` : ""}
               {propietario.email}

@@ -46,6 +46,7 @@ export interface SolicitudDeCliente {
     whatsapp: string | null;
     esBroker: boolean;
     brokerCode: string | null;
+    numeroPropietario: number | null;
   };
   // Broker que refirió al cliente (atribución), si lo hay.
   brokerReferido: string | null;
@@ -119,6 +120,7 @@ export async function obtenerCliente(
       propietarioEmail: propietario.email,
       propietarioEsBroker: propietario.isBroker,
       propietarioBrokerCode: propietario.brokerCode,
+      propietarioNumero: propietario.numeroPropietario,
       brokerNombre: broker.nombre,
     })
     .from(contactRequest)
@@ -166,6 +168,7 @@ export async function obtenerCliente(
           whatsapp: contacto.whatsapp,
           esBroker: fila.propietarioEsBroker,
           brokerCode: fila.propietarioBrokerCode,
+          numeroPropietario: fila.propietarioNumero,
         },
         brokerReferido: fila.brokerNombre,
       };

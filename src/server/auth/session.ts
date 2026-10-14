@@ -15,6 +15,8 @@ export interface ActorAutenticado {
   referralBrokerId: string | null;
   // Solo propietarios: "particular" (dueño directo) o "inmobiliaria". Decide si usa la Red.
   tipoAnunciante?: string | null;
+  // "P-0783" ya formateado en pantalla; lo asigna la base al pasar a propietario.
+  numeroPropietario?: number | null;
 }
 
 function mapearActor(fila: typeof usuario.$inferSelect): ActorAutenticado {
@@ -27,6 +29,7 @@ function mapearActor(fila: typeof usuario.$inferSelect): ActorAutenticado {
     brokerCode: fila.brokerCode,
     referralBrokerId: fila.referralBrokerId,
     tipoAnunciante: fila.tipoAnunciante,
+    numeroPropietario: fila.numeroPropietario,
   };
 }
 

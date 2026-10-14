@@ -31,6 +31,10 @@ export const usuario = pgTable(
     // Dueño (publica lo suyo) que Captive ya verificó al aprobar su solicitud de tipo "dueno".
     duenoVerificado: boolean("dueno_verificado").notNull().default(false),
     brokerCode: text("broker_code").unique(),
+    // Número de propietario (se muestra como "P-0783"): consecutivo y único, para que Captive
+    // distinga a cada dueño o broker. Lo asigna el trigger `asignar_numero_propietario` al pasar a
+    // propietario (migración 0037); nunca la aplicación.
+    numeroPropietario: integer("numero_propietario").unique(),
     referralBrokerId: uuid("referral_broker_id").references((): AnyPgColumn => usuario.id),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

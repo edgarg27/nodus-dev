@@ -291,6 +291,7 @@ export interface PropietarioResumen {
   email: string;
   telefono: string | null;
   isBroker: boolean;
+  numeroPropietario: number | null;
 }
 
 export interface PropiedadPendienteDeRevision extends PropiedadFila {
@@ -326,6 +327,7 @@ export async function listarPendientesDeRevision(): Promise<PropiedadPendienteDe
       email: usuario.email,
       telefono: usuario.telefono,
       isBroker: usuario.isBroker,
+      numeroPropietario: usuario.numeroPropietario,
     })
     .from(usuario)
     .where(inArray(usuario.id, idsPropietario));

@@ -495,6 +495,7 @@ export const en: Textos = {
     panel: "Admin panel",
     cerrarSesion: "Sign out",
     secciones: "Panel sections",
+    numeroPropietario: "Owner number",
     nav: {
       propiedades: "Pending properties",
       requests: "Broker and owner requests",
@@ -723,6 +724,7 @@ export const en: Textos = {
         "This client signed up but has not requested information on any space yet.",
       verEspacio: "View space",
       noPublicado: "No longer published",
+      numeroPropietario: "Owner number",
       precioCaptive: "Price (only Captive sees it)",
       precioSinCapturar: "The owner didn't enter it",
       confirmarCon: "Confirm availability with",
@@ -967,6 +969,8 @@ export const en: Textos = {
       borradorAyuda: "Hi, I couldn't find a space that fits what I need. Can you help me?",
     },
     agencia: {
+      tuNumero: "Your owner number:",
+      tuNumeroAyuda: "share it with the Captive team when you get in touch.",
       metaTitulo: "Agency profile — Captive by Nodus",
       titulo: "Agency profile",
       brokerVerificado: "Verified broker",

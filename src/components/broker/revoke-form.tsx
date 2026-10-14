@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import { type ChangeEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useAdminToast } from "@/components/admin/admin-toast";
+import { OwnerNumber } from "@/components/admin/owner-number";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -27,7 +28,9 @@ const SELECTOR_FOCOSABLES =
 // (y también el trapFocus automático), así que el atrapado de foco de la Acceptance #1 se
 // reimplementa aquí a mano, sobre el mismo Content.
 export function RevokeForm({ broker }: RevokeFormProps) {
-  const b = useIdioma().t.admin.brokers;
+  const { t } = useIdioma();
+  const b = t.admin.brokers;
+  const numeroEtiqueta = t.admin.numeroPropietario;
   const router = useRouter();
   const { showToast } = useAdminToast();
   const [abierto, setAbierto] = useState(false);
@@ -92,6 +95,7 @@ export function RevokeForm({ broker }: RevokeFormProps) {
 
       <div className="flex min-w-0 grow flex-col gap-0.5">
         <h3 className="text-sm font-semibold text-text">{broker.nombre}</h3>
+        <OwnerNumber numero={broker.numeroPropietario} etiqueta={numeroEtiqueta} />
         <p className="text-sm text-text-muted">{broker.email}</p>
         {broker.brokerCode ? (
           <span className="w-fit rounded-full bg-muted px-2.5 py-0.5 font-display text-xs font-bold tracking-wide text-ink">

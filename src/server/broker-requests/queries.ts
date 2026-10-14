@@ -34,6 +34,7 @@ export async function listarPendientes() {
         nombre: usuario.nombre,
         email: usuario.email,
         telefono: usuario.telefono,
+        numeroPropietario: usuario.numeroPropietario,
       },
     })
     .from(brokerSolicitud)
@@ -48,6 +49,7 @@ export interface BrokerActivo {
   email: string;
   telefono: string | null;
   brokerCode: string | null;
+  numeroPropietario: number | null;
   aprobadoEn: Date | null;
 }
 
@@ -61,6 +63,7 @@ export async function listarBrokersActivos(): Promise<BrokerActivo[]> {
       email: usuario.email,
       telefono: usuario.telefono,
       brokerCode: usuario.brokerCode,
+      numeroPropietario: usuario.numeroPropietario,
     })
     .from(usuario)
     .where(eq(usuario.isBroker, true))
