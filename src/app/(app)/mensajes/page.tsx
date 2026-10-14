@@ -46,7 +46,7 @@ export default async function MensajesPage() {
         {mostrarCaptive ? (
           <Link
             href="/mensajes/captive"
-            className="flex items-center gap-4 rounded-2xl border border-primary/40 bg-surface p-4 shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
+            className="flex items-center gap-4 rounded-2xl border border-ink/40 bg-surface p-4 shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:border-ink motion-reduce:transition-none"
           >
             <span className="flex h-12 w-16 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <HeadsetIcon className="size-6" aria-hidden="true" />
@@ -90,7 +90,7 @@ export default async function MensajesPage() {
               <li key={conversacion.id}>
                 <Link
                   href={`/mensajes/${conversacion.id}`}
-                  className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
+                  className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:border-ink motion-reduce:transition-none"
                 >
                   <div className="h-12 w-16 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-primary/80 to-primary">
                     {conversacion.propiedad.fotoUrl ? (

@@ -49,7 +49,7 @@ export function BarraPasos({ paso, etiquetas, titulo, deshabilitada, onElegir }:
                     ? "border-accent bg-accent text-accent-foreground"
                     : hecho
                       ? "border-accent bg-surface text-accent group-hover:bg-accent/10"
-                      : "border-border bg-surface text-text-muted group-hover:border-primary"
+                      : "border-border bg-surface text-text-muted group-hover:border-ink"
                 }`}
               >
                 {hecho ? <CheckIcon className="size-4" aria-hidden="true" /> : i + 1}

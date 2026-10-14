@@ -26,7 +26,7 @@ export function ClienteFila({
   return (
     <Link
       href={`/admin/clientes/${cliente.id}`}
-      className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm transition-colors duration-150 ease-out hover:border-primary"
+      className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm transition-colors duration-150 ease-out hover:border-ink"
     >
       <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary font-display text-sm font-bold text-primary-foreground">
         {iniciales(cliente.nombre)}

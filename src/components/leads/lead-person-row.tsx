@@ -166,7 +166,7 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
         ) : null}
         <a
           href={`mailto:${persona.email}`}
-          className="flex h-9 items-center justify-center rounded-lg border border-input px-3.5 text-[12.5px] font-bold text-foreground transition-colors hover:border-primary"
+          className="flex h-9 items-center justify-center rounded-lg border border-input px-3.5 text-[12.5px] font-bold text-foreground transition-colors hover:border-ink"
         >
           {t.panel.leads.responder}
         </a>
@@ -175,7 +175,7 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
             href={`https://wa.me/${whatsapp}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex h-9 items-center justify-center rounded-lg border border-input px-3.5 text-[12.5px] font-bold text-foreground transition-colors hover:border-primary"
+            className="flex h-9 items-center justify-center rounded-lg border border-input px-3.5 text-[12.5px] font-bold text-foreground transition-colors hover:border-ink"
           >
             WhatsApp
           </a>

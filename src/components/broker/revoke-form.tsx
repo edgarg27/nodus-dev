@@ -94,7 +94,7 @@ export function RevokeForm({ broker }: RevokeFormProps) {
         <h3 className="text-sm font-semibold text-text">{broker.nombre}</h3>
         <p className="text-sm text-text-muted">{broker.email}</p>
         {broker.brokerCode ? (
-          <span className="w-fit rounded-full bg-muted px-2.5 py-0.5 font-display text-xs font-bold tracking-wide text-primary">
+          <span className="w-fit rounded-full bg-muted px-2.5 py-0.5 font-display text-xs font-bold tracking-wide text-ink">
             {broker.brokerCode}
           </span>
         ) : null}

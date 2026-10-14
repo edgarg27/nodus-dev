@@ -131,7 +131,7 @@ export function NetworkCard({ propiedad, esPropia, idioma }: NetworkCardProps) {
           )}
           <Link
             href={`/espacios/${propiedad.id}`}
-            className="text-center text-xs font-semibold text-primary underline-offset-4 hover:underline"
+            className="text-center text-xs font-semibold text-ink underline-offset-4 hover:underline"
           >
             {r.verFicha}
           </Link>

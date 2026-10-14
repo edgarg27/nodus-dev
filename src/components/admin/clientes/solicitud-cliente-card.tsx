@@ -61,7 +61,7 @@ export function SolicitudClienteCard({
             <Link
               href={`/espacios/${propiedad.id}`}
               target="_blank"
-              className="flex items-center gap-1 font-semibold text-text hover:text-primary"
+              className="flex items-center gap-1 font-semibold text-text hover:text-ink"
             >
               {textos.verEspacio}
               <ExternalLinkIcon className="size-3.5" aria-hidden="true" />
@@ -137,7 +137,7 @@ export function SolicitudClienteCard({
             <div className="flex flex-wrap gap-2">
               <a
                 href={`tel:${telefono}`}
-                className="flex h-9 items-center gap-1.5 rounded-lg bg-primary px-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                className="flex h-9 items-center gap-1.5 rounded-lg bg-cta px-3 text-sm font-semibold text-cta-foreground hover:bg-cta/90"
               >
                 <PhoneIcon className="size-4" aria-hidden="true" />
                 {telefono}
@@ -147,7 +147,7 @@ export function SolicitudClienteCard({
                   href={`https://wa.me/${digitos(propietario.whatsapp)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex h-9 items-center gap-1.5 rounded-lg border border-input px-3 text-sm font-semibold text-text hover:border-primary"
+                  className="flex h-9 items-center gap-1.5 rounded-lg border border-input px-3 text-sm font-semibold text-text hover:border-ink"
                 >
                   <MessageCircleIcon className="size-4" aria-hidden="true" />
                   WhatsApp

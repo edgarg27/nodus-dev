@@ -64,7 +64,7 @@ export function FavoriteButton({
         type="button"
         onClick={(evento) => void alternar(evento)}
         aria-pressed={favorito}
-        className="flex h-10 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-input bg-background text-sm font-semibold text-text transition-colors hover:border-primary hover:text-primary"
+        className="flex h-10 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-input bg-background text-sm font-semibold text-text transition-colors hover:border-ink hover:text-ink"
       >
         <HeartIcon
           className={cn("size-4", favorito && "fill-accent text-accent")}

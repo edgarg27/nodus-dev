@@ -213,7 +213,7 @@ export function CasesManager({ casos }: CasesManagerProps) {
                             <button
                               type="button"
                               onClick={() => void quitarDePortada(caso)}
-                              className="flex h-9 cursor-pointer items-center rounded-lg border border-input px-3.5 text-[13px] font-bold text-text transition-colors hover:border-primary"
+                              className="flex h-9 cursor-pointer items-center rounded-lg border border-input px-3.5 text-[13px] font-bold text-text transition-colors hover:border-ink"
                             >
                               {c.quitarDePortada}
                             </button>
@@ -229,7 +229,7 @@ export function CasesManager({ casos }: CasesManagerProps) {
                           <button
                             type="button"
                             onClick={() => setEditando(caso.id)}
-                            className="flex h-9 cursor-pointer items-center rounded-lg border border-input px-3.5 text-[13px] font-bold text-text transition-colors hover:border-primary"
+                            className="flex h-9 cursor-pointer items-center rounded-lg border border-input px-3.5 text-[13px] font-bold text-text transition-colors hover:border-ink"
                           >
                             {c.editar}
                           </button>

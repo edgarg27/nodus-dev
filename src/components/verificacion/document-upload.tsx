@@ -105,7 +105,7 @@ export function DocumentUpload({ tipo, documento, soloLectura }: DocumentUploadP
               htmlFor={idInput}
               className={`flex h-10 cursor-pointer items-center whitespace-nowrap rounded-lg px-[18px] text-[13px] font-bold transition-all duration-150 ease-out hover:-translate-y-px motion-reduce:transition-none ${
                 documento
-                  ? "border border-input text-foreground hover:border-primary"
+                  ? "border border-input text-foreground hover:border-ink"
                   : "bg-accent text-accent-foreground hover:bg-accent/90"
               }`}
             >

@@ -38,7 +38,7 @@ export function MyListingsPage({
     <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-7 px-4">
       <div className="flex flex-wrap items-center justify-between gap-5">
         <div className="flex flex-col gap-1.5">
-          <h1 className="font-display text-[26px] font-bold text-foreground">{tabla.titulo}</h1>
+          <h1 className="font-display text-[26px] font-bold text-eyebrow">{tabla.titulo}</h1>
           <p className="text-sm text-muted-foreground">{tabla.descripcion}</p>
         </div>
         <Link
@@ -87,7 +87,7 @@ export function MyListingsPage({
           ) : (
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border bg-surface px-5 py-14 text-center text-muted-foreground">
               <span className="text-sm">{tabla.sinCoincidencias}</span>
-              <Link href="/propiedades" className="text-sm font-semibold text-primary underline">
+              <Link href="/propiedades" className="text-sm font-semibold text-ink underline">
                 {tabla.borrarFiltros}
               </Link>
             </div>

@@ -1,4 +1,5 @@
 import { SignUpForm } from "@/components/auth/sign-up-form";
+import { redirigirSiHaySesion } from "@/server/auth/redirigir-con-sesion";
 
 interface SignUpPageProps {
   searchParams: Promise<{ ref?: string; rol?: string }>;
@@ -6,6 +7,7 @@ interface SignUpPageProps {
 
 export default async function SignUpPage({ searchParams }: SignUpPageProps) {
   const { ref, rol } = await searchParams;
+  await redirigirSiHaySesion();
 
   return (
     <main className="flex min-h-[calc(100vh-64px)] w-full items-center justify-center bg-background px-5 py-10">

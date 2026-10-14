@@ -22,7 +22,7 @@ export function HelpCard({ idioma }: { idioma: Idioma }) {
           href={`https://wa.me/${whatsapp}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex h-[46px] w-fit items-center rounded-lg border border-input px-5 text-sm font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
+          className="flex h-[46px] w-fit items-center rounded-lg border border-input px-5 text-sm font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-ink motion-reduce:transition-none"
         >
           {i.whatsapp}
         </a>

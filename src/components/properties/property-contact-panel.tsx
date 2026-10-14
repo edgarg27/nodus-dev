@@ -104,13 +104,13 @@ ${pregunta}`
             {contacto.telefono ? (
               <>
                 <span className="font-semibold">{t.contacto.telefonoPropietario}</span>
-                <a href={`tel:${contacto.telefono}`} className="text-lg font-bold text-primary">
+                <a href={`tel:${contacto.telefono}`} className="text-lg font-bold text-ink">
                   {contacto.telefono}
                 </a>
                 {contacto.whatsappUrl ? (
                   <a
                     href={contacto.whatsappUrl}
-                    className="text-primary underline underline-offset-4"
+                    className="text-ink underline underline-offset-4"
                   >
                     {t.contacto.escribirWhatsApp}
                   </a>
@@ -122,14 +122,14 @@ ${pregunta}`
             {contacto.conversacionId ? (
               <Link
                 href={`/mensajes/${contacto.conversacionId}`}
-                className="mt-1 flex items-center gap-1.5 font-semibold text-primary underline underline-offset-4"
+                className="mt-1 flex items-center gap-1.5 font-semibold text-ink underline underline-offset-4"
               >
                 <MessageCircleIcon className="size-4" aria-hidden="true" />
                 {t.contacto.verConversacion}
               </Link>
             ) : null}
             {haySimilares ? (
-              <a href="#similares" className="pt-1 text-primary underline underline-offset-4">
+              <a href="#similares" className="pt-1 text-ink underline underline-offset-4">
                 {t.ficha.verSimilares}
               </a>
             ) : null}
@@ -147,7 +147,7 @@ ${pregunta}`
                   type="button"
                   onClick={() => agregarPregunta(pregunta)}
                   aria-pressed={mensaje.includes(pregunta)}
-                  className="cursor-pointer rounded-full border border-input bg-background px-2.5 py-1 text-xs font-medium text-text transition-colors hover:border-primary aria-pressed:border-accent aria-pressed:bg-accent/10"
+                  className="cursor-pointer rounded-full border border-input bg-background px-2.5 py-1 text-xs font-medium text-text transition-colors hover:border-ink aria-pressed:border-accent aria-pressed:bg-accent/10"
                 >
                   {pregunta}
                 </button>
@@ -167,7 +167,7 @@ ${pregunta}`
                   type="checkbox"
                   checked={quiereFinanciamiento}
                   onChange={(evento) => setQuiereFinanciamiento(evento.target.checked)}
-                  className="accent-primary"
+                  className="accent-ink"
                 />
                 {t.ficha.meInteresaFinanciamiento}
               </label>
@@ -205,7 +205,7 @@ ${pregunta}`
           <button
             type="button"
             onClick={() => void compartir()}
-            className="flex h-10 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-input bg-background text-sm font-semibold text-text transition-colors hover:border-primary hover:text-primary"
+            className="flex h-10 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border border-input bg-background text-sm font-semibold text-text transition-colors hover:border-ink hover:text-ink"
           >
             {copiado ? (
               <>
@@ -223,7 +223,7 @@ ${pregunta}`
             type="button"
             onClick={compartirPorWhatsApp}
             aria-label={t.ficha.compartirWhatsApp}
-            className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-text transition-colors hover:border-primary hover:text-primary"
+            className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg border border-input bg-background px-3 text-sm font-semibold text-text transition-colors hover:border-ink hover:text-ink"
           >
             <LinkIcon className="size-4" aria-hidden="true" />
             {t.ficha.whatsapp}

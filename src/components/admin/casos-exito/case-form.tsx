@@ -205,7 +205,7 @@ export function CaseForm({ caso, ocupados, primerLibre, onTerminar }: CaseFormPr
             )}
           </div>
           <div className="flex flex-col items-start gap-2">
-            <label className="flex h-10 cursor-pointer items-center rounded-lg border border-input px-4 text-[13px] font-bold text-text transition-colors hover:border-primary">
+            <label className="flex h-10 cursor-pointer items-center rounded-lg border border-input px-4 text-[13px] font-bold text-text transition-colors hover:border-ink">
               {vistaPrevia ? c.cambiarFoto : c.elegirFoto}
               <input
                 type="file"

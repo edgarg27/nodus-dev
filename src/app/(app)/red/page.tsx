@@ -50,7 +50,7 @@ export default async function RedPage({ searchParams }: RedPageProps) {
     <main className="w-full py-10">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-7 px-4">
         <header className="flex flex-col gap-1.5">
-          <h1 className="font-display text-[26px] font-bold text-foreground">{r.titulo}</h1>
+          <h1 className="font-display text-[26px] font-bold text-eyebrow">{r.titulo}</h1>
           <p className="text-sm text-muted-foreground">{r.descripcion}</p>
         </header>
 

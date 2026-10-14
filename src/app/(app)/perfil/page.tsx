@@ -36,7 +36,7 @@ export default async function PerfilPage() {
             className="size-16 rounded-2xl text-xl"
           />
           <div className="flex flex-col gap-1">
-            <h1 className="font-display text-[26px] font-bold text-foreground">{a.titulo}</h1>
+            <h1 className="font-display text-[26px] font-bold text-eyebrow">{a.titulo}</h1>
             {actor.isBroker ? (
               <span className="flex w-fit items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-bold text-success">
                 <ShieldCheckIcon className="size-3.5" aria-hidden="true" />

@@ -51,7 +51,7 @@ export default async function AdminDuenoPage({ params }: AdminDuenoPageProps) {
     <div className="flex flex-col gap-6">
       <Link
         href="/admin/duenos"
-        className="flex w-fit items-center gap-1.5 text-sm font-semibold text-text-muted hover:text-primary"
+        className="flex w-fit items-center gap-1.5 text-sm font-semibold text-text-muted hover:text-ink"
       >
         <ArrowLeftIcon className="size-4" aria-hidden="true" />
         {textos.volver}
@@ -126,7 +126,7 @@ export default async function AdminDuenoPage({ params }: AdminDuenoPageProps) {
                       <Link
                         href={`/espacios/${propiedad.id}`}
                         target="_blank"
-                        className="flex items-center gap-1 text-xs font-semibold text-text hover:text-primary"
+                        className="flex items-center gap-1 text-xs font-semibold text-text hover:text-ink"
                       >
                         {textos.verEspacio}
                         <ExternalLinkIcon className="size-3.5" aria-hidden="true" />
@@ -134,7 +134,7 @@ export default async function AdminDuenoPage({ params }: AdminDuenoPageProps) {
                     ) : propiedad.estadoPublicacion === "pendiente" ? (
                       <Link
                         href="/admin/propiedades"
-                        className="text-xs font-semibold text-text hover:text-primary"
+                        className="text-xs font-semibold text-text hover:text-ink"
                       >
                         {textos.revisar}
                       </Link>
@@ -151,7 +151,7 @@ export default async function AdminDuenoPage({ params }: AdminDuenoPageProps) {
             <h2 className="text-sm font-bold text-text">{textos.datos}</h2>
             <a
               href={`mailto:${dueno.email}`}
-              className="flex items-center gap-2 text-sm text-text hover:text-primary"
+              className="flex items-center gap-2 text-sm text-text hover:text-ink"
             >
               <MailIcon className="size-4 shrink-0 text-text-muted" aria-hidden="true" />
               <span className="truncate">{dueno.email}</span>
@@ -159,7 +159,7 @@ export default async function AdminDuenoPage({ params }: AdminDuenoPageProps) {
             {dueno.telefono ? (
               <a
                 href={`tel:${dueno.telefono}`}
-                className="flex items-center gap-2 text-sm font-semibold text-text hover:text-primary"
+                className="flex items-center gap-2 text-sm font-semibold text-text hover:text-ink"
               >
                 <PhoneIcon className="size-4 shrink-0 text-text-muted" aria-hidden="true" />
                 {dueno.telefono}

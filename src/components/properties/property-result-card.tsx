@@ -125,7 +125,7 @@ export function PropertyResultCard({
               <a
                 href={contacto.whatsappUrl}
                 onClick={(evento) => evento.stopPropagation()}
-                className="ml-1.5 text-primary underline underline-offset-4"
+                className="ml-1.5 text-ink underline underline-offset-4"
               >
                 {t.contacto.escribirWhatsApp}
               </a>
@@ -152,7 +152,7 @@ export function PropertyResultCard({
           <Button
             asChild
             variant="outline"
-            className="h-9 flex-1 gap-0 rounded-lg border-input px-3 text-[13px] font-bold text-text transition-transform duration-150 ease-out hover:-translate-y-px hover:border-primary hover:text-primary motion-reduce:transition-none"
+            className="h-9 flex-1 gap-0 rounded-lg border-input px-3 text-[13px] font-bold text-text transition-transform duration-150 ease-out hover:-translate-y-px hover:border-ink hover:text-ink motion-reduce:transition-none"
           >
             <Link href={`/espacios/${propiedad.id}`} onClick={(evento) => evento.stopPropagation()}>
               {t.contacto.verDetalles}

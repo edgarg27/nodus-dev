@@ -4,6 +4,10 @@
 @theme {
   --color-primary: #0b1e39;
   --color-accent: #ff7a45;
+  --color-eyebrow: #b54819;
+  --color-cta: #0b1e39;
+  --color-cta-foreground: #ffffff;
+  --color-ink: #0b1e39;
   --color-background: #f7f6f2;
   --color-surface: #ffffff;
   --color-border: #e7e3db;
@@ -39,6 +43,10 @@
 :root[data-theme="dark"] {
   --color-primary: #0b1e39;
   --color-accent: #ff7a45;
+  --color-eyebrow: #ff7a45;
+  --color-cta: #ff7a45;
+  --color-cta-foreground: #0b1e39;
+  --color-ink: #ff7a45;
   --color-background: #081527;
   --color-surface: #1b3151;
   --color-border: #3a5075;
@@ -68,6 +76,10 @@
   :root:not([data-theme="light"]) {
     --color-primary: #0b1e39;
     --color-accent: #ff7a45;
+    --color-eyebrow: #ff7a45;
+    --color-cta: #ff7a45;
+    --color-cta-foreground: #0b1e39;
+    --color-ink: #ff7a45;
     --color-background: #081527;
     --color-surface: #1b3151;
     --color-border: #3a5075;
@@ -99,4 +111,11 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-text);
+  }
 }

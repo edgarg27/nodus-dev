@@ -33,7 +33,7 @@ export default async function AdminChatPage({ params }: AdminChatPageProps) {
     <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6">
       <Link
         href="/admin/mensajes"
-        className="flex w-fit items-center gap-1 text-sm font-semibold text-text-muted hover:text-primary"
+        className="flex w-fit items-center gap-1 text-sm font-semibold text-text-muted hover:text-ink"
       >
         <ChevronLeftIcon className="size-4" aria-hidden="true" />
         {textos.titulo}
@@ -50,7 +50,7 @@ export default async function AdminChatPage({ params }: AdminChatPageProps) {
         {cliente.fichaHref ? (
           <Link
             href={cliente.fichaHref}
-            className="shrink-0 text-sm font-semibold text-text underline-offset-4 hover:text-primary hover:underline"
+            className="shrink-0 text-sm font-semibold text-text underline-offset-4 hover:text-ink hover:underline"
           >
             {textos.verCliente}
           </Link>

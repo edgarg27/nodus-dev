@@ -24,6 +24,7 @@ export function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): Enla
   if (actor.rol === "propietario") {
     return [
       { href: "/panel", etiqueta: t.panel },
+      { href: "/buscar", etiqueta: t.buscarEspacios },
       { href: "/propiedades", etiqueta: t.misPropiedades },
       ...(BANDEJA_VISIBLE_PARA_PROPIETARIO
         ? [{ href: "/leads", etiqueta: t.misLeadsBandeja }]

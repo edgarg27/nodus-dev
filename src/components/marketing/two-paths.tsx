@@ -61,7 +61,7 @@ export function TwoPaths({ buscarHref, publicarHref, idioma }: TwoPathsProps) {
           </ul>
           <Link
             href={buscarHref}
-            className="mt-2 flex h-12 w-fit items-center justify-center rounded-lg bg-primary px-6 text-[15px] font-semibold text-primary-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:bg-primary/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+            className="mt-2 flex h-12 w-fit items-center justify-center rounded-lg bg-cta px-6 text-[15px] font-semibold text-cta-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:bg-cta/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
           >
             {t.buscas.boton}
           </Link>

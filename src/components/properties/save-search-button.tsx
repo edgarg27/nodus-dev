@@ -53,7 +53,7 @@ export function SaveSearchButton({
   }
 
   const clase =
-    "flex h-[42px] cursor-pointer items-center gap-2 rounded-lg border border-input bg-background px-3.5 text-sm font-semibold text-text transition-colors hover:border-primary hover:text-primary disabled:opacity-60";
+    "flex h-[42px] cursor-pointer items-center gap-2 rounded-lg border border-input bg-background px-3.5 text-sm font-semibold text-text transition-colors hover:border-ink hover:text-ink disabled:opacity-60";
 
   return (
     <div className="relative">

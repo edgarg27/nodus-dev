@@ -117,7 +117,7 @@ export async function LandingView({ landing, idioma }: { landing: Landing; idiom
               <SortSelect filtros={landing.filtros} orden="relevancia" />
               <Link
                 href={`/buscar?${datos.consulta}`}
-                className="flex h-[42px] items-center gap-2 rounded-lg border border-input bg-background px-4 text-sm font-semibold text-text transition-colors hover:border-primary hover:text-primary"
+                className="flex h-[42px] items-center gap-2 rounded-lg border border-input bg-background px-4 text-sm font-semibold text-text transition-colors hover:border-ink hover:text-ink"
               >
                 <SlidersHorizontalIcon className="size-[17px]" aria-hidden="true" />
                 <span className="hidden sm:inline">{t.resultados.refinar}</span>
@@ -144,7 +144,7 @@ export async function LandingView({ landing, idioma }: { landing: Landing; idiom
                 <li key={relacionada.ruta}>
                   <Link
                     href={relacionada.ruta}
-                    className="inline-block rounded-full border border-border bg-surface px-3.5 py-1.5 text-sm text-text transition-colors hover:border-primary hover:text-primary"
+                    className="inline-block rounded-full border border-border bg-surface px-3.5 py-1.5 text-sm text-text transition-colors hover:border-ink hover:text-ink"
                   >
                     {relacionada.texto}
                   </Link>

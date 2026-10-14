@@ -1,10 +1,9 @@
-import { HeartIcon } from "lucide-react";
+import { HeartIcon, SearchIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { FavoriteButton } from "@/components/properties/favorite-button";
 import { PublishCta } from "@/components/publicar/publish-cta";
-import { Button } from "@/components/ui/button";
 import { extraerDetalles, formatearPrecio, resumenDetalles } from "@/lib/property-details";
 import { getUsuarioActual } from "@/server/auth/session";
 import { listarFavoritos } from "@/server/favorites/favorites";
@@ -26,7 +25,7 @@ export default async function FavoritosPage() {
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold text-text">{t.titulo}</h1>
+        <h1 className="text-2xl font-bold text-eyebrow">{t.titulo}</h1>
         <p className="text-sm text-text-muted">{t.descripcion}</p>
       </div>
 
@@ -34,9 +33,13 @@ export default async function FavoritosPage() {
         <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-border p-8">
           <HeartIcon className="size-8 text-text-muted" aria-hidden="true" />
           <p className="text-sm text-text-muted">{t.vacio}</p>
-          <Button asChild>
-            <Link href="/buscar">{t.buscar}</Link>
-          </Button>
+          <Link
+            href="/buscar"
+            className="flex h-[46px] items-center gap-2 rounded-lg bg-cta px-5 text-sm font-bold text-cta-foreground shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:bg-cta/90 hover:shadow-md motion-reduce:transition-none"
+          >
+            <SearchIcon className="size-4" aria-hidden="true" />
+            {t.buscar}
+          </Link>
         </div>
       ) : (
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

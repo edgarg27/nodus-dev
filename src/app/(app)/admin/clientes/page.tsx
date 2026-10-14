@@ -86,7 +86,7 @@ export default async function AdminClientesPage({ searchParams }: AdminClientesP
           {params.pagina > 1 ? (
             <Link
               href={hrefClientes(params, { pagina: params.pagina - 1 })}
-              className="font-semibold text-text hover:text-primary"
+              className="font-semibold text-text hover:text-ink"
             >
               ← {textos.anterior}
             </Link>
@@ -97,7 +97,7 @@ export default async function AdminClientesPage({ searchParams }: AdminClientesP
           {params.pagina < paginas ? (
             <Link
               href={hrefClientes(params, { pagina: params.pagina + 1 })}
-              className="font-semibold text-text hover:text-primary"
+              className="font-semibold text-text hover:text-ink"
             >
               {textos.siguiente} →
             </Link>

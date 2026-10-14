@@ -117,7 +117,7 @@ export function NetworkFilters({ params, idioma }: NetworkFiltersProps) {
               name="exclusiva"
               value="1"
               defaultChecked={params.exclusiva}
-              className="size-4 accent-primary"
+              className="size-4 accent-ink"
             />
             {r.soloExclusivas}
           </label>
@@ -127,7 +127,7 @@ export function NetworkFilters({ params, idioma }: NetworkFiltersProps) {
               name="ocultar_propias"
               value="1"
               defaultChecked={params.ocultarPropias}
-              className="size-4 accent-primary"
+              className="size-4 accent-ink"
             />
             {r.ocultarPropias}
           </label>
@@ -141,7 +141,7 @@ export function NetworkFilters({ params, idioma }: NetworkFiltersProps) {
           </Link>
           <button
             type="submit"
-            className="flex h-[42px] cursor-pointer items-center rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+            className="flex h-[42px] cursor-pointer items-center rounded-lg bg-cta px-5 text-sm font-bold text-cta-foreground transition-colors hover:bg-cta/90"
           >
             {r.aplicar}
           </button>

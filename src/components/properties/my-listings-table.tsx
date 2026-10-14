@@ -93,7 +93,7 @@ function BotonCopiarEnlace({ id }: { id: string }) {
       type="button"
       onClick={copiar}
       aria-label={copiado ? tabla.enlaceCopiado : tabla.copiarEnlace}
-      className="flex size-9 cursor-pointer items-center justify-center rounded-lg border border-input text-foreground transition-colors hover:border-primary"
+      className="flex size-9 cursor-pointer items-center justify-center rounded-lg border border-input text-foreground transition-colors hover:border-ink"
     >
       {copiado ? (
         <CheckIcon className="size-4 text-success" aria-hidden="true" />
@@ -147,7 +147,7 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
           <div className="flex gap-2">
             <a
               href={`/api/v1/properties/export?ids=${idsSeleccion}`}
-              className="flex h-9 items-center rounded-lg border border-input px-3.5 text-[13px] font-bold text-foreground transition-colors hover:border-primary"
+              className="flex h-9 items-center rounded-lg border border-input px-3.5 text-[13px] font-bold text-foreground transition-colors hover:border-ink"
             >
               {tabla.exportarSeleccion}
             </a>
@@ -172,7 +172,7 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
                   checked={todasMarcadas}
                   onChange={alternarTodas}
                   aria-label={tabla.seleccionarTodas}
-                  className="size-4 cursor-pointer accent-primary"
+                  className="size-4 cursor-pointer accent-ink"
                 />
               </th>
               <th
@@ -226,7 +226,7 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
                       checked={seleccion.has(propiedad.id)}
                       onChange={() => alternar(propiedad.id)}
                       aria-label={tabla.seleccionar(propiedad.titulo ?? propiedad.direccion)}
-                      className="size-4 cursor-pointer accent-primary"
+                      className="size-4 cursor-pointer accent-ink"
                     />
                   </td>
                   <td className="px-3 py-3">
@@ -297,7 +297,7 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
                         <>
                           <Link
                             href={`/espacios/${propiedad.id}`}
-                            className="flex h-9 items-center rounded-lg border border-input px-3 text-[13px] font-bold text-foreground transition-colors hover:border-primary"
+                            className="flex h-9 items-center rounded-lg border border-input px-3 text-[13px] font-bold text-foreground transition-colors hover:border-ink"
                           >
                             {tabla.ver}
                           </Link>
@@ -309,7 +309,7 @@ export function MyListingsTable({ propiedades, params }: MyListingsTableProps) {
                         className={
                           propiedad.estadoPublicacion === "rechazada"
                             ? "flex h-9 items-center rounded-lg bg-accent px-3 text-[13px] font-bold whitespace-nowrap text-accent-foreground hover:bg-accent/90"
-                            : "flex h-9 items-center rounded-lg border border-input px-3 text-[13px] font-bold text-foreground transition-colors hover:border-primary"
+                            : "flex h-9 items-center rounded-lg border border-input px-3 text-[13px] font-bold text-foreground transition-colors hover:border-ink"
                         }
                       >
                         {propiedad.estadoPublicacion === "rechazada"

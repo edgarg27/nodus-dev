@@ -32,8 +32,8 @@ const PILDORA =
 function clasePildora(activa: boolean): string {
   return `${PILDORA} ${
     activa
-      ? "border-primary bg-primary text-primary-foreground"
-      : "border-border bg-surface text-text hover:border-primary"
+      ? "border-cta bg-cta text-cta-foreground"
+      : "border-border bg-surface text-text hover:border-ink"
   }`;
 }
 
@@ -96,7 +96,7 @@ export function ClientesFiltros({ params, porEstado, textos }: ClientesFiltrosPr
           </label>
           <button
             type="submit"
-            className="h-10 cursor-pointer rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+            className="h-10 cursor-pointer rounded-lg bg-cta px-4 text-sm font-semibold text-cta-foreground hover:bg-cta/90"
           >
             {textos.buscarBoton}
           </button>

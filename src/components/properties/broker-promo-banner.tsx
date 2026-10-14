@@ -23,7 +23,7 @@ export function BrokerPromoBanner({ isBroker }: BrokerPromoBannerProps) {
       </div>
       <Link
         href="/broker"
-        className="flex h-10 items-center whitespace-nowrap rounded-lg border border-input px-[18px] text-[13px] font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
+        className="flex h-10 items-center whitespace-nowrap rounded-lg border border-input px-[18px] text-[13px] font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-ink motion-reduce:transition-none"
       >
         {isBroker ? t.bannerBotonBroker : t.bannerBotonInvitacion}
       </Link>

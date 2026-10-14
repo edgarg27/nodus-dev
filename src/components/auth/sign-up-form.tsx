@@ -445,7 +445,7 @@ export function SignUpForm({ ref, rolInicial = "buscador" }: SignUpFormProps) {
           <label className="flex items-start gap-2 text-[13px] leading-relaxed text-foreground">
             <input
               type="checkbox"
-              className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-primary"
+              className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-ink"
               {...register("aceptaTerminos")}
               aria-invalid={!!errors.aceptaTerminos}
             />

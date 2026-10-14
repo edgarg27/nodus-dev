@@ -36,7 +36,7 @@ export function PropertyKeyFacts({ datos, etiqueta }: PropertyKeyFactsProps) {
         const Icono = ICONOS[clave];
         return (
           <li key={clave} className="flex flex-col items-center gap-2 text-center">
-            <Icono className="size-6 text-primary" strokeWidth={1.6} aria-hidden="true" />
+            <Icono className="size-6 text-ink" strokeWidth={1.6} aria-hidden="true" />
             <span className="text-sm font-medium text-text">{texto}</span>
           </li>
         );

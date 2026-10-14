@@ -143,7 +143,7 @@ export function TestimonialForm({ testimonio }: TestimonialFormProps) {
           type="checkbox"
           checked={visible}
           onChange={(evento) => setVisible(evento.target.checked)}
-          className="mt-0.5 size-4 accent-primary"
+          className="mt-0.5 size-4 accent-ink"
         />
         <span className="flex flex-col gap-0.5">
           <span className="font-semibold">{x.mostrar}</span>

@@ -21,8 +21,8 @@ export function PeriodSelector({ actual, idioma }: PeriodSelectorProps) {
             aria-current={activo ? "page" : undefined}
             className={`flex h-[38px] items-center rounded-full border px-4 text-[13px] font-semibold transition-colors duration-150 ease-out ${
               activo
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-input bg-surface text-muted-foreground hover:border-primary hover:text-foreground"
+                ? "border-cta bg-cta text-cta-foreground"
+                : "border-input bg-surface text-muted-foreground hover:border-ink hover:text-foreground"
             }`}
           >
             {i.ultimosDias(dias)}

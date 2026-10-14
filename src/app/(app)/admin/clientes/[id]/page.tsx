@@ -66,7 +66,7 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
     <div className="flex flex-col gap-6">
       <Link
         href="/admin/clientes"
-        className="flex w-fit items-center gap-1.5 text-sm font-semibold text-text-muted hover:text-primary"
+        className="flex w-fit items-center gap-1.5 text-sm font-semibold text-text-muted hover:text-ink"
       >
         <ArrowLeftIcon className="size-4" aria-hidden="true" />
         {textos.volver}
@@ -118,7 +118,7 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
             // Las que le llegaron directo al propietario antes del cambio: cerradas hasta que se
             // pidan, para no mezclarlas con las nuevas.
             <details className="group flex flex-col gap-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl border border-border bg-surface px-5 py-4 text-sm font-semibold text-text transition-colors hover:border-primary [&::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl border border-border bg-surface px-5 py-4 text-sm font-semibold text-text transition-colors hover:border-ink [&::-webkit-details-marker]:hidden">
                 <span className="flex flex-col gap-0.5">
                   {textos.anteriores(anteriores.length)}
                   <span className="text-xs font-normal text-text-muted">
@@ -152,7 +152,7 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
             <h2 className="text-sm font-bold text-text">{textos.datosCliente}</h2>
             <a
               href={`mailto:${cliente.email}`}
-              className="flex items-center gap-2 text-sm text-text hover:text-primary"
+              className="flex items-center gap-2 text-sm text-text hover:text-ink"
             >
               <MailIcon className="size-4 shrink-0 text-text-muted" aria-hidden="true" />
               <span className="truncate">{cliente.email}</span>
@@ -160,7 +160,7 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
             {cliente.telefono ? (
               <a
                 href={`tel:${cliente.telefono}`}
-                className="flex items-center gap-2 text-sm font-semibold text-text hover:text-primary"
+                className="flex items-center gap-2 text-sm font-semibold text-text hover:text-ink"
               >
                 <PhoneIcon className="size-4 shrink-0 text-text-muted" aria-hidden="true" />
                 {cliente.telefono}

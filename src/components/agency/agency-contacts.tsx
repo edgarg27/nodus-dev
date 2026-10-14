@@ -149,7 +149,7 @@ function SeccionContactos({
         <button
           type="submit"
           disabled={ocupado || !valor.trim()}
-          className="flex h-10 cursor-pointer items-center rounded-lg border border-input px-4 text-[13px] font-bold text-foreground transition-colors hover:border-primary disabled:opacity-60"
+          className="flex h-10 cursor-pointer items-center rounded-lg border border-input px-4 text-[13px] font-bold text-foreground transition-colors hover:border-ink disabled:opacity-60"
         >
           {a.agregar}
         </button>

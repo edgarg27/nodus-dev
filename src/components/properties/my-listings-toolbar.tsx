@@ -58,7 +58,7 @@ export function MyListingsToolbar({ params, conteos }: MyListingsToolbarProps) {
         </search>
         <a
           href={`/api/v1/properties/export${exportar ? `?${exportar}` : ""}`}
-          className="flex h-[46px] items-center rounded-lg border border-input px-5 text-sm font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
+          className="flex h-[46px] items-center rounded-lg border border-eyebrow px-5 text-sm font-bold text-eyebrow transition-all duration-150 ease-out hover:-translate-y-px hover:bg-eyebrow/10 motion-reduce:transition-none"
         >
           {tabla.exportar}
         </a>
@@ -75,8 +75,8 @@ export function MyListingsToolbar({ params, conteos }: MyListingsToolbarProps) {
               onClick={() => ir({ ...params, estado, pagina: 1 })}
               className={`flex h-[38px] cursor-pointer items-center gap-2 rounded-full border px-4 text-[13px] font-semibold transition-colors duration-150 ease-out ${
                 activo
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-input bg-surface text-muted-foreground hover:border-primary hover:text-foreground"
+                  ? "border-cta bg-cta text-cta-foreground"
+                  : "border-input bg-surface text-muted-foreground hover:border-ink hover:text-foreground"
               }`}
             >
               {t.panel.filtros[estado]}

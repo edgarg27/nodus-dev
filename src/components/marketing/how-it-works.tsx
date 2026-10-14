@@ -7,7 +7,7 @@ export function HowItWorks({ idioma }: { idioma: Idioma }) {
   return (
     <section id="como-funciona" className="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
       <Reveal className="flex max-w-xl flex-col gap-3">
-        <span className="text-[13px] font-bold tracking-wide text-primary uppercase">
+        <span className="text-[13px] font-bold tracking-wide text-eyebrow uppercase">
           {t.etiqueta}
         </span>
         <h2 className="text-[34px] leading-tight font-bold text-foreground">{t.titulo}</h2>
