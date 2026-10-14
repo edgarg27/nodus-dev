@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "cn";
+import { MenuIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -155,6 +156,7 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
               <button
                 type="button"
                 aria-haspopup="true"
+                aria-label={`${t.cuenta}: ${actor.nombre}`}
                 aria-expanded={userMenuOpen}
                 onClick={() => setUserMenuOpen((prev) => !prev)}
                 className={cn(
@@ -173,6 +175,15 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
                 >
                   {actor.nombre}
                 </span>
+                {/* En pantallas chicas no cabe el nombre: un ícono de menú deja claro que esto abre la
+                    navegación de la cuenta. */}
+                <MenuIcon
+                  className={cn(
+                    "size-5 shrink-0 sm:hidden",
+                    inmersivo ? "text-primary-foreground" : "text-foreground",
+                  )}
+                  aria-hidden="true"
+                />
                 <svg
                   width="16"
                   height="16"
@@ -183,7 +194,7 @@ export function SiteHeader({ actor }: SiteHeaderProps) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   className={cn(
-                    "shrink-0 transition-transform duration-200 ease-out",
+                    "hidden shrink-0 transition-transform duration-200 ease-out sm:block",
                     inmersivo ? "text-primary-foreground/70" : "text-muted-foreground",
                     userMenuOpen && "rotate-180",
                   )}
