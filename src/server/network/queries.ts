@@ -14,6 +14,10 @@ import {
 // Red inmobiliaria: propiedades de otros propietarios que sus dueños eligieron compartir. Es la única
 // consulta que devuelve `comision_pct`, y solo a propietarios autenticados (la ruta lo exige).
 
+// Mismo criterio que `usaLaRed` (src/lib/red-acceso.ts), en SQL: las propiedades de un dueño directo
+// no salen en la Red aunque se hubieran compartido antes del cambio. Requiere el join con `usuario`.
+const propietarioUsaLaRed = sql`(${usuario.isBroker} or ${usuario.tipoAnunciante} is distinct from 'particular')`;
+
 export interface FiltrosRedServidor extends FiltrosBusquedaPropiedad {
   exclusiva?: boolean;
   // Excluye las propiedades de este propietario.
@@ -74,7 +78,11 @@ export async function listarPropiedadesDeLaRed(
   filtros: FiltrosRedServidor,
   opciones: { orden?: OrdenBusqueda; pagina?: number } = {},
 ): Promise<ListadoRed> {
-  const condiciones = [...condicionesBusquedaPublica(filtros), eq(propiedad.compartidaEnRed, true)];
+  const condiciones = [
+    ...condicionesBusquedaPublica(filtros),
+    eq(propiedad.compartidaEnRed, true),
+    propietarioUsaLaRed,
+  ];
   if (filtros.exclusiva) condiciones.push(eq(propiedad.exclusiva, true));
   if (filtros.excluirPropietarioId)
     condiciones.push(ne(propiedad.propietarioId, filtros.excluirPropietarioId));
@@ -94,6 +102,7 @@ export async function listarPropiedadesDeLaRed(
     db
       .select({ total: count() })
       .from(propiedad)
+      .innerJoin(usuario, eq(usuario.id, propiedad.propietarioId))
       .where(and(...condiciones)),
   ]);
 
@@ -145,6 +154,7 @@ export async function estadisticasDeLaRed(): Promise<EstadisticasRed> {
     eq(propiedad.compartidaEnRed, true),
     eq(propiedad.activo, true),
     eq(propiedad.estadoPublicacion, "publicada"),
+    propietarioUsaLaRed,
   );
   const [totales] = await db
     .select({
@@ -152,6 +162,7 @@ export async function estadisticasDeLaRed(): Promise<EstadisticasRed> {
       nuevas: sql<number>`count(*) filter (where coalesce(${propiedad.revisadaEn}, ${propiedad.createdAt}) > now() - interval '48 hours')::int`,
     })
     .from(propiedad)
+    .innerJoin(usuario, eq(usuario.id, propiedad.propietarioId))
     .where(enRed);
   const [brokers] = await db
     .select({ total: sql<number>`count(distinct ${propiedad.propietarioId})::int` })

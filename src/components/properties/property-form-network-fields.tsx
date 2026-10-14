@@ -15,6 +15,8 @@ interface PropertyFormNetworkFieldsProps {
   errors: FieldErrors<PropertyFormValues>;
   contactos: ContactoOpcion[];
   compartidaEnRed: boolean;
+  // Falso para el dueño directo: no ve compartir en la Red ni la comisión.
+  conRed: boolean;
 }
 
 function MensajeError({ mensaje }: { mensaje: string | undefined }) {
@@ -31,6 +33,7 @@ export function PropertyFormNetworkFields({
   errors,
   contactos,
   compartidaEnRed,
+  conRed,
 }: PropertyFormNetworkFieldsProps) {
   const { t } = useIdioma();
   const f = t.panel.formulario;
@@ -85,35 +88,41 @@ export function PropertyFormNetworkFields({
         <p className="text-xs text-muted-foreground">{f.contactosAyuda}</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="compartidaEnRed" className="text-[13px] font-semibold text-foreground">
-            {f.compartir}
-          </Label>
-          <select id="compartidaEnRed" {...register("compartidaEnRed")} className={selectClassName}>
-            <option value="false">{f.noCompartir}</option>
-            <option value="true">{f.compartirOtros}</option>
-          </select>
-        </div>
-
-        {compartidaEnRed ? (
+      {conRed ? (
+        <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="comisionPct" className="text-[13px] font-semibold text-foreground">
-              {f.comision} <span className="font-normal text-muted-foreground">(%)</span>
+            <Label htmlFor="compartidaEnRed" className="text-[13px] font-semibold text-foreground">
+              {f.compartir}
             </Label>
-            <Input
-              id="comisionPct"
-              inputMode="decimal"
-              {...register("comisionPct")}
-              className={inputClassName}
-              placeholder="50"
-            />
-            <MensajeError mensaje={errors.comisionPct?.message} />
+            <select
+              id="compartidaEnRed"
+              {...register("compartidaEnRed")}
+              className={selectClassName}
+            >
+              <option value="false">{f.noCompartir}</option>
+              <option value="true">{f.compartirOtros}</option>
+            </select>
           </div>
-        ) : null}
-      </div>
 
-      {compartidaEnRed ? (
+          {compartidaEnRed ? (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="comisionPct" className="text-[13px] font-semibold text-foreground">
+                {f.comision} <span className="font-normal text-muted-foreground">(%)</span>
+              </Label>
+              <Input
+                id="comisionPct"
+                inputMode="decimal"
+                {...register("comisionPct")}
+                className={inputClassName}
+                placeholder="50"
+              />
+              <MensajeError mensaje={errors.comisionPct?.message} />
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {conRed && compartidaEnRed ? (
         <div className="flex flex-col gap-2">
           <Label htmlFor="exclusiva" className="text-[13px] font-semibold text-foreground">
             {f.exclusiva}

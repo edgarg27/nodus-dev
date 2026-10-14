@@ -28,7 +28,7 @@ export function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): Enla
       ...(BANDEJA_VISIBLE_PARA_PROPIETARIO
         ? [{ href: "/leads", etiqueta: t.misLeadsBandeja }]
         : []),
-      { href: "/red", etiqueta: t.red },
+      ...(actor.usaRed === false ? [] : [{ href: "/red", etiqueta: t.red }]),
       ...(MENSAJES_VISIBLE_PARA_PROPIETARIO
         ? [{ href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos }]
         : [

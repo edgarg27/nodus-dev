@@ -3,6 +3,7 @@ import { PropertyForm } from "@/components/properties/property-form";
 import type { EstadoPublicacion } from "@/components/properties/status-badge";
 import type { CodigoEstado } from "@/lib/estados";
 import { extraerDetalles } from "@/lib/property-details";
+import { usaLaRed } from "@/lib/red-acceso";
 import { listarContactosDeAgencia } from "@/server/agency/queries";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
@@ -32,6 +33,7 @@ export default async function EditarPropiedadPage({ params }: EditarPropiedadPag
   return (
     <main className="w-full py-10">
       <PropertyForm
+        conRed={usaLaRed(actor)}
         contactos={contactos.map(({ id, tipo, valor }) => ({
           id,
           tipo: tipo as "email" | "telefono" | "whatsapp",

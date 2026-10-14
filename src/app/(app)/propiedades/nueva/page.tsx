@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { PropertyForm } from "@/components/properties/property-form";
 import { VerificationNotice } from "@/components/verificacion/verification-notice";
+import { usaLaRed } from "@/lib/red-acceso";
 import { listarContactosDeAgencia } from "@/server/agency/queries";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
@@ -32,6 +33,7 @@ export default async function NuevaPropiedadPage() {
   return (
     <main className="w-full py-10">
       <PropertyForm
+        conRed={usaLaRed(actor)}
         contactos={contactos.map(({ id, tipo, valor }) => ({
           id,
           tipo: tipo as "email" | "telefono" | "whatsapp",

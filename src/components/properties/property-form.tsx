@@ -38,6 +38,8 @@ interface PropertyFormProps {
   propiedad?: PropertyFormInitialData;
   // Contactos de la agencia entre los que el propietario puede elegir para esta propiedad.
   contactos?: ContactoOpcion[];
+  // Falso para el dueño directo: el formulario no ofrece compartir en la Red ni comisión.
+  conRed?: boolean;
 }
 
 interface ErrorApi {
@@ -60,7 +62,7 @@ async function subirFoto(propiedadId: string, archivo: File): Promise<void> {
   }
 }
 
-export function PropertyForm({ propiedad, contactos = [] }: PropertyFormProps) {
+export function PropertyForm({ propiedad, contactos = [], conRed = true }: PropertyFormProps) {
   const { idioma, t: textos } = useIdioma();
   const f = textos.panel.formulario;
   const esquema = useMemo(() => crearPropertyFormSchema(f), [f]);
@@ -377,6 +379,7 @@ export function PropertyForm({ propiedad, contactos = [] }: PropertyFormProps) {
           errors={errors}
           contactos={contactos}
           compartidaEnRed={compartidaEnRed}
+          conRed={conRed}
         />
 
         <PropertyFormLocationField

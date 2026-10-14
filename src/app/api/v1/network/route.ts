@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { usaLaRed } from "../../../../lib/red-acceso.ts";
 import { leerRed } from "../../../../lib/red-params.ts";
 import { requireRol } from "../../../../server/auth/guards.ts";
 import { getUsuarioActual } from "../../../../server/auth/session.ts";
@@ -12,6 +13,9 @@ export async function GET(request: Request) {
   if (!actor) return sinSesion();
   if (!requireRol(actor, "propietario").ok) {
     return respuestaError(403, "forbidden", "Se requiere el rol propietario");
+  }
+  if (!usaLaRed(actor)) {
+    return respuestaError(403, "forbidden", "La Red inmobiliaria es para brokers e inmobiliarias");
   }
 
   const url = new URL(request.url);
