@@ -1,6 +1,7 @@
 import { ChevronRightIcon, HouseIcon, SearchIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { OwnerNumber } from "@/components/admin/owner-number";
 import { ZONA_HORARIA } from "@/lib/clientes";
 import { localeDe } from "@/lib/i18n";
 import { iniciales } from "@/lib/initials";
@@ -93,6 +94,11 @@ export default async function AdminDuenosPage({ searchParams }: AdminDuenosPageP
                         </span>
                       ) : null}
                     </div>
+                    <OwnerNumber
+                      numero={dueno.numeroPropietario}
+                      estados={dueno.estados}
+                      etiqueta={t.admin.numeroPropietario}
+                    />
                     <span className="truncate text-sm text-text-muted">
                       {dueno.email}
                       {dueno.telefono ? ` · ${dueno.telefono}` : ""}

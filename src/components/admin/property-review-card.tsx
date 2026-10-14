@@ -4,6 +4,7 @@ import { Building2Icon, StoreIcon, WarehouseIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAdminToast } from "@/components/admin/admin-toast";
+import { OwnerNumber } from "@/components/admin/owner-number";
 import { PossibleDuplicatesNotice } from "@/components/admin/possible-duplicates-notice";
 import { PropertyDetailsDialog } from "@/components/admin/property-details-dialog";
 import { RejectPropertyDialog } from "@/components/admin/reject-property-dialog";
@@ -108,7 +109,15 @@ export function PropertyReviewCard({ propiedad, parecidas = [] }: PropertyReview
           {propiedad.ciudad}, {propiedad.estado}
         </p>
         {propiedad.propietario ? (
-          <p className="text-xs text-text-muted">{p.publicadaPor(propiedad.propietario.nombre)}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs text-text-muted">
+              {p.publicadaPor(propiedad.propietario.nombre)}
+            </p>
+            <OwnerNumber
+              numero={propiedad.propietario.numeroPropietario}
+              etiqueta={t.admin.numeroPropietario}
+            />
+          </div>
         ) : null}
         <PossibleDuplicatesNotice parecidas={parecidas} textos={p} />
       </div>

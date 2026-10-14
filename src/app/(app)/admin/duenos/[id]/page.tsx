@@ -2,6 +2,7 @@ import { ArrowLeftIcon, ExternalLinkIcon, MailIcon, PhoneIcon } from "lucide-rea
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { OwnerNumber } from "@/components/admin/owner-number";
 import { RequestDocuments } from "@/components/broker/request-documents";
 import { ChatThread } from "@/components/messages/chat-thread";
 import { ZONA_HORARIA } from "@/lib/clientes";
@@ -73,6 +74,11 @@ export default async function AdminDuenoPage({ params }: AdminDuenoPageProps) {
               </Link>
             )}
           </div>
+          <OwnerNumber
+            numero={dueno.numeroPropietario}
+            estados={dueno.estados}
+            etiqueta={t.admin.numeroPropietario}
+          />
           <span className="text-sm text-text-muted">
             {textos.registrado(formatoFecha.format(dueno.registradoEn))}
           </span>

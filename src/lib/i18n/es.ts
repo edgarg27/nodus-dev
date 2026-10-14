@@ -503,6 +503,7 @@ export const es = {
     panel: "Panel de administración",
     cerrarSesion: "Cerrar sesión",
     secciones: "Secciones del panel",
+    numeroPropietario: "Número de propietario",
     nav: {
       propiedades: "Propiedades pendientes",
       requests: "Solicitudes de broker y dueños",
@@ -731,6 +732,7 @@ export const es = {
         "Este cliente se registró pero todavía no pide informes de ningún espacio.",
       verEspacio: "Ver espacio",
       noPublicado: "Ya no está publicado",
+      numeroPropietario: "Número de propietario",
       precioCaptive: "Precio (solo lo ve Captive)",
       precioSinCapturar: "El propietario no lo capturó",
       confirmarCon: "Confirmar disponibilidad con",
@@ -981,6 +983,8 @@ export const es = {
         "Hola, no encontré un espacio que se ajuste a lo que necesito. ¿Me pueden ayudar?",
     },
     agencia: {
+      tuNumero: "Tu número de propietario:",
+      tuNumeroAyuda: "dáselo al equipo Captive cuando te comuniques.",
       metaTitulo: "Perfil de la agencia — Captive by Nodus",
       titulo: "Perfil de la agencia",
       brokerVerificado: "Broker verificado",

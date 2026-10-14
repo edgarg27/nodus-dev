@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { RequestActions } from "@/components/broker/request-actions";
 import { listarPendientes } from "@/server/broker-requests/queries";
 import { obtenerTextos } from "@/server/i18n";
+import { estadosDePropietarios } from "@/server/propietarios/estados";
 import { listarDocumentosDeUsuarios } from "@/server/verificacion/documentos";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -13,9 +14,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function AdminBrokerRequestsPage() {
   const textos = (await obtenerTextos()).t.admin.solicitudes;
   const pendientes = await listarPendientes();
-  const documentos = await listarDocumentosDeUsuarios(
-    pendientes.map((solicitud) => solicitud.usuario.id),
-  );
+  const ids = pendientes.map((solicitud) => solicitud.usuario.id);
+  const [documentos, estados] = await Promise.all([
+    listarDocumentosDeUsuarios(ids),
+    estadosDePropietarios(ids),
+  ]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -36,6 +39,7 @@ export default async function AdminBrokerRequestsPage() {
               <RequestActions
                 solicitud={{
                   ...solicitud,
+                  estados: estados.get(solicitud.usuario.id) ?? [],
                   documentos: (documentos.get(solicitud.usuario.id) ?? []).map(({ id, tipo }) => ({
                     id,
                     tipo,

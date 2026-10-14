@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAdminToast } from "@/components/admin/admin-toast";
+import { OwnerNumber } from "@/components/admin/owner-number";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,7 +23,10 @@ interface Solicitud {
     nombre: string;
     email: string;
     telefono: string | null;
+    numeroPropietario: number | null;
   };
+  // Estados donde ya tiene propiedades.
+  estados: string[];
   // Documentos de verificación que la persona ya subió.
   documentos: { id: string; tipo: string }[];
 }
@@ -113,6 +117,11 @@ export function RequestActions({ solicitud }: RequestActionsProps) {
               </span>
             ) : null}
           </div>
+          <OwnerNumber
+            numero={solicitud.usuario.numeroPropietario}
+            estados={solicitud.estados}
+            etiqueta={t.admin.numeroPropietario}
+          />
           <p className="text-sm text-text-muted">
             {solicitud.usuario.email}
             {solicitud.usuario.telefono ? ` · ${solicitud.usuario.telefono}` : ""}
