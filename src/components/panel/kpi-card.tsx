@@ -21,7 +21,7 @@ export function KpiCard({ valor, etiqueta, href }: KpiCardProps) {
   return href ? (
     <Link
       href={href}
-      className={`${clase} transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none`}
+      className={`${clase} transition-all duration-150 ease-out hover:-translate-y-px hover:border-ink motion-reduce:transition-none`}
     >
       {contenido}
     </Link>

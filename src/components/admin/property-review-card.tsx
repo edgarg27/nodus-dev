@@ -98,7 +98,7 @@ export function PropertyReviewCard({ propiedad, parecidas = [] }: PropertyReview
           <h3 className="text-sm font-semibold text-text">{propiedad.direccion}</h3>
           <span
             className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
-              esRenta ? "bg-warning-foreground text-warning" : "bg-muted text-primary"
+              esRenta ? "bg-warning-foreground text-warning" : "bg-muted text-ink"
             }`}
           >
             {etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad}

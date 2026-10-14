@@ -156,7 +156,7 @@ export function SeguimientoSolicitud({
                   type="checkbox"
                   checked={recordarme}
                   onChange={(evento) => setRecordarme(evento.target.checked)}
-                  className="accent-primary"
+                  className="accent-ink"
                 />
                 {textos.recordarme}
               </label>
@@ -179,7 +179,7 @@ export function SeguimientoSolicitud({
             <button
               type="submit"
               disabled={guardando || (!comentario.trim() && !cambiaRecordatorio)}
-              className={`${boton} border border-input bg-surface text-text hover:border-primary`}
+              className={`${boton} border border-input bg-surface text-text hover:border-ink`}
             >
               {guardando ? textos.guardando : textos.guardar}
             </button>

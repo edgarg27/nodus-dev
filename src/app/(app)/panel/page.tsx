@@ -46,7 +46,7 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
       <div className="mx-auto flex w-full max-w-[1100px] flex-col gap-8 px-4">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div className="flex flex-col gap-1.5">
-            <h1 className="font-display text-[28px] font-bold text-foreground">
+            <h1 className="font-display text-[28px] font-bold text-eyebrow">
               {i.hola(perfil.nombre)}
             </h1>
             <p className="text-sm text-muted-foreground">{i.subtitulo}</p>

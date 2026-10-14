@@ -93,7 +93,7 @@ function FormularioLugar({ caso, ocupados, onCerrar }: FormularioLugarProps) {
                   ? "cursor-not-allowed border-border opacity-60"
                   : marcado
                     ? "cursor-pointer border-accent bg-accent/10"
-                    : "cursor-pointer border-border hover:border-primary"
+                    : "cursor-pointer border-border hover:border-ink"
               }`}
             >
               <input
@@ -102,7 +102,7 @@ function FormularioLugar({ caso, ocupados, onCerrar }: FormularioLugarProps) {
                 checked={marcado}
                 disabled={ocupado}
                 onChange={() => setElegido(opcion.valor)}
-                className="size-4 accent-primary"
+                className="size-4 accent-ink"
               />
               <span className="flex min-w-0 flex-col">
                 <span className="font-semibold text-text">{opcion.texto}</span>

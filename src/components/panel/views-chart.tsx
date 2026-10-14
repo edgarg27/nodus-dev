@@ -82,11 +82,11 @@ export function ViewsChart({ serie, idioma }: ViewsChartProps) {
             </text>
           </g>
         ))}
-        <path d={area} className="fill-primary/10" />
+        <path d={area} className="fill-ink/10" />
         <path
           d={linea("impresiones")}
           fill="none"
-          className="stroke-primary"
+          className="stroke-ink"
           strokeWidth="2"
           strokeLinejoin="round"
         />
@@ -104,7 +104,7 @@ export function ViewsChart({ serie, idioma }: ViewsChartProps) {
             cx={x(i)}
             cy={y(punto.impresiones)}
             r="3"
-            className="fill-primary"
+            className="fill-ink"
           >
             <title>
               {textos.punto(etiquetaDia(punto.dia, formatoDia), punto.impresiones, punto.visitas)}
@@ -125,7 +125,7 @@ export function ViewsChart({ serie, idioma }: ViewsChartProps) {
       </svg>
       <figcaption className="flex flex-wrap gap-5 text-[13px] text-muted-foreground">
         <span className="flex items-center gap-2">
-          <span aria-hidden="true" className="h-0.5 w-5 rounded-full bg-primary" />
+          <span aria-hidden="true" className="h-0.5 w-5 rounded-full bg-ink" />
           {textos.leyendaImpresiones}
         </span>
         <span className="flex items-center gap-2">

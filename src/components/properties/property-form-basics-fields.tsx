@@ -123,7 +123,7 @@ export function PropertyFormBasicsFields({
                 <input
                   type="radio"
                   value="true"
-                  className="accent-primary"
+                  className="accent-ink"
                   {...register("aceptaFinanciamiento")}
                 />
                 {f.si}
@@ -132,7 +132,7 @@ export function PropertyFormBasicsFields({
                 <input
                   type="radio"
                   value="false"
-                  className="accent-primary"
+                  className="accent-ink"
                   {...register("aceptaFinanciamiento")}
                 />
                 {f.no}

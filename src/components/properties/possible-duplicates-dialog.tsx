@@ -113,7 +113,7 @@ export function PossibleDuplicatesDialog({
                   href={`/espacios/${parecido.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex shrink-0 items-center gap-1 text-xs font-semibold text-foreground hover:text-primary"
+                  className="flex shrink-0 items-center gap-1 text-xs font-semibold text-foreground hover:text-ink"
                 >
                   {f.parecidosVer}
                   <ExternalLinkIcon className="size-3.5" aria-hidden="true" />

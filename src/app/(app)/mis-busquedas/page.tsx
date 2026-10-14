@@ -22,7 +22,7 @@ export default async function MisBusquedasPage() {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-10 sm:px-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold text-text">{t.titulo}</h1>
+        <h1 className="text-2xl font-bold text-eyebrow">{t.titulo}</h1>
         <p className="text-sm text-text-muted">{t.descripcion}</p>
       </div>
       <SavedSearchList

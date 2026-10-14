@@ -42,7 +42,7 @@ export default async function AdminMensajesPage() {
             <li key={chat.buscadorId}>
               <Link
                 href={`/admin/mensajes/${chat.buscadorId}`}
-                className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm transition-colors duration-150 ease-out hover:border-primary"
+                className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm transition-colors duration-150 ease-out hover:border-ink"
               >
                 <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary font-display text-sm font-bold text-primary-foreground">
                   {iniciales(chat.nombre)}

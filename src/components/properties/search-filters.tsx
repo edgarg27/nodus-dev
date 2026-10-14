@@ -227,7 +227,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                         name="financiamiento"
                         value="true"
                         defaultChecked={initial.financiamiento === "true"}
-                        className="accent-primary"
+                        className="accent-ink"
                       />
                       {f.si}
                     </label>
@@ -237,7 +237,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                         name="financiamiento"
                         value="false"
                         defaultChecked={initial.financiamiento === "false"}
-                        className="accent-primary"
+                        className="accent-ink"
                       />
                       {f.no}
                     </label>

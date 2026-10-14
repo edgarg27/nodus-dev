@@ -77,7 +77,7 @@ export function AgencyLogoField({ nombre, logoUrl }: AgencyLogoFieldProps) {
             <label
               htmlFor={idCampo}
               aria-disabled={ocupado}
-              className="flex h-10 cursor-pointer items-center rounded-lg border border-input px-4 text-[13px] font-bold text-foreground transition-colors hover:border-primary aria-disabled:pointer-events-none aria-disabled:opacity-60"
+              className="flex h-10 cursor-pointer items-center rounded-lg border border-input px-4 text-[13px] font-bold text-foreground transition-colors hover:border-ink aria-disabled:pointer-events-none aria-disabled:opacity-60"
             >
               {ocupado ? a.subiendoLogo : logoUrl ? a.cambiarLogo : a.subirLogo}
             </label>

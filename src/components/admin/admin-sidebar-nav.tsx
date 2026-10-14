@@ -107,8 +107,8 @@ export function AdminSidebarNav({
             aria-current={isActive ? "page" : undefined}
             className={`flex shrink-0 items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold transition-colors duration-150 ease-out ${
               isActive
-                ? "bg-primary text-primary-foreground"
-                : "text-text hover:bg-background hover:text-primary"
+                ? "bg-cta text-cta-foreground"
+                : "text-text hover:bg-background hover:text-ink"
             }`}
           >
             <Icon className="size-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />

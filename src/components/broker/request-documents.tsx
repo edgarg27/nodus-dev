@@ -29,7 +29,7 @@ export function RequestDocuments({ tipoSolicitud, documentos, t }: RequestDocume
                   href={`/api/v1/verificacion/documentos/${documento.id}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-[13px] font-semibold text-text transition-colors hover:border-primary"
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-[13px] font-semibold text-text transition-colors hover:border-ink"
                 >
                   <CheckIcon className="size-4 text-success" strokeWidth={2} aria-hidden="true" />
                   {titulo}

@@ -20,7 +20,7 @@ export function PaginationBar({ pagina, porPagina, total, hrefDe, idioma }: Pagi
   const hayAnterior = pagina > 1;
   const haySiguiente = hasta < total;
   const clase =
-    "flex size-9 items-center justify-center rounded-lg border border-input text-foreground transition-colors hover:border-primary";
+    "flex size-9 items-center justify-center rounded-lg border border-input text-foreground transition-colors hover:border-ink";
   const claseOff =
     "flex size-9 items-center justify-center rounded-lg border border-input opacity-40";
 

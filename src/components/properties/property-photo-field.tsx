@@ -125,7 +125,7 @@ export function PropertyPhotoField({
         className={`flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed px-5 py-8 text-center transition-colors duration-150 ease-out ${
           arrastrando
             ? "border-accent bg-accent/10"
-            : "border-input bg-background hover:border-primary hover:bg-muted"
+            : "border-input bg-background hover:border-ink hover:bg-muted"
         }`}
       >
         <svg

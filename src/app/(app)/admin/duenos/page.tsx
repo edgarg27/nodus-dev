@@ -55,7 +55,7 @@ export default async function AdminDuenosPage({ searchParams }: AdminDuenosPageP
         </label>
         <button
           type="submit"
-          className="h-10 cursor-pointer rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+          className="h-10 cursor-pointer rounded-lg bg-cta px-4 text-sm font-semibold text-cta-foreground hover:bg-cta/90"
         >
           {textos.buscarBoton}
         </button>
@@ -79,7 +79,7 @@ export default async function AdminDuenosPage({ searchParams }: AdminDuenosPageP
               <li key={dueno.id}>
                 <Link
                   href={`/admin/duenos/${dueno.id}`}
-                  className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm transition-colors duration-150 ease-out hover:border-primary"
+                  className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4 shadow-sm transition-colors duration-150 ease-out hover:border-ink"
                 >
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary font-display text-sm font-bold text-primary-foreground">
                     {iniciales(dueno.nombre)}

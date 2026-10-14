@@ -331,7 +331,7 @@ export function PropertyForm({ propiedad, contactos = [], conRed = true }: Prope
               <p>{f.duplicada}</p>
               <Link
                 href={`/propiedades/${mensajeDuplicado.id}`}
-                className="text-primary underline underline-offset-4"
+                className="text-ink underline underline-offset-4"
               >
                 {f.verExistente}
               </Link>

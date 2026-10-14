@@ -50,7 +50,7 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
           </div>
           <Link
             href="/propiedades"
-            className="flex h-[46px] items-center whitespace-nowrap rounded-lg border border-input px-5 text-sm font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-primary motion-reduce:transition-none"
+            className="flex h-[46px] items-center whitespace-nowrap rounded-lg border border-input px-5 text-sm font-bold text-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:border-ink motion-reduce:transition-none"
           >
             {b.propiedades}
           </Link>
@@ -96,7 +96,7 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
             ) : (
               <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border bg-surface px-5 py-14 text-center text-muted-foreground">
                 <span className="text-sm">{b.sinCoincidencias}</span>
-                <Link href="/leads" className="text-sm font-semibold text-primary underline">
+                <Link href="/leads" className="text-sm font-semibold text-ink underline">
                   {b.borrarFiltros}
                 </Link>
               </div>

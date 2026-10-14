@@ -113,7 +113,7 @@ function CampoFinanciamiento({ className }: { className: string }) {
       </legend>
       <div className={cn("flex h-[46px] items-center", className)}>
         <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <input type="radio" name="financiamiento" value="true" className="accent-primary" />
+          <input type="radio" name="financiamiento" value="true" className="accent-ink" />
           {t.hero.si}
         </label>
         <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -122,7 +122,7 @@ function CampoFinanciamiento({ className }: { className: string }) {
             name="financiamiento"
             value="false"
             defaultChecked
-            className="accent-primary"
+            className="accent-ink"
           />
           {t.hero.no}
         </label>
