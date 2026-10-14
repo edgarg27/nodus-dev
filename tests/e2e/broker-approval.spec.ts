@@ -19,16 +19,16 @@ test.afterAll(async () => {
   await limpiarUsuariosAuth();
 });
 
-async function crearOferenteConPropiedadPublicada(nombre: string) {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
+async function crearPropietarioConPropiedadPublicada(nombre: string) {
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
   await db
     .insert(usuario)
-    .values({ id: oferente.id, email: oferente.email, nombre, rol: "oferente" });
+    .values({ id: propietario.id, email: propietario.email, nombre, rol: "propietario" });
   const direccion = `Av. Broker Journey ${randomUUID()}`;
   const [propia] = await db
     .insert(propiedad)
     .values({
-      oferenteId: oferente.id,
+      propietarioId: propietario.id,
       tipo: "nave_industrial",
       modalidad: "renta",
       direccion,
@@ -43,13 +43,15 @@ async function crearOferenteConPropiedadPublicada(nombre: string) {
     })
     .returning();
   if (!propia) throw new Error("fixture no se creó");
-  return { oferente, propia };
+  return { propietario, propia };
 }
 
 test("journey: solicitud, aprobación, atribución con ?ref= y revocación", async ({ page }) => {
-  const { oferente, propia } = await crearOferenteConPropiedadPublicada("Oferente futuro broker");
+  const { propietario, propia } = await crearPropietarioConPropiedadPublicada(
+    "Propietario futuro broker",
+  );
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
   await page
     .getByLabel("Empresa y nota para el equipo de Nodus")
@@ -62,7 +64,7 @@ test("journey: solicitud, aprobación, atribución con ?ref= y revocación", asy
   await iniciarSesion(page, admin);
   await page.goto("/admin/broker-requests");
 
-  const filaSolicitud = page.locator("article").filter({ hasText: oferente.email });
+  const filaSolicitud = page.locator("article").filter({ hasText: propietario.email });
   await expect(filaSolicitud).toContainText("Inmobiliaria del Centro, 8 años en SLP");
   await filaSolicitud.getByRole("button", { name: "Aprobar" }).click();
   // La persona no subió documentos: aprobar así pide dejar escrito por qué.
@@ -71,10 +73,10 @@ test("journey: solicitud, aprobación, atribución con ?ref= y revocación", asy
     .fill("La conocemos en persona");
   await filaSolicitud.getByRole("button", { name: "Aprobar sin documentos" }).click();
   await expect(page.getByText(/Solicitud aprobada — código/)).toBeVisible();
-  await expect(page.locator("article").filter({ hasText: oferente.email })).toHaveCount(0);
+  await expect(page.locator("article").filter({ hasText: propietario.email })).toHaveCount(0);
 
-  const [filaOferente] = await db.select().from(usuario).where(eq(usuario.id, oferente.id));
-  const brokerCode = filaOferente?.brokerCode;
+  const [filaPropietario] = await db.select().from(usuario).where(eq(usuario.id, propietario.id));
+  const brokerCode = filaPropietario?.brokerCode;
   expect(brokerCode).toMatch(/^BRK-[A-HJ-NP-Z2-9]{6}$/);
   if (!brokerCode) throw new Error("no se asignó broker_code");
 
@@ -82,7 +84,7 @@ test("journey: solicitud, aprobación, atribución con ?ref= y revocación", asy
   await expect(page.locator("article").filter({ hasText: brokerCode })).toBeVisible();
 
   await page.context().clearCookies();
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
   await expect(page.getByText(`Tu código: ${brokerCode}`)).toBeVisible();
 
@@ -95,7 +97,7 @@ test("journey: solicitud, aprobación, atribución con ?ref= y revocación", asy
     email: buscador.email,
     nombre: "Buscador referido",
     rol: "buscador",
-    referralBrokerId: oferente.id,
+    referralBrokerId: propietario.id,
   });
 
   await page.context().clearCookies();
@@ -112,7 +114,7 @@ test("journey: solicitud, aprobación, atribución con ?ref= y revocación", asy
     .select()
     .from(contactRequest)
     .where(eq(contactRequest.propiedadId, propia.id));
-  expect(leadUno?.brokerId).toBe(oferente.id);
+  expect(leadUno?.brokerId).toBe(propietario.id);
 
   // La solicitud le llega a Captive (Clientes y prospectos), no a la bandeja del broker.
   await page.context().clearCookies();
@@ -132,7 +134,7 @@ test("journey: solicitud, aprobación, atribución con ?ref= y revocación", asy
   await expect(page.locator("article").filter({ hasText: brokerCode })).toHaveCount(0);
 
   await page.context().clearCookies();
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
   await expect(page.getByText("Tu acceso de broker fue revocado")).toBeVisible();
   await expect(page.getByText("Bajo desempeño")).toBeVisible();
@@ -158,13 +160,15 @@ test("journey: solicitud, aprobación, atribución con ?ref= y revocación", asy
   const leadNuevo = leadsFinales.find((lead) => lead.id !== leadUno?.id);
   const leadOriginal = leadsFinales.find((lead) => lead.id === leadUno?.id);
   expect(leadNuevo?.brokerId).toBeNull();
-  expect(leadOriginal?.brokerId).toBe(oferente.id);
+  expect(leadOriginal?.brokerId).toBe(propietario.id);
 });
 
-test("denegar con motivo deja la solicitud visible en /broker del oferente", async ({ page }) => {
-  const { oferente } = await crearOferenteConPropiedadPublicada("Oferente denegado");
+test("denegar con motivo deja la solicitud visible en /broker del propietario", async ({
+  page,
+}) => {
+  const { propietario } = await crearPropietarioConPropiedadPublicada("Propietario denegado");
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
   await page.getByLabel("Empresa y nota para el equipo de Nodus").fill("Quiero ser broker");
   await page.getByRole("button", { name: "Enviar solicitud" }).click();
@@ -175,27 +179,29 @@ test("denegar con motivo deja la solicitud visible en /broker del oferente", asy
   await iniciarSesion(page, admin);
   await page.goto("/admin/broker-requests");
 
-  const fila = page.locator("article").filter({ hasText: oferente.email });
+  const fila = page.locator("article").filter({ hasText: propietario.email });
   await fila.getByRole("button", { name: "Denegar" }).click();
   await fila.getByRole("button", { name: "Confirmar denegación" }).click();
   await expect(page.getByText("Solicitud denegada.")).toBeVisible();
   await expect(fila).toHaveCount(0);
 
   await page.context().clearCookies();
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
   await expect(page.getByLabel("Empresa y nota para el equipo de Nodus")).toBeVisible();
 });
 
-test("un buscador y un oferente reciben 404 en /admin/brokers", async ({ page }) => {
+test("un buscador y un propietario reciben 404 en /admin/brokers", async ({ page }) => {
   const buscador = await crearUsuarioAuth({ rol: "buscador" });
   await iniciarSesion(page, buscador);
   const respuestaBuscador = await page.goto("/admin/brokers");
   expect(respuestaBuscador?.status()).toBe(404);
 
   await page.context().clearCookies();
-  const { oferente } = await crearOferenteConPropiedadPublicada("Oferente sin acceso a brokers");
-  await iniciarSesion(page, oferente);
-  const respuestaOferente = await page.goto("/admin/brokers");
-  expect(respuestaOferente?.status()).toBe(404);
+  const { propietario } = await crearPropietarioConPropiedadPublicada(
+    "Propietario sin acceso a brokers",
+  );
+  await iniciarSesion(page, propietario);
+  const respuestaPropietario = await page.goto("/admin/brokers");
+  expect(respuestaPropietario?.status()).toBe(404);
 });

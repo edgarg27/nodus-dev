@@ -1,4 +1,4 @@
-// Embudo de seguimiento de leads y parámetros de la bandeja de entrada del oferente.
+// Embudo de seguimiento de leads y parámetros de la bandeja de entrada del propietario.
 
 export const ESTADOS_LEAD = [
   "nueva",

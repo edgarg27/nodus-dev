@@ -16,7 +16,7 @@ const { GET: GET_DETALLE } = await import("../../../src/app/api/v1/properties/[i
 type ActorFixture = Awaited<ReturnType<typeof getUsuarioActual>>;
 
 function actorFixture(
-  rol: "buscador" | "oferente" | "admin" = "oferente",
+  rol: "buscador" | "propietario" | "admin" = "propietario",
 ): NonNullable<ActorFixture> {
   return {
     id: randomUUID(),
@@ -39,9 +39,9 @@ async function insertarUsuario(actor: NonNullable<ActorFixture>) {
     .values({ id: actor.id, email: actor.email, nombre: actor.nombre, rol: actor.rol });
 }
 
-function propiedadFixture(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadFixture(propietarioId: string, overrides: Record<string, unknown> = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: `Av. Búsqueda ${randomUUID()}`,
@@ -72,19 +72,19 @@ function detalleParams(id: string) {
 describe("GET /api/v1/properties", () => {
   it("modalidad=renta&estado=SLP devuelve solo publicada/activa que cumple ambas condiciones", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture();
-    await insertarUsuario(oferente);
+    const propietario = actorFixture();
+    await insertarUsuario(propietario);
 
     const [coincide] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { modalidad: "renta", estado: "SLP" }))
+      .values(propiedadFixture(propietario.id, { modalidad: "renta", estado: "SLP" }))
       .returning();
     await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { modalidad: "venta", estado: "SLP" }));
+      .values(propiedadFixture(propietario.id, { modalidad: "venta", estado: "SLP" }));
     await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { modalidad: "renta", estado: "Guanajuato" }));
+      .values(propiedadFixture(propietario.id, { modalidad: "renta", estado: "Guanajuato" }));
     if (!coincide) throw new Error("fixture no se creó");
 
     const respuesta = await GET_SEARCH(requestSearch("modalidad=renta&estado=SLP"));
@@ -104,18 +104,18 @@ describe("GET /api/v1/properties", () => {
 
   it("nunca incluye propiedades pendiente, rechazada o dadas de baja aunque cumplan los filtros", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture();
-    await insertarUsuario(oferente);
+    const propietario = actorFixture();
+    await insertarUsuario(propietario);
 
     await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { estadoPublicacion: "pendiente" }));
+      .values(propiedadFixture(propietario.id, { estadoPublicacion: "pendiente" }));
     await db
       .insert(propiedad)
       .values(
-        propiedadFixture(oferente.id, { estadoPublicacion: "rechazada", motivoRechazo: "x" }),
+        propiedadFixture(propietario.id, { estadoPublicacion: "rechazada", motivoRechazo: "x" }),
       );
-    await db.insert(propiedad).values(propiedadFixture(oferente.id, { activo: false }));
+    await db.insert(propiedad).values(propiedadFixture(propietario.id, { activo: false }));
 
     const respuesta = await GET_SEARCH(requestSearch(""));
     expect(respuesta.status).toBe(200);
@@ -125,12 +125,12 @@ describe("GET /api/v1/properties", () => {
 
   it("limita a 50 por página con meta.has_more y meta.next_cursor, sin repetir filas", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture();
-    await insertarUsuario(oferente);
+    const propietario = actorFixture();
+    await insertarUsuario(propietario);
 
     await db
       .insert(propiedad)
-      .values(Array.from({ length: 55 }, () => propiedadFixture(oferente.id)));
+      .values(Array.from({ length: 55 }, () => propiedadFixture(propietario.id)));
 
     const primeraPagina = await GET_SEARCH(requestSearch("limit=60"));
     expect(primeraPagina.status).toBe(200);
@@ -158,14 +158,14 @@ describe("GET /api/v1/properties", () => {
 describe("GET /api/v1/properties/:id", () => {
   it("una propiedad que no es publicada y activa responde 404 sin ser el dueño", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture();
+    const propietario = actorFixture();
     const otro = actorFixture("buscador");
-    await insertarUsuario(oferente);
+    await insertarUsuario(propietario);
     await insertarUsuario(otro);
 
     const [pendiente] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { estadoPublicacion: "pendiente" }))
+      .values(propiedadFixture(propietario.id, { estadoPublicacion: "pendiente" }))
       .returning();
     if (!pendiente) throw new Error("fixture no se creó");
 
@@ -183,13 +183,13 @@ describe("GET /api/v1/properties/:id", () => {
 
   it("el dueño autenticado ve el detalle de su propiedad en cualquier estado", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture();
-    await insertarUsuario(oferente);
+    const propietario = actorFixture();
+    await insertarUsuario(propietario);
 
     const [rechazada] = await db
       .insert(propiedad)
       .values(
-        propiedadFixture(oferente.id, {
+        propiedadFixture(propietario.id, {
           estadoPublicacion: "rechazada",
           motivoRechazo: "Foto ilegible",
         }),
@@ -197,7 +197,7 @@ describe("GET /api/v1/properties/:id", () => {
       .returning();
     if (!rechazada) throw new Error("fixture no se creó");
 
-    actuarComo(oferente);
+    actuarComo(propietario);
     const respuesta = await GET_DETALLE(requestDetalle(rechazada.id), detalleParams(rechazada.id));
     expect(respuesta.status).toBe(200);
     const cuerpo = await respuesta.json();
@@ -207,12 +207,12 @@ describe("GET /api/v1/properties/:id", () => {
 
   it("una propiedad publicada es visible para cualquiera, incluido un anónimo", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture();
-    await insertarUsuario(oferente);
+    const propietario = actorFixture();
+    await insertarUsuario(propietario);
 
     const [publicada] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id))
+      .values(propiedadFixture(propietario.id))
       .returning();
     if (!publicada) throw new Error("fixture no se creó");
 

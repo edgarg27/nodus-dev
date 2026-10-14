@@ -25,7 +25,7 @@ const { POST: POST_CONTACT_REQUESTS } = await import(
 
 type ActorFixture = Awaited<ReturnType<typeof getUsuarioActual>>;
 
-function actorFixture(rol: "buscador" | "oferente" | "admin"): NonNullable<ActorFixture> {
+function actorFixture(rol: "buscador" | "propietario" | "admin"): NonNullable<ActorFixture> {
   return {
     id: randomUUID(),
     email: `nodus-test+${randomUUID()}@example.com`,
@@ -42,7 +42,7 @@ function actuarComo(actor: ActorFixture) {
 }
 
 describe("AdminLayout (capa 2: layout de administración)", () => {
-  it("sin actor, un buscador o un oferente rechazan con notFound (404)", async () => {
+  it("sin actor, un buscador o un propietario rechazan con notFound (404)", async () => {
     actuarComo(null);
     await expect(AdminLayout({ children: null })).rejects.toMatchObject({
       digest: expect.stringContaining("404"),
@@ -53,7 +53,7 @@ describe("AdminLayout (capa 2: layout de administración)", () => {
       digest: expect.stringContaining("404"),
     });
 
-    actuarComo(actorFixture("oferente"));
+    actuarComo(actorFixture("propietario"));
     await expect(AdminLayout({ children: null })).rejects.toMatchObject({
       digest: expect.stringContaining("404"),
     });

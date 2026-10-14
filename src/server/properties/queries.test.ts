@@ -5,20 +5,20 @@ import { db } from "../../lib/db/client.ts";
 import { propiedad, usuario } from "../../lib/db/schema.ts";
 import { buscarPropiedadesPublicas, listarPropiedadesSimilares } from "./queries.ts";
 
-async function crearFilaOferente(): Promise<string> {
+async function crearFilaPropietario(): Promise<string> {
   const id = randomUUID();
   await db.insert(usuario).values({
     id,
     email: `nodus-test+${id}@example.com`,
-    nombre: "Oferente de prueba",
-    rol: "oferente",
+    nombre: "Propietario de prueba",
+    rol: "propietario",
   });
   return id;
 }
 
-function propiedadFixture(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadFixture(propietarioId: string, overrides: Record<string, unknown> = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: `Av. Filtro Financiamiento ${randomUUID()}`,
@@ -37,15 +37,15 @@ function propiedadFixture(oferenteId: string, overrides: Record<string, unknown>
 describe("buscarPropiedadesPublicas / aceptaFinanciamiento", () => {
   it("con { aceptaFinanciamiento: true } devuelve solo filas con esa columna en true", async () => {
     await resetTestDatabase();
-    const oferenteId = await crearFilaOferente();
+    const propietarioId = await crearFilaPropietario();
 
     const [conFinanciamiento] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferenteId, { aceptaFinanciamiento: true }))
+      .values(propiedadFixture(propietarioId, { aceptaFinanciamiento: true }))
       .returning();
     await db
       .insert(propiedad)
-      .values(propiedadFixture(oferenteId, { aceptaFinanciamiento: false }));
+      .values(propiedadFixture(propietarioId, { aceptaFinanciamiento: false }));
     if (!conFinanciamiento) throw new Error("fixture no se creó");
 
     const { data } = await buscarPropiedadesPublicas({ aceptaFinanciamiento: true });
@@ -55,12 +55,14 @@ describe("buscarPropiedadesPublicas / aceptaFinanciamiento", () => {
 
   it("sin el filtro definido devuelve filas con cualquier valor de la columna", async () => {
     await resetTestDatabase();
-    const oferenteId = await crearFilaOferente();
+    const propietarioId = await crearFilaPropietario();
 
-    await db.insert(propiedad).values(propiedadFixture(oferenteId, { aceptaFinanciamiento: true }));
     await db
       .insert(propiedad)
-      .values(propiedadFixture(oferenteId, { aceptaFinanciamiento: false }));
+      .values(propiedadFixture(propietarioId, { aceptaFinanciamiento: true }));
+    await db
+      .insert(propiedad)
+      .values(propiedadFixture(propietarioId, { aceptaFinanciamiento: false }));
 
     const { data } = await buscarPropiedadesPublicas({});
     expect(data).toHaveLength(2);
@@ -70,19 +72,19 @@ describe("buscarPropiedadesPublicas / aceptaFinanciamiento", () => {
 describe("buscarPropiedadesPublicas / precio, superficie y datos", () => {
   async function sembrar() {
     await resetTestDatabase();
-    const oferenteId = await crearFilaOferente();
+    const propietarioId = await crearFilaPropietario();
     const filas = await db
       .insert(propiedad)
       .values([
         // A: $30,000 MXN al mes, 300 m², 2 baños
-        propiedadFixture(oferenteId, {
+        propiedadFixture(propietarioId, {
           descripcion: "A",
           precio: 30000,
           superficieConstruidaM2: 300,
           banos: 2,
         }),
         // B: $100 MXN por m² × 1,000 m² = $100,000 MXN, nave con 4 andenes
-        propiedadFixture(oferenteId, {
+        propiedadFixture(propietarioId, {
           descripcion: "B",
           precio: 100,
           precioUnidad: "m2",
@@ -90,14 +92,14 @@ describe("buscarPropiedadesPublicas / precio, superficie y datos", () => {
           andenes: 4,
         }),
         // C: USD 2,000; no entra a filtros en MXN
-        propiedadFixture(oferenteId, {
+        propiedadFixture(propietarioId, {
           descripcion: "C",
           precio: 2000,
           moneda: "USD",
           superficieTerrenoM2: 5000,
         }),
         // D: sin precio ni superficie
-        propiedadFixture(oferenteId, { descripcion: "D" }),
+        propiedadFixture(propietarioId, { descripcion: "D" }),
       ])
       .returning();
     return filas;
@@ -153,19 +155,22 @@ describe("buscarPropiedadesPublicas / precio, superficie y datos", () => {
 describe("listarPropiedadesSimilares", () => {
   it("devuelve publicadas del mismo tipo y estado, sin la propia, primero la misma modalidad", async () => {
     await resetTestDatabase();
-    const oferenteId = await crearFilaOferente();
+    const propietarioId = await crearFilaPropietario();
     const [base] = await db
       .insert(propiedad)
-      .values(propiedadFixture(oferenteId, { descripcion: "base" }))
+      .values(propiedadFixture(propietarioId, { descripcion: "base" }))
       .returning();
     await db
       .insert(propiedad)
       .values([
-        propiedadFixture(oferenteId, { descripcion: "venta", modalidad: "venta" }),
-        propiedadFixture(oferenteId, { descripcion: "renta" }),
-        propiedadFixture(oferenteId, { descripcion: "oficina", tipo: "oficina" }),
-        propiedadFixture(oferenteId, { descripcion: "otro estado", estado: "Guanajuato" }),
-        propiedadFixture(oferenteId, { descripcion: "pendiente", estadoPublicacion: "pendiente" }),
+        propiedadFixture(propietarioId, { descripcion: "venta", modalidad: "venta" }),
+        propiedadFixture(propietarioId, { descripcion: "renta" }),
+        propiedadFixture(propietarioId, { descripcion: "oficina", tipo: "oficina" }),
+        propiedadFixture(propietarioId, { descripcion: "otro estado", estado: "Guanajuato" }),
+        propiedadFixture(propietarioId, {
+          descripcion: "pendiente",
+          estadoPublicacion: "pendiente",
+        }),
       ]);
     if (!base) throw new Error("no se insertó la base");
 

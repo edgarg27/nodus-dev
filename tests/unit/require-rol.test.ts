@@ -14,7 +14,7 @@ function actor(rol: Rol): ActorAutenticado {
   };
 }
 
-const roles: Rol[] = ["buscador", "oferente", "admin"];
+const roles: Rol[] = ["buscador", "propietario", "admin"];
 const actores: (ActorAutenticado | null)[] = [...roles.map(actor), null];
 
 describe("requireRol", () => {

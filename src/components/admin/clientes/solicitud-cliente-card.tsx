@@ -29,8 +29,8 @@ export function SolicitudClienteCard({
   formatoFechaHora,
   ahora,
 }: SolicitudClienteCardProps) {
-  const { propiedad, oferente } = solicitud;
-  const telefono = oferente.whatsapp ?? oferente.telefono;
+  const { propiedad, propietario } = solicitud;
+  const telefono = propietario.whatsapp ?? propietario.telefono;
 
   return (
     <article className="flex flex-col gap-4 rounded-2xl border border-border bg-surface p-5 shadow-sm">
@@ -113,14 +113,14 @@ export function SolicitudClienteCard({
         </span>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-0.5">
-            <span className="font-semibold text-text">{oferente.agencia}</span>
+            <span className="font-semibold text-text">{propietario.agencia}</span>
             <span className="text-sm text-text-muted">
-              {oferente.nombre !== oferente.agencia ? `${oferente.nombre} · ` : ""}
-              {oferente.email}
+              {propietario.nombre !== propietario.agencia ? `${propietario.nombre} · ` : ""}
+              {propietario.email}
             </span>
-            {oferente.esBroker && oferente.brokerCode ? (
+            {propietario.esBroker && propietario.brokerCode ? (
               <span className="text-xs font-bold text-success">
-                {textos.brokerVerificado(oferente.brokerCode)}
+                {textos.brokerVerificado(propietario.brokerCode)}
               </span>
             ) : null}
           </div>
@@ -133,9 +133,9 @@ export function SolicitudClienteCard({
                 <PhoneIcon className="size-4" aria-hidden="true" />
                 {telefono}
               </a>
-              {oferente.whatsapp ? (
+              {propietario.whatsapp ? (
                 <a
-                  href={`https://wa.me/${digitos(oferente.whatsapp)}`}
+                  href={`https://wa.me/${digitos(propietario.whatsapp)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-9 items-center gap-1.5 rounded-lg border border-input px-3 text-sm font-semibold text-text hover:border-primary"

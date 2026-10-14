@@ -36,7 +36,7 @@ export type { PropertyFormInitialData } from "./property-form-schema";
 
 interface PropertyFormProps {
   propiedad?: PropertyFormInitialData;
-  // Contactos de la agencia entre los que el oferente puede elegir para esta propiedad.
+  // Contactos de la agencia entre los que el propietario puede elegir para esta propiedad.
   contactos?: ContactoOpcion[];
 }
 
@@ -118,10 +118,10 @@ export function PropertyForm({ propiedad, contactos = [] }: PropertyFormProps) {
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
   const [coordenadasTocadas, setCoordenadasTocadas] = useState(Boolean(propiedad));
   // El geocode solo aproxima (MapTiler no conoce muchas colonias): una ubicación calculada no se
-  // envía hasta que el oferente confirma el pin o lo coloca él mismo.
+  // envía hasta que el propietario confirma el pin o lo coloca él mismo.
   const [ubicacionConfirmada, setUbicacionConfirmada] = useState(Boolean(propiedad));
   const [mostrarExito, setMostrarExito] = useState(false);
-  // Valores ya validados en espera de que el oferente acepte devolver la propiedad a revisión.
+  // Valores ya validados en espera de que el propietario acepte devolver la propiedad a revisión.
   const [valoresPorConfirmar, setValoresPorConfirmar] = useState<PropertyFormValues | null>(null);
   // Espacios del mismo tipo a pocos metros: se preguntan antes de enviar (no bloquean).
   const [parecidos, setParecidos] = useState<{

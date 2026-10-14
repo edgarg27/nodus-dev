@@ -7,7 +7,7 @@ interface CrearContrasenaPageProps {
 }
 
 function destinoPorRol(rol: string): string {
-  if (rol === "oferente") return "/panel";
+  if (rol === "propietario") return "/panel";
   if (rol === "admin") return "/admin/propiedades";
   return "/buscar";
 }

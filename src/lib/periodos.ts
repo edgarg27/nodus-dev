@@ -1,4 +1,4 @@
-// Periodos de las métricas del panel del oferente (en días).
+// Periodos de las métricas del panel del propietario (en días).
 export const PERIODOS_DIAS = [7, 30, 90] as const;
 export type PeriodoDias = (typeof PERIODOS_DIAS)[number];
 

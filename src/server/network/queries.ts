@@ -11,13 +11,13 @@ import {
   ordenPorValorDe,
 } from "../properties/queries.ts";
 
-// Red inmobiliaria: propiedades de otros oferentes que sus dueños eligieron compartir. Es la única
-// consulta que devuelve `comision_pct`, y solo a oferentes autenticados (la ruta lo exige).
+// Red inmobiliaria: propiedades de otros propietarios que sus dueños eligieron compartir. Es la única
+// consulta que devuelve `comision_pct`, y solo a propietarios autenticados (la ruta lo exige).
 
 export interface FiltrosRedServidor extends FiltrosBusquedaPropiedad {
   exclusiva?: boolean;
-  // Excluye las propiedades de este oferente.
-  excluirOferenteId?: string;
+  // Excluye las propiedades de este propietario.
+  excluirPropietarioId?: string;
 }
 
 export interface PropiedadDeLaRed {
@@ -40,7 +40,7 @@ export interface PropiedadDeLaRed {
   // m²) la superficie.
   comisionEstimada: number | null;
   fotoUrl: string | null;
-  oferenteId: string;
+  propietarioId: string;
   agenciaNombre: string;
   esBroker: boolean;
   publicadaEn: Date;
@@ -76,8 +76,8 @@ export async function listarPropiedadesDeLaRed(
 ): Promise<ListadoRed> {
   const condiciones = [...condicionesBusquedaPublica(filtros), eq(propiedad.compartidaEnRed, true)];
   if (filtros.exclusiva) condiciones.push(eq(propiedad.exclusiva, true));
-  if (filtros.excluirOferenteId)
-    condiciones.push(ne(propiedad.oferenteId, filtros.excluirOferenteId));
+  if (filtros.excluirPropietarioId)
+    condiciones.push(ne(propiedad.propietarioId, filtros.excluirPropietarioId));
 
   const pagina = Math.max(1, opciones.pagina ?? 1);
   const orden = ordenPorValorDe(opciones.orden) ?? [desc(propiedad.createdAt)];
@@ -86,7 +86,7 @@ export async function listarPropiedadesDeLaRed(
     db
       .select({ propiedad, esBroker: usuario.isBroker })
       .from(propiedad)
-      .innerJoin(usuario, eq(usuario.id, propiedad.oferenteId))
+      .innerJoin(usuario, eq(usuario.id, propiedad.propietarioId))
       .where(and(...condiciones))
       .orderBy(...orden, desc(propiedad.id))
       .limit(POR_PAGINA_RED)
@@ -99,7 +99,7 @@ export async function listarPropiedadesDeLaRed(
 
   const [fotos, agencias] = await Promise.all([
     obtenerPrimerasFotos(filas.map(({ propiedad: p }) => p.id)),
-    nombresDeAgencia(filas.map(({ propiedad: p }) => p.oferenteId)),
+    nombresDeAgencia(filas.map(({ propiedad: p }) => p.propietarioId)),
   ]);
 
   return {
@@ -121,8 +121,8 @@ export async function listarPropiedadesDeLaRed(
       comisionPct: p.comisionPct,
       comisionEstimada: comisionEstimada(p),
       fotoUrl: fotos.get(p.id)?.storageUrl ?? null,
-      oferenteId: p.oferenteId,
-      agenciaNombre: agencias.get(p.oferenteId) ?? "",
+      propietarioId: p.propietarioId,
+      agenciaNombre: agencias.get(p.propietarioId) ?? "",
       esBroker,
       publicadaEn: p.revisadaEn ?? p.createdAt,
     })),
@@ -154,9 +154,9 @@ export async function estadisticasDeLaRed(): Promise<EstadisticasRed> {
     .from(propiedad)
     .where(enRed);
   const [brokers] = await db
-    .select({ total: sql<number>`count(distinct ${propiedad.oferenteId})::int` })
+    .select({ total: sql<number>`count(distinct ${propiedad.propietarioId})::int` })
     .from(propiedad)
-    .innerJoin(usuario, and(eq(usuario.id, propiedad.oferenteId), eq(usuario.isBroker, true)))
+    .innerJoin(usuario, and(eq(usuario.id, propiedad.propietarioId), eq(usuario.isBroker, true)))
     .where(enRed);
   return {
     propiedades: totales?.propiedades ?? 0,

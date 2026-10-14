@@ -9,7 +9,7 @@ export interface PuntoMetrica {
   visitas: number;
 }
 
-export interface MetricasDelOferente {
+export interface MetricasDelPropietario {
   dias: PeriodoDias;
   totales: {
     impresiones: number;
@@ -32,15 +32,15 @@ function diasDelPeriodo(dias: number): string[] {
   );
 }
 
-// Totales y serie diaria del periodo, solo de las propiedades activas del oferente.
-export async function metricasDelOferente(
-  oferenteId: string,
+// Totales y serie diaria del periodo, solo de las propiedades activas del propietario.
+export async function metricasDelPropietario(
+  propietarioId: string,
   dias: PeriodoDias,
-): Promise<MetricasDelOferente> {
+): Promise<MetricasDelPropietario> {
   const propias = db
     .select({ id: propiedad.id })
     .from(propiedad)
-    .where(eq(propiedad.oferenteId, oferenteId));
+    .where(eq(propiedad.propietarioId, propietarioId));
 
   const filas = await db
     .select({
@@ -71,8 +71,8 @@ export async function metricasDelOferente(
     .from(contactRequest)
     .where(
       and(
-        eq(contactRequest.oferenteId, oferenteId),
-        // Solo lo que le llegó al oferente: las solicitudes de canal "captive" no las ve.
+        eq(contactRequest.propietarioId, propietarioId),
+        // Solo lo que le llegó al propietario: las solicitudes de canal "captive" no las ve.
         eq(contactRequest.canal, "directo"),
         sql`${contactRequest.createdAt} > now() - make_interval(days => ${dias}::int)`,
       ),
@@ -82,7 +82,7 @@ export async function metricasDelOferente(
     .from(propiedad)
     .where(
       and(
-        eq(propiedad.oferenteId, oferenteId),
+        eq(propiedad.propietarioId, propietarioId),
         eq(propiedad.activo, true),
         eq(propiedad.estadoPublicacion, "publicada"),
       ),
@@ -107,7 +107,7 @@ export interface MetricasDePropiedad {
   solicitudes: number;
 }
 
-// Totales históricos por propiedad (impresiones, visitas y solicitudes) para la tabla del oferente.
+// Totales históricos por propiedad (impresiones, visitas y solicitudes) para la tabla del propietario.
 export async function metricasPorPropiedad(
   propiedadIds: string[],
 ): Promise<Map<string, MetricasDePropiedad>> {

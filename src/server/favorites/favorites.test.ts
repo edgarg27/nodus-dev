@@ -7,7 +7,9 @@ import { favorito, propiedad, usuario } from "../../lib/db/schema.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
 import { agregarFavorito, idsFavoritos, listarFavoritos, quitarFavorito } from "./favorites.ts";
 
-async function crearUsuario(rol: "buscador" | "oferente" = "buscador"): Promise<ActorAutenticado> {
+async function crearUsuario(
+  rol: "buscador" | "propietario" = "buscador",
+): Promise<ActorAutenticado> {
   const id = randomUUID();
   await db
     .insert(usuario)
@@ -23,11 +25,11 @@ async function crearUsuario(rol: "buscador" | "oferente" = "buscador"): Promise<
   };
 }
 
-async function crearPropiedad(oferenteId: string, overrides: Record<string, unknown> = {}) {
+async function crearPropiedad(propietarioId: string, overrides: Record<string, unknown> = {}) {
   const [fila] = await db
     .insert(propiedad)
     .values({
-      oferenteId,
+      propietarioId,
       tipo: "oficina",
       modalidad: "renta",
       direccion: `Av. Favorito ${randomUUID()}`,
@@ -48,9 +50,9 @@ async function crearPropiedad(oferenteId: string, overrides: Record<string, unkn
 describe("favoritos", () => {
   it("agregar es idempotente y quitar también", async () => {
     await resetTestDatabase();
-    const oferente = await crearUsuario("oferente");
+    const propietario = await crearUsuario("propietario");
     const buscador = await crearUsuario();
-    const espacio = await crearPropiedad(oferente.id);
+    const espacio = await crearPropiedad(propietario.id);
 
     expect((await agregarFavorito(buscador, espacio.id)).ok).toBe(true);
     expect((await agregarFavorito(buscador, espacio.id)).ok).toBe(true);
@@ -64,9 +66,9 @@ describe("favoritos", () => {
 
   it("no permite marcar un espacio que no es público, ni sin sesión", async () => {
     await resetTestDatabase();
-    const oferente = await crearUsuario("oferente");
+    const propietario = await crearUsuario("propietario");
     const buscador = await crearUsuario();
-    const pendiente = await crearPropiedad(oferente.id, { estadoPublicacion: "pendiente" });
+    const pendiente = await crearPropiedad(propietario.id, { estadoPublicacion: "pendiente" });
 
     const resultado = await agregarFavorito(buscador, pendiente.id);
     expect(resultado.ok).toBe(false);
@@ -79,11 +81,11 @@ describe("favoritos", () => {
 
   it("la lista solo muestra espacios públicos y es de cada usuario", async () => {
     await resetTestDatabase();
-    const oferente = await crearUsuario("oferente");
+    const propietario = await crearUsuario("propietario");
     const ana = await crearUsuario();
     const beto = await crearUsuario();
-    const visible = await crearPropiedad(oferente.id);
-    const despues = await crearPropiedad(oferente.id);
+    const visible = await crearPropiedad(propietario.id);
+    const despues = await crearPropiedad(propietario.id);
     await agregarFavorito(ana, visible.id);
     await agregarFavorito(ana, despues.id);
     await agregarFavorito(beto, visible.id);

@@ -14,9 +14,9 @@ test.afterAll(async () => {
   await limpiarUsuariosAuth();
 });
 
-function propiedadFixture(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadFixture(propietarioId: string, overrides: Record<string, unknown> = {}) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: `Av. Leads E2E ${randomUUID()}`,
@@ -32,12 +32,12 @@ function propiedadFixture(oferenteId: string, overrides: Record<string, unknown>
   };
 }
 
-async function crearOferente(nombre: string) {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
+async function crearPropietario(nombre: string) {
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
   await db
     .insert(usuario)
-    .values({ id: oferente.id, email: oferente.email, nombre, rol: "oferente" });
-  return oferente;
+    .values({ id: propietario.id, email: propietario.email, nombre, rol: "propietario" });
+  return propietario;
 }
 
 async function crearBuscador(nombre: string) {
@@ -48,9 +48,9 @@ async function crearBuscador(nombre: string) {
   return buscador;
 }
 
-test("un oferente sin leads ve el estado vacío con la acción de publicar", async ({ page }) => {
-  const oferente = await crearOferente("Oferente leads vacío");
-  await iniciarSesion(page, oferente);
+test("un propietario sin leads ve el estado vacío con la acción de publicar", async ({ page }) => {
+  const propietario = await crearPropietario("Propietario leads vacío");
+  await iniciarSesion(page, propietario);
   await page.goto("/leads");
 
   await expect(page.getByText("Aún no tienes leads")).toBeVisible();
@@ -60,18 +60,18 @@ test("un oferente sin leads ve el estado vacío con la acción de publicar", asy
   );
 });
 
-test("un oferente ve solo sus propios leads, y el filtro ajeno se ignora", async ({ page }) => {
-  const oferenteA = await crearOferente("Oferente leads A");
-  const oferenteB = await crearOferente("Oferente leads B");
+test("un propietario ve solo sus propios leads, y el filtro ajeno se ignora", async ({ page }) => {
+  const propietarioA = await crearPropietario("Propietario leads A");
+  const propietarioB = await crearPropietario("Propietario leads B");
   const buscador = await crearBuscador("Buscador leads");
 
   const [propiedadA] = await db
     .insert(propiedad)
-    .values(propiedadFixture(oferenteA.id))
+    .values(propiedadFixture(propietarioA.id))
     .returning();
   const [propiedadB] = await db
     .insert(propiedad)
-    .values(propiedadFixture(oferenteB.id))
+    .values(propiedadFixture(propietarioB.id))
     .returning();
   if (!propiedadA || !propiedadB) throw new Error("fixtures no se crearon");
 
@@ -79,20 +79,20 @@ test("un oferente ve solo sus propios leads, y el filtro ajeno se ignora", async
     {
       buscadorId: buscador.id,
       propiedadId: propiedadA.id,
-      oferenteId: oferenteA.id,
+      propietarioId: propietarioA.id,
       quiereFinanciamiento: false,
       canal: "directo",
     },
     {
       buscadorId: buscador.id,
       propiedadId: propiedadB.id,
-      oferenteId: oferenteB.id,
+      propietarioId: propietarioB.id,
       quiereFinanciamiento: false,
       canal: "directo",
     },
   ]);
 
-  await iniciarSesion(page, oferenteB);
+  await iniciarSesion(page, propietarioB);
   await page.goto(`/leads?propiedad_id=${propiedadA.id}`);
 
   await expect(page.getByText(propiedadB.direccion)).toBeVisible();

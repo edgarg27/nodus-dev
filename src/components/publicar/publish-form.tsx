@@ -3,11 +3,11 @@
 import { cn } from "cn";
 import { useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
-import { digitosTelefono, type TipoAnunciante } from "@/lib/auth/datos-oferente";
+import { digitosTelefono, type TipoAnunciante } from "@/lib/auth/datos-propietario";
 import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
 
-// Un buscador completa sus datos de anunciante y su cuenta pasa a oferente (POST
-// /api/v1/me/oferente); después entra directo a publicar su primer espacio.
+// Un buscador completa sus datos de anunciante y su cuenta pasa a propietario (POST
+// /api/v1/me/propietario); después entra directo a publicar su primer espacio.
 export function PublishForm() {
   const { idioma, t } = useIdioma();
   const p = t.panel.publicar;
@@ -29,7 +29,7 @@ export function PublishForm() {
     setEnviando(true);
     setError(null);
     try {
-      const respuesta = await fetch("/api/v1/me/oferente", {
+      const respuesta = await fetch("/api/v1/me/propietario", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -44,7 +44,7 @@ export function PublishForm() {
         setEnviando(false);
         return;
       }
-      // Recarga completa: el menú y los permisos ya son de oferente.
+      // Recarga completa: el menú y los permisos ya son de propietario.
       window.location.assign("/propiedades/nueva");
     } catch {
       setError(p.error);

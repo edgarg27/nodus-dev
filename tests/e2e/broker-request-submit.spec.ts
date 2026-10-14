@@ -17,19 +17,25 @@ test.afterAll(async () => {
   await limpiarUsuariosAuth();
 });
 
-async function crearOferente(nombre: string, overrides: Record<string, unknown> = {}) {
-  const oferente = await crearUsuarioAuth({ rol: "oferente" });
+async function crearPropietario(nombre: string, overrides: Record<string, unknown> = {}) {
+  const propietario = await crearUsuarioAuth({ rol: "propietario" });
   await db
     .insert(usuario)
-    .values({ id: oferente.id, email: oferente.email, nombre, rol: "oferente", ...overrides });
-  return oferente;
+    .values({
+      id: propietario.id,
+      email: propietario.email,
+      nombre,
+      rol: "propietario",
+      ...overrides,
+    });
+  return propietario;
 }
 
-test("un oferente sin propiedades ve Solicitar ser broker y llega a /broker con el formulario", async ({
+test("un propietario sin propiedades ve Solicitar ser broker y llega a /broker con el formulario", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Oferente sin broker");
-  await iniciarSesion(page, oferente);
+  const propietario = await crearPropietario("Propietario sin broker");
+  await iniciarSesion(page, propietario);
   await page.goto("/propiedades");
 
   const enlace = page.getByRole("link", { name: "Solicitar ser broker" });
@@ -43,8 +49,8 @@ test("un oferente sin propiedades ve Solicitar ser broker y llega a /broker con 
 test("enviar un mensaje válido muestra la vista de éxito, y tras recargar sigue en revisión", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Oferente que solicita");
-  await iniciarSesion(page, oferente);
+  const propietario = await crearPropietario("Propietario que solicita");
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
 
   await page.getByLabel("Empresa", { exact: true }).fill("Inmobiliaria Norte");
@@ -60,9 +66,9 @@ test("enviar un mensaje válido muestra la vista de éxito, y tras recargar sigu
 
 test("con la última solicitud denegada muestra el motivo y el formulario", async ({ page }) => {
   const admin = await crearAdminDePrueba();
-  const oferente = await crearOferente("Oferente denegado");
+  const propietario = await crearPropietario("Propietario denegado");
   await db.insert(brokerSolicitud).values({
-    usuarioId: oferente.id,
+    usuarioId: propietario.id,
     mensaje: "Primer intento",
     estado: "denegada",
     motivoDenegacion: "Falta información",
@@ -70,7 +76,7 @@ test("con la última solicitud denegada muestra el motivo y el formulario", asyn
     resueltaEn: new Date(),
   });
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
 
   await expect(page.getByText("Falta información")).toBeVisible();
@@ -79,19 +85,19 @@ test("con la última solicitud denegada muestra el motivo y el formulario", asyn
 
 test("un broker aprobado ve su código y el enlace de referido", async ({ page }) => {
   const admin = await crearAdminDePrueba();
-  const oferente = await crearOferente("Oferente broker", {
+  const propietario = await crearPropietario("Propietario broker", {
     isBroker: true,
     brokerCode: "BRK-ABCDEF",
   });
   await db.insert(brokerSolicitud).values({
-    usuarioId: oferente.id,
+    usuarioId: propietario.id,
     mensaje: "Quiero ser broker",
     estado: "aprobada",
     resueltaPor: admin.id,
     resueltaEn: new Date(),
   });
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
 
   await expect(page.getByText("Eres broker afiliado")).toBeVisible();
@@ -106,22 +112,24 @@ test("un broker con solicitud aprobada y revocado ve el motivo y el formulario",
   page,
 }) => {
   const admin = await crearAdminDePrueba();
-  const oferente = await crearOferente("Oferente revocado con solicitud", { isBroker: false });
+  const propietario = await crearPropietario("Propietario revocado con solicitud", {
+    isBroker: false,
+  });
   await db.insert(brokerSolicitud).values({
-    usuarioId: oferente.id,
+    usuarioId: propietario.id,
     mensaje: "Quiero ser broker",
     estado: "aprobada",
     resueltaPor: admin.id,
     resueltaEn: new Date(),
   });
   await db.insert(brokerRevocacion).values({
-    usuarioId: oferente.id,
+    usuarioId: propietario.id,
     brokerCode: "BRK-VIEJO1",
     motivo: "Bajo desempeño",
     revocadaPor: admin.id,
   });
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
 
   await expect(page.getByText("Tu acceso de broker fue revocado")).toBeVisible();
@@ -133,15 +141,15 @@ test("un broker sembrado sin ninguna solicitud y revocado también ve el motivo 
   page,
 }) => {
   const admin = await crearAdminDePrueba();
-  const oferente = await crearOferente("Oferente sembrado revocado", { isBroker: false });
+  const propietario = await crearPropietario("Propietario sembrado revocado", { isBroker: false });
   await db.insert(brokerRevocacion).values({
-    usuarioId: oferente.id,
+    usuarioId: propietario.id,
     brokerCode: "BRK-DEMO",
     motivo: "Reestructuración",
     revocadaPor: admin.id,
   });
 
-  await iniciarSesion(page, oferente);
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
 
   await expect(page.getByText("Tu acceso de broker fue revocado")).toBeVisible();
@@ -165,12 +173,12 @@ test("un buscador y un admin reciben 404 en /broker", async ({ page }) => {
 test("una pendiente insertada mientras la página está abierta hace que el envío anuncie 409", async ({
   page,
 }) => {
-  const oferente = await crearOferente("Oferente carrera");
-  await iniciarSesion(page, oferente);
+  const propietario = await crearPropietario("Propietario carrera");
+  await iniciarSesion(page, propietario);
   await page.goto("/broker");
 
   await db.insert(brokerSolicitud).values({
-    usuarioId: oferente.id,
+    usuarioId: propietario.id,
     mensaje: "Insertada por SQL mientras la página estaba abierta",
   });
 

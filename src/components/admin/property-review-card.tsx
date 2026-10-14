@@ -72,7 +72,7 @@ export function PropertyReviewCard({ propiedad, parecidas = [] }: PropertyReview
       {propiedad.fotos.length > 0 ? (
         <div className="flex shrink-0 gap-1.5">
           {propiedad.fotos.slice(0, 3).map((foto) => (
-            // biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático
+            // biome-ignore lint/performance/noImgElement: foto subida por el propietario, no un asset estático
             <img
               key={foto.id}
               src={foto.storageUrl}
@@ -107,8 +107,8 @@ export function PropertyReviewCard({ propiedad, parecidas = [] }: PropertyReview
         <p className="text-sm text-text-muted">
           {propiedad.ciudad}, {propiedad.estado}
         </p>
-        {propiedad.oferente ? (
-          <p className="text-xs text-text-muted">{p.publicadaPor(propiedad.oferente.nombre)}</p>
+        {propiedad.propietario ? (
+          <p className="text-xs text-text-muted">{p.publicadaPor(propiedad.propietario.nombre)}</p>
         ) : null}
         <PossibleDuplicatesNotice parecidas={parecidas} textos={p} />
       </div>

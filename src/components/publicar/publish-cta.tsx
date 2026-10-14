@@ -3,7 +3,7 @@ import Link from "next/link";
 import { type Idioma, textosDe } from "@/lib/i18n";
 
 // Aviso para buscadores: "¿Tienes un espacio? Publícalo". Lleva a /publicar, que convierte la
-// cuenta en oferente.
+// cuenta en propietario.
 export function PublishCta({ idioma }: { idioma: Idioma }) {
   const p = textosDe(idioma).panel.publicar;
   return (

@@ -27,7 +27,7 @@ interface PropertyContactPanelProps {
 const MAXIMO_MENSAJE = 1000;
 
 // Columna fija de la ficha: precio, mensaje con preguntas rápidas, Contactar (crea la solicitud con
-// el mensaje; le llega al equipo de Captive, que confirma la disponibilidad con el oferente) y
+// el mensaje; le llega al equipo de Captive, que confirma la disponibilidad con el propietario) y
 // compartir.
 export function PropertyContactPanel({
   propiedadId,
@@ -103,7 +103,7 @@ ${pregunta}`
           >
             {contacto.telefono ? (
               <>
-                <span className="font-semibold">{t.contacto.telefonoOferente}</span>
+                <span className="font-semibold">{t.contacto.telefonoPropietario}</span>
                 <a href={`tel:${contacto.telefono}`} className="text-lg font-bold text-primary">
                   {contacto.telefono}
                 </a>
@@ -137,7 +137,7 @@ ${pregunta}`
         ) : (
           <div className="flex flex-col gap-2.5">
             <label htmlFor={idMensaje} className="text-sm font-semibold text-text">
-              {t.ficha.mensajeOferente}{" "}
+              {t.ficha.mensajePropietario}{" "}
               <span className="font-normal text-text-muted">{t.ficha.opcional}</span>
             </label>
             <div className="flex flex-wrap gap-1.5">

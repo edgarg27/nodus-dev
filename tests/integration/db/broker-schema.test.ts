@@ -15,7 +15,7 @@ function usuarioFixture(overrides: Partial<typeof usuario.$inferInsert> = {}) {
     id: randomUUID(),
     email: `nodus-test+${randomUUID()}@example.com`,
     nombre: "Usuario de prueba",
-    rol: "oferente",
+    rol: "propietario",
     ...overrides,
   };
 }

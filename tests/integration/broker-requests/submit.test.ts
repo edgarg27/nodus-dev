@@ -16,7 +16,7 @@ const { POST } = await import("../../../src/app/api/v1/broker-requests/route.ts"
 type ActorFixture = Awaited<ReturnType<typeof getUsuarioActual>>;
 
 function actorFixture(
-  rol: "buscador" | "oferente" | "admin",
+  rol: "buscador" | "propietario" | "admin",
   overrides: Record<string, unknown> = {},
 ): NonNullable<ActorFixture> {
   return {
@@ -55,11 +55,11 @@ function request(body: unknown) {
 }
 
 describe("POST /api/v1/broker-requests — alta", () => {
-  it("oferente sin broker y sin pendiente crea la solicitud pendiente", async () => {
+  it("propietario sin broker y sin pendiente crea la solicitud pendiente", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const respuesta = await POST(
       request({ mensaje: "Inmobiliaria Norte, 12 años en SLP", empresa: "Inmobiliaria Norte" }),
@@ -71,7 +71,7 @@ describe("POST /api/v1/broker-requests — alta", () => {
     const [fila] = await db
       .select()
       .from(brokerSolicitud)
-      .where(eq(brokerSolicitud.usuarioId, oferente.id));
+      .where(eq(brokerSolicitud.usuarioId, propietario.id));
     expect(fila?.estado).toBe("pendiente");
   });
 });
@@ -79,9 +79,9 @@ describe("POST /api/v1/broker-requests — alta", () => {
 describe("POST /api/v1/broker-requests — 409 pendiente", () => {
   it("una segunda solicitud mientras hay una pendiente responde 409 sin crear una segunda fila", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const primera = await POST(
       request({ mensaje: "Primera solicitud", empresa: "Empresa de prueba" }),
@@ -98,15 +98,15 @@ describe("POST /api/v1/broker-requests — 409 pendiente", () => {
     const filas = await db
       .select()
       .from(brokerSolicitud)
-      .where(eq(brokerSolicitud.usuarioId, oferente.id));
+      .where(eq(brokerSolicitud.usuarioId, propietario.id));
     expect(filas).toHaveLength(1);
   });
 
-  it("dos solicitudes simultáneas del mismo oferente producen exactamente un 201 y un 409", async () => {
+  it("dos solicitudes simultáneas del mismo propietario producen exactamente un 201 y un 409", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const [resultadoA, resultadoB] = await Promise.all([
       POST(request({ mensaje: "Solicitud A", empresa: "Empresa de prueba" })),
@@ -118,7 +118,7 @@ describe("POST /api/v1/broker-requests — 409 pendiente", () => {
     const filas = await db
       .select()
       .from(brokerSolicitud)
-      .where(eq(brokerSolicitud.usuarioId, oferente.id));
+      .where(eq(brokerSolicitud.usuarioId, propietario.id));
     expect(filas).toHaveLength(1);
   });
 });
@@ -126,13 +126,13 @@ describe("POST /api/v1/broker-requests — 409 pendiente", () => {
 describe("POST /api/v1/broker-requests — tras denegada", () => {
   it("con la solicitud anterior denegada, permite enviar una nueva", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
+    const propietario = actorFixture("propietario");
     const admin = actorFixture("admin");
-    await insertarUsuario(oferente);
+    await insertarUsuario(propietario);
     await insertarUsuario(admin);
 
     await db.insert(brokerSolicitud).values({
-      usuarioId: oferente.id,
+      usuarioId: propietario.id,
       mensaje: "Solicitud vieja",
       estado: "denegada",
       motivoDenegacion: "Faltan referencias",
@@ -140,7 +140,7 @@ describe("POST /api/v1/broker-requests — tras denegada", () => {
       resueltaEn: new Date(),
     });
 
-    actuarComo(oferente);
+    actuarComo(propietario);
     const respuesta = await POST(
       request({ mensaje: "Solicitud nueva", empresa: "Empresa de prueba" }),
     );
@@ -165,9 +165,9 @@ describe("POST /api/v1/broker-requests — autorización", () => {
 });
 
 describe("POST /api/v1/broker-requests — ya es broker", () => {
-  it("un oferente con is_broker = true responde 409 conflict_already_broker", async () => {
+  it("un propietario con is_broker = true responde 409 conflict_already_broker", async () => {
     await resetTestDatabase();
-    const broker = actorFixture("oferente", {
+    const broker = actorFixture("propietario", {
       isBroker: true,
       brokerCode: `BRK-${randomUUID().slice(0, 6)}`,
     });
@@ -186,9 +186,9 @@ describe("POST /api/v1/broker-requests — ya es broker", () => {
 describe("POST /api/v1/broker-requests — validación del mensaje", () => {
   it("mensaje ausente, vacío, en blanco o de más de 500 caracteres responde 422 sin insertar fila", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     expect((await POST(request({}))).status).toBe(422);
     expect((await POST(request({ mensaje: "", empresa: "Empresa" }))).status).toBe(422);
@@ -200,7 +200,7 @@ describe("POST /api/v1/broker-requests — validación del mensaje", () => {
     const filas = await db
       .select()
       .from(brokerSolicitud)
-      .where(eq(brokerSolicitud.usuarioId, oferente.id));
+      .where(eq(brokerSolicitud.usuarioId, propietario.id));
     expect(filas).toHaveLength(0);
   });
 });

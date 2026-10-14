@@ -16,7 +16,7 @@ const { PATCH, DELETE } = await import("../../../src/app/api/v1/properties/[id]/
 
 type ActorFixture = Awaited<ReturnType<typeof getUsuarioActual>>;
 
-function actorFixture(rol: "buscador" | "oferente" | "admin"): NonNullable<ActorFixture> {
+function actorFixture(rol: "buscador" | "propietario" | "admin"): NonNullable<ActorFixture> {
   return {
     id: randomUUID(),
     email: `nodus-test+${randomUUID()}@example.com`,
@@ -68,9 +68,9 @@ const INPUT_VALIDO = {
 describe("POST /api/v1/properties", () => {
   it("cuerpo válido crea la propiedad pendiente y responde 201", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const respuesta = await POST(requestPost(INPUT_VALIDO));
     expect(respuesta.status).toBe(201);
@@ -81,9 +81,9 @@ describe("POST /api/v1/properties", () => {
 
   it("campo faltante o lat fuera de rango responde 422", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const { direccion: _omit, ...sinDireccion } = INPUT_VALIDO;
     const respuestaFaltante = await POST(requestPost(sinDireccion));
@@ -115,9 +115,9 @@ describe("POST /api/v1/properties", () => {
 
   it("dirección y coordenadas de una propiedad vigente responden 409 con existing_property_id", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const primera = await POST(requestPost(INPUT_VALIDO));
     const { data: existente } = await primera.json();
@@ -134,25 +134,25 @@ describe("POST /api/v1/properties", () => {
 });
 
 describe("PATCH y DELETE /api/v1/properties/:id", () => {
-  it("404 para otro oferente, 200 para el dueño, 403 para otro rol, DELETE de baja suave", async () => {
+  it("404 para otro propietario, 200 para el dueño, 403 para otro rol, DELETE de baja suave", async () => {
     await resetTestDatabase();
-    const oferenteA = actorFixture("oferente");
-    const oferenteB = actorFixture("oferente");
-    await insertarUsuario(oferenteA);
-    await insertarUsuario(oferenteB);
+    const propietarioA = actorFixture("propietario");
+    const propietarioB = actorFixture("propietario");
+    await insertarUsuario(propietarioA);
+    await insertarUsuario(propietarioB);
 
-    actuarComo(oferenteA);
+    actuarComo(propietarioA);
     const creada = await POST(requestPost(INPUT_VALIDO));
     const { data: propiedadCreada } = await creada.json();
     const id = propiedadCreada.id as string;
 
-    actuarComo(oferenteB);
+    actuarComo(propietarioB);
     const patchAjeno = await PATCH(requestPatch({ descripcion: "hackeo" }), {
       params: Promise.resolve({ id }),
     });
     expect(patchAjeno.status).toBe(404);
 
-    actuarComo(oferenteA);
+    actuarComo(propietarioA);
     const patchDueno = await PATCH(requestPatch({ descripcion: "actualizada" }), {
       params: Promise.resolve({ id }),
     });
@@ -171,13 +171,13 @@ describe("PATCH y DELETE /api/v1/properties/:id", () => {
     const [filaTrasIntentos] = await db.select().from(propiedad).where(eq(propiedad.id, id));
     expect(filaTrasIntentos?.descripcion).toBe("actualizada");
 
-    actuarComo(oferenteB);
+    actuarComo(propietarioB);
     const deleteAjeno = await DELETE(new Request("http://localhost/api/v1/properties/x"), {
       params: Promise.resolve({ id }),
     });
     expect(deleteAjeno.status).toBe(404);
 
-    actuarComo(oferenteA);
+    actuarComo(propietarioA);
     const deleteDueno = await DELETE(new Request("http://localhost/api/v1/properties/x"), {
       params: Promise.resolve({ id }),
     });

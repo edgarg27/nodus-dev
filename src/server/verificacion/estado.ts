@@ -79,11 +79,11 @@ export type ResultadoReenvio =
 export async function reenviarVerificacion(
   actor: ActorAutenticado | null,
 ): Promise<ResultadoReenvio> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) {
     return {
       ok: false,
-      error: { code: "forbidden", status: 403, message: "Se requiere el rol oferente" },
+      error: { code: "forbidden", status: 403, message: "Se requiere el rol propietario" },
     };
   }
 

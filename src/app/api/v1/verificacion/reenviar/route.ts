@@ -7,7 +7,7 @@ function errorEnvelope(code: string, message: string) {
   return { error: { code, message, request_id: `req_${randomUUID()}` } };
 }
 
-// Sin cuerpo: vuelve a mandar a revisión la verificación denegada del oferente con sesión.
+// Sin cuerpo: vuelve a mandar a revisión la verificación denegada del propietario con sesión.
 // Idempotente: con una solicitud ya pendiente responde 409 y no crea otra.
 export async function POST() {
   const actor = await getUsuarioActual();

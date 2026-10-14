@@ -71,7 +71,7 @@ export function PhotoLightbox({
             }}
           >
             {actual ? (
-              // biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático
+              // biome-ignore lint/performance/noImgElement: foto subida por el propietario, no un asset estático
               <img
                 key={actual.id}
                 src={actual.storageUrl}

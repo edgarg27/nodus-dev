@@ -1,4 +1,4 @@
-// CSV para las exportaciones del oferente. Neutraliza las celdas que una hoja de cálculo
+// CSV para las exportaciones del propietario. Neutraliza las celdas que una hoja de cálculo
 // interpretaría como fórmula (empiezan con =, +, - o @) anteponiendo una comilla simple.
 
 export type CeldaCsv = string | number | boolean | null | undefined;

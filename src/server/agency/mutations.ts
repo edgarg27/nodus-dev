@@ -13,7 +13,7 @@ export type ResultadoAgencia<T> = { ok: true; data: T } | { ok: false; error: Er
 
 const SIN_PERMISO: ResultadoAgencia<never> = {
   ok: false,
-  error: { code: "forbidden", status: 403, message: "Se requiere el rol oferente" },
+  error: { code: "forbidden", status: 403, message: "Se requiere el rol propietario" },
 };
 
 export interface GuardarPerfilInput {
@@ -22,12 +22,12 @@ export interface GuardarPerfilInput {
   logoUrl?: string | null;
 }
 
-// Un perfil por oferente: crearlo y editarlo es el mismo upsert.
+// Un perfil por propietario: crearlo y editarlo es el mismo upsert.
 export async function guardarPerfilAgencia(
   actor: ActorAutenticado | null,
   input: GuardarPerfilInput,
 ): Promise<ResultadoAgencia<typeof agenciaPerfil.$inferSelect>> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) return SIN_PERMISO;
 
   const [fila] = await db
@@ -61,7 +61,7 @@ export async function crearContactoDeAgencia(
   actor: ActorAutenticado | null,
   input: CrearContactoInput,
 ): Promise<ResultadoAgencia<typeof agenciaContacto.$inferSelect>> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) return SIN_PERMISO;
 
   await db
@@ -83,12 +83,12 @@ export async function crearContactoDeAgencia(
 }
 
 // Contacto ajeno o inexistente → 404. Las propiedades que lo usaban vuelven al contacto del
-// oferente (la FK es `on delete set null`).
+// propietario (la FK es `on delete set null`).
 export async function borrarContactoDeAgencia(
   actor: ActorAutenticado | null,
   id: string,
 ): Promise<ResultadoAgencia<{ id: string }>> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) return SIN_PERMISO;
 
   const borrados = await db

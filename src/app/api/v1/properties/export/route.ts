@@ -6,13 +6,13 @@ import { getUsuarioActual } from "../../../../../server/auth/session.ts";
 import { esUuid, respuestaError, sinSesion } from "../../../../../server/http/envelope.ts";
 import { listarMisPropiedades } from "../../../../../server/properties/queries.ts";
 
-// CSV con las propiedades del oferente y sus métricas, respetando la búsqueda y el estado de la
+// CSV con las propiedades del propietario y sus métricas, respetando la búsqueda y el estado de la
 // tabla. Solo lectura: no tiene efectos, así que repetirlo es seguro.
 export async function GET(request: Request) {
   const actor = await getUsuarioActual();
   if (!actor) return sinSesion();
-  if (!requireRol(actor, "oferente").ok || !actor) {
-    return respuestaError(403, "forbidden", "Se requiere el rol oferente");
+  if (!requireRol(actor, "propietario").ok || !actor) {
+    return respuestaError(403, "forbidden", "Se requiere el rol propietario");
   }
 
   // Encabezados y etiquetas en el idioma del sitio (cookie `idioma`).

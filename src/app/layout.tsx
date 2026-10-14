@@ -39,10 +39,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const dataTheme = theme === "dark" ? "dark" : theme === "light" ? "light" : undefined;
   const actor = await getUsuarioActual();
   const idioma = idiomaValido(cookieStore.get(COOKIE_IDIOMA)?.value);
-  // Chats con oferentes y chat con el equipo de Captive, por separado (al oferente solo se le muestra
+  // Chats con propietarios y chat con el equipo de Captive, por separado (al propietario solo se le muestra
   // el de Captive).
   const [noLeidosChats, noLeidosCaptive] =
-    actor?.rol === "oferente" || actor?.rol === "buscador"
+    actor?.rol === "propietario" || actor?.rol === "buscador"
       ? await Promise.all([contarMensajesNoLeidos(actor.id), contarNoLeidosDeCaptive(actor.id)])
       : [0, 0];
 

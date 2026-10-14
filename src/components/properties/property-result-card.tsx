@@ -67,7 +67,7 @@ export function PropertyResultCard({
     >
       <div className="relative flex h-[150px] shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-primary/70 to-primary">
         {propiedad.fotoUrl ? (
-          // biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático
+          // biome-ignore lint/performance/noImgElement: foto subida por el propietario, no un asset estático
           <img src={propiedad.fotoUrl} alt="" className="h-full w-full object-cover" />
         ) : (
           <Icono
@@ -114,7 +114,7 @@ export function PropertyResultCard({
         </p>
 
         {contacto && !contacto.telefono ? (
-          // El oferente aún no tiene teléfono registrado; la solicitud ya quedó en sus leads.
+          // El propietario aún no tiene teléfono registrado; la solicitud ya quedó en sus leads.
           <p role="status" className="pt-1 text-sm text-text">
             {t.contacto.listo}
           </p>

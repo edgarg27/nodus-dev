@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { datosOferenteDeMetadata } from "../../lib/auth/datos-oferente.ts";
+import { datosPropietarioDeMetadata } from "../../lib/auth/datos-propietario.ts";
 import { db } from "../../lib/db/client.ts";
 import { agenciaPerfil, usuario } from "../../lib/db/schema.ts";
 import { createClient } from "../../lib/supabase/server.ts";
@@ -9,7 +9,7 @@ export interface ActorAutenticado {
   id: string;
   email: string;
   nombre: string;
-  rol: "buscador" | "oferente" | "admin";
+  rol: "buscador" | "propietario" | "admin";
   isBroker: boolean;
   brokerCode: string | null;
   referralBrokerId: string | null;
@@ -30,7 +30,7 @@ function mapearActor(fila: typeof usuario.$inferSelect): ActorAutenticado {
 /**
  * Único punto de acceso a la sesión. Verifica la sesión con `getClaims()` (verifica la firma del
  * JWT; nunca `getSession()` en servidor) y aprovisiona just-in-time la fila `public.usuario` si no
- * existe. `rol` sale de una lista de permitidos: solo `user_metadata.rol === "oferente"` cuenta —
+ * existe. `rol` sale de una lista de permitidos: solo `user_metadata.rol === "propietario"` (o su nombre anterior, "oferente") cuenta —
  * cualquier otro valor (incluido `admin`) aprovisiona `buscador`, porque la metadata la puede fijar
  * el propio cliente sin pasar por el formulario de registro. Sin sesión válida devuelve `null`,
  * nunca lanza.
@@ -56,7 +56,9 @@ export async function getUsuarioActual(): Promise<ActorAutenticado | null> {
     typeof metadata.nombre === "string" && metadata.nombre.length > 0
       ? metadata.nombre
       : (email.split("@")[0] ?? "");
-  const rol = metadata.rol === "oferente" ? "oferente" : "buscador";
+  // "oferente" es el nombre anterior del rol: las cuentas creadas antes del cambio lo traen en su metadata.
+  const rol =
+    metadata.rol === "propietario" || metadata.rol === "oferente" ? "propietario" : "buscador";
 
   let referralBrokerId: string | null = null;
   if (typeof metadata.ref === "string" && metadata.ref.length > 0) {
@@ -64,9 +66,9 @@ export async function getUsuarioActual(): Promise<ActorAutenticado | null> {
     if (broker?.isBroker) referralBrokerId = broker.id;
   }
 
-  // El oferente deja en el registro teléfono, cómo publica y, si es inmobiliaria, su nombre (que se
+  // El propietario deja en el registro teléfono, cómo publica y, si es inmobiliaria, su nombre (que se
   // vuelve el nombre de su agencia). Datos inválidos se ignoran: los puede completar en su perfil.
-  const datosOferente = rol === "oferente" ? datosOferenteDeMetadata(metadata) : null;
+  const datosPropietario = rol === "propietario" ? datosPropietarioDeMetadata(metadata) : null;
 
   const insertados = await db
     .insert(usuario)
@@ -76,25 +78,25 @@ export async function getUsuarioActual(): Promise<ActorAutenticado | null> {
       nombre,
       rol,
       referralBrokerId,
-      telefono: datosOferente?.telefono ?? null,
-      tipoAnunciante: datosOferente?.tipoAnunciante ?? null,
+      telefono: datosPropietario?.telefono ?? null,
+      tipoAnunciante: datosPropietario?.tipoAnunciante ?? null,
     })
     .onConflictDoNothing()
     .returning({ id: usuario.id });
-  if (insertados.length > 0 && datosOferente?.empresa) {
+  if (insertados.length > 0 && datosPropietario?.empresa) {
     await db
       .insert(agenciaPerfil)
-      .values({ usuarioId: id, nombre: datosOferente.empresa })
+      .values({ usuarioId: id, nombre: datosPropietario.empresa })
       .onConflictDoNothing();
   }
-  // Todo oferente nuevo queda como solicitud para que Captive lo apruebe: de broker si eligió
+  // Todo propietario nuevo queda como solicitud para que Captive lo apruebe: de broker si eligió
   // "Soy broker"; de dueño si eligió "Soy el dueño" (o si no eligió).
-  if (insertados.length > 0 && rol === "oferente") {
-    const esBroker = datosOferente?.tipoAnunciante === "inmobiliaria";
+  if (insertados.length > 0 && rol === "propietario") {
+    const esBroker = datosPropietario?.tipoAnunciante === "inmobiliaria";
     await abrirSolicitudPorRegistro(
       id,
       esBroker ? "broker" : "dueno",
-      esBroker ? (datosOferente?.empresa ?? "") : "",
+      esBroker ? (datosPropietario?.empresa ?? "") : "",
     );
   }
 

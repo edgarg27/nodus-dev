@@ -6,7 +6,7 @@ import type { ActorAutenticado } from "../auth/session.ts";
 import { clientesConMensajesSinLeer } from "../messages/captive.ts";
 import { obtenerPrimerasFotos } from "../properties/queries.ts";
 
-// "Dueños" del panel de administración: oferentes que publican sus propios espacios, que no son
+// "Dueños" del panel de administración: propietarios que publican sus propios espacios, que no son
 // brokers y que Captive ya verificó (aprobó su solicitud de dueño). Solo admin.
 
 export interface ConteoPropiedades {
@@ -47,10 +47,10 @@ function escaparLike(texto: string): string {
   return texto.replace(/[\\%_]/g, (caracter) => `\\${caracter}`);
 }
 
-// Oferente que publica lo suyo: no es broker ni eligió "Soy broker". La lista solo muestra a los
+// Propietario que publica lo suyo: no es broker ni eligió "Soy broker". La lista solo muestra a los
 // verificados; la ficha abre también a los pendientes (se llega desde Mensajes o Solicitudes).
 const esDueno = and(
-  eq(usuario.rol, "oferente"),
+  eq(usuario.rol, "propietario"),
   eq(usuario.isBroker, false),
   or(isNull(usuario.tipoAnunciante), ne(usuario.tipoAnunciante, "inmobiliaria")),
 );
@@ -60,15 +60,15 @@ async function conteosPorDueno(ids: string[]): Promise<Map<string, ConteoPropied
   const mapa = new Map<string, ConteoPropiedades>();
   if (ids.length === 0) return mapa;
   const filas = await db
-    .select({ oferenteId: propiedad.oferenteId, estado: propiedad.estadoPublicacion })
+    .select({ propietarioId: propiedad.propietarioId, estado: propiedad.estadoPublicacion })
     .from(propiedad)
-    .where(and(inArray(propiedad.oferenteId, ids), eq(propiedad.activo, true)));
+    .where(and(inArray(propiedad.propietarioId, ids), eq(propiedad.activo, true)));
   for (const fila of filas) {
-    const conteo = mapa.get(fila.oferenteId) ?? { publicadas: 0, pendientes: 0, rechazadas: 0 };
+    const conteo = mapa.get(fila.propietarioId) ?? { publicadas: 0, pendientes: 0, rechazadas: 0 };
     if (fila.estado === "publicada") conteo.publicadas += 1;
     else if (fila.estado === "pendiente") conteo.pendientes += 1;
     else conteo.rechazadas += 1;
-    mapa.set(fila.oferenteId, conteo);
+    mapa.set(fila.propietarioId, conteo);
   }
   return mapa;
 }
@@ -142,7 +142,7 @@ export async function obtenerDueno(
       estadoPublicacion: propiedad.estadoPublicacion,
     })
     .from(propiedad)
-    .where(and(eq(propiedad.oferenteId, id), eq(propiedad.activo, true)))
+    .where(and(eq(propiedad.propietarioId, id), eq(propiedad.activo, true)))
     .orderBy(desc(propiedad.createdAt));
   const fotos = await obtenerPrimerasFotos(filas.map((fila) => fila.id));
 

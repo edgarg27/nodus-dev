@@ -12,7 +12,7 @@ import { obtenerTextos } from "@/server/i18n";
 
 export default async function BrokerPage() {
   const actor = await getUsuarioActual();
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) notFound();
   const { idioma, t } = await obtenerTextos();
 

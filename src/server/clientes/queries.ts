@@ -27,7 +27,7 @@ export interface ClienteResumen {
   // Calculada de los pasos de sus solicitudes para Captive; `null` si no tiene ninguna.
   estado: EstadoCliente | null;
   // Todas sus solicitudes: las nuevas (canal "captive") y las anteriores que le llegaron directo al
-  // oferente, para que Captive vea a todos los que alguna vez pidieron informes.
+  // propietario, para que Captive vea a todos los que alguna vez pidieron informes.
   solicitudes: number;
   ultimaSolicitud: Date | null;
   quiereFinanciamiento: boolean;
@@ -127,7 +127,7 @@ export async function listarClientes(
     if (conSolicitud.length === 0) return vacia;
     condiciones.push(inArray(usuario.id, conSolicitud));
   } else {
-    // Un buscador que después pasó a oferente sigue apareciendo si ya había pedido informes.
+    // Un buscador que después pasó a propietario sigue apareciendo si ya había pedido informes.
     const filtroRol =
       conSolicitud.length > 0
         ? or(eq(usuario.rol, "buscador"), inArray(usuario.id, conSolicitud))

@@ -4,29 +4,29 @@ import { db } from "../../../src/lib/db/client.ts";
 import { propiedad, usuario } from "../../../src/lib/db/schema.ts";
 import {
   buscarPropiedadesCercanas,
-  paraOferente,
+  paraPropietario,
   posiblesDuplicadosDePendientes,
 } from "../../../src/server/properties/near-duplicates.ts";
 import { resetTestDatabase } from "../../helpers/reset-db.ts";
 
 const BASE = { lat: 21.88234, lng: -102.28259 };
 
-async function crearOferente(nombre: string) {
+async function crearPropietario(nombre: string) {
   const id = randomUUID();
   await db
     .insert(usuario)
-    .values({ id, email: `nodus-test+${id}@example.com`, nombre, rol: "oferente" });
+    .values({ id, email: `nodus-test+${id}@example.com`, nombre, rol: "propietario" });
   return id;
 }
 
 async function crearPropiedad(
-  oferenteId: string,
+  propietarioId: string,
   overrides: Partial<typeof propiedad.$inferInsert> = {},
 ) {
   const [fila] = await db
     .insert(propiedad)
     .values({
-      oferenteId,
+      propietarioId,
       tipo: "oficina",
       modalidad: "renta",
       direccion: `Av. Cercanas ${randomUUID()}`,
@@ -48,7 +48,7 @@ async function crearPropiedad(
 describe("buscarPropiedadesCercanas", () => {
   it("trae las vigentes del mismo tipo dentro del radio, de la más cercana a la más lejana", async () => {
     await resetTestDatabase();
-    const dueno = await crearOferente("Dueño");
+    const dueno = await crearPropietario("Dueño");
     const mismoPunto = await crearPropiedad(dueno);
     const a30m = await crearPropiedad(dueno, { lat: String(BASE.lat + 0.00027) });
     // Fuera del radio, otro tipo, rechazada y dada de baja: no cuentan.
@@ -72,13 +72,16 @@ describe("buscarPropiedadesCercanas", () => {
 
   it("a quien publica no se le revela una propiedad ajena que aún no es pública", async () => {
     await resetTestDatabase();
-    const yo = await crearOferente("Yo");
-    const otro = await crearOferente("Otro");
+    const yo = await crearPropietario("Yo");
+    const otro = await crearPropietario("Otro");
     const ajenaPublicada = await crearPropiedad(otro, { titulo: "Oficina A" });
     await crearPropiedad(otro, { estadoPublicacion: "pendiente", titulo: "Oficina B" });
     const mia = await crearPropiedad(yo, { estadoPublicacion: "pendiente", titulo: "Mía" });
 
-    const vista = paraOferente(await buscarPropiedadesCercanas({ ...BASE, tipo: "oficina" }), yo);
+    const vista = paraPropietario(
+      await buscarPropiedadesCercanas({ ...BASE, tipo: "oficina" }),
+      yo,
+    );
     expect(vista.find((v) => v.id === ajenaPublicada.id)?.titulo).toBe("Oficina A");
     expect(vista.find((v) => v.id === mia.id)?.esMia).toBe(true);
     const oculta = vista.find((v) => v.id === null);
@@ -87,8 +90,8 @@ describe("buscarPropiedadesCercanas", () => {
 
   it("el admin ve los posibles duplicados de cada pendiente, sin contarse a sí misma", async () => {
     await resetTestDatabase();
-    const dueno = await crearOferente("Dueño");
-    const broker = await crearOferente("Broker");
+    const dueno = await crearPropietario("Dueño");
+    const broker = await crearPropietario("Broker");
     const publicada = await crearPropiedad(dueno);
     const pendiente = await crearPropiedad(broker, { estadoPublicacion: "pendiente" });
     const sola = await crearPropiedad(broker, {
@@ -97,7 +100,7 @@ describe("buscarPropiedadesCercanas", () => {
     });
 
     const mapa = await posiblesDuplicadosDePendientes([pendiente, sola]);
-    expect(mapa.get(pendiente.id)?.map((p) => [p.id, p.oferente])).toEqual([
+    expect(mapa.get(pendiente.id)?.map((p) => [p.id, p.propietario])).toEqual([
       [publicada.id, "Dueño"],
     ]);
     expect(mapa.has(sola.id)).toBe(false);

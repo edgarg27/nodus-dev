@@ -96,7 +96,7 @@ export function PinPicker({ lat, lng, onChange }: PinPickerProps) {
     if (actual && actual.lat === lat && actual.lng === lng) return;
     marcadorRef.current?.setLngLat([lng as number, lat as number]);
     // Sin recentrar, el pin se mueve fuera de la vista (p. ej. al geocodificar otra ciudad).
-    // Acercamiento a nivel calle para que el oferente pueda verificar y ajustar el pin.
+    // Acercamiento a nivel calle para que el propietario pueda verificar y ajustar el pin.
     const mapa = mapaRef.current;
     mapa?.easeTo({ center: [lng as number, lat as number], zoom: Math.max(mapa.getZoom(), 16) });
   }, [lat, lng]);

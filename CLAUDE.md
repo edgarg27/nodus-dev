@@ -1,7 +1,7 @@
 # Nodus
 
 Marketplace inmobiliario de dos lados (SLP, Aguascalientes, León) que conecta pymes/startups
-buscando nave industrial, oficina o local comercial con oferentes (staff Nodus o brokers
+buscando nave industrial, oficina o local comercial con propietarios (staff Nodus o brokers
 afiliados) que publican esos espacios. Toda propiedad la aprueba un admin antes de ser pública.
 
 ## Comandos
@@ -58,19 +58,19 @@ Drizzle → Postgres. El API REST (`src/app/api/v1/**`) es el único camino de e
 UI propia como un cliente externo futuro lo usan de la misma forma, así que la autorización y la
 validación solo existen una vez.
 
-**Roles.** `buscador` y `oferente` se eligen una vez en el registro; `admin` **solo** lo crea
+**Roles.** `buscador` y `propietario` se eligen una vez en el registro; `admin` **solo** lo crea
 `pnpm db:make-admin <email>` (nunca el registro ni la metadata de Auth). Las rutas de
 administración (`/admin/**`, `/api/v1/admin/**`) exigen `admin` en tres capas (proxy, layout,
 `requireRol()`) y devuelven **404, no 403**, a cualquier otro rol.
 
-**Panel del oferente.** Un oferente entra a `/panel` (métricas del periodo: publicadas, impresiones,
+**Panel del propietario.** Un propietario entra a `/panel` (métricas del periodo: publicadas, impresiones,
 visitas, solicitudes y gráfica) y de ahí a `/propiedades` (tabla con búsqueda, orden, paginación y CSV),
 `/leads` (bandeja agrupada por persona con embudo `nueva → contactada → visita → propuesta → ganada |
-descartada`, estado por persona en `contact_request.estado`), `/red` (propiedades que otros oferentes
-comparten, con comisión), `/mensajes` (chat entre oferentes sobre una propiedad de la Red) y `/perfil`
+descartada`, estado por persona en `contact_request.estado`), `/red` (propiedades que otros propietarios
+comparten, con comisión), `/mensajes` (chat entre propietarios sobre una propiedad de la Red) y `/perfil`
 (`agencia_perfil` y `agencia_contacto`; cada propiedad elige su `contacto_id`). Reglas: `comision_pct`,
 `contacto_id` y `referencia` **nunca** salen en una consulta o API pública (`proyeccionPublica` en
-`src/server/properties/public.ts`; solo `/red` devuelve la comisión, y solo a oferentes); las métricas son
+`src/server/properties/public.ts`; solo `/red` devuelve la comisión, y solo a propietarios); las métricas son
 contadores diarios en `propiedad_metrica_diaria` (nunca una fila por visita) y registrarlas nunca puede romper
 la página (`src/server/metrics/record.ts`); los CSV pasan por `src/lib/csv.ts`, que neutraliza celdas que
 empiezan con `=`, `+`, `-` o `@`.
@@ -96,7 +96,7 @@ empiezan con `=`, `+`, `-` o `@`.
 | Aprobación de propiedades | `src/server/properties/review.ts` — el admin aprueba o rechaza con motivo; nunca edita |
 | Aprobación/revocación de brokers | `src/server/broker-requests/{resolve,revoke}.ts` — transacciones; el `broker_code` lo genera el servidor |
 | Normalización de dirección (dedupe) | `src/lib/normalize-address.ts` — única implementación, usada al crear/editar y en las pruebas |
-| Métricas, leads y Red del oferente | `src/server/metrics/`, `src/server/contact-requests/{inbox,lead-status}.ts`, `src/server/network/queries.ts`, `src/server/messages/conversations.ts`; parámetros de URL en `src/lib/{mis-propiedades-params,leads,red-params,periodos}.ts` |
+| Métricas, leads y Red del propietario | `src/server/metrics/`, `src/server/contact-requests/{inbox,lead-status}.ts`, `src/server/network/queries.ts`, `src/server/messages/conversations.ts`; parámetros de URL en `src/lib/{mis-propiedades-params,leads,red-params,periodos}.ts` |
 | Perfil de agencia y contactos | `src/server/agency/{queries,mutations}.ts` |
 | Casos de éxito de la portada | `src/server/casos-exito/` (tabla `caso_exito`, foto en el bucket bajo `casos-exito/`), se administran en `/admin/casos-exito`; sin casos publicados la portada muestra tarjetas de ejemplo (`apoyo.casos` en i18n). Banner de Nodus: `src/components/marketing/support-services.tsx`, enlace y foto en `src/lib/servicios-apoyo.ts` |
 
@@ -132,7 +132,7 @@ empiezan con `=`, `+`, `-` o `@`.
     `enum`, `namespace` ni propiedades de parámetro: `erasableSyntaxOnly`) y sin `__dirname`/`require`.
     **Los scripts cargan `.env` en el comando** (`node --env-file-if-exists=.env scripts/x.ts`, ya en
     los scripts de `package.json`), nunca con un `loadEnvFile` dentro del script.
-14. **Autorización en la API:** fuera de `/api/v1/admin/**`, rol equivocado → `403` y oferente no dueño → `404`;
+14. **Autorización en la API:** fuera de `/api/v1/admin/**`, rol equivocado → `403` y propietario no dueño → `404`;
     dentro de `/api/v1/admin/**`, todo no-admin → `404`. **En las páginas** (`/propiedades`, `/leads`, `/broker`,
     `/admin/**`) un rol equivocado recibe `404` (`notFound()`), nunca `403`.
 
@@ -206,7 +206,7 @@ Todos los valores salen del dashboard del proyecto Supabase (`blueprint.md` §10
 4. Nunca editar a mano una migración ya aplicada — generar una nueva.
 5. Nunca marcar una tarea como terminada con el comando de gate fallando.
 6. La autorización de escritura sobre `propiedad` siempre se revisa en el servidor
-   (`oferente_id === actor.id`), nunca solo se oculta el botón en la UI.
+   (`propietario_id === actor.id`), nunca solo se oculta el botón en la UI.
 7. Nunca permitir que `rol = 'admin'` salga del registro ni de la metadata de Supabase Auth — solo
    `pnpm db:make-admin` crea admins. Nunca correr un truncado o un seed sin `assertSafeToReset`, ni
    definir las variables `NODUS_*` en producción.

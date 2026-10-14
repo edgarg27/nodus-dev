@@ -24,7 +24,7 @@ const { POST: POST_NOTA } = await import(
 
 type ActorFixture = NonNullable<Awaited<ReturnType<typeof getUsuarioActual>>>;
 
-async function crearUsuario(rol: "buscador" | "oferente" | "admin"): Promise<ActorFixture> {
+async function crearUsuario(rol: "buscador" | "propietario" | "admin"): Promise<ActorFixture> {
   const actor: ActorFixture = {
     id: randomUUID(),
     email: `nodus-test+${randomUUID()}@example.com`,
@@ -40,11 +40,11 @@ async function crearUsuario(rol: "buscador" | "oferente" | "admin"): Promise<Act
   return actor;
 }
 
-async function crearPropiedad(oferenteId: string) {
+async function crearPropiedad(propietarioId: string) {
   const [fila] = await db
     .insert(propiedad)
     .values({
-      oferenteId,
+      propietarioId,
       tipo: "nave_industrial",
       modalidad: "renta",
       direccion: `Av. Clientes ${randomUUID()}`,
@@ -76,34 +76,34 @@ function rutaCon(id: string) {
   return { params: Promise.resolve({ id }) };
 }
 
-// Un admin, un oferente con una propiedad y dos buscadores: uno con solicitud para Captive y otro
+// Un admin, un propietario con una propiedad y dos buscadores: uno con solicitud para Captive y otro
 // solo registrado.
 async function preparar() {
   await resetTestDatabase();
   const admin = await crearUsuario("admin");
-  const oferente = await crearUsuario("oferente");
+  const propietario = await crearUsuario("propietario");
   const conSolicitud = await crearUsuario("buscador");
   const registrado = await crearUsuario("buscador");
-  const propia = await crearPropiedad(oferente.id);
+  const propia = await crearPropiedad(propietario.id);
   const [solicitud] = await db
     .insert(contactRequest)
     .values({
       buscadorId: conSolicitud.id,
       propiedadId: propia.id,
-      oferenteId: oferente.id,
+      propietarioId: propietario.id,
       quiereFinanciamiento: true,
       canal: "captive",
     })
     .returning();
   if (!solicitud) throw new Error("fixture no se creó");
-  return { admin, oferente, conSolicitud, registrado, propia, solicitud };
+  return { admin, propietario, conSolicitud, registrado, propia, solicitud };
 }
 
 describe("Clientes y prospectos — consultas", () => {
   it("solo un admin ve la lista; la vista por omisión trae a quien pidió informes", async () => {
-    const { admin, oferente, conSolicitud, registrado } = await preparar();
+    const { admin, propietario, conSolicitud, registrado } = await preparar();
 
-    expect((await listarClientes(oferente, PARAMS)).clientes).toHaveLength(0);
+    expect((await listarClientes(propietario, PARAMS)).clientes).toHaveLength(0);
     expect((await listarClientes(null, PARAMS)).clientes).toHaveLength(0);
 
     const conSolicitudes = await listarClientes(admin, PARAMS);
@@ -118,12 +118,12 @@ describe("Clientes y prospectos — consultas", () => {
   });
 
   it("la vista con solicitudes también trae a quien solo tiene solicitudes anteriores", async () => {
-    const { admin, oferente, conSolicitud, propia } = await preparar();
+    const { admin, propietario, conSolicitud, propia } = await preparar();
     const anterior = await crearUsuario("buscador");
     await db.insert(contactRequest).values({
       buscadorId: anterior.id,
       propiedadId: propia.id,
-      oferenteId: oferente.id,
+      propietarioId: propietario.id,
       canal: "directo",
     });
 
@@ -133,14 +133,14 @@ describe("Clientes y prospectos — consultas", () => {
     expect(await contarClientesPorAtender()).toBe(1);
   });
 
-  it("el detalle trae la solicitud con el oferente al que hay que llamarle", async () => {
-    const { admin, oferente, conSolicitud, propia } = await preparar();
+  it("el detalle trae la solicitud con el propietario al que hay que llamarle", async () => {
+    const { admin, propietario, conSolicitud, propia } = await preparar();
     const detalle = await obtenerCliente(admin, conSolicitud.id);
     expect(detalle?.solicitudes).toHaveLength(1);
     expect(detalle?.solicitudes[0]?.propiedad.id).toBe(propia.id);
-    expect(detalle?.solicitudes[0]?.oferente.id).toBe(oferente.id);
+    expect(detalle?.solicitudes[0]?.propietario.id).toBe(propietario.id);
 
-    expect(await obtenerCliente(oferente, conSolicitud.id)).toBeNull();
+    expect(await obtenerCliente(propietario, conSolicitud.id)).toBeNull();
     expect(await obtenerCliente(admin, admin.id)).toBeNull();
   });
 
@@ -230,14 +230,14 @@ describe("PATCH /api/v1/admin/solicitudes/:id", () => {
   });
 
   it("401 sin sesión, 404 a otro rol o a una solicitud anterior, 422 con un paso inválido", async () => {
-    const { admin, oferente, conSolicitud, propia, solicitud } = await preparar();
+    const { admin, propietario, conSolicitud, propia, solicitud } = await preparar();
     const url = `/api/v1/admin/solicitudes/${solicitud.id}`;
     const valido = { paso: "con_broker" };
 
     vi.mocked(getUsuarioActual).mockResolvedValue(null);
     expect((await PATCH(peticion(url, "PATCH", valido), rutaCon(solicitud.id))).status).toBe(401);
 
-    vi.mocked(getUsuarioActual).mockResolvedValue(oferente);
+    vi.mocked(getUsuarioActual).mockResolvedValue(propietario);
     expect((await PATCH(peticion(url, "PATCH", valido), rutaCon(solicitud.id))).status).toBe(404);
 
     vi.mocked(getUsuarioActual).mockResolvedValue(admin);
@@ -250,7 +250,7 @@ describe("PATCH /api/v1/admin/solicitudes/:id", () => {
       .values({
         buscadorId: conSolicitud.id,
         propiedadId: propia.id,
-        oferenteId: oferente.id,
+        propietarioId: propietario.id,
         canal: "directo",
       })
       .returning();

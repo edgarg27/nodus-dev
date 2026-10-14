@@ -14,7 +14,7 @@ export interface PropiedadDeLead {
   fotoUrl: string | null;
 }
 
-// Un buscador con todo lo que le pidió a este oferente. `estado` es el de su solicitud más
+// Un buscador con todo lo que le pidió a este propietario. `estado` es el de su solicitud más
 // reciente: cambiarlo actualiza todas sus solicitudes, y una solicitud nueva vuelve a "nueva".
 export interface PersonaLead {
   buscadorId: string;
@@ -57,14 +57,14 @@ function escaparLike(texto: string): string {
   return texto.replace(/[\\%_]/g, (caracter) => `\\${caracter}`);
 }
 
-// Bandeja de entrada: leads agrupados por persona. Siempre filtra por `oferente_id`, y solo las
+// Bandeja de entrada: leads agrupados por persona. Siempre filtra por `propietario_id`, y solo las
 // solicitudes de canal "directo" (las nuevas llegan solo a Captive).
-export async function listarBandejaDelOferente(
-  oferenteId: string,
+export async function listarBandejaDelPropietario(
+  propietarioId: string,
   opciones: OpcionesBandeja = {},
 ): Promise<BandejaLeads> {
   const condiciones = [
-    eq(contactRequest.oferenteId, oferenteId),
+    eq(contactRequest.propietarioId, propietarioId),
     eq(contactRequest.canal, "directo"),
   ];
   const texto = opciones.q?.trim();
@@ -179,7 +179,7 @@ export async function listarBandejaDelOferente(
       })
       .from(conversacion)
       .where(
-        and(eq(conversacion.duenoId, oferenteId), inArray(conversacion.iniciadorId, buscadores)),
+        and(eq(conversacion.duenoId, propietarioId), inArray(conversacion.iniciadorId, buscadores)),
       );
     for (const persona of visibles) {
       const chat = persona.propiedades

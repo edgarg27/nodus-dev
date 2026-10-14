@@ -22,7 +22,7 @@ export function PossibleDuplicatesNotice({ parecidas, textos }: PossibleDuplicat
           <li key={parecida.id} className="flex flex-wrap items-center gap-x-2 text-xs text-text">
             <span className="font-semibold">{parecida.titulo ?? parecida.direccion}</span>
             <span className="text-text-muted">
-              {textos.parecidaDetalle(parecida.distanciaM, parecida.oferente)} ·{" "}
+              {textos.parecidaDetalle(parecida.distanciaM, parecida.propietario)} ·{" "}
               {parecida.estadoPublicacion === "publicada"
                 ? textos.parecidaPublicada
                 : textos.parecidaPendiente}

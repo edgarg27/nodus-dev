@@ -18,7 +18,7 @@ export type ResultadoSolicitudBroker =
 function errorForbidden(): ResultadoSolicitudBroker {
   return {
     ok: false,
-    error: { code: "forbidden", status: 403, message: "Se requiere el rol oferente" },
+    error: { code: "forbidden", status: 403, message: "Se requiere el rol propietario" },
   };
 }
 
@@ -48,14 +48,14 @@ function esErrorPendiente(err: unknown): boolean {
   );
 }
 
-// Solo un oferente que aún no es broker, y solo una `pendiente` a la vez: el pre-chequeo evita
+// Solo un propietario que aún no es broker, y solo una `pendiente` a la vez: el pre-chequeo evita
 // la vuelta redonda a la base en el caso normal, y el índice único parcial respalda la carrera
 // (doble request simultánea) — nunca un 500, siempre el mismo `conflict_pending_broker_request`.
 export async function crearSolicitudBroker(
   actor: ActorAutenticado | null,
   input: { mensaje: string; empresa: string },
 ): Promise<ResultadoSolicitudBroker> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) return errorForbidden();
 
   if (actor.isBroker) return errorYaBroker();
@@ -83,7 +83,7 @@ export const MENSAJE_SOLICITUD_POR_REGISTRO = {
   dueno: "Se registró eligiendo «Soy el dueño».",
 } as const;
 
-// Todo oferente nuevo pasa por aprobación de Captive: "Soy broker" abre una solicitud de broker
+// Todo propietario nuevo pasa por aprobación de Captive: "Soy broker" abre una solicitud de broker
 // (aprobarla da el código BRK) y "Soy el dueño" una de dueño (aprobarla lo verifica). Si ya tiene una
 // pendiente, no hace nada (índice único parcial). La llaman el alta de la cuenta y "Publica tu
 // espacio", que ya validaron al usuario.

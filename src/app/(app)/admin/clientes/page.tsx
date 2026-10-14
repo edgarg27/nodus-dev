@@ -19,7 +19,7 @@ interface AdminClientesPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-// Clientes y prospectos: las solicitudes de informes llegan aquí (ya no al oferente) y Captive les
+// Clientes y prospectos: las solicitudes de informes llegan aquí (ya no al propietario) y Captive les
 // da seguimiento. El layout ya exige rol admin.
 export default async function AdminClientesPage({ searchParams }: AdminClientesPageProps) {
   const crudos = await searchParams;

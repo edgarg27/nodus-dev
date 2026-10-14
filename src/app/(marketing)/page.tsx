@@ -33,8 +33,8 @@ export default async function MarketingPage() {
   ]);
 
   const buscarHref = actor ? "/buscar" : "/sign-up";
-  // /publicar atiende a cada quien: visitante (registro como oferente), buscador (pasa a oferente).
-  const publicarHref = actor?.rol === "oferente" ? "/propiedades/nueva" : "/publicar";
+  // /publicar atiende a cada quien: visitante (registro como propietario), buscador (pasa a propietario).
+  const publicarHref = actor?.rol === "propietario" ? "/propiedades/nueva" : "/publicar";
 
   return (
     <main className="bg-background">

@@ -59,7 +59,7 @@ export function PropertyGallery({ fotos, tipo, descripcionAlt }: PropertyGallery
             aria-label={t.ficha.verGrande}
             className="block h-full w-full cursor-zoom-in"
           >
-            {/* biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático */}
+            {/* biome-ignore lint/performance/noImgElement: foto subida por el propietario, no un asset estático */}
             <img
               src={actual.storageUrl}
               alt={t.ficha.fotoDe(descripcionAlt, indice + 1, total)}

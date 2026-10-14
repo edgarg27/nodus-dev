@@ -15,7 +15,7 @@ const { POST } = await import("./route.ts");
 type ActorFixture = Awaited<ReturnType<typeof getUsuarioActual>>;
 
 function actorFixture(
-  rol: "buscador" | "oferente" | "admin" = "oferente",
+  rol: "buscador" | "propietario" | "admin" = "propietario",
 ): NonNullable<ActorFixture> {
   return {
     id: randomUUID(),
@@ -49,9 +49,9 @@ function request(body: unknown) {
 describe("POST /api/v1/broker-requests / empresa", () => {
   it("body sin empresa responde 422 validation_error", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const respuesta = await POST(request({ mensaje: "Quiero ser broker" }));
     expect(respuesta.status).toBe(422);
@@ -61,9 +61,9 @@ describe("POST /api/v1/broker-requests / empresa", () => {
 
   it("empresa vacío tras trim() responde 422 validation_error", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const respuesta = await POST(request({ mensaje: "Quiero ser broker", empresa: "   " }));
     expect(respuesta.status).toBe(422);
@@ -73,9 +73,9 @@ describe("POST /api/v1/broker-requests / empresa", () => {
 
   it("mensaje y empresa válidos responden 201", async () => {
     await resetTestDatabase();
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const respuesta = await POST(
       request({ mensaje: "Quiero ser broker", empresa: "Inmobiliaria Norte" }),

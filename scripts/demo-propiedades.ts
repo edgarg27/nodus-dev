@@ -5,17 +5,17 @@ import { propiedad, propiedadFoto, usuario } from "../src/lib/db/schema.ts";
 import { normalizeAddress } from "../src/lib/normalize-address.ts";
 
 // Espacios de demostración para revisar la plataforma: `pnpm db:demo`.
-// - No borra nada más que lo suyo: todo cuelga del usuario oferente "Captive Demo"; al volver a
+// - No borra nada más que lo suyo: todo cuelga del usuario propietario "Captive Demo"; al volver a
 //   correrlo se reemplazan sus espacios (útil después de `pnpm test`, que vacía la base).
 // - Solo corre contra el proyecto de desarrollo (misma guardia que el seed y las pruebas).
 // - Fotos de ejemplo en public/demo/: oficinas (cuadros del video de la portada y dos interiores),
 //   una nave, un local comercial y un edificio en obra para los proyectos desde cero.
 
-const OFERENTE_DEMO = {
+const PROPIETARIO_DEMO = {
   id: "11111111-1111-4111-8111-000000000001",
-  email: "demo.oferente@nodus.dev",
+  email: "demo.propietario@nodus.dev",
   nombre: "Captive Demo",
-  rol: "oferente",
+  rol: "propietario",
   telefono: "444 100 2000",
 } as const;
 
@@ -34,7 +34,7 @@ const FOTOS_LOCAL = ["/demo/local-1.jpg"];
 
 type Espacio = Omit<
   typeof propiedad.$inferInsert,
-  "oferenteId" | "direccionNormalizada" | "estadoPublicacion" | "lat" | "lng"
+  "propietarioId" | "direccionNormalizada" | "estadoPublicacion" | "lat" | "lng"
 > & { lat: number; lng: number };
 
 const ESPACIOS: Espacio[] = [
@@ -274,11 +274,11 @@ async function main() {
 
   await db
     .insert(usuario)
-    .values(OFERENTE_DEMO)
-    .onConflictDoUpdate({ target: usuario.id, set: { nombre: OFERENTE_DEMO.nombre } });
+    .values(PROPIETARIO_DEMO)
+    .onConflictDoUpdate({ target: usuario.id, set: { nombre: PROPIETARIO_DEMO.nombre } });
 
-  // Reemplaza solo los espacios del oferente demo (las fotos se borran en cascada).
-  await db.delete(propiedad).where(eq(propiedad.oferenteId, OFERENTE_DEMO.id));
+  // Reemplaza solo los espacios del propietario demo (las fotos se borran en cascada).
+  await db.delete(propiedad).where(eq(propiedad.propietarioId, PROPIETARIO_DEMO.id));
 
   let fotoSiguiente = 0;
   for (const espacio of ESPACIOS) {
@@ -288,10 +288,10 @@ async function main() {
         ...espacio,
         lat: String(espacio.lat),
         lng: String(espacio.lng),
-        oferenteId: OFERENTE_DEMO.id,
+        propietarioId: PROPIETARIO_DEMO.id,
         direccionNormalizada: normalizeAddress(espacio.direccion),
         estadoPublicacion: "publicada",
-        revisadaPor: OFERENTE_DEMO.id,
+        revisadaPor: PROPIETARIO_DEMO.id,
         revisadaEn: new Date(),
       })
       .returning({ id: propiedad.id });
@@ -318,7 +318,7 @@ async function main() {
   }
 
   console.log(
-    `Listo: ${ESPACIOS.length} espacios de demostración publicados (oferente ${OFERENTE_DEMO.email}).`,
+    `Listo: ${ESPACIOS.length} espacios de demostración publicados (propietario ${PROPIETARIO_DEMO.email}).`,
   );
   process.exit(0);
 }

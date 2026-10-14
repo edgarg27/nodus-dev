@@ -117,7 +117,7 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
           <li key={propiedad.id} className="flex items-center gap-3">
             <div className="h-10 w-14 shrink-0 overflow-hidden rounded-md bg-gradient-to-br from-primary/80 to-primary">
               {propiedad.fotoUrl ? (
-                // biome-ignore lint/performance/noImgElement: foto subida por el oferente
+                // biome-ignore lint/performance/noImgElement: foto subida por el propietario
                 <img src={propiedad.fotoUrl} alt="" className="h-full w-full object-cover" />
               ) : null}
             </div>

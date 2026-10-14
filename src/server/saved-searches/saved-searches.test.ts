@@ -15,7 +15,9 @@ import {
   normalizarConsulta,
 } from "./saved-searches.ts";
 
-async function crearUsuario(rol: "buscador" | "oferente" = "buscador"): Promise<ActorAutenticado> {
+async function crearUsuario(
+  rol: "buscador" | "propietario" = "buscador",
+): Promise<ActorAutenticado> {
   const id = randomUUID();
   await db
     .insert(usuario)
@@ -31,9 +33,9 @@ async function crearUsuario(rol: "buscador" | "oferente" = "buscador"): Promise<
   };
 }
 
-function oficina(oferenteId: string, revisadaEn: Date) {
+function oficina(propietarioId: string, revisadaEn: Date) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "oficina",
     modalidad: "renta",
     direccion: `Av. Búsqueda ${randomUUID()}`,
@@ -44,7 +46,7 @@ function oficina(oferenteId: string, revisadaEn: Date) {
     ciudad: "San Luis Potosí",
     descripcion: "Oficina de prueba",
     estadoPublicacion: "publicada",
-    revisadaPor: oferenteId,
+    revisadaPor: propietarioId,
     revisadaEn,
   };
 }
@@ -94,7 +96,7 @@ describe("búsquedas guardadas", () => {
 
   it("cuenta los espacios publicados desde la última vista y la vista reinicia el contador", async () => {
     await resetTestDatabase();
-    const oferente = await crearUsuario("oferente");
+    const propietario = await crearUsuario("propietario");
     const actor = await crearUsuario();
     const guardada = await guardarBusqueda(actor, { consulta: "tipo=oficina" });
     if (!guardada.ok) throw new Error("no se guardó");
@@ -109,8 +111,8 @@ describe("búsquedas guardadas", () => {
     await db
       .insert(propiedad)
       .values([
-        oficina(oferente.id, new Date(ahora - 2 * hora)),
-        oficina(oferente.id, new Date(ahora - 60_000)),
+        oficina(propietario.id, new Date(ahora - 2 * hora)),
+        oficina(propietario.id, new Date(ahora - 60_000)),
       ]);
 
     const [conNuevos] = await listarBusquedasGuardadas(actor.id);

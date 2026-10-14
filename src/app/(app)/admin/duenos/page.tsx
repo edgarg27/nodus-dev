@@ -17,7 +17,7 @@ interface AdminDuenosPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-// Dueños: oferentes que publican sus propios espacios. El layout ya exige rol admin.
+// Dueños: propietarios que publican sus propios espacios. El layout ya exige rol admin.
 export default async function AdminDuenosPage({ searchParams }: AdminDuenosPageProps) {
   const crudo = (await searchParams).q;
   const q = (Array.isArray(crudo) ? crudo[0] : crudo)?.trim().slice(0, 100) ?? "";

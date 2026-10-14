@@ -23,7 +23,7 @@ export const usuario = pgTable(
     email: text("email").notNull().unique(),
     nombre: text("nombre").notNull(),
     telefono: text("telefono"),
-    // Solo oferentes: "particular" (dueño directo) o "inmobiliaria" (agencia o agente). Lo capturan
+    // Solo propietarios: "particular" (dueño directo) o "inmobiliaria" (agencia o agente). Lo capturan
     // el registro y "Publica tu espacio"; la ficha pública lo muestra.
     tipoAnunciante: text("tipo_anunciante"),
     rol: text("rol").notNull(),
@@ -36,7 +36,7 @@ export const usuario = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
-    check("chk_usuario_rol", sql`${t.rol} in ('buscador','oferente','admin')`),
+    check("chk_usuario_rol", sql`${t.rol} in ('buscador','propietario','admin')`),
     check(
       "chk_usuario_tipo_anunciante",
       sql`${t.tipoAnunciante} is null or ${t.tipoAnunciante} in ('particular','inmobiliaria')`,
@@ -86,7 +86,7 @@ export const propiedad = pgTable(
   "propiedad",
   {
     id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-    oferenteId: uuid("oferente_id")
+    propietarioId: uuid("propietario_id")
       .notNull()
       .references(() => usuario.id),
     tipo: text("tipo").notNull(),
@@ -128,10 +128,10 @@ export const propiedad = pgTable(
     alturaLibreM: numeric("altura_libre_m", { precision: 5, scale: 2, mode: "number" }),
     andenes: integer("andenes"),
     potenciaKva: integer("potencia_kva"),
-    // Identificación propia del oferente (E1-T2). `titulo` es texto público; `referencia` es interna.
+    // Identificación propia del propietario (E1-T2). `titulo` es texto público; `referencia` es interna.
     referencia: text("referencia"),
     titulo: text("titulo"),
-    // Contacto de la agencia que se muestra en la ficha pública (nulo = el del oferente).
+    // Contacto de la agencia que se muestra en la ficha pública (nulo = el del propietario).
     contactoId: uuid("contacto_id").references((): AnyPgColumn => agenciaContacto.id, {
       onDelete: "set null",
     }),
@@ -147,7 +147,7 @@ export const propiedad = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
-    index("idx_propiedad_oferente_id").on(t.oferenteId),
+    index("idx_propiedad_propietario_id").on(t.propietarioId),
     index("idx_propiedad_busqueda")
       .on(t.estado, t.ciudad, t.modalidad, t.tipo)
       .where(sql`${t.activo} = true`),
@@ -209,7 +209,7 @@ export const propiedadFoto = pgTable(
   (t) => [index("idx_propiedad_foto_propiedad_id").on(t.propiedadId)],
 );
 
-// Perfil comercial del oferente (blueprints/panel-oferente, E1-T1). Un perfil por usuario;
+// Perfil comercial del propietario (blueprints/panel-oferente, E1-T1). Un perfil por usuario;
 // `logo_url` es opcional (sin logo se muestran las iniciales del nombre).
 export const agenciaPerfil = pgTable(
   "agencia_perfil",
@@ -296,20 +296,20 @@ export const contactRequest = pgTable(
     propiedadId: uuid("propiedad_id")
       .notNull()
       .references(() => propiedad.id),
-    oferenteId: uuid("oferente_id")
+    propietarioId: uuid("propietario_id")
       .notNull()
       .references(() => usuario.id),
     brokerId: uuid("broker_id").references(() => usuario.id),
     quiereFinanciamiento: boolean("quiere_financiamiento").notNull().default(false),
     // Mensaje opcional del buscador (preguntas rápidas o texto libre), máximo 1000 caracteres.
     mensaje: text("mensaje"),
-    // Embudo de seguimiento del oferente (E1-T4). Se cambia por persona: todas las solicitudes de
-    // un buscador a un mismo oferente comparten estado.
+    // Embudo de seguimiento del propietario (E1-T4). Se cambia por persona: todas las solicitudes de
+    // un buscador a un mismo propietario comparten estado.
     estado: text("estado").notNull().default("nueva"),
     // A quién llega la solicitud. "captive": solo al equipo de Captive (Clientes y prospectos del
-    // panel de administración), que confirma la disponibilidad con el oferente; el oferente no la ve
+    // panel de administración), que confirma la disponibilidad con el propietario; el propietario no la ve
     // ni se abre chat con él. "directo": las anteriores a ese cambio (migraciones 0019 y 0020), que siguen en
-    // la bandeja del oferente.
+    // la bandeja del propietario.
     canal: text("canal").notNull().default("captive"),
     // Seguimiento de Captive a esta solicitud (solo canal "captive"): en qué paso va y, si alguien
     // pidió que se le recuerde, el recordatorio (texto y fecha).
@@ -336,7 +336,7 @@ export const contactRequest = pgTable(
       "chk_contact_request_mensaje",
       sql`${t.mensaje} is null or length(${t.mensaje}) between 1 and 1000`,
     ),
-    index("idx_contact_request_oferente_id").on(t.oferenteId),
+    index("idx_contact_request_propietario_id").on(t.propietarioId),
     index("idx_contact_request_broker_id").on(t.brokerId).where(sql`${t.brokerId} is not null`),
     index("idx_contact_request_propiedad_id").on(t.propiedadId),
   ],
@@ -543,7 +543,7 @@ export const propiedadMetricaDiaria = pgTable(
   ],
 );
 
-// Chat entre oferentes sobre una propiedad de la Red (E1-T6). Una conversación por par
+// Chat entre propietarios sobre una propiedad de la Red (E1-T6). Una conversación por par
 // (propiedad, iniciador); el otro participante es siempre el dueño de la propiedad.
 export const conversacion = pgTable(
   "conversacion",
@@ -655,6 +655,6 @@ export const usuarioRelations = relations(usuario, ({ many, one }) => ({
 }));
 
 export const propiedadRelations = relations(propiedad, ({ one, many }) => ({
-  oferente: one(usuario, { fields: [propiedad.oferenteId], references: [usuario.id] }),
+  propietario: one(usuario, { fields: [propiedad.propietarioId], references: [usuario.id] }),
   fotos: many(propiedadFoto),
 }));

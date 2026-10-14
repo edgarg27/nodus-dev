@@ -12,11 +12,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t.panel.publicar.metaTitulo };
 }
 
-// "Publica tu espacio": sin sesión invita a registrarse como oferente; un buscador completa sus
-// datos y su cuenta pasa a oferente; un oferente va directo a publicar.
+// "Publica tu espacio": sin sesión invita a registrarse como propietario; un buscador completa sus
+// datos y su cuenta pasa a propietario; un propietario va directo a publicar.
 export default async function PublicarPage() {
   const actor = await getUsuarioActual();
-  if (actor?.rol === "oferente") redirect("/propiedades/nueva");
+  if (actor?.rol === "propietario") redirect("/propiedades/nueva");
 
   const { idioma, t } = await obtenerTextos();
   const p = t.panel.publicar;
@@ -53,7 +53,7 @@ export default async function PublicarPage() {
               <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-6 shadow-sm">
                 <p className="text-sm text-text-muted">{p.visitanteTexto}</p>
                 <Link
-                  href="/sign-up?rol=oferente"
+                  href="/sign-up?rol=propietario"
                   className="flex h-12 items-center justify-center rounded-lg bg-accent text-[15px] font-bold text-accent-foreground shadow-sm hover:bg-accent/90"
                 >
                   {p.crearCuenta}

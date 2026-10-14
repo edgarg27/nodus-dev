@@ -16,11 +16,11 @@ function usuarioFixture(overrides: Partial<typeof usuario.$inferInsert> = {}) {
 }
 
 function propiedadFixture(
-  oferenteId: string,
+  propietarioId: string,
   overrides: Partial<typeof propiedad.$inferInsert> = {},
 ) {
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial",
     modalidad: "renta",
     direccion: "Av. Industrias 100",
@@ -50,69 +50,80 @@ describe("schema-rules", () => {
 
   it("duplicados vigentes: rechaza con 23505, tanto pendiente como publicada", async () => {
     await resetTestDatabase();
-    const oferente = usuarioFixture({ rol: "oferente" });
-    await db.insert(usuario).values(oferente);
-    await db.insert(propiedad).values(propiedadFixture(oferente.id));
+    const propietario = usuarioFixture({ rol: "propietario" });
+    await db.insert(usuario).values(propietario);
+    await db.insert(propiedad).values(propiedadFixture(propietario.id));
 
-    await expect(db.insert(propiedad).values(propiedadFixture(oferente.id))).rejects.toMatchObject({
+    await expect(
+      db.insert(propiedad).values(propiedadFixture(propietario.id)),
+    ).rejects.toMatchObject({
       cause: { code: "23505" },
     });
 
     await resetTestDatabase();
-    await db.insert(usuario).values(oferente);
+    await db.insert(usuario).values(propietario);
     await db
       .insert(propiedad)
-      .values(propiedadFixture(oferente.id, { estadoPublicacion: "publicada" }));
+      .values(propiedadFixture(propietario.id, { estadoPublicacion: "publicada" }));
 
-    await expect(db.insert(propiedad).values(propiedadFixture(oferente.id))).rejects.toMatchObject({
+    await expect(
+      db.insert(propiedad).values(propiedadFixture(propietario.id)),
+    ).rejects.toMatchObject({
       cause: { code: "23505" },
     });
   });
 
   it("no bloquean: inactiva o rechazada permiten la segunda propiedad", async () => {
     await resetTestDatabase();
-    const oferente = usuarioFixture({ rol: "oferente" });
-    await db.insert(usuario).values(oferente);
-    await db.insert(propiedad).values(propiedadFixture(oferente.id, { activo: false }));
-    await expect(db.insert(propiedad).values(propiedadFixture(oferente.id))).resolves.toBeDefined();
+    const propietario = usuarioFixture({ rol: "propietario" });
+    await db.insert(usuario).values(propietario);
+    await db.insert(propiedad).values(propiedadFixture(propietario.id, { activo: false }));
+    await expect(
+      db.insert(propiedad).values(propiedadFixture(propietario.id)),
+    ).resolves.toBeDefined();
 
     await resetTestDatabase();
-    await db.insert(usuario).values(oferente);
+    await db.insert(usuario).values(propietario);
     await db.insert(propiedad).values(
-      propiedadFixture(oferente.id, {
+      propiedadFixture(propietario.id, {
         estadoPublicacion: "rechazada",
         motivoRechazo: "Foto ilegible",
       }),
     );
-    await expect(db.insert(propiedad).values(propiedadFixture(oferente.id))).resolves.toBeDefined();
+    await expect(
+      db.insert(propiedad).values(propiedadFixture(propietario.id)),
+    ).resolves.toBeDefined();
   });
 
   it("checks de publicación: rechaza con 23514", async () => {
     await resetTestDatabase();
-    const oferente = usuarioFixture({ rol: "oferente" });
-    await db.insert(usuario).values(oferente);
+    const propietario = usuarioFixture({ rol: "propietario" });
+    await db.insert(usuario).values(propietario);
 
     await expect(
-      db.insert(propiedad).values(propiedadFixture(oferente.id, { estadoPublicacion: "xyz" })),
+      db.insert(propiedad).values(propiedadFixture(propietario.id, { estadoPublicacion: "xyz" })),
     ).rejects.toMatchObject({ cause: { code: "23514" } });
 
     await expect(
       db
         .insert(propiedad)
-        .values(propiedadFixture(oferente.id, { estadoPublicacion: "rechazada" })),
+        .values(propiedadFixture(propietario.id, { estadoPublicacion: "rechazada" })),
     ).rejects.toMatchObject({ cause: { code: "23514" } });
 
     await expect(
       db
         .insert(propiedad)
         .values(
-          propiedadFixture(oferente.id, { estadoPublicacion: "rechazada", motivoRechazo: "   " }),
+          propiedadFixture(propietario.id, {
+            estadoPublicacion: "rechazada",
+            motivoRechazo: "   ",
+          }),
         ),
     ).rejects.toMatchObject({ cause: { code: "23514" } });
 
     await expect(
       db.insert(propiedad).values(
-        propiedadFixture(oferente.id, {
+        propiedadFixture(propietario.id, {
           estadoPublicacion: "publicada",
           motivoRechazo: "no debería estar",
         }),
@@ -121,18 +132,18 @@ describe("schema-rules", () => {
 
     await expect(
       db.insert(propiedad).values(
-        propiedadFixture(oferente.id, {
+        propiedadFixture(propietario.id, {
           estadoPublicacion: "pendiente",
-          revisadaPor: oferente.id,
+          revisadaPor: propietario.id,
         }),
       ),
     ).rejects.toMatchObject({ cause: { code: "23514" } });
 
     await expect(
       db.insert(propiedad).values(
-        propiedadFixture(oferente.id, {
+        propiedadFixture(propietario.id, {
           estadoPublicacion: "publicada",
-          revisadaPor: oferente.id,
+          revisadaPor: propietario.id,
         }),
       ),
     ).rejects.toMatchObject({ cause: { code: "23514" } });
@@ -155,7 +166,7 @@ describe("schema-rules", () => {
       db.insert(usuario).values(usuarioFixture({ referralBrokerId: randomUUID() })),
     ).rejects.toMatchObject({ cause: { code: "23503" } });
 
-    const broker = usuarioFixture({ rol: "oferente" });
+    const broker = usuarioFixture({ rol: "propietario" });
     await db.insert(usuario).values(broker);
     await expect(
       db.insert(usuario).values(usuarioFixture({ referralBrokerId: broker.id })),

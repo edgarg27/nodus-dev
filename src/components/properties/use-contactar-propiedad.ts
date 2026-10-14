@@ -13,7 +13,7 @@ export interface ContactoRevelado {
 
 // Lógica de "Contactar" compartida por la tarjeta de resultados y la ficha del espacio: crea la
 // solicitud en POST /api/v1/contact-requests, que le llega al equipo de Captive (la API ya no
-// devuelve teléfono ni chat del oferente; los campos siguen por compatibilidad). Sin sesión, manda a
+// devuelve teléfono ni chat del propietario; los campos siguen por compatibilidad). Sin sesión, manda a
 // iniciar sesión y regresa a la página actual.
 export function useContactarPropiedad(propiedadId: string) {
   const { idioma, t } = useIdioma();
@@ -52,7 +52,7 @@ export function useContactarPropiedad(propiedadId: string) {
 
       setContacto({
         conversacionId: cuerpo.data.conversacion_id ?? null,
-        telefono: cuerpo.data.telefono_oferente,
+        telefono: cuerpo.data.telefono_propietario,
         whatsappUrl: cuerpo.data.whatsapp_url,
       });
     } catch {

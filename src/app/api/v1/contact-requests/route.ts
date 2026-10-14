@@ -71,7 +71,7 @@ export async function POST(request: Request) {
       data: {
         id: resultado.data.id,
         conversacion_id: resultado.data.conversacionId,
-        telefono_oferente: resultado.data.telefonoOferente,
+        telefono_propietario: resultado.data.telefonoPropietario,
         whatsapp_url: resultado.data.whatsappUrl,
       },
     },

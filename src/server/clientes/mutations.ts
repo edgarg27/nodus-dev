@@ -26,7 +26,7 @@ function noEncontrado(message = "Cliente no encontrado"): { ok: false; error: Er
   return { ok: false, error: { code: "not_found", status: 404, message } };
 }
 
-// Un cliente es cualquier usuario que no sea admin (un buscador, o un oferente que antes pidió
+// Un cliente es cualquier usuario que no sea admin (un buscador, o un propietario que antes pidió
 // informes). Un admin, o un id que no existe, se responde igual: 404.
 async function existeCliente(buscadorId: string): Promise<boolean> {
   const [fila] = await db
@@ -84,7 +84,7 @@ export type ResultadoSolicitud =
   | { ok: false; error: ErrorCliente };
 
 // Actualiza el seguimiento de Captive a una solicitud (solo canal "captive": las anteriores son del
-// oferente). Si el paso cambia, queda anotado en la bitácora con quién y cuándo. Repetir los mismos
+// propietario). Si el paso cambia, queda anotado en la bitácora con quién y cuándo. Repetir los mismos
 // datos sin comentario no agrega nada.
 export async function actualizarSolicitud(
   actor: ActorAutenticado | null,

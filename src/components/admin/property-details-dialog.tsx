@@ -56,7 +56,7 @@ export function PropertyDetailsDialog({
             </Button>
           </DialogClose>
           {primeraFoto ? (
-            // biome-ignore lint/performance/noImgElement: foto subida por el oferente, no un asset estático
+            // biome-ignore lint/performance/noImgElement: foto subida por el propietario, no un asset estático
             <img
               src={primeraFoto.storageUrl}
               alt={`${propiedad.direccion} — ${etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo}`}
@@ -110,14 +110,16 @@ export function PropertyDetailsDialog({
             <p className="text-sm leading-relaxed text-text">{propiedad.descripcion}</p>
           </div>
 
-          {propiedad.oferente ? (
+          {propiedad.propietario ? (
             <div className="flex flex-col gap-2 border-t border-border pt-4">
-              <span className="text-sm font-bold text-text">{p.datosOferente}</span>
+              <span className="text-sm font-bold text-text">{p.datosPropietario}</span>
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-semibold text-text">{propiedad.oferente.nombre}</span>
+                <span className="text-sm font-semibold text-text">
+                  {propiedad.propietario.nombre}
+                </span>
                 <span className="text-sm text-text-muted">
-                  {propiedad.oferente.email}
-                  {propiedad.oferente.telefono ? ` · ${propiedad.oferente.telefono}` : ""}
+                  {propiedad.propietario.email}
+                  {propiedad.propietario.telefono ? ` · ${propiedad.propietario.telefono}` : ""}
                 </span>
               </div>
             </div>

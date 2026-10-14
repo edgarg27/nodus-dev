@@ -32,7 +32,7 @@ afterAll(async () => {
   await admin.storage.from("propiedades-fotos").remove(objetosParaBorrar);
 });
 
-function actorFixture(rol: "buscador" | "oferente" | "admin"): NonNullable<ActorFixture> {
+function actorFixture(rol: "buscador" | "propietario" | "admin"): NonNullable<ActorFixture> {
   return {
     id: randomUUID(),
     email: `nodus-test+${randomUUID()}@example.com`,
@@ -54,10 +54,10 @@ function actuarComo(actor: ActorFixture) {
   vi.mocked(getUsuarioActual).mockResolvedValue(actor);
 }
 
-function propiedadBase(oferenteId: string, overrides: Record<string, unknown> = {}) {
+function propiedadBase(propietarioId: string, overrides: Record<string, unknown> = {}) {
   const sufijo = randomUUID();
   return {
-    oferenteId,
+    propietarioId,
     tipo: "nave_industrial" as const,
     modalidad: "renta" as const,
     direccion: `Av. Publicacion ${sufijo}`,
@@ -105,9 +105,9 @@ describe("ciclo de publicación", () => {
   });
 
   it("una propiedad nace pendiente, sin revisión ni motivo", async () => {
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
-    actuarComo(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
+    actuarComo(propietario);
 
     const respuesta = await POST(
       requestPost({
@@ -130,15 +130,15 @@ describe("ciclo de publicación", () => {
   });
 
   it("editar el contenido de una publicada la devuelve a pendiente; un PATCH idéntico la deja publicada", async () => {
-    const oferente = actorFixture("oferente");
+    const propietario = actorFixture("propietario");
     const admin = actorFixture("admin");
-    await insertarUsuario(oferente);
+    await insertarUsuario(propietario);
     await insertarUsuario(admin);
 
     const [publicada] = await db
       .insert(propiedad)
       .values(
-        propiedadBase(oferente.id, {
+        propiedadBase(propietario.id, {
           estadoPublicacion: "publicada",
           revisadaPor: admin.id,
           revisadaEn: new Date(),
@@ -147,7 +147,7 @@ describe("ciclo de publicación", () => {
       .returning();
     if (!publicada) throw new Error("fixture no se creó");
 
-    actuarComo(oferente);
+    actuarComo(propietario);
     const respuestaCambio = await PATCH(requestPatch({ descripcion: "Descripción editada" }), {
       params: Promise.resolve({ id: publicada.id }),
     });
@@ -171,23 +171,23 @@ describe("ciclo de publicación", () => {
     expect(trasIdentico.estadoPublicacion).toBe("publicada");
   });
 
-  it("agregar o quitar una foto de una publicada la devuelve a pendiente; tipo/tamaño inválido → 422; otro oferente → 404", async () => {
-    const oferenteA = actorFixture("oferente");
-    const oferenteB = actorFixture("oferente");
-    await insertarUsuario(oferenteA);
-    await insertarUsuario(oferenteB);
+  it("agregar o quitar una foto de una publicada la devuelve a pendiente; tipo/tamaño inválido → 422; otro propietario → 404", async () => {
+    const propietarioA = actorFixture("propietario");
+    const propietarioB = actorFixture("propietario");
+    await insertarUsuario(propietarioA);
+    await insertarUsuario(propietarioB);
 
     const [propA] = await db
       .insert(propiedad)
-      .values(propiedadBase(oferenteA.id, { estadoPublicacion: "publicada" }))
+      .values(propiedadBase(propietarioA.id, { estadoPublicacion: "publicada" }))
       .returning();
     const [propB] = await db
       .insert(propiedad)
-      .values(propiedadBase(oferenteA.id, { estadoPublicacion: "publicada" }))
+      .values(propiedadBase(propietarioA.id, { estadoPublicacion: "publicada" }))
       .returning();
     if (!propA || !propB) throw new Error("fixtures no se crearon");
 
-    actuarComo(oferenteA);
+    actuarComo(propietarioA);
     const buffer = Buffer.from(PNG_1X1_BASE64, "base64");
     const respuestaSubida = await POST_PHOTO(requestPhotoUpload(buffer, "image/png"), {
       params: Promise.resolve({ id: propA.id }),
@@ -241,23 +241,23 @@ describe("ciclo de publicación", () => {
       .where(eq(propiedadFoto.propiedadId, propA.id));
     expect(fotosPropA).toHaveLength(1);
 
-    actuarComo(oferenteB);
-    const respuestaOtroOferente = await POST_PHOTO(requestPhotoUpload(buffer, "image/png"), {
+    actuarComo(propietarioB);
+    const respuestaOtroPropietario = await POST_PHOTO(requestPhotoUpload(buffer, "image/png"), {
       params: Promise.resolve({ id: propA.id }),
     });
-    expect(respuestaOtroOferente.status).toBe(404);
+    expect(respuestaOtroPropietario.status).toBe(404);
   });
 
   it("editar una rechazada la reenvía a pendiente sin motivo; colisión con otra vigente responde 409 sin cambios", async () => {
-    const oferente = actorFixture("oferente");
+    const propietario = actorFixture("propietario");
     const admin = actorFixture("admin");
-    await insertarUsuario(oferente);
+    await insertarUsuario(propietario);
     await insertarUsuario(admin);
 
     const [rechazada] = await db
       .insert(propiedad)
       .values(
-        propiedadBase(oferente.id, {
+        propiedadBase(propietario.id, {
           estadoPublicacion: "rechazada",
           motivoRechazo: "Fotos ilegibles",
           revisadaPor: admin.id,
@@ -267,7 +267,7 @@ describe("ciclo de publicación", () => {
       .returning();
     if (!rechazada) throw new Error("fixture no se creó");
 
-    actuarComo(oferente);
+    actuarComo(propietario);
     const respuestaReenvio = await PATCH(requestPatch({ descripcion: "Corregida" }), {
       params: Promise.resolve({ id: rechazada.id }),
     });
@@ -278,14 +278,14 @@ describe("ciclo de publicación", () => {
 
     const [otraVigente] = await db
       .insert(propiedad)
-      .values(propiedadBase(oferente.id, { estadoPublicacion: "publicada" }))
+      .values(propiedadBase(propietario.id, { estadoPublicacion: "publicada" }))
       .returning();
     if (!otraVigente) throw new Error("fixture no se creó");
 
     const [rechazada2] = await db
       .insert(propiedad)
       .values(
-        propiedadBase(oferente.id, {
+        propiedadBase(propietario.id, {
           estadoPublicacion: "rechazada",
           motivoRechazo: "Fotos ilegibles",
         }),
@@ -313,26 +313,26 @@ describe("ciclo de publicación", () => {
   });
 
   it("el detalle público solo ve la publicada y activa; el dueño ve las tres con su estado", async () => {
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
 
     const [publicada] = await db
       .insert(propiedad)
-      .values(propiedadBase(oferente.id, { estadoPublicacion: "publicada" }))
+      .values(propiedadBase(propietario.id, { estadoPublicacion: "publicada" }))
       .returning();
     const [pendiente] = await db
       .insert(propiedad)
-      .values(propiedadBase(oferente.id, { estadoPublicacion: "pendiente" }))
+      .values(propiedadBase(propietario.id, { estadoPublicacion: "pendiente" }))
       .returning();
     const [rechazada] = await db
       .insert(propiedad)
       .values(
-        propiedadBase(oferente.id, { estadoPublicacion: "rechazada", motivoRechazo: "Motivo" }),
+        propiedadBase(propietario.id, { estadoPublicacion: "rechazada", motivoRechazo: "Motivo" }),
       )
       .returning();
     const [dadaDeBaja] = await db
       .insert(propiedad)
-      .values(propiedadBase(oferente.id, { estadoPublicacion: "publicada", activo: false }))
+      .values(propiedadBase(propietario.id, { estadoPublicacion: "publicada", activo: false }))
       .returning();
     if (!publicada || !pendiente || !rechazada || !dadaDeBaja)
       throw new Error("fixtures no se crearon");
@@ -346,9 +346,9 @@ describe("ciclo de publicación", () => {
     await expect(obtenerPropiedadPublicaPorId(rechazada.id)).resolves.toBeNull();
     await expect(obtenerPropiedadPublicaPorId(dadaDeBaja.id)).resolves.toBeNull();
 
-    const detallePublicada = await obtenerPropiedadDelDuenoPorId(oferente.id, publicada.id);
-    const detallePendiente = await obtenerPropiedadDelDuenoPorId(oferente.id, pendiente.id);
-    const detalleRechazada = await obtenerPropiedadDelDuenoPorId(oferente.id, rechazada.id);
+    const detallePublicada = await obtenerPropiedadDelDuenoPorId(propietario.id, publicada.id);
+    const detallePendiente = await obtenerPropiedadDelDuenoPorId(propietario.id, pendiente.id);
+    const detalleRechazada = await obtenerPropiedadDelDuenoPorId(propietario.id, rechazada.id);
     expect(detallePublicada?.estadoPublicacion).toBe("publicada");
     expect(detallePendiente?.estadoPublicacion).toBe("pendiente");
     expect(detalleRechazada?.estadoPublicacion).toBe("rechazada");
@@ -356,16 +356,16 @@ describe("ciclo de publicación", () => {
   });
 
   it("dar de baja una publicada conserva su estado_publicacion", async () => {
-    const oferente = actorFixture("oferente");
-    await insertarUsuario(oferente);
+    const propietario = actorFixture("propietario");
+    await insertarUsuario(propietario);
 
     const [publicada] = await db
       .insert(propiedad)
-      .values(propiedadBase(oferente.id, { estadoPublicacion: "publicada" }))
+      .values(propiedadBase(propietario.id, { estadoPublicacion: "publicada" }))
       .returning();
     if (!publicada) throw new Error("fixture no se creó");
 
-    actuarComo(oferente);
+    actuarComo(propietario);
     const respuesta = await DELETE(new Request("http://localhost/api/v1/properties/x"), {
       params: Promise.resolve({ id: publicada.id }),
     });

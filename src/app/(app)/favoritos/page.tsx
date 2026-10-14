@@ -50,7 +50,7 @@ export default async function FavoritosPage() {
                 <Link href={`/espacios/${propiedad.id}`} className="flex flex-col">
                   <div className="h-40 bg-gradient-to-br from-primary/70 to-primary">
                     {propiedad.fotoUrl ? (
-                      // biome-ignore lint/performance/noImgElement: foto subida por el oferente
+                      // biome-ignore lint/performance/noImgElement: foto subida por el propietario
                       <img src={propiedad.fotoUrl} alt="" className="h-full w-full object-cover" />
                     ) : null}
                   </div>

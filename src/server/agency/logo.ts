@@ -30,7 +30,7 @@ export type ResultadoLogo =
 
 const SIN_PERMISO: ResultadoLogo = {
   ok: false,
-  error: { code: "forbidden", status: 403, message: "Se requiere el rol oferente" },
+  error: { code: "forbidden", status: 403, message: "Se requiere el rol propietario" },
 };
 
 // Ruta dentro del bucket a partir de la URL pública, solo si es un logo de este usuario.
@@ -41,7 +41,7 @@ function rutaDelLogo(logoUrl: string | null, usuarioId: string): string | null {
   return inicio === -1 ? null : logoUrl.slice(inicio + `/${BUCKET}/`.length);
 }
 
-// Un perfil por oferente: si aún no lo creó, el logo lo crea con su nombre de cuenta.
+// Un perfil por propietario: si aún no lo creó, el logo lo crea con su nombre de cuenta.
 async function guardarLogoUrl(usuarioId: string, logoUrl: string | null) {
   const perfil = await obtenerPerfilAgencia(usuarioId);
   await db
@@ -55,7 +55,7 @@ export async function subirLogoAgencia(
   actor: ActorAutenticado | null,
   archivo: { buffer: Buffer; contentType: string },
 ): Promise<ResultadoLogo> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) return SIN_PERMISO;
 
   const extension = TIPOS_PERMITIDOS[archivo.contentType];
@@ -91,7 +91,7 @@ export async function subirLogoAgencia(
 }
 
 export async function quitarLogoAgencia(actor: ActorAutenticado | null): Promise<ResultadoLogo> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) return SIN_PERMISO;
 
   const anterior = await guardarLogoUrl(actor.id, null);

@@ -99,7 +99,7 @@ export default async function AdminDuenoPage({ params }: AdminDuenoPageProps) {
                 >
                   <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-primary/80 to-primary">
                     {propiedad.fotoUrl ? (
-                      // biome-ignore lint/performance/noImgElement: foto subida por el oferente
+                      // biome-ignore lint/performance/noImgElement: foto subida por el propietario
                       <img src={propiedad.fotoUrl} alt="" className="h-full w-full object-cover" />
                     ) : null}
                   </div>

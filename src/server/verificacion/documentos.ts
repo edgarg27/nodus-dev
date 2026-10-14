@@ -89,18 +89,18 @@ export async function listarDocumentosDeUsuarios(
   return porUsuario;
 }
 
-// Solo el oferente cuya solicitud sigue sin aprobarse, y solo los documentos que le tocan a su tipo
+// Solo el propietario cuya solicitud sigue sin aprobarse, y solo los documentos que le tocan a su tipo
 // de solicitud. Subir otro del mismo tipo reemplaza al anterior (fila y archivo).
 export async function subirDocumento(
   actor: ActorAutenticado | null,
   tipo: TipoDocumento,
   archivo: ArchivoDocumento,
 ): Promise<ResultadoSubirDocumento> {
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) {
     return {
       ok: false,
-      error: { code: "forbidden", status: 403, message: "Se requiere el rol oferente" },
+      error: { code: "forbidden", status: 403, message: "Se requiere el rol propietario" },
     };
   }
 

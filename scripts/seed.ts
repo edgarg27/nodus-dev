@@ -15,7 +15,7 @@ async function seed() {
       id: anaBrokerId,
       email: "ana.broker@nodus.dev",
       nombre: "Ana Broker",
-      rol: "oferente",
+      rol: "propietario",
       isBroker: true,
       brokerCode: "BRK-DEMO",
     },
@@ -23,7 +23,7 @@ async function seed() {
       id: nodusStaffId,
       email: "staff@nodus.dev",
       nombre: "Nodus Staff",
-      rol: "oferente",
+      rol: "propietario",
       isBroker: false,
     },
     {
@@ -37,7 +37,7 @@ async function seed() {
 
   await db.insert(propiedad).values([
     {
-      oferenteId: nodusStaffId,
+      propietarioId: nodusStaffId,
       tipo: "nave_industrial",
       modalidad: "renta",
       direccion: "Av. Industrias 100, San Luis Potosí",
@@ -51,7 +51,7 @@ async function seed() {
       estadoPublicacion: "publicada",
     },
     {
-      oferenteId: nodusStaffId,
+      propietarioId: nodusStaffId,
       tipo: "oficina",
       modalidad: "venta",
       direccion: "Blvd. José María Chávez 200, Aguascalientes",
@@ -65,7 +65,7 @@ async function seed() {
       estadoPublicacion: "publicada",
     },
     {
-      oferenteId: anaBrokerId,
+      propietarioId: anaBrokerId,
       tipo: "local_comercial",
       modalidad: "desde_cero",
       direccion: "Av. López Mateos 300, León",
@@ -80,7 +80,7 @@ async function seed() {
     },
   ]);
 
-  console.log("seed completo: 2 oferentes, 1 buscador, 3 propiedades publicadas");
+  console.log("seed completo: 2 propietarios, 1 buscador, 3 propiedades publicadas");
 }
 
 await seed();

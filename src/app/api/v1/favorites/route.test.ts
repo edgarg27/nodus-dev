@@ -48,11 +48,11 @@ describe("API de favoritos", () => {
   it("agrega, lista y quita un favorito", async () => {
     await resetTestDatabase();
     const buscador = await actor();
-    const oferente = await actor();
+    const propietario = await actor();
     const [espacio] = await db
       .insert(propiedad)
       .values({
-        oferenteId: oferente.id,
+        propietarioId: propietario.id,
         tipo: "oficina",
         modalidad: "renta",
         direccion: "Av. API Favorito 1",

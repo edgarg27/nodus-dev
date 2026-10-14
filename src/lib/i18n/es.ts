@@ -4,7 +4,7 @@ export const es = {
   meta: {
     tituloInicio: "Captive by Nodus — Naves, oficinas y locales a nivel nacional e internacional",
     descripcionInicio:
-      "Encuentra o publica naves industriales, oficinas y locales comerciales a nivel nacional e internacional. Nodus conecta empresas con oferentes verificados.",
+      "Encuentra o publica naves industriales, oficinas y locales comerciales a nivel nacional e internacional. Nodus conecta empresas con propietarios verificados.",
   },
   etiquetas: {
     tipo: {
@@ -92,7 +92,7 @@ export const es = {
           "Compara espacios disponibles con fotos, descripción, ubicación y condiciones, todo en un solo lugar.",
       },
       {
-        titulo: "Contacta al oferente",
+        titulo: "Contacta al propietario",
         descripcion:
           "Envía tu solicitud: el equipo de Captive confirma la disponibilidad y agenda tu visita.",
       },
@@ -291,7 +291,7 @@ export const es = {
     listo:
       "Listo, recibimos tu solicitud. El equipo de Captive confirmará la disponibilidad y te contactará pronto.",
     escribirWhatsApp: "Escribir por WhatsApp",
-    telefonoOferente: "Teléfono del oferente",
+    telefonoPropietario: "Teléfono del propietario",
     errorGeneral: "No se pudo contactar. Intenta de nuevo.",
     errorConexion: "No se pudo contactar. Revisa tu conexión e intenta de nuevo.",
     datosDelEspacio: "Datos del espacio",
@@ -329,7 +329,7 @@ export const es = {
     disponible: "Disponible",
     no: "No",
     precio: "Precio",
-    mensajeOferente: "Mensaje para Captive",
+    mensajePropietario: "Mensaje para Captive",
     opcional: "(opcional)",
     preguntas: ["¿Sigue disponible?", "¿Cuándo puedo visitarlo?", "¿Qué incluye el precio?"],
     preguntasNave: ["¿Cuál es el uso de suelo?", "¿Tiene patio de maniobras?"],
@@ -521,8 +521,8 @@ export const es = {
       vacio: "No hay propiedades pendientes de revisión.",
       publicadaPor: (nombre: string) => `Publicada por ${nombre}`,
       posibleDuplicado: "Posible duplicado: ya hay espacios del mismo tipo muy cerca",
-      parecidaDetalle: (m: number, oferente: string) =>
-        `${m <= 1 ? "en el mismo punto" : `a ${m} m`}${oferente ? ` · de ${oferente}` : ""}`,
+      parecidaDetalle: (m: number, propietario: string) =>
+        `${m <= 1 ? "en el mismo punto" : `a ${m} m`}${propietario ? ` · de ${propietario}` : ""}`,
       parecidaPublicada: "publicada",
       parecidaPendiente: "también en revisión",
       verDetalles: "Ver detalles",
@@ -530,16 +530,16 @@ export const es = {
       aprobar: "Aprobar",
       yaRevisada: "Esta propiedad ya fue revisada.",
       aprobada: "Propiedad aprobada y ahora es pública.",
-      rechazada: "Propiedad rechazada. El oferente verá el motivo para corregirla.",
+      rechazada: "Propiedad rechazada. El propietario verá el motivo para corregirla.",
       cerrar: "Cerrar",
       fotos: (n: number) => `1 / ${n} fotos`,
       modalidad: "Modalidad",
       tipo: "Tipo",
       descripcionCampo: "Descripción",
-      datosOferente: "Datos del oferente",
+      datosPropietario: "Datos del propietario",
       rechazarTitulo: "Rechazar propiedad",
       motivo: "Motivo (obligatorio)",
-      motivoPlaceholder: "El oferente verá este motivo para corregir y reenviar su propiedad.",
+      motivoPlaceholder: "El propietario verá este motivo para corregir y reenviar su propiedad.",
       cancelar: "Cancelar",
       confirmarRechazo: "Confirmar rechazo",
     },
@@ -574,7 +574,7 @@ export const es = {
       metaTitulo: "Brokers activos — Captive by Nodus",
       titulo: "Brokers activos",
       descripcion:
-        "Oferentes con solicitud de broker aprobada. Puedes revocar su acceso en cualquier momento.",
+        "Propietarios con solicitud de broker aprobada. Puedes revocar su acceso en cualquier momento.",
       vacio: "Todavía no hay brokers aprobados.",
       revocar: "Revocar",
       revocarTitulo: "Revocar acceso de broker",
@@ -733,7 +733,7 @@ export const es = {
       brokerVerificado: (codigo: string) => `Broker verificado · ${codigo}`,
       referidoPor: (nombre: string) => `Cliente referido por el broker ${nombre}`,
       mensajeCliente: "Mensaje del cliente",
-      directo: "Llegó directo al oferente (antes de que las solicitudes pasaran por Captive)",
+      directo: "Llegó directo al propietario (antes de que las solicitudes pasaran por Captive)",
       pasos: {
         nueva: "Nueva",
         con_broker: "Con el broker",
@@ -794,7 +794,7 @@ export const es = {
       ],
       formularioTitulo: "Completa tus datos de anunciante",
       formularioTexto:
-        "Tu cuenta de buscador se vuelve de oferente: conservas tus favoritos y chats.",
+        "Tu cuenta de buscador se vuelve de propietario: conservas tus favoritos y chats.",
       telefono: "Teléfono o WhatsApp",
       comoPublicas: "¿Cómo publicas?",
       particular: "Soy el dueño",
@@ -806,7 +806,7 @@ export const es = {
       errorTelefono: "Escribe un teléfono válido (10 a 15 dígitos)",
       errorTipo: "Elige cómo publicas",
       errorEmpresa: "Escribe el nombre de tu inmobiliaria o empresa",
-      visitanteTexto: "Crea tu cuenta de oferente o entra con la que ya tienes.",
+      visitanteTexto: "Crea tu cuenta de propietario o entra con la que ya tienes.",
       crearCuenta: "Crear cuenta para publicar",
       yaTengoCuenta: "Ya tengo cuenta",
       adminTexto: "Las cuentas de administrador no publican espacios.",
@@ -898,7 +898,8 @@ export const es = {
       banner: {
         aria: "Red inmobiliaria",
         titulo: "Vende más rápido con la Red inmobiliaria",
-        texto: "Mira qué espacios comparten otros oferentes y ofrece más opciones a tus clientes.",
+        texto:
+          "Mira qué espacios comparten otros propietarios y ofrece más opciones a tus clientes.",
         propiedades: "propiedades en la red",
         nuevas: "nuevas en 48 h",
         brokers: "brokers en la red",
@@ -910,7 +911,7 @@ export const es = {
       metaTitulo: "Red inmobiliaria — Captive by Nodus",
       titulo: "Red inmobiliaria",
       descripcion:
-        "Espacios que otros oferentes comparten contigo. La comisión que ves solo es visible entre oferentes.",
+        "Espacios que otros propietarios comparten contigo. La comisión que ves solo es visible entre propietarios.",
       total: (n: string, uno: boolean) =>
         `${n} ${uno ? "propiedad en la red" : "propiedades en la red"}`,
       vacio:
@@ -951,15 +952,16 @@ export const es = {
       metaTitulo: "Mensajes — Captive by Nodus",
       titulo: "Mensajes",
       descripcion:
-        "Conversaciones con clientes interesados en tus espacios y con otros oferentes de la Red inmobiliaria.",
-      descripcionBuscador: "Tus conversaciones con los oferentes de los espacios que contactaste.",
+        "Conversaciones con clientes interesados en tus espacios y con otros propietarios de la Red inmobiliaria.",
+      descripcionBuscador:
+        "Tus conversaciones con los propietarios de los espacios que contactaste.",
       vacio: "Aún no tienes conversaciones.",
       vacioBuscador:
-        "Aún no tienes conversaciones. Escríbele a un oferente desde la ficha de cualquier espacio.",
+        "Aún no tienes conversaciones. Escríbele a un propietario desde la ficha de cualquier espacio.",
       explorar: "Explorar la red",
       buscar: "Buscar espacios",
       cliente: "Cliente",
-      oferente: "Oferente",
+      propietario: "Propietario",
       escribe: "Escribe un mensaje",
       placeholder: "Escribe un mensaje…",
       enviando: "Enviando…",
@@ -1184,12 +1186,12 @@ export const es = {
       contactosAyuda: "Administra tus correos, teléfonos y WhatsApp en el perfil de tu agencia.",
       compartir: "Compartir en la Red inmobiliaria",
       noCompartir: "No compartir",
-      compartirOtros: "Compartir con otros oferentes",
+      compartirOtros: "Compartir con otros propietarios",
       comision: "Comisión que compartes",
       exclusiva: "¿Manejas este espacio en exclusiva?",
       siExclusiva: "Sí, en exclusiva",
       comisionAyuda:
-        "La comisión solo la ven otros oferentes en la Red; nunca aparece en la ficha pública.",
+        "La comisión solo la ven otros propietarios en la Red; nunca aparece en la ficha pública.",
       errorNumero: "Escribe un número válido",
     },
   },

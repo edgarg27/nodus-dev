@@ -15,7 +15,7 @@ import { obtenerPrimerasFotos } from "./queries.ts";
 
 export interface PropiedadCercana {
   id: string;
-  oferenteId: string;
+  propietarioId: string;
   titulo: string | null;
   direccion: string;
   ciudad: string;
@@ -50,7 +50,7 @@ export async function buscarPropiedadesCercanas(
   const filas = await db
     .select({
       id: propiedad.id,
-      oferenteId: propiedad.oferenteId,
+      propietarioId: propiedad.propietarioId,
       titulo: propiedad.titulo,
       direccion: propiedad.direccion,
       ciudad: propiedad.ciudad,
@@ -74,7 +74,7 @@ export async function buscarPropiedadesCercanas(
   const fotos = await obtenerPrimerasFotos(cercanas.map((fila) => fila.id));
   return cercanas.map((fila) => ({
     id: fila.id,
-    oferenteId: fila.oferenteId,
+    propietarioId: fila.propietarioId,
     titulo: fila.titulo,
     direccion: fila.direccion,
     ciudad: fila.ciudad,
@@ -87,7 +87,7 @@ export async function buscarPropiedadesCercanas(
 
 // Lo que ve QUIEN PUBLICA de cada propiedad parecida. De una ajena que todavía no es pública solo
 // se dice la dirección (sin foto, título ni liga): nada que aún no esté publicado se revela.
-export interface PosibleDuplicadoParaOferente {
+export interface PosibleDuplicadoParaPropietario {
   id: string | null;
   titulo: string | null;
   direccion: string;
@@ -98,12 +98,12 @@ export interface PosibleDuplicadoParaOferente {
   publicada: boolean;
 }
 
-export function paraOferente(
+export function paraPropietario(
   cercanas: PropiedadCercana[],
-  oferenteId: string,
-): PosibleDuplicadoParaOferente[] {
+  propietarioId: string,
+): PosibleDuplicadoParaPropietario[] {
   return cercanas.map((cercana) => {
-    const esMia = cercana.oferenteId === oferenteId;
+    const esMia = cercana.propietarioId === propietarioId;
     const publicada = cercana.estadoPublicacion === "publicada";
     const visible = esMia || publicada;
     return {
@@ -127,7 +127,7 @@ export interface ParecidaParaAdmin {
   estadoPublicacion: "pendiente" | "publicada";
   distanciaM: number;
   // Quién la publicó (agencia o persona).
-  oferente: string;
+  propietario: string;
 }
 
 // Posibles duplicados de cada propiedad pendiente de revisión, por id. Las que no tienen ninguno no
@@ -148,7 +148,7 @@ export async function posiblesDuplicadosDePendientes(
     }),
   );
   const nombres = await nombresDeAgencia(
-    [...porPropiedad.values()].flat().map((cercana) => cercana.oferenteId),
+    [...porPropiedad.values()].flat().map((cercana) => cercana.propietarioId),
   );
   return new Map(
     [...porPropiedad].map(([id, cercanas]) => [
@@ -159,7 +159,7 @@ export async function posiblesDuplicadosDePendientes(
         direccion: cercana.direccion,
         estadoPublicacion: cercana.estadoPublicacion,
         distanciaM: cercana.distanciaM,
-        oferente: nombres.get(cercana.oferenteId) ?? "",
+        propietario: nombres.get(cercana.propietarioId) ?? "",
       })),
     ]),
   );

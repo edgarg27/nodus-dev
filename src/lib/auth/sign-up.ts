@@ -1,15 +1,15 @@
 import { z } from "zod";
-import { datosOferenteSchema } from "./datos-oferente.ts";
+import { datosPropietarioSchema } from "./datos-propietario.ts";
 
 // El registro NO pide contraseña: la persona la crea después de confirmar su correo
 // (/crear-contrasena). Así nadie usa una cuenta con un correo que no es suyo.
 const baseSchema = z.object({
   nombre: z.string().trim().min(1, "El nombre es obligatorio"),
   email: z.email("Ingresa un correo electrónico válido"),
-  rol: z.enum(["buscador", "oferente"], "Selecciona un tipo de cuenta"),
+  rol: z.enum(["buscador", "propietario"], "Selecciona un tipo de cuenta"),
   aceptaTerminos: z.literal(true, "Debes aceptar los términos y el aviso de privacidad"),
   ref: z.string().optional(),
-  // Solo para oferentes (ver superRefine).
+  // Solo para propietarios (ver superRefine).
   telefono: z.string().optional(),
   tipoAnunciante: z.string().optional(),
   empresa: z.string().optional(),
@@ -20,14 +20,14 @@ const baseSchema = z.object({
 // errores juntos.
 export const signUpSchema = baseSchema.superRefine(
   (valores, ctx) => {
-    if (valores.rol !== "oferente") return;
-    const datos = datosOferenteSchema.safeParse(valores);
+    if (valores.rol !== "propietario") return;
+    const datos = datosPropietarioSchema.safeParse(valores);
     if (datos.success) return;
     for (const issue of datos.error.issues) {
       ctx.addIssue({ code: "custom", path: issue.path, message: issue.message });
     }
   },
-  { when: (payload) => (payload.value as { rol?: unknown } | undefined)?.rol === "oferente" },
+  { when: (payload) => (payload.value as { rol?: unknown } | undefined)?.rol === "propietario" },
 );
 
 export type SignUpInput = z.infer<typeof signUpSchema>;
@@ -72,7 +72,7 @@ export function buildSignUpArgs(
   origin: string,
   password: string = contrasenaProvisional(),
 ) {
-  const esOferente = values.rol === "oferente";
+  const esPropietario = values.rol === "propietario";
   return {
     email: values.email,
     password,
@@ -83,7 +83,7 @@ export function buildSignUpArgs(
         // Al confirmar el correo, /auth/confirm manda a crear la contraseña.
         crear_password: true,
         ...(ref ? { ref } : {}),
-        ...(esOferente
+        ...(esPropietario
           ? {
               telefono: values.telefono?.trim(),
               tipo_anunciante: values.tipoAnunciante,

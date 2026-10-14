@@ -13,22 +13,22 @@ const { resetTestDatabase } = await import("../../helpers/reset-db.ts");
 const { GET: GET_PROPIEDADES } = await import("../../../src/app/api/v1/properties/export/route.ts");
 const { GET: GET_LEADS } = await import("../../../src/app/api/v1/leads/export/route.ts");
 
-async function prepararOferente() {
+async function prepararPropietario() {
   await resetTestDatabase();
   const actor = {
     id: randomUUID(),
     email: `nodus-test+${randomUUID()}@example.com`,
-    nombre: "Oferente CSV",
-    rol: "oferente" as const,
+    nombre: "Propietario CSV",
+    rol: "propietario" as const,
     isBroker: false,
     brokerCode: null,
     referralBrokerId: null,
   };
   await db
     .insert(usuario)
-    .values({ id: actor.id, email: actor.email, nombre: actor.nombre, rol: "oferente" });
+    .values({ id: actor.id, email: actor.email, nombre: actor.nombre, rol: "propietario" });
   await db.insert(propiedad).values({
-    oferenteId: actor.id,
+    propietarioId: actor.id,
     tipo: "oficina",
     modalidad: "renta",
     direccion: "Av. CSV 1",
@@ -51,7 +51,7 @@ function peticion(ruta: string, idioma?: string) {
 
 describe("Exportaciones CSV según el idioma", () => {
   it("propiedades: encabezados, etiquetas y nombre de archivo en inglés con la cookie idioma=en", async () => {
-    await prepararOferente();
+    await prepararPropietario();
 
     const en = await GET_PROPIEDADES(peticion("/api/v1/properties/export", "en"));
     const textoEn = await en.text();
@@ -68,7 +68,7 @@ describe("Exportaciones CSV según el idioma", () => {
   });
 
   it("leads: encabezados en inglés con la cookie idioma=en", async () => {
-    await prepararOferente();
+    await prepararPropietario();
     const respuesta = await GET_LEADS(peticion("/api/v1/leads/export", "en"));
     const texto = await respuesta.text();
     expect(respuesta.headers.get("content-disposition")).toContain("leads.csv");

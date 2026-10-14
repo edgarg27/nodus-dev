@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 // en qué va su revisión.
 export default async function VerificacionPage() {
   const actor = await getUsuarioActual();
-  const permiso = requireRol(actor, "oferente");
+  const permiso = requireRol(actor, "propietario");
   if (!permiso.ok || !actor) notFound();
 
   const t = (await obtenerTextos()).t.verificacion;

@@ -57,11 +57,13 @@ export interface OpcionesBusquedaPropiedad {
 
 // Listado del dueño ("mis propiedades") — todas sus filas activas, en cualquier estado de
 // publicación (con `estadoPublicacion` y `motivoRechazo` incluidos, ya son columnas de la fila).
-export async function listarPropiedadesDelDueno(oferenteId: string): Promise<PropiedadDestacada[]> {
+export async function listarPropiedadesDelDueno(
+  propietarioId: string,
+): Promise<PropiedadDestacada[]> {
   const filas = await db
     .select()
     .from(propiedad)
-    .where(and(eq(propiedad.oferenteId, oferenteId), eq(propiedad.activo, true)));
+    .where(and(eq(propiedad.propietarioId, propietarioId), eq(propiedad.activo, true)));
   return conPrimeraFoto(filas);
 }
 
@@ -108,11 +110,11 @@ export async function obtenerPropiedadPublicaPorId(id: string) {
 // Detalle del dueño: su propia fila en cualquier estado, con `estadoPublicacion` y
 // `motivoRechazo`. Un admin no ve un detalle distinto por esta vía — su acceso es la cola del
 // paso 24.
-export async function obtenerPropiedadDelDuenoPorId(oferenteId: string, id: string) {
+export async function obtenerPropiedadDelDuenoPorId(propietarioId: string, id: string) {
   const [fila] = await db
     .select()
     .from(propiedad)
-    .where(and(eq(propiedad.id, id), eq(propiedad.oferenteId, oferenteId)));
+    .where(and(eq(propiedad.id, id), eq(propiedad.propietarioId, propietarioId)));
   return fila ?? null;
 }
 
@@ -282,7 +284,7 @@ export async function obtenerFotosDePropiedad(propiedadId: string) {
     .orderBy(asc(propiedadFoto.orden));
 }
 
-export interface OferenteResumen {
+export interface PropietarioResumen {
   id: string;
   nombre: string;
   email: string;
@@ -292,13 +294,13 @@ export interface OferenteResumen {
 
 export interface PropiedadPendienteDeRevision extends PropiedadFila {
   fotos: (typeof propiedadFoto.$inferSelect)[];
-  oferente: OferenteResumen | null;
+  propietario: PropietarioResumen | null;
 }
 
 type PropiedadFila = typeof propiedad.$inferSelect;
 
 // Cola de revisión del admin: solo pendiente y activa, la que entró antes primero, con sus
-// fotos y los datos de su oferente. Sin paginación en v1: la cola de pendientes es corta.
+// fotos y los datos de su propietario. Sin paginación en v1: la cola de pendientes es corta.
 export async function listarPendientesDeRevision(): Promise<PropiedadPendienteDeRevision[]> {
   const filas = await db
     .select()
@@ -309,14 +311,14 @@ export async function listarPendientesDeRevision(): Promise<PropiedadPendienteDe
   if (filas.length === 0) return [];
 
   const idsPropiedad = filas.map((fila) => fila.id);
-  const idsOferente = [...new Set(filas.map((fila) => fila.oferenteId))];
+  const idsPropietario = [...new Set(filas.map((fila) => fila.propietarioId))];
 
   const fotos = await db
     .select()
     .from(propiedadFoto)
     .where(inArray(propiedadFoto.propiedadId, idsPropiedad))
     .orderBy(asc(propiedadFoto.orden));
-  const oferentes = await db
+  const propietarios = await db
     .select({
       id: usuario.id,
       nombre: usuario.nombre,
@@ -325,7 +327,7 @@ export async function listarPendientesDeRevision(): Promise<PropiedadPendienteDe
       isBroker: usuario.isBroker,
     })
     .from(usuario)
-    .where(inArray(usuario.id, idsOferente));
+    .where(inArray(usuario.id, idsPropietario));
 
   const fotosPorPropiedad = new Map<string, (typeof propiedadFoto.$inferSelect)[]>();
   for (const foto of fotos) {
@@ -333,12 +335,14 @@ export async function listarPendientesDeRevision(): Promise<PropiedadPendienteDe
     lista.push(foto);
     fotosPorPropiedad.set(foto.propiedadId, lista);
   }
-  const oferentePorId = new Map(oferentes.map((oferente) => [oferente.id, oferente]));
+  const propietarioPorId = new Map(
+    propietarios.map((propietario) => [propietario.id, propietario]),
+  );
 
   return filas.map((fila) => ({
     ...fila,
     fotos: fotosPorPropiedad.get(fila.id) ?? [],
-    oferente: oferentePorId.get(fila.oferenteId) ?? null,
+    propietario: propietarioPorId.get(fila.propietarioId) ?? null,
   }));
 }
 
@@ -421,13 +425,13 @@ function ordenMisPropiedades(orden: OrdenMisPropiedades): SQL[] {
   return [...nulosAlFinal, sql`${expresion} ${dir}`, desc(propiedad.id)];
 }
 
-// "Mis propiedades" del oferente: búsqueda de texto, filtro por estado de publicación, orden por
+// "Mis propiedades" del propietario: búsqueda de texto, filtro por estado de publicación, orden por
 // columna y paginación en servidor, con las métricas de cada fila. Solo filas activas del dueño.
 export async function listarMisPropiedades(
-  oferenteId: string,
+  propietarioId: string,
   filtros: FiltrosMisPropiedades = {},
 ): Promise<ListadoMisPropiedades> {
-  const base = [eq(propiedad.oferenteId, oferenteId), eq(propiedad.activo, true)];
+  const base = [eq(propiedad.propietarioId, propietarioId), eq(propiedad.activo, true)];
   if (filtros.ids) {
     base.push(filtros.ids.length > 0 ? inArray(propiedad.id, filtros.ids) : sql`false`);
   }

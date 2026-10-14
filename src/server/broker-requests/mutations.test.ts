@@ -6,31 +6,31 @@ import { usuario } from "../../lib/db/schema.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
 import { crearSolicitudBroker } from "./mutations.ts";
 
-function actorOferente(id: string): ActorAutenticado {
+function actorPropietario(id: string): ActorAutenticado {
   return {
     id,
     email: `nodus-test+${id}@example.com`,
-    nombre: "Oferente de prueba",
-    rol: "oferente",
+    nombre: "Propietario de prueba",
+    rol: "propietario",
     isBroker: false,
     brokerCode: null,
     referralBrokerId: null,
   };
 }
 
-async function crearFilaOferente(): Promise<ActorAutenticado> {
+async function crearFilaPropietario(): Promise<ActorAutenticado> {
   const id = randomUUID();
-  const actor = actorOferente(id);
+  const actor = actorPropietario(id);
   await db
     .insert(usuario)
-    .values({ id, email: actor.email, nombre: actor.nombre, rol: "oferente" });
+    .values({ id, email: actor.email, nombre: actor.nombre, rol: "propietario" });
   return actor;
 }
 
 describe("crearSolicitudBroker / empresa", () => {
   it("con { mensaje, empresa } inserta la fila con ambos valores", async () => {
     await resetTestDatabase();
-    const actor = await crearFilaOferente();
+    const actor = await crearFilaPropietario();
 
     const resultado = await crearSolicitudBroker(actor, {
       mensaje: "Quiero ser broker",
@@ -44,7 +44,7 @@ describe("crearSolicitudBroker / empresa", () => {
 
   it("el actor ya tiene una solicitud pendiente: sigue respondiendo conflict_pending_broker_request sin que empresa cambie ese comportamiento", async () => {
     await resetTestDatabase();
-    const actor = await crearFilaOferente();
+    const actor = await crearFilaPropietario();
 
     const primera = await crearSolicitudBroker(actor, {
       mensaje: "Primera solicitud",

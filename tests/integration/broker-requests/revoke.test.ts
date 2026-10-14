@@ -28,7 +28,7 @@ const { POST: REVOKE } = await import("../../../src/app/api/v1/admin/brokers/[id
 type ActorFixture = Awaited<ReturnType<typeof getUsuarioActual>>;
 
 function actorFixture(
-  rol: "buscador" | "oferente" | "admin",
+  rol: "buscador" | "propietario" | "admin",
   overrides: Partial<NonNullable<ActorFixture>> = {},
 ): NonNullable<ActorFixture> {
   return {
@@ -59,11 +59,11 @@ async function insertarUsuario(actor: NonNullable<ActorFixture>) {
   });
 }
 
-async function crearPropiedadPublicada(oferenteId: string) {
+async function crearPropiedadPublicada(propietarioId: string) {
   const [fila] = await db
     .insert(propiedad)
     .values({
-      oferenteId,
+      propietarioId,
       tipo: "nave_industrial",
       modalidad: "renta",
       direccion: `Av. Revocación ${randomUUID()}`,
@@ -97,12 +97,12 @@ describe("GET /api/v1/admin/brokers", () => {
     await resetTestDatabase();
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
-    const brokerB = actorFixture("oferente", {
+    const brokerB = actorFixture("propietario", {
       nombre: "Broker B",
       isBroker: true,
       brokerCode: "BRK-BBBBBB",
     } as Partial<NonNullable<ActorFixture>>);
-    const brokerA = actorFixture("oferente", {
+    const brokerA = actorFixture("propietario", {
       isBroker: true,
       brokerCode: "BRK-AAAAAA",
     });
@@ -110,7 +110,7 @@ describe("GET /api/v1/admin/brokers", () => {
       id: brokerA.id,
       email: brokerA.email,
       nombre: "Broker A",
-      rol: "oferente",
+      rol: "propietario",
       isBroker: true,
       brokerCode: "BRK-AAAAAA",
     });
@@ -118,11 +118,11 @@ describe("GET /api/v1/admin/brokers", () => {
       id: brokerB.id,
       email: brokerB.email,
       nombre: "Broker B",
-      rol: "oferente",
+      rol: "propietario",
       isBroker: true,
       brokerCode: "BRK-BBBBBB",
     });
-    const noBroker = actorFixture("oferente");
+    const noBroker = actorFixture("propietario");
     await insertarUsuario(noBroker);
 
     actuarComo(admin);
@@ -140,7 +140,7 @@ describe("POST /api/v1/admin/brokers/:id/revoke — con motivo", () => {
     await resetTestDatabase();
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
-    const broker = actorFixture("oferente", { isBroker: true, brokerCode: "BRK-CCCCCC" });
+    const broker = actorFixture("propietario", { isBroker: true, brokerCode: "BRK-CCCCCC" });
     await insertarUsuario(broker);
     const propia = await crearPropiedadPublicada(broker.id);
 
@@ -186,7 +186,7 @@ describe("POST /api/v1/admin/brokers/:id/revoke — con motivo", () => {
     await resetTestDatabase();
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
-    const broker = actorFixture("oferente", { isBroker: true, brokerCode: "BRK-DDDDDD" });
+    const broker = actorFixture("propietario", { isBroker: true, brokerCode: "BRK-DDDDDD" });
     await insertarUsuario(broker);
 
     actuarComo(admin);
@@ -212,7 +212,7 @@ describe("POST /api/v1/admin/brokers/:id/revoke — sin motivo", () => {
     await resetTestDatabase();
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
-    const broker = actorFixture("oferente", { isBroker: true, brokerCode: "BRK-EEEEEE" });
+    const broker = actorFixture("propietario", { isBroker: true, brokerCode: "BRK-EEEEEE" });
     await insertarUsuario(broker);
     actuarComo(admin);
 
@@ -236,9 +236,9 @@ describe("POST /api/v1/admin/brokers/:id/revoke — 409 conflict_not_broker", ()
     await resetTestDatabase();
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
-    const broker = actorFixture("oferente", { isBroker: true, brokerCode: "BRK-FFFFFF" });
+    const broker = actorFixture("propietario", { isBroker: true, brokerCode: "BRK-FFFFFF" });
     await insertarUsuario(broker);
-    const nuncaBroker = actorFixture("oferente");
+    const nuncaBroker = actorFixture("propietario");
     await insertarUsuario(nuncaBroker);
     actuarComo(admin);
 
@@ -261,9 +261,9 @@ describe("POST /api/v1/admin/brokers/:id/revoke — 409 conflict_not_broker", ()
 });
 
 describe("autorización de las rutas de brokers", () => {
-  it("sin sesión 401 en ambas rutas; buscador y oferente 404 sin cambiar el broker; id no-uuid 404", async () => {
+  it("sin sesión 401 en ambas rutas; buscador y propietario 404 sin cambiar el broker; id no-uuid 404", async () => {
     await resetTestDatabase();
-    const broker = actorFixture("oferente", { isBroker: true, brokerCode: "BRK-GGGGGG" });
+    const broker = actorFixture("propietario", { isBroker: true, brokerCode: "BRK-GGGGGG" });
     await insertarUsuario(broker);
 
     actuarComo(null);
@@ -271,7 +271,7 @@ describe("autorización de las rutas de brokers", () => {
     const anonimo = requestRevoke(broker.id);
     expect((await REVOKE(anonimo.request, anonimo.params)).status).toBe(401);
 
-    for (const rol of ["buscador", "oferente"] as const) {
+    for (const rol of ["buscador", "propietario"] as const) {
       const actor = actorFixture(rol);
       await insertarUsuario(actor);
       actuarComo(actor);
@@ -296,7 +296,7 @@ describe("consecuencias en leads", () => {
     await resetTestDatabase();
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
-    const broker = actorFixture("oferente", { isBroker: true, brokerCode: "BRK-HHHHHH" });
+    const broker = actorFixture("propietario", { isBroker: true, brokerCode: "BRK-HHHHHH" });
     await insertarUsuario(broker);
     const propiaUno = await crearPropiedadPublicada(broker.id);
     const propiaDos = await crearPropiedadPublicada(broker.id);
@@ -339,7 +339,7 @@ describe("consecuencias en registro y reaprobación", () => {
     await resetTestDatabase();
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
-    const broker = actorFixture("oferente", { isBroker: true, brokerCode: "BRK-JJJJJJ" });
+    const broker = actorFixture("propietario", { isBroker: true, brokerCode: "BRK-JJJJJJ" });
     await insertarUsuario(broker);
     const propiaUno = await crearPropiedadPublicada(broker.id);
 
@@ -393,7 +393,7 @@ describe("consecuencias en registro y reaprobación", () => {
     await resetTestDatabase();
     const admin = actorFixture("admin");
     await insertarUsuario(admin);
-    const brokerSembrado = actorFixture("oferente", { isBroker: true, brokerCode: "BRK-DEMO" });
+    const brokerSembrado = actorFixture("propietario", { isBroker: true, brokerCode: "BRK-DEMO" });
     await insertarUsuario(brokerSembrado);
     const solicitudesPrevias = await db
       .select()
