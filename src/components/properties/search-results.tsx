@@ -1,9 +1,10 @@
 "use client";
 
 import { MapIcon, SearchIcon, XIcon } from "lucide-react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
+import { CaptiveHelpLink } from "@/components/marketing/captive-help-link";
+import { esEnlaceWhatsapp } from "@/lib/captive-ayuda";
 import { type DetallesPropiedad, extraerDetalles } from "@/lib/property-details";
 import { busquedaAParams, type FiltrosBusqueda, type OrdenBusqueda } from "@/lib/search-params";
 import { PropertyMap } from "../map/property-map";
@@ -140,12 +141,16 @@ export function SearchResults({
         {hrefAyuda ? (
           <>
             <span className="max-w-[420px] text-[13px]">{t.resultados.ayudaTexto}</span>
-            <Link
+            <CaptiveHelpLink
               href={hrefAyuda}
               className="mt-2 flex h-11 items-center rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground shadow-sm transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 motion-reduce:transition-none"
             >
-              {autenticado ? t.resultados.ayudaBoton : t.resultados.ayudaBotonVisitante}
-            </Link>
+              {esEnlaceWhatsapp(hrefAyuda)
+                ? t.resultados.ayudaBotonWhatsapp
+                : autenticado
+                  ? t.resultados.ayudaBoton
+                  : t.resultados.ayudaBotonVisitante}
+            </CaptiveHelpLink>
           </>
         ) : null}
       </div>

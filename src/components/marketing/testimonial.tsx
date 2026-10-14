@@ -1,8 +1,8 @@
-import { type Idioma, textosDe } from "@/lib/i18n";
+import type { TestimonioVista } from "@/lib/testimonio";
 import { Reveal } from "./reveal";
 
-export function Testimonial({ idioma }: { idioma: Idioma }) {
-  const t = textosDe(idioma).testimonio;
+// Cita de un cliente. El admin la captura en /admin/testimonio; llega ya en el idioma del visitante.
+export function Testimonial({ testimonio }: { testimonio: TestimonioVista }) {
   return (
     <section className="mx-auto flex max-w-7xl justify-center px-4 py-24 sm:px-6 lg:px-8">
       <Reveal>
@@ -14,11 +14,11 @@ export function Testimonial({ idioma }: { idioma: Idioma }) {
             />
           </svg>
           <blockquote className="font-display text-[26px] leading-snug font-medium text-foreground">
-            {t.cita}
+            {testimonio.cita}
           </blockquote>
           <figcaption className="flex flex-col gap-0.5">
-            <span className="text-[15px] font-semibold text-foreground">Mariana Cordero</span>
-            <span className="text-sm text-muted-foreground">{t.cargo}</span>
+            <span className="text-[15px] font-semibold text-foreground">{testimonio.nombre}</span>
+            <span className="text-sm text-muted-foreground">{testimonio.cargo}</span>
           </figcaption>
         </figure>
       </Reveal>

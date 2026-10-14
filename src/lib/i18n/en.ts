@@ -178,10 +178,6 @@ export const en: Textos = {
       },
     ],
   },
-  testimonio: {
-    cita: "We listed our warehouse in under ten minutes, and in the first week three companies were already contacting us directly.",
-    cargo: "Director of Operations, Grupo Cordero Logística",
-  },
   bannerAyuda: {
     titulo: "Didn't find what you were looking for?",
     texto: "Tell Captive what you need and the team will help you find an option that fits.",
@@ -211,6 +207,7 @@ export const en: Textos = {
     ayudaTexto: "Tell Captive what you need and the team will help you find an option that fits.",
     ayudaBoton: "Write to Captive",
     ayudaBotonVisitante: "Sign in to write to Captive",
+    ayudaBotonWhatsapp: "Message us on WhatsApp",
     ayudaCrearCuenta: "No account yet? Create one for free",
     ayudaFlotante: "Need help?",
     ayudaCerrar: "Close help",
@@ -506,6 +503,7 @@ export const en: Textos = {
       clientes: "Clients and prospects",
       mensajes: "Messages",
       casos: "Success stories",
+      testimonio: "Testimonial",
     },
     propiedades: {
       metaTitulo: "Pending properties — Captive by Nodus",
@@ -580,6 +578,26 @@ export const en: Textos = {
       cerrar: "Close",
       yaNoEsBroker: "This user is no longer a broker.",
       revocado: "Broker access revoked.",
+    },
+    testimonio: {
+      metaTitulo: "Testimonial — Captive by Nodus",
+      titulo: "Testimonial",
+      descripcion:
+        "The client quote shown in large type on the home page, before the closing section. There is a single testimonial; until you save one, or if you turn off “Show on the home page”, that section is hidden.",
+      cita: "Client quote",
+      citaEjemplo: "We found the warehouse we needed in two weeks…",
+      nombre: "Name",
+      cargo: "Role and company",
+      cargoEjemplo: "Operations director, Company",
+      versionIngles: "English version (optional)",
+      ayudaIngles: "If you leave it empty, the English site shows the Spanish text.",
+      mostrar: "Show on the home page",
+      ayudaMostrar: "When off, the testimonial stays saved but the home page hides the section.",
+      guardar: "Save testimonial",
+      guardando: "Saving…",
+      guardadoVisible: "Testimonial saved: it now shows on the home page.",
+      guardadoOculto: "Testimonial saved, off the home page.",
+      errorGuardar: "The testimonial couldn't be saved",
     },
     casos: {
       metaTitulo: "Success stories — Captive by Nodus",

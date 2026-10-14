@@ -1,10 +1,11 @@
 import { HeadsetIcon } from "lucide-react";
-import Link from "next/link";
+import { CaptiveHelpLink } from "@/components/marketing/captive-help-link";
+import { esEnlaceWhatsapp } from "@/lib/captive-ayuda";
 import { type Idioma, textosDe } from "@/lib/i18n";
 
 interface NotFoundBannerProps {
   autenticado: boolean;
-  // Chat con Captive o, sin sesión, iniciar sesión primero.
+  // WhatsApp de Captive o, sin número configurado, el chat de la web (`hrefAyudaCaptive`).
   ayudaHref: string;
   idioma: Idioma;
 }
@@ -31,12 +32,16 @@ export function NotFoundBanner({ autenticado, ayudaHref, idioma }: NotFoundBanne
               <p className="text-base text-text-muted">{t.texto}</p>
             </div>
           </div>
-          <Link
+          <CaptiveHelpLink
             href={ayudaHref}
             className="flex h-[54px] items-center justify-center rounded-lg bg-accent px-7 text-[15px] font-bold text-accent-foreground transition-all duration-150 ease-out hover:-translate-y-px hover:bg-accent/90 hover:shadow-md active:translate-y-0 active:scale-[0.98] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
           >
-            {autenticado ? t.boton : t.botonVisitante}
-          </Link>
+            {esEnlaceWhatsapp(ayudaHref)
+              ? textosDe(idioma).resultados.ayudaBotonWhatsapp
+              : autenticado
+                ? t.boton
+                : t.botonVisitante}
+          </CaptiveHelpLink>
         </div>
       </div>
     </section>
