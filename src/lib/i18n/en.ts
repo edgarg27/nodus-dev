@@ -1179,11 +1179,11 @@ export const en: Textos = {
   servicios: {
     metaTitulo: "Services — Captive by Nodus",
     metaDescripcion:
-      "Industrial, office and retail space for rent or sale, build-to-suit projects, financing and tools for owners and brokers on Captive by Nodus.",
+      "Industrial, office and retail space for rent or sale, build-to-suit projects and tools for owners and brokers on Captive by Nodus.",
     etiqueta: "Services",
     titulo: "Everything Captive does for your business",
     intro:
-      "From finding the right warehouse, office or retail space to building it to suit, financing it or listing it: all in one place.",
+      "From finding the right warehouse, office or retail space to building it to suit or listing it: all in one place.",
     items: {
       rentaVenta: {
         titulo: "Spaces for rent and sale",

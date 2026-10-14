@@ -1,4 +1,5 @@
 import type { Textos } from "@/lib/i18n";
+import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 
 export type ClaveServicio = keyof Textos["servicios"]["items"];
 
@@ -11,9 +12,13 @@ export interface Servicio {
 }
 
 // Servicios de Captive, en el orden en que se muestran en el menú y en /servicios.
-export const SERVICIOS: readonly Servicio[] = [
+const TODOS_LOS_SERVICIOS: readonly Servicio[] = [
   { clave: "rentaVenta", ancla: "renta-y-venta", href: "/buscar" },
   { clave: "desdeCero", ancla: "proyectos-desde-cero", href: "/buscar?modalidad=desde_cero" },
   { clave: "financiamiento", ancla: "financiamiento", href: "/buscar?financiamiento=true" },
   { clave: "propietarios", ancla: "propietarios-y-brokers", href: "/publicar" },
 ];
+
+export const SERVICIOS: readonly Servicio[] = TODOS_LOS_SERVICIOS.filter(
+  (servicio) => FINANCIAMIENTO_VISIBLE || servicio.clave !== "financiamiento",
+);

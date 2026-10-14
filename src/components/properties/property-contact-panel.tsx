@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { FavoriteButton } from "./favorite-button";
 import { useContactarPropiedad } from "./use-contactar-propiedad";
+import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 
 interface PropertyContactPanelProps {
   propiedadId: string;
@@ -160,7 +161,7 @@ ${pregunta}`
               placeholder={t.ficha.placeholderMensaje}
               className="resize-y rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-text placeholder:text-muted-foreground"
             />
-            {aceptaFinanciamiento ? (
+            {aceptaFinanciamiento && FINANCIAMIENTO_VISIBLE ? (
               <label className="flex items-center gap-2 text-sm text-text">
                 <input
                   type="checkbox"

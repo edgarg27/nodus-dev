@@ -32,6 +32,7 @@ import {
   obtenerPropiedadPublicaPorId,
 } from "@/server/properties/queries";
 import { ipDeEncabezados } from "@/server/rate-limit/check";
+import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -91,10 +92,14 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
       valor: t.etiquetas.modalidad[propiedad.modalidad] ?? propiedad.modalidad,
     },
     ...especificaciones(detalles, propiedad.tipo, idioma),
-    {
-      etiqueta: t.ficha.financiamiento,
-      valor: propiedad.aceptaFinanciamiento ? t.ficha.disponible : t.ficha.no,
-    },
+    ...(FINANCIAMIENTO_VISIBLE
+      ? [
+          {
+            etiqueta: t.ficha.financiamiento,
+            valor: propiedad.aceptaFinanciamiento ? t.ficha.disponible : t.ficha.no,
+          },
+        ]
+      : []),
   ];
   const actor = await getUsuarioActual();
   // La visita se cuenta después de responder, para no retrasar la ficha.

@@ -4,6 +4,7 @@ import type { Textos } from "@/lib/i18n";
 import type { SolicitudDeCliente } from "@/server/clientes/detalle";
 import { PasoBadge } from "./paso-badge";
 import { SeguimientoSolicitud } from "./seguimiento-solicitud";
+import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 
 interface SolicitudClienteCardProps {
   solicitud: SolicitudDeCliente;
@@ -62,9 +63,10 @@ export function SolicitudClienteCard({
         </div>
       </div>
 
-      {solicitud.quiereFinanciamiento || solicitud.canal === "directo" ? (
+      {(solicitud.quiereFinanciamiento && FINANCIAMIENTO_VISIBLE) ||
+      solicitud.canal === "directo" ? (
         <div className="flex flex-wrap gap-2">
-          {solicitud.quiereFinanciamiento ? (
+          {solicitud.quiereFinanciamiento && FINANCIAMIENTO_VISIBLE ? (
             <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-bold text-accent">
               {textos.financiamiento}
             </span>

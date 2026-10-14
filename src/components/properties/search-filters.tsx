@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { ESTADOS_MX } from "@/lib/estados";
 import { contarFiltrosActivos, type FiltrosBusqueda, ORDENES_BUSQUEDA } from "@/lib/search-params";
+import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 
 const MODALIDADES = ["renta", "venta", "desde_cero"] as const;
 const TIPOS = ["nave_industrial", "oficina", "local_comercial"] as const;
@@ -215,31 +216,33 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                 />
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold text-text">{f.financiamiento}</span>
-                <div className="flex items-center gap-5">
-                  <label className="flex items-center gap-2 text-sm text-text">
-                    <input
-                      type="radio"
-                      name="financiamiento"
-                      value="true"
-                      defaultChecked={initial.financiamiento === "true"}
-                      className="accent-primary"
-                    />
-                    {f.si}
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-text">
-                    <input
-                      type="radio"
-                      name="financiamiento"
-                      value="false"
-                      defaultChecked={initial.financiamiento === "false"}
-                      className="accent-primary"
-                    />
-                    {f.no}
-                  </label>
+              {FINANCIAMIENTO_VISIBLE ? (
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-xs font-semibold text-text">{f.financiamiento}</span>
+                  <div className="flex items-center gap-5">
+                    <label className="flex items-center gap-2 text-sm text-text">
+                      <input
+                        type="radio"
+                        name="financiamiento"
+                        value="true"
+                        defaultChecked={initial.financiamiento === "true"}
+                        className="accent-primary"
+                      />
+                      {f.si}
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-text">
+                      <input
+                        type="radio"
+                        name="financiamiento"
+                        value="false"
+                        defaultChecked={initial.financiamiento === "false"}
+                        className="accent-primary"
+                      />
+                      {f.no}
+                    </label>
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               <div className="flex flex-col gap-1.5">
                 <Rango

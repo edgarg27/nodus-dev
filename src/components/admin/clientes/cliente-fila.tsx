@@ -4,6 +4,7 @@ import type { Textos } from "@/lib/i18n";
 import { iniciales } from "@/lib/initials";
 import type { ClienteResumen } from "@/server/clientes/queries";
 import { EstadoBadge } from "./estado-badge";
+import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 
 interface ClienteFilaProps {
   cliente: ClienteResumen;
@@ -42,7 +43,7 @@ export function ClienteFila({
               {textos.mensajesNuevos(cliente.mensajesSinLeer)}
             </span>
           ) : null}
-          {cliente.quiereFinanciamiento ? (
+          {cliente.quiereFinanciamiento && FINANCIAMIENTO_VISIBLE ? (
             <span className="rounded-full bg-background px-2.5 py-0.5 text-xs font-semibold text-text-muted">
               {textos.financiamiento}
             </span>

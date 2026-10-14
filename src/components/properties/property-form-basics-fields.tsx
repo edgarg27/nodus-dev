@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ESTADOS_MX } from "@/lib/estados";
 import { AddressAutocomplete, type Sugerencia } from "./address-autocomplete";
 import { inputClassName, type PropertyFormValues, selectClassName } from "./property-form-schema";
+import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 
 interface PropertyFormBasicsFieldsProps {
   register: UseFormRegister<PropertyFormValues>;
@@ -116,34 +117,36 @@ export function PropertyFormBasicsFields({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label className="text-[13px] font-semibold text-foreground">{f.financiamiento}</Label>
-          <div className="flex items-center gap-5">
-            <label className="flex items-center gap-2 text-[15px] text-foreground">
-              <input
-                type="radio"
-                value="true"
-                className="accent-primary"
-                {...register("aceptaFinanciamiento")}
-              />
-              {f.si}
-            </label>
-            <label className="flex items-center gap-2 text-[15px] text-foreground">
-              <input
-                type="radio"
-                value="false"
-                className="accent-primary"
-                {...register("aceptaFinanciamiento")}
-              />
-              {f.no}
-            </label>
+        {FINANCIAMIENTO_VISIBLE ? (
+          <div className="flex flex-col gap-2">
+            <Label className="text-[13px] font-semibold text-foreground">{f.financiamiento}</Label>
+            <div className="flex items-center gap-5">
+              <label className="flex items-center gap-2 text-[15px] text-foreground">
+                <input
+                  type="radio"
+                  value="true"
+                  className="accent-primary"
+                  {...register("aceptaFinanciamiento")}
+                />
+                {f.si}
+              </label>
+              <label className="flex items-center gap-2 text-[15px] text-foreground">
+                <input
+                  type="radio"
+                  value="false"
+                  className="accent-primary"
+                  {...register("aceptaFinanciamiento")}
+                />
+                {f.no}
+              </label>
+            </div>
+            {errors.aceptaFinanciamiento ? (
+              <p role="alert" className="text-sm text-destructive">
+                {errors.aceptaFinanciamiento.message}
+              </p>
+            ) : null}
           </div>
-          {errors.aceptaFinanciamiento ? (
-            <p role="alert" className="text-sm text-destructive">
-              {errors.aceptaFinanciamiento.message}
-            </p>
-          ) : null}
-        </div>
+        ) : null}
       </div>
 
       <div className="flex flex-col gap-4 border-t border-border pt-7">

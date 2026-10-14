@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import type { Textos } from "@/lib/i18n";
 import { LocationAutocomplete } from "./location-autocomplete";
+import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 
 // Las etiquetas salen del diccionario del idioma activo; aquí solo los valores y su orden.
 function opcionesModalidad(t: Textos) {
@@ -104,6 +105,7 @@ function CampoTipo({ id }: { id: string }) {
 
 function CampoFinanciamiento({ className }: { className: string }) {
   const { t } = useIdioma();
+  if (!FINANCIAMIENTO_VISIBLE) return null;
   return (
     <fieldset className="m-0 flex min-w-0 flex-col border-0 p-0">
       <legend className="mb-2 p-0 text-[13px] font-semibold text-foreground">
@@ -232,12 +234,14 @@ export function SearchHero() {
               <div className="lg:col-span-3">
                 <CampoTipo id="hero-tipo" />
               </div>
-              <div className="lg:col-span-3">
+              <div className={FINANCIAMIENTO_VISIBLE ? "lg:col-span-3" : "lg:col-span-5"}>
                 <CampoUbicacion id="hero-ubicacion" flotante />
               </div>
-              <div className="lg:col-span-2">
-                <CampoFinanciamiento className="gap-3.5" />
-              </div>
+              {FINANCIAMIENTO_VISIBLE ? (
+                <div className="lg:col-span-2">
+                  <CampoFinanciamiento className="gap-3.5" />
+                </div>
+              ) : null}
               <button
                 type="submit"
                 aria-label={t.hero.buscarEspacios}
