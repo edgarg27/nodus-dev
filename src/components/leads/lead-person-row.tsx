@@ -7,6 +7,7 @@ import { useIdioma } from "@/components/i18n/idioma-provider";
 import { localeDe } from "@/lib/i18n";
 import { iniciales } from "@/lib/initials";
 import { ESTADOS_LEAD, type EstadoLead } from "@/lib/leads";
+import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 
 export interface PropiedadDeLeadVista {
   id: string;
@@ -85,7 +86,7 @@ export function LeadPersonRow({ persona }: LeadPersonRowProps) {
         <div className="flex min-w-0 flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="text-[15px] font-semibold text-foreground">{persona.nombre}</h3>
-            {persona.quiereFinanciamiento ? (
+            {persona.quiereFinanciamiento && FINANCIAMIENTO_VISIBLE ? (
               <span className="rounded-full bg-warning-foreground px-2.5 py-0.5 text-[11px] font-bold text-warning">
                 {t.panel.leads.quiereFinanciamiento}
               </span>

@@ -1196,11 +1196,11 @@ export const es = {
   servicios: {
     metaTitulo: "Servicios — Captive by Nodus",
     metaDescripcion:
-      "Renta y venta de naves, oficinas y locales, proyectos desde cero, financiamiento y herramientas para propietarios y brokers en Captive by Nodus.",
+      "Renta y venta de naves, oficinas y locales, proyectos desde cero y herramientas para propietarios y brokers en Captive by Nodus.",
     etiqueta: "Servicios",
     titulo: "Todo lo que Captive hace por tu empresa",
     intro:
-      "Desde encontrar la nave, oficina o local adecuado hasta construirlo a la medida, financiarlo o publicarlo: todo en un solo lugar.",
+      "Desde encontrar la nave, oficina o local adecuado hasta construirlo a la medida o publicarlo: todo en un solo lugar.",
     items: {
       rentaVenta: {
         titulo: "Renta y venta de espacios",
