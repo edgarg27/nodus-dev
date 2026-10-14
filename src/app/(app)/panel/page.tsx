@@ -7,8 +7,9 @@ import { PeriodSelector } from "@/components/panel/period-selector";
 import { ViewsChart } from "@/components/panel/views-chart";
 import { VerificationNotice } from "@/components/verificacion/verification-notice";
 import { localeDe } from "@/lib/i18n";
-import { BANDEJA_VISIBLE_PARA_PROPIETARIO } from "@/lib/propietario-visibilidad";
 import { periodoValido } from "@/lib/periodos";
+import { BANDEJA_VISIBLE_PARA_PROPIETARIO } from "@/lib/propietario-visibilidad";
+import { usaLaRed } from "@/lib/red-acceso";
 import { obtenerPerfilAgencia } from "@/server/agency/queries";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
@@ -66,11 +67,14 @@ export default async function PanelPage({ searchParams }: PanelPageProps) {
           />
         ) : null}
 
-        <NetworkBanner
-          propiedades={red.propiedades}
-          nuevas48h={red.nuevas48h}
-          brokers={red.brokers}
-        />
+        {/* El dueño directo no usa la Red (src/lib/red-acceso.ts). */}
+        {usaLaRed(actor) ? (
+          <NetworkBanner
+            propiedades={red.propiedades}
+            nuevas48h={red.nuevas48h}
+            brokers={red.brokers}
+          />
+        ) : null}
 
         <section aria-labelledby="resumen-titulo" className="flex flex-col gap-5">
           <div className="flex flex-wrap items-center justify-between gap-3">

@@ -7,6 +7,7 @@ import {
   CAMPOS_INDUSTRIALES,
   type DetallesPropiedadInput,
 } from "../../lib/property-details.ts";
+import { usaLaRed } from "../../lib/red-acceso.ts";
 import { requireRol } from "../auth/guards.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
 import { puedePublicar } from "../verificacion/estado.ts";
@@ -59,11 +60,15 @@ const CAMPOS_PROPIOS = [
   "exclusiva",
 ] as const;
 
-function camposPropiosParaGuardar(input: Partial<CrearPropiedadInput>) {
+// Sin la Red (dueño directo, src/lib/red-acceso.ts) la propiedad nunca se comparte ni lleva comisión,
+// aunque el cliente lo mande.
+function camposPropiosParaGuardar(input: Partial<CrearPropiedadInput>, conRed: boolean) {
   const valores: Partial<Pick<PropiedadFila, (typeof CAMPOS_PROPIOS)[number]>> = {};
   for (const campo of CAMPOS_PROPIOS) {
     if (input[campo] !== undefined) Object.assign(valores, { [campo]: input[campo] });
   }
+  if (!conRed)
+    Object.assign(valores, { compartidaEnRed: false, comisionPct: null, exclusiva: false });
   return valores;
 }
 
@@ -179,7 +184,7 @@ export async function crearPropiedad(
         ciudad: input.ciudad,
         descripcion: input.descripcion,
         aceptaFinanciamiento: input.aceptaFinanciamiento ?? false,
-        ...camposPropiosParaGuardar(input),
+        ...camposPropiosParaGuardar(input, usaLaRed(actor)),
         ...detallesParaGuardar(input, input.tipo),
       })
       .returning();
@@ -257,7 +262,7 @@ export async function editarPropiedad(
           ? { aceptaFinanciamiento: parche.aceptaFinanciamiento }
           : {}),
         // Referencia, contacto y datos de la Red no alteran qué espacio es: no reinician la revisión.
-        ...camposPropiosParaGuardar(parche),
+        ...camposPropiosParaGuardar(parche, usaLaRed(actor)),
         // Precio y medidas no devuelven la propiedad a revisión: cambian seguido (una baja de
         // renta, por ejemplo) y no alteran qué espacio es ni dónde está.
         ...detallesParaGuardar(parche, parche.tipo ?? existente.tipo),

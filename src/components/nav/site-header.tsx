@@ -16,6 +16,8 @@ export interface SiteHeaderActor {
   nombre: string;
   rol: "buscador" | "propietario" | "admin";
   isBroker: boolean;
+  // Falso para el dueño directo: no ve la Red inmobiliaria.
+  usaRed?: boolean;
   // Mensajes sin leer del chat de la Red (solo propietarios).
   mensajesNoLeidos?: number;
   // Solo los del chat con el equipo de Captive.

@@ -4,6 +4,7 @@ import { NetworkCard } from "@/components/network/network-card";
 import { NetworkFilters } from "@/components/network/network-filters";
 import { PaginationBar } from "@/components/properties/pagination-bar";
 import { localeDe } from "@/lib/i18n";
+import { usaLaRed } from "@/lib/red-acceso";
 import { leerRed, redAParams } from "@/lib/red-params";
 import { requireRol } from "@/server/auth/guards";
 import { getUsuarioActual } from "@/server/auth/session";
@@ -22,7 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RedPage({ searchParams }: RedPageProps) {
   const actor = await getUsuarioActual();
   const permiso = requireRol(actor, "propietario");
-  if (!permiso.ok || !actor) notFound();
+  // El dueño directo no usa la Red (src/lib/red-acceso.ts).
+  if (!permiso.ok || !actor || !usaLaRed(actor)) notFound();
 
   const { idioma, t } = await obtenerTextos();
   const r = t.panel.red;

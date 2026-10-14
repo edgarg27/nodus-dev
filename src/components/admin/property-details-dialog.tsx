@@ -4,6 +4,7 @@ import { Building2Icon, StoreIcon, WarehouseIcon, XIcon } from "lucide-react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { formatearPrecio } from "@/lib/property-details";
 import type { PropiedadPendienteDeRevision } from "@/server/properties/queries";
 
 interface PropertyDetailsDialogProps {
@@ -29,7 +30,7 @@ export function PropertyDetailsDialog({
   onApprove,
   onReject,
 }: PropertyDetailsDialogProps) {
-  const { t } = useIdioma();
+  const { idioma, t } = useIdioma();
   const p = t.admin.propiedades;
   const etiquetas = t.etiquetas as {
     tipo: Record<string, string>;
@@ -101,6 +102,16 @@ export function PropertyDetailsDialog({
               </span>
               <span className="text-sm font-semibold text-text">
                 {etiquetas.tipo[propiedad.tipo] ?? propiedad.tipo}
+              </span>
+            </div>
+            <div className="col-span-2 flex flex-col gap-0.5">
+              <span className="text-xs font-bold tracking-wide text-text-muted uppercase">
+                {p.precioCaptive}
+              </span>
+              <span className="text-sm font-semibold text-text">
+                {propiedad.precio === null
+                  ? p.precioSinCapturar
+                  : formatearPrecio(propiedad, propiedad.modalidad, idioma)}
               </span>
             </div>
           </div>

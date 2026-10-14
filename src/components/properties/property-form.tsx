@@ -10,7 +10,6 @@ import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
-import type { Sugerencia } from "./address-autocomplete";
 import {
   buscarPosiblesDuplicados,
   type PosibleDuplicado,
@@ -24,7 +23,6 @@ import { PropertyFormReviewDialog } from "./property-form-review-dialog";
 import {
   CAMPOS_NUMERICOS_FORMULARIO,
   crearPropertyFormSchema,
-  estadoDesdeGeocode,
   type PropertyFormInitialData,
   type PropertyFormValues,
   textoANumero,
@@ -38,6 +36,8 @@ interface PropertyFormProps {
   propiedad?: PropertyFormInitialData;
   // Contactos de la agencia entre los que el propietario puede elegir para esta propiedad.
   contactos?: ContactoOpcion[];
+  // Falso para el dueño directo: el formulario no ofrece compartir en la Red ni comisión.
+  conRed?: boolean;
 }
 
 interface ErrorApi {
@@ -60,7 +60,7 @@ async function subirFoto(propiedadId: string, archivo: File): Promise<void> {
   }
 }
 
-export function PropertyForm({ propiedad, contactos = [] }: PropertyFormProps) {
+export function PropertyForm({ propiedad, contactos = [], conRed = true }: PropertyFormProps) {
   const { idioma, t: textos } = useIdioma();
   const f = textos.panel.formulario;
   const esquema = useMemo(() => crearPropertyFormSchema(f), [f]);
@@ -144,18 +144,6 @@ export function PropertyForm({ propiedad, contactos = [] }: PropertyFormProps) {
     alTocarCoordenadas();
     setValue("lat", latNueva, { shouldValidate: true });
     setValue("lng", lngNueva, { shouldValidate: true });
-  }
-
-  function alSeleccionarSugerencia(sugerencia: Sugerencia) {
-    // Una sugerencia sigue siendo una ubicación calculada: el pin se vuelve a confirmar.
-    setCoordenadasTocadas(true);
-    setUbicacionConfirmada(false);
-    setValue("direccion", sugerencia.direccion, { shouldValidate: true });
-    setValue("lat", sugerencia.lat, { shouldValidate: true });
-    setValue("lng", sugerencia.lng, { shouldValidate: true });
-    if (sugerencia.ciudad) setValue("ciudad", sugerencia.ciudad, { shouldValidate: true });
-    const estado = estadoDesdeGeocode(sugerencia.estado, sugerencia.ciudad);
-    if (estado) setValue("estado", estado, { shouldValidate: true });
   }
 
   async function alSalirDeDireccion() {
@@ -362,7 +350,6 @@ export function PropertyForm({ propiedad, contactos = [] }: PropertyFormProps) {
           onSalirDeDireccion={() => {
             void alSalirDeDireccion();
           }}
-          onSeleccionarDireccion={alSeleccionarSugerencia}
         />
 
         <PropertyFormDetailsFields
@@ -377,6 +364,7 @@ export function PropertyForm({ propiedad, contactos = [] }: PropertyFormProps) {
           errors={errors}
           contactos={contactos}
           compartidaEnRed={compartidaEnRed}
+          conRed={conRed}
         />
 
         <PropertyFormLocationField

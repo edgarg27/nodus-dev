@@ -43,59 +43,33 @@ function propiedadPublicada(propietarioId: string, direccion: string, overrides 
   };
 }
 
-test("publicar eligiendo una sugerencia de dirección y marcando Sí en financiamiento", async ({
+test("publicar escribiendo la dirección (se ubica sola en el mapa) y marcando Sí en financiamiento", async ({
   page,
 }) => {
   const propietario = await crearPropietario("Propietario financiamiento");
   await iniciarSesion(page, propietario);
 
   // MapTiler es un servicio externo: se simula la respuesta del proxy para que el escenario sea
-  // determinista (el proxy en sí lo cubren sus pruebas de integración).
+  // determinista (el proxy en sí lo cubren sus pruebas de integración). El campo ya no ofrece
+  // sugerencias: al salir de él, el formulario pide la ubicación de la dirección escrita.
   await page.route("**/api/v1/geocode?**", async (ruta) => {
-    const url = new URL(ruta.request().url());
-    if (url.searchParams.get("suggest") !== "true") {
-      await ruta.fulfill({ status: 404, json: { error: { code: "not_found" } } });
-      return;
-    }
     await ruta.fulfill({
       json: {
-        data: {
-          sugerencias: [
-            {
-              lat: 22.1564,
-              lng: -100.9789,
-              direccion_sugerida: "Av. Industrias 100, San Luis Potosí",
-              ciudad: "San Luis Potosí",
-              estado: "San Luis Potosí",
-              codigo_postal: "78000",
-            },
-            {
-              lat: 21.8853,
-              lng: -102.2916,
-              direccion_sugerida: "Av. Industrias 200, Aguascalientes",
-              ciudad: "Aguascalientes",
-              estado: "Aguascalientes",
-              codigo_postal: "20000",
-            },
-          ],
-        },
+        data: { lat: 22.1564, lng: -100.9789, ciudad: "San Luis Potosí", estado: "SLP" },
       },
     });
   });
 
   await page.goto("/propiedades/nueva");
-  await page.getByRole("combobox", { name: "Dirección" }).fill("Av. Industrias");
-  await page.getByRole("option", { name: "Av. Industrias 100, San Luis Potosí" }).click();
+  await page.getByLabel("Dirección").fill("Av. Industrias 100, San Luis Potosí");
+  await page.getByLabel("Dirección").blur();
 
-  await expect(page.getByRole("combobox", { name: "Dirección" })).toHaveValue(
-    "Av. Industrias 100, San Luis Potosí",
-  );
   await expect(page.getByLabel("Ciudad")).toHaveValue("San Luis Potosí");
   await expect(page.getByLabel("Estado")).toHaveValue("SLP");
   await expect(page.getByLabel("Latitud")).toHaveValue("22.1564");
   await expect(page.getByLabel("Longitud")).toHaveValue("-100.9789");
 
-  // Una sugerencia sigue siendo una ubicación calculada: el flujo exige confirmar el pin.
+  // La ubicación calculada se confirma antes de enviar.
   await page.getByRole("button", { name: "Sí, está en el lugar correcto" }).click();
 
   await page.getByRole("radio", { name: "Sí" }).check();

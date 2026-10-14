@@ -4,8 +4,9 @@ import { SlidersHorizontalIcon, XIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { ESTADOS_MX } from "@/lib/estados";
-import { contarFiltrosActivos, type FiltrosBusqueda, ORDENES_BUSQUEDA } from "@/lib/search-params";
 import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
+import { PRECIO_PUBLICO } from "@/lib/precio-visibilidad";
+import { contarFiltrosActivos, type FiltrosBusqueda, ORDENES_VISIBLES } from "@/lib/search-params";
 
 const MODALIDADES = ["renta", "venta", "desde_cero"] as const;
 const TIPOS = ["nave_industrial", "oficina", "local_comercial"] as const;
@@ -244,29 +245,32 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                 </div>
               ) : null}
 
-              <div className="flex flex-col gap-1.5">
-                <Rango
-                  etiqueta={f.precio}
-                  textoMinimo={f.minimo}
-                  textoMaximo={f.maximo}
-                  nombreMin="precio_min"
-                  nombreMax="precio_max"
-                  min={initial.precioMin}
-                  max={initial.precioMax}
-                />
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-text-muted">{f.enRentaPorMes}</span>
-                  <select
-                    name="moneda"
-                    aria-label={f.monedaDelPrecio}
-                    defaultValue={initial.moneda ?? "MXN"}
-                    className="h-9 rounded-lg border border-input bg-background px-2.5 text-sm text-text"
-                  >
-                    <option value="MXN">MXN</option>
-                    <option value="USD">USD</option>
-                  </select>
+              {/* Sin precio público no hay filtro de precio (src/lib/precio-visibilidad.ts). */}
+              {PRECIO_PUBLICO ? (
+                <div className="flex flex-col gap-1.5">
+                  <Rango
+                    etiqueta={f.precio}
+                    textoMinimo={f.minimo}
+                    textoMaximo={f.maximo}
+                    nombreMin="precio_min"
+                    nombreMax="precio_max"
+                    min={initial.precioMin}
+                    max={initial.precioMax}
+                  />
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs text-text-muted">{f.enRentaPorMes}</span>
+                    <select
+                      name="moneda"
+                      aria-label={f.monedaDelPrecio}
+                      defaultValue={initial.moneda ?? "MXN"}
+                      className="h-9 rounded-lg border border-input bg-background px-2.5 text-sm text-text"
+                    >
+                      <option value="MXN">MXN</option>
+                      <option value="USD">USD</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               <Rango
                 etiqueta={f.superficie}
@@ -383,7 +387,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                   defaultValue={initial.orden ?? "relevancia"}
                   className="h-[46px] rounded-lg border border-input bg-background px-3.5 text-sm text-text"
                 >
-                  {ORDENES_BUSQUEDA.map((opcion) => (
+                  {ORDENES_VISIBLES.map((opcion) => (
                     <option key={opcion} value={opcion}>
                       {t.orden[opcion]}
                     </option>

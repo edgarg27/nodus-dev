@@ -26,9 +26,9 @@ describe("formatearPrecio", () => {
     ).toBe("$12,500,000 MXN");
   });
 
-  it("sin precio muestra Precio a consultar", () => {
+  it("sin precio muestra Precio sujeto a cotización", () => {
     expect(formatearPrecio({ precio: null, moneda: "MXN", precioUnidad: "total" }, "renta")).toBe(
-      "Precio a consultar",
+      "Precio sujeto a cotización",
     );
   });
 });

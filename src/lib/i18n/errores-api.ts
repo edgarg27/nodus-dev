@@ -46,6 +46,8 @@ const EN: Record<string, string> = {
   "La solicitud ya fue resuelta": "This request has already been resolved.",
   "Este usuario no es broker": "This user isn't a broker.",
   "Documento no encontrado": "Document not found.",
+  "La Red inmobiliaria es para brokers e inmobiliarias":
+    "The real estate network is for brokers and agencies.",
   "Tu cuenta no tiene una verificación pendiente": "Your account has no pending verification.",
   "Ese documento no corresponde a tu solicitud": "That document isn't part of your request.",
   "No se pudo guardar el archivo": "The file couldn't be saved. Please try again.",

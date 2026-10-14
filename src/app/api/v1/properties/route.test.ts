@@ -240,8 +240,10 @@ describe("GET /api/v1/properties / foto y datos del espacio", () => {
   });
 });
 
-describe("GET /api/v1/properties / filtros de precio y orden", () => {
-  it("aplica precio_min y orden=precio_asc", async () => {
+// Con el precio sujeto a cotización (src/lib/precio-visibilidad.ts) la API pública no devuelve el
+// precio ni filtra u ordena por él.
+describe("GET /api/v1/properties / precio sujeto a cotización", () => {
+  it("ignora precio_min y orden=precio_asc y no devuelve el precio", async () => {
     await resetTestDatabase();
     const propietario = actorFixture("propietario");
     await insertarUsuario(propietario);
@@ -256,11 +258,12 @@ describe("GET /api/v1/properties / filtros de precio y orden", () => {
     const respuesta = await GET(requestSearch("precio_min=30000&orden=precio_asc"));
     expect(respuesta.status).toBe(200);
     const { data } = await respuesta.json();
-    expect(data.map((fila: { precio: number }) => fila.precio)).toEqual([50000, 80000]);
+    expect(data).toHaveLength(3);
+    expect(data.every((fila: { precio: number | null }) => fila.precio === null)).toBe(true);
   });
 
-  it("responde 422 con un precio_min no numérico o un orden desconocido", async () => {
-    expect((await GET(requestSearch("precio_min=barato"))).status).toBe(422);
+  it("un rango de precio no numérico se ignora; un orden desconocido responde 422", async () => {
+    expect((await GET(requestSearch("precio_min=barato"))).status).toBe(200);
     expect((await GET(requestSearch("orden=azar"))).status).toBe(422);
   });
 });

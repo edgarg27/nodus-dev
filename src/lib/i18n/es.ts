@@ -347,7 +347,7 @@ export const es = {
       `${tipo} ${operacion} en ${ciudad}`,
   },
   detalles: {
-    precioAConsultar: "Precio a consultar",
+    precioAConsultar: "Precio sujeto a cotización",
     porMes: " /mes",
     banos: (n: number) => `${n} ${n === 1 ? "baño" : "baños"}`,
     estacionamientos: (n: number) => `${n} ${n === 1 ? "estacionamiento" : "estacionamientos"}`,
@@ -514,6 +514,8 @@ export const es = {
       testimonio: "Testimonio",
     },
     propiedades: {
+      precioCaptive: "Precio (solo lo ve Captive)",
+      precioSinCapturar: "El propietario no lo capturó",
       metaTitulo: "Propiedades pendientes — Captive by Nodus",
       titulo: "Propiedades pendientes",
       descripcion:
@@ -729,6 +731,8 @@ export const es = {
         "Este cliente se registró pero todavía no pide informes de ningún espacio.",
       verEspacio: "Ver espacio",
       noPublicado: "Ya no está publicado",
+      precioCaptive: "Precio (solo lo ve Captive)",
+      precioSinCapturar: "El propietario no lo capturó",
       confirmarCon: "Confirmar disponibilidad con",
       brokerVerificado: (codigo: string) => `Broker verificado · ${codigo}`,
       referidoPor: (nombre: string) => `Cliente referido por el broker ${nombre}`,
@@ -1122,7 +1126,7 @@ export const es = {
       placeholderDescripcion: "Oficinas incluidas, uso de suelo, condiciones de acceso, etc.",
       precioMedidas: "Precio y medidas",
       precioMedidasAyuda:
-        "Opcionales, pero los espacios con precio y metros reciben más contactos. Sin precio se muestra “Precio a consultar”.",
+        "El precio solo lo ven tú y el equipo Captive, para cotizarle a quien pida informes; en la web se muestra “Precio sujeto a cotización”. Los metros sí son públicos.",
       rentaMensual: "Renta mensual",
       precioVenta: "Precio de venta",
       precio: "Precio",

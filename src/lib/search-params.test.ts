@@ -14,19 +14,25 @@ function leerDe(query: string) {
 describe("leerBusqueda", () => {
   it("lee filtros de texto, rangos numéricos y el orden", () => {
     const { filtros, orden, invalidos } = leerDe(
-      "tipo=nave_industrial&estado=SLP&precio_min=10,000&precio_max=50000&m2_min=500&andenes=2&orden=precio_asc",
+      "tipo=nave_industrial&estado=SLP&m2_min=1,500&andenes=2&orden=superficie_desc",
     );
     expect(invalidos).toEqual([]);
-    expect(orden).toBe("precio_asc");
+    expect(orden).toBe("superficie_desc");
     expect(filtros).toEqual({
       tipo: "nave_industrial",
       estado: "SLP",
-      precioMin: 10000,
-      precioMax: 50000,
-      moneda: "MXN",
-      superficieMin: 500,
+      superficieMin: 1500,
       andenesMin: 2,
     });
+  });
+
+  it("con el precio sujeto a cotización ignora el rango y el orden por precio", () => {
+    const { filtros, orden, invalidos } = leerDe(
+      "tipo=oficina&precio_min=10000&precio_max=50000&orden=precio_asc",
+    );
+    expect(invalidos).toEqual([]);
+    expect(filtros).toEqual({ tipo: "oficina" });
+    expect(orden).toBe("relevancia");
   });
 
   it("ignora los campos vacíos que manda el formulario", () => {
@@ -36,10 +42,8 @@ describe("leerBusqueda", () => {
   });
 
   it("reporta valores inválidos sin aplicarlos", () => {
-    const { filtros, orden, invalidos } = leerDe(
-      "tipo=castillo&precio_min=-5&banos=muchos&orden=azar",
-    );
-    expect(invalidos.sort()).toEqual(["banos", "orden", "precio_min", "tipo"]);
+    const { filtros, orden, invalidos } = leerDe("tipo=castillo&m2_min=-5&banos=muchos&orden=azar");
+    expect(invalidos.sort()).toEqual(["banos", "m2_min", "orden", "tipo"]);
     expect(filtros).toEqual({});
     expect(orden).toBe("relevancia");
   });

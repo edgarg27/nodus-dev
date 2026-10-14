@@ -8,6 +8,7 @@ import { QueryProvider } from "@/components/providers/query-provider";
 import { hrefAyudaCaptive } from "@/lib/captive-ayuda";
 import { COOKIE_IDIOMA, idiomaValido } from "@/lib/i18n";
 import { urlDelSitio } from "@/lib/landing-pages";
+import { usaLaRed } from "@/lib/red-acceso";
 import { getUsuarioActual } from "@/server/auth/session";
 import { contarNoLeidosDeCaptive } from "@/server/messages/captive";
 import { contarMensajesNoLeidos } from "@/server/messages/conversations";
@@ -62,6 +63,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                       nombre: actor.nombre,
                       rol: actor.rol,
                       isBroker: actor.isBroker,
+                      usaRed: usaLaRed(actor),
                       mensajesNoLeidos: noLeidosChats + noLeidosCaptive,
                       mensajesCaptiveNoLeidos: noLeidosCaptive,
                     }

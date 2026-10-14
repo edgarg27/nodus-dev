@@ -1,4 +1,5 @@
 import { CODIGOS_ESTADO, nombreEstado } from "./estados.ts";
+import { PRECIO_PUBLICO } from "./precio-visibilidad.ts";
 import { MONEDAS, type Moneda } from "./property-details.ts";
 
 // Fuente única de los parámetros de /buscar y de GET /api/v1/properties: la página, la API, el
@@ -17,6 +18,11 @@ export const ORDENES_BUSQUEDA = [
 ] as const;
 
 export type OrdenBusqueda = (typeof ORDENES_BUSQUEDA)[number];
+
+// Lo que ofrecen los selectores de orden: sin precio público no se ordena por precio.
+export const ORDENES_VISIBLES = ORDENES_BUSQUEDA.filter(
+  (orden) => PRECIO_PUBLICO || !orden.startsWith("precio_"),
+);
 
 export const ETIQUETAS_ORDEN: Record<OrdenBusqueda, string> = {
   relevancia: "Relevancia",
@@ -90,6 +96,9 @@ export function leerBusqueda(obtener: (clave: string) => string | undefined): Le
   if (ciudad) filtros.ciudad = ciudad;
 
   for (const [clave, campo] of Object.entries(PARAMS_NUMERICOS)) {
+    // Sin precio público, un rango de precio en la URL (ligas o búsquedas guardadas viejas) se
+    // ignora: filtrar por un precio oculto dejaría adivinarlo.
+    if (!PRECIO_PUBLICO && clave.startsWith("precio_")) continue;
     const valor = texto(clave);
     if (valor === undefined) continue;
     const numero = Number(valor.replace(/,/g, ""));
@@ -105,8 +114,10 @@ export function leerBusqueda(obtener: (clave: string) => string | undefined): Le
   const ordenTexto = texto("orden");
   let orden: OrdenBusqueda = "relevancia";
   if (ordenTexto !== undefined) {
-    if (enLista(ordenTexto, ORDENES_BUSQUEDA)) orden = ordenTexto;
-    else invalidos.push("orden");
+    if (enLista(ordenTexto, ORDENES_BUSQUEDA)) {
+      // Igual con el orden por precio: se busca por relevancia.
+      orden = enLista(ordenTexto, ORDENES_VISIBLES) ? ordenTexto : "relevancia";
+    } else invalidos.push("orden");
   }
 
   return { filtros, orden, invalidos };

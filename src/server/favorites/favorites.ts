@@ -2,6 +2,7 @@ import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
 import { favorito, propiedad } from "../../lib/db/schema.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
+import { sinPrecioPublico } from "../properties/public.ts";
 import { obtenerPrimerasFotos, obtenerPropiedadPublicaPorId } from "../properties/queries.ts";
 
 // Favoritos: cualquier usuario con sesión, sobre espacios públicos. Agregar y quitar son
@@ -80,7 +81,7 @@ export async function listarFavoritos(usuarioId: string) {
     .orderBy(desc(favorito.createdAt));
   const fotos = await obtenerPrimerasFotos(filas.map((fila) => fila.propiedad.id));
   return filas.map(({ propiedad: fila }) => ({
-    ...fila,
+    ...sinPrecioPublico(fila),
     fotoUrl: fotos.get(fila.id)?.storageUrl ?? null,
   }));
 }
