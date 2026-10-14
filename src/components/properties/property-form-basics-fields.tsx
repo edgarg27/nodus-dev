@@ -4,22 +4,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ESTADOS_MX } from "@/lib/estados";
-import { AddressAutocomplete, type Sugerencia } from "./address-autocomplete";
-import { inputClassName, type PropertyFormValues, selectClassName } from "./property-form-schema";
 import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
+import { inputClassName, type PropertyFormValues, selectClassName } from "./property-form-schema";
 
 interface PropertyFormBasicsFieldsProps {
   register: UseFormRegister<PropertyFormValues>;
   errors: FieldErrors<PropertyFormValues>;
+  // Al salir del campo, el formulario ubica la dirección en el mapa (sin lista de sugerencias).
   onSalirDeDireccion: () => void;
-  onSeleccionarDireccion: (sugerencia: Sugerencia) => void;
 }
 
 export function PropertyFormBasicsFields({
   register,
   errors,
   onSalirDeDireccion,
-  onSeleccionarDireccion,
 }: PropertyFormBasicsFieldsProps) {
   const { t } = useIdioma();
   const f = t.panel.formulario;
@@ -66,12 +64,12 @@ export function PropertyFormBasicsFields({
           <Label htmlFor="direccion" className="text-[13px] font-semibold text-foreground">
             {f.direccion}
           </Label>
-          <AddressAutocomplete
+          <Input
             id="direccion"
+            autoComplete="street-address"
             className={inputClassName}
             {...register("direccion", { onBlur: onSalirDeDireccion })}
             aria-invalid={!!errors.direccion}
-            onSeleccionar={onSeleccionarDireccion}
           />
           {errors.direccion ? (
             <p role="alert" className="text-sm text-destructive">
