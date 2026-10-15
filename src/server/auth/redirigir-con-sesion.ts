@@ -4,7 +4,7 @@ import { getUsuarioActual } from "./session";
 export function destinoPorRol(rol: string): string {
   if (rol === "propietario") return "/panel";
   if (rol === "admin") return "/admin/propiedades";
-  return "/buscar";
+  return "/inicio";
 }
 
 function esRutaRelativaSegura(next: string | undefined): next is string {

@@ -12,7 +12,7 @@ const CREAR_CONTRASENA = "/crear-contrasena";
 function destinoPorRol(rol: string | undefined): string {
   if (rol === "propietario") return "/panel";
   if (rol === "admin") return "/admin/propiedades";
-  return "/buscar";
+  return "/inicio";
 }
 
 function esRutaRelativaSegura(next: string | null): next is string {

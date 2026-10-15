@@ -16,6 +16,7 @@ export default function robots(): MetadataRoute.Robots {
         "/broker",
         "/favoritos",
         "/mis-busquedas",
+        "/inicio",
         "/sign-in",
         "/sign-up",
       ],

@@ -64,7 +64,7 @@ test("usuarios confirmados inician sesión y terminan en el panel de su rol", as
   await page.context().clearCookies();
   const buscador = await crearUsuarioAuth({ rol: "buscador" });
   await iniciarSesion(page, buscador);
-  expect(page.url()).toContain("/buscar");
+  expect(page.url()).toContain("/inicio");
 
   await page.context().clearCookies();
   const admin = await crearAdminDePrueba();
