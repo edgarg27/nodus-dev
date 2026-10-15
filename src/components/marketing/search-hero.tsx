@@ -14,6 +14,7 @@ import {
 import { hrefWhatsappCaptive } from "@/lib/captive-ayuda";
 import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 import type { Textos } from "@/lib/i18n";
+import { TIPOS_BUSQUEDA } from "@/lib/search-params";
 import { LocationAutocomplete } from "./location-autocomplete";
 
 // Las etiquetas salen del diccionario del idioma activo; aquí solo los valores y su orden.
@@ -40,9 +41,9 @@ function opcionesModalidad(t: Textos) {
 }
 
 function opcionesTipo(t: Textos) {
-  return ["nave_industrial", "oficina", "local_comercial"].map((value) => ({
+  return TIPOS_BUSQUEDA.map((value) => ({
     value,
-    etiqueta: t.etiquetas.tipo[value] ?? value,
+    etiqueta: t.etiquetas.tipoEnLista[value] ?? value,
   }));
 }
 

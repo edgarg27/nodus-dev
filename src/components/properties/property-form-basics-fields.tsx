@@ -32,9 +32,9 @@ export function PropertyFormBasicsFields({
               {f.tipo}
             </Label>
             <select id="tipo" {...register("tipo")} className={selectClassName}>
-              <option value="nave_industrial">{t.etiquetas.tipo.nave_industrial}</option>
-              <option value="oficina">{t.etiquetas.tipo.oficina}</option>
-              <option value="local_comercial">{t.etiquetas.tipo.local_comercial}</option>
+              <option value="oficina">{t.etiquetas.tipoEnLista.oficina}</option>
+              <option value="local_comercial">{t.etiquetas.tipoEnLista.local_comercial}</option>
+              <option value="nave_industrial">{t.etiquetas.tipoEnLista.nave_industrial}</option>
             </select>
             {errors.tipo ? (
               <p role="alert" className="text-sm text-destructive">

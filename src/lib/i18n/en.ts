@@ -13,6 +13,11 @@ export const en: Textos = {
       oficina: "Office",
       local_comercial: "Retail space",
     },
+    tipoEnLista: {
+      oficina: "Office",
+      local_comercial: "Retail space",
+      nave_industrial: "Warehouses / Storage",
+    },
     tipoPlural: {
       nave_industrial: "Industrial warehouses",
       oficina: "Offices",

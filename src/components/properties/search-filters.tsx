@@ -6,10 +6,15 @@ import { useIdioma } from "@/components/i18n/idioma-provider";
 import { ESTADOS_MX } from "@/lib/estados";
 import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 import { PRECIO_PUBLICO } from "@/lib/precio-visibilidad";
-import { contarFiltrosActivos, type FiltrosBusqueda, ORDENES_VISIBLES } from "@/lib/search-params";
+import {
+  contarFiltrosActivos,
+  type FiltrosBusqueda,
+  ORDENES_VISIBLES,
+  TIPOS_BUSQUEDA,
+} from "@/lib/search-params";
 
 const MODALIDADES = ["renta", "venta", "desde_cero"] as const;
-const TIPOS = ["nave_industrial", "oficina", "local_comercial"] as const;
+const TIPOS = TIPOS_BUSQUEDA;
 
 export type SearchFiltersInitial = FiltrosBusqueda & { orden?: string };
 
@@ -197,7 +202,7 @@ export function SearchFilters({ initial }: SearchFiltersProps) {
                   <option value="">{f.cualquiera}</option>
                   {TIPOS.map((opcion) => (
                     <option key={opcion} value={opcion}>
-                      {t.etiquetas.tipo[opcion]}
+                      {t.etiquetas.tipoEnLista[opcion]}
                     </option>
                   ))}
                 </select>

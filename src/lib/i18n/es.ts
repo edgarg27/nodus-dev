@@ -12,6 +12,12 @@ export const es = {
       oficina: "Oficina",
       local_comercial: "Local comercial",
     } as Record<string, string>,
+    // Cómo se nombra cada tipo en los selectores (buscador, filtros, publicar).
+    tipoEnLista: {
+      oficina: "Oficina",
+      local_comercial: "Local comercial",
+      nave_industrial: "Naves / Bodegas",
+    } as Record<string, string>,
     tipoPlural: {
       nave_industrial: "Naves industriales",
       oficina: "Oficinas",
