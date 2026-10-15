@@ -1,8 +1,9 @@
 import { CalendarClockIcon, ExternalLinkIcon, MessageCircleIcon, PhoneIcon } from "lucide-react";
 import Link from "next/link";
 import { OwnerNumber } from "@/components/admin/owner-number";
+import { PropertyFeatures } from "@/components/admin/property-features";
 import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
-import type { Textos } from "@/lib/i18n";
+import type { Idioma, Textos } from "@/lib/i18n";
 import { formatearPrecio } from "@/lib/property-details";
 import type { SolicitudDeCliente } from "@/server/clientes/detalle";
 import { PasoBadge } from "./paso-badge";
@@ -16,6 +17,7 @@ interface SolicitudClienteCardProps {
   formatoFechaHora: Intl.DateTimeFormat;
   // Para marcar la próxima acción como vencida.
   ahora: Date;
+  idioma: Idioma;
 }
 
 function digitos(telefono: string): string {
@@ -30,6 +32,7 @@ export function SolicitudClienteCard({
   formatoFecha,
   formatoFechaHora,
   ahora,
+  idioma,
 }: SolicitudClienteCardProps) {
   const { propiedad, propietario } = solicitud;
   const telefono = propietario.whatsapp ?? propietario.telefono;
@@ -116,6 +119,15 @@ export function SolicitudClienteCard({
           <p className="text-sm whitespace-pre-line text-text">{solicitud.mensaje}</p>
         </div>
       ) : null}
+
+      <details className="group rounded-xl bg-background px-4 py-3">
+        <summary className="cursor-pointer text-sm font-semibold text-text">
+          {textos.verEspecificaciones}
+        </summary>
+        <div className="mt-3">
+          <PropertyFeatures tipo={propiedad.tipo} detalles={propiedad.detalles} idioma={idioma} />
+        </div>
+      </details>
 
       <div className="flex flex-col gap-2 border-t border-border pt-4">
         <span className="text-xs font-semibold tracking-wide text-text-muted uppercase">

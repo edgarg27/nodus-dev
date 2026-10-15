@@ -551,6 +551,8 @@ export const es = {
     propiedades: {
       precioCaptive: "Precio (solo lo ve Captive)",
       precioSinCapturar: "El propietario no lo capturó",
+      especificacionesTitulo: "Especificaciones y equipamiento",
+      sinEspecificaciones: "El propietario no capturó medidas ni equipamiento.",
       metaTitulo: "Propiedades pendientes — Captive by Nodus",
       titulo: "Propiedades pendientes",
       descripcion:
@@ -767,6 +769,7 @@ export const es = {
       verEspacio: "Ver espacio",
       noPublicado: "Ya no está publicado",
       numeroPropietario: "Número de propietario",
+      verEspecificaciones: "Ver especificaciones y equipamiento",
       precioCaptive: "Precio (solo lo ve Captive)",
       precioSinCapturar: "El propietario no lo capturó",
       confirmarCon: "Confirmar disponibilidad con",

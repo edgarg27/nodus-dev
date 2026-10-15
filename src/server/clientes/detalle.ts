@@ -8,6 +8,7 @@ import {
 } from "../../lib/clientes.ts";
 import { db } from "../../lib/db/client.ts";
 import { contactRequest, propiedad, seguimientoNota, usuario } from "../../lib/db/schema.ts";
+import { type DetallesPropiedad, extraerDetalles } from "../../lib/property-details.ts";
 import { obtenerContactoPublico } from "../agency/queries.ts";
 import { requireRol } from "../auth/guards.ts";
 import type { ActorAutenticado } from "../auth/session.ts";
@@ -35,6 +36,8 @@ export interface SolicitudDeCliente {
     precio: number | null;
     moneda: string;
     precioUnidad: string;
+    // Medidas, datos de nave o local y equipamiento, para responderle al cliente.
+    detalles: DetallesPropiedad;
   };
   // A quién hay que llamarle para confirmar la disponibilidad.
   propietario: {
@@ -112,6 +115,20 @@ export async function obtenerCliente(
       precio: propiedad.precio,
       moneda: propiedad.moneda,
       precioUnidad: propiedad.precioUnidad,
+      detalles: {
+        mantenimiento: propiedad.mantenimiento,
+        superficieConstruidaM2: propiedad.superficieConstruidaM2,
+        superficieTerrenoM2: propiedad.superficieTerrenoM2,
+        banos: propiedad.banos,
+        estacionamientos: propiedad.estacionamientos,
+        alturaLibreM: propiedad.alturaLibreM,
+        andenes: propiedad.andenes,
+        potenciaKva: propiedad.potenciaKva,
+        equipamiento: propiedad.equipamiento,
+        oficinasPrivadas: propiedad.oficinasPrivadas,
+        frenteM: propiedad.frenteM,
+        resistenciaPisoTon: propiedad.resistenciaPisoTon,
+      },
       activo: propiedad.activo,
       estadoPublicacion: propiedad.estadoPublicacion,
       contactoId: propiedad.contactoId,
@@ -158,6 +175,12 @@ export async function obtenerCliente(
           precio: fila.precio,
           moneda: fila.moneda,
           precioUnidad: fila.precioUnidad,
+          detalles: extraerDetalles({
+            ...fila.detalles,
+            precio: fila.precio,
+            moneda: fila.moneda,
+            precioUnidad: fila.precioUnidad,
+          }),
         },
         propietario: {
           id: fila.propietarioId,

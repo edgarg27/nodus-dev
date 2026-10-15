@@ -541,6 +541,8 @@ export const en: Textos = {
     propiedades: {
       precioCaptive: "Price (only Captive sees it)",
       precioSinCapturar: "The owner didn't enter it",
+      especificacionesTitulo: "Specifications and features",
+      sinEspecificaciones: "The owner didn't enter measurements or features.",
       metaTitulo: "Pending properties — Captive by Nodus",
       titulo: "Pending properties",
       descripcion:
@@ -757,6 +759,7 @@ export const en: Textos = {
       verEspacio: "View space",
       noPublicado: "No longer published",
       numeroPropietario: "Owner number",
+      verEspecificaciones: "See specifications and features",
       precioCaptive: "Price (only Captive sees it)",
       precioSinCapturar: "The owner didn't enter it",
       confirmarCon: "Confirm availability with",

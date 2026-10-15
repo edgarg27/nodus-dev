@@ -104,6 +104,7 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
             nuevas.map((solicitud) => (
               <SolicitudClienteCard
                 key={solicitud.id}
+                idioma={idioma}
                 solicitud={solicitud}
                 textos={textos}
                 etiquetas={t.etiquetas}
@@ -134,6 +135,7 @@ export default async function AdminClientePage({ params }: AdminClientePageProps
                 {anteriores.map((solicitud) => (
                   <SolicitudClienteCard
                     key={solicitud.id}
+                    idioma={idioma}
                     solicitud={solicitud}
                     textos={textos}
                     etiquetas={t.etiquetas}
