@@ -15,7 +15,7 @@ describe("resolverLanding", () => {
 
   it("sin lugar cubre todas las ciudades", () => {
     const landing = resolverLanding("proyecto-desde-cero", "oficinas");
-    expect(landing?.titulo).toBe("Oficinas como proyecto desde cero");
+    expect(landing?.titulo).toBe("Oficinas en esquema BTS (Built to Suit)");
     expect(landing?.filtros).toEqual({ modalidad: "desde_cero", tipo: "oficina" });
   });
 

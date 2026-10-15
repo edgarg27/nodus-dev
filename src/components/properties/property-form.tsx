@@ -17,6 +17,7 @@ import {
 } from "./possible-duplicates-dialog";
 import { PropertyFormBasicsFields } from "./property-form-basics-fields";
 import { PropertyFormDetailsFields } from "./property-form-details-fields";
+import { PropertyFormEquipmentFields } from "./property-form-equipment-fields";
 import { PropertyFormLocationField } from "./property-form-location-field";
 import { type ContactoOpcion, PropertyFormNetworkFields } from "./property-form-network-fields";
 import { PropertyFormReviewDialog } from "./property-form-review-dialog";
@@ -96,6 +97,7 @@ export function PropertyForm({ propiedad, contactos = [], conRed = true }: Prope
           comisionPct: propiedad.comisionPct === null ? "" : String(propiedad.comisionPct),
           moneda: propiedad.moneda === "USD" ? "USD" : "MXN",
           precioUnidad: propiedad.precioUnidad === "m2" ? "m2" : "total",
+          equipamiento: propiedad.equipamiento,
           ...Object.fromEntries(
             CAMPOS_NUMERICOS_FORMULARIO.map((campo) => [
               campo,
@@ -109,6 +111,10 @@ export function PropertyForm({ propiedad, contactos = [], conRed = true }: Prope
           precioUnidad: "total",
           compartidaEnRed: "false",
           exclusiva: "false",
+          equipamiento: [],
+          // El primero del selector: así la sección de Equipamiento (que depende del tipo) aparece
+          // desde el inicio aunque no se toque el campo.
+          tipo: "oficina",
         },
   });
 
@@ -182,6 +188,10 @@ export function PropertyForm({ propiedad, contactos = [], conRed = true }: Prope
         compartidaEnRed: valores.compartidaEnRed === "true",
         exclusiva: valores.exclusiva === "true",
         comisionPct: textoANumero(valores.comisionPct),
+        // Con una sola casilla, el navegador manda texto en lugar de lista.
+        equipamiento: [valores.equipamiento ?? []]
+          .flat()
+          .filter((clave): clave is string => typeof clave === "string"),
       };
       const respuesta = propiedad
         ? await fetch(`/api/v1/properties/${propiedad.id}`, {
@@ -358,6 +368,8 @@ export function PropertyForm({ propiedad, contactos = [], conRed = true }: Prope
           tipo={tipo}
           modalidad={modalidad}
         />
+
+        <PropertyFormEquipmentFields register={register} errors={errors} tipo={tipo} />
 
         <PropertyFormNetworkFields
           register={register}

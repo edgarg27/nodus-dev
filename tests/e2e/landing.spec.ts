@@ -22,8 +22,11 @@ test.describe("landing", () => {
   test("el buscador del hero envía modalidad, tipo y ubicación a /buscar", async ({ page }) => {
     await page.goto("/");
     const hero = page.locator("#buscar");
-    await hero.getByLabel("Modalidad").selectOption("renta");
-    await hero.getByLabel("Tipo de inmueble").selectOption("oficina");
+    // Modalidad y Tipo son listas propias (no <select>): se abren y se elige la opción.
+    await hero.getByRole("combobox", { name: "Modalidad" }).click();
+    await page.getByRole("option", { name: "Renta" }).click();
+    await hero.getByRole("combobox", { name: "Tipo de inmueble" }).click();
+    await page.getByRole("option", { name: "Oficina" }).click();
     await hero.getByLabel("Ubicación").fill("Aguascalientes");
     await hero.getByRole("button", { name: "Buscar espacios" }).click();
     await expect(page).toHaveURL(/\/buscar\?/);

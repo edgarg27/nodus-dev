@@ -2,6 +2,7 @@ import { CheckIcon } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/marketing/site-footer";
+import { CaptiveCenter } from "@/components/servicios/captive-center";
 import { ServicioIcono } from "@/components/servicios/servicio-icono";
 import { SERVICIOS } from "@/lib/servicios";
 import { obtenerTextos } from "@/server/i18n";
@@ -78,6 +79,8 @@ export default async function ServiciosPage() {
               </section>
             );
           })}
+
+          <CaptiveCenter idioma={idioma} />
         </div>
       </main>
       <SiteFooter idioma={idioma} />

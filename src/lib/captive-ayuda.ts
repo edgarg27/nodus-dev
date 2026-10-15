@@ -18,15 +18,13 @@ export function hrefAyudaCaptive(
   filtros: FiltrosBusqueda,
   idioma: Idioma,
 ): string {
-  const whatsapp = numeroWhatsapp(env.NEXT_PUBLIC_CAPTIVE_WHATSAPP);
-  if (whatsapp) {
-    const m = textosDe(idioma).panel.mensajes;
-    const mensaje =
-      contarFiltrosActivos(filtros) > 0
-        ? m.borradorBusqueda(describirBusqueda(filtros))
-        : m.borradorAyuda;
-    return `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensaje)}`;
-  }
+  const m = textosDe(idioma).panel.mensajes;
+  const whatsapp = hrefWhatsappCaptive(
+    contarFiltrosActivos(filtros) > 0
+      ? m.borradorBusqueda(describirBusqueda(filtros))
+      : m.borradorAyuda,
+  );
+  if (whatsapp) return whatsapp;
 
   const consulta = busquedaAParams(filtros).toString();
   const chat = `/mensajes/captive${consulta ? `?busqueda=${encodeURIComponent(consulta)}` : "?ayuda=1"}`;
@@ -38,6 +36,12 @@ export function hrefAyudaCaptive(
 function numeroWhatsapp(valor: string | undefined): string {
   const digitos = valor?.replace(/\D/g, "") ?? "";
   return digitos.length === 10 ? `52${digitos}` : digitos;
+}
+
+// WhatsApp de Captive con un mensaje ya escrito, o null si no hay número configurado.
+export function hrefWhatsappCaptive(mensaje: string): string | null {
+  const whatsapp = numeroWhatsapp(env.NEXT_PUBLIC_CAPTIVE_WHATSAPP);
+  return whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensaje)}` : null;
 }
 
 // El enlace de ayuda sale del sitio (WhatsApp) o es el chat de la web.

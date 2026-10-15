@@ -13,6 +13,11 @@ export const en: Textos = {
       oficina: "Office",
       local_comercial: "Retail space",
     },
+    tipoEnLista: {
+      oficina: "Office",
+      local_comercial: "Retail space",
+      nave_industrial: "Warehouses / Storage",
+    },
     tipoPlural: {
       nave_industrial: "Industrial warehouses",
       oficina: "Offices",
@@ -20,13 +25,13 @@ export const en: Textos = {
     },
     modalidad: {
       renta: "For rent",
-      venta: "For sale",
-      desde_cero: "Build-to-suit",
+      venta: "Buy / Sell",
+      desde_cero: "BTS (Build to Suit)",
     },
     operacion: {
       renta: "for rent",
       venta: "for sale",
-      desde_cero: "build-to-suit",
+      desde_cero: "as BTS (build to suit)",
     },
   },
   idioma: {
@@ -67,8 +72,11 @@ export const en: Textos = {
     placeholderUbicacion: "City, area or ZIP code",
     cualquiera: "Any",
     renta: "Rent",
-    compra: "Buy",
-    desdeCero: "Build-to-suit",
+    compra: "Buy / Sell",
+    desdeCero: "BTS (Build to Suit)",
+    adecuacion: "Space design / fit-out",
+    mensajeAdecuacion:
+      "Hi, I'm interested in your space design and fit-out service. Could you send me more information?",
     financiamiento: "Financing?",
     si: "Yes",
     no: "No",
@@ -101,7 +109,7 @@ export const en: Textos = {
     buscas: {
       titulo: "Looking for a space?",
       texto:
-        "Find industrial warehouses, offices or retail spaces for rent, for sale or build-to-suit.",
+        "Find industrial warehouses, offices or retail spaces for rent, to buy or sell, or as BTS (build to suit).",
       puntos: [
         "Filter by listing type, property type and location",
         "Compare spaces in one place",
@@ -132,7 +140,7 @@ export const en: Textos = {
     titulo: "Built for companies that want to grow",
     items: [
       {
-        titulo: "Build-to-suit projects",
+        titulo: "BTS (Build to Suit) projects",
         descripcion: "Build a space to your specs when no existing property fits.",
       },
       {
@@ -315,6 +323,7 @@ export const en: Textos = {
     miembroDesde: (fecha: string) => `On Captive since ${fecha}`,
     verTelefono: "Show phone number",
     especificaciones: "Specifications",
+    equipamiento: "Features",
     descripcion: "Description",
     ubicacion: "Location",
     similares: "Similar spaces",
@@ -340,6 +349,26 @@ export const en: Textos = {
     titulo: (tipo: string, operacion: string, ciudad: string) =>
       `${tipo} ${operacion} in ${ciudad}`,
   },
+  equipamiento: {
+    iluminacion: "Lighting installed",
+    plafon: "Drop ceiling",
+    divisiones: "Partitions / private offices",
+    planta_emergencia: "Backup generator",
+    aire_acondicionado: "Air conditioning",
+    seguridad: "Security / surveillance",
+    internet: "Internet / fiber optic",
+    cisterna: "Water tank (cistern)",
+    accesibilidad: "Accessibility (ramp or accessible restroom)",
+    amueblada: "Furnished",
+    sala_juntas: "Meeting room",
+    cocineta: "Kitchenette / dining area",
+    elevador: "Elevator",
+    patio_maniobras: "Maneuvering yard",
+    contra_incendios: "Fire protection system",
+    parque_industrial: "Inside an industrial park",
+    frente_calle: "Street frontage",
+    plaza_comercial: "Inside a shopping center",
+  },
   detalles: {
     precioAConsultar: "Price upon quote",
     porMes: " /mo",
@@ -355,6 +384,9 @@ export const en: Textos = {
     etiquetaAlturaLibre: "Clear height",
     etiquetaAndenes: "Loading docks",
     etiquetaCargaElectrica: "Power supply",
+    etiquetaOficinasPrivadas: "Private offices",
+    etiquetaFrente: "Street frontage",
+    etiquetaResistenciaPiso: "Floor load capacity",
     m2Terreno: (m: string) => `${m} m² lot`,
     m2Construidos: (m: string) => `${m} m² built`,
   },
@@ -509,6 +541,8 @@ export const en: Textos = {
     propiedades: {
       precioCaptive: "Price (only Captive sees it)",
       precioSinCapturar: "The owner didn't enter it",
+      especificacionesTitulo: "Specifications and features",
+      sinEspecificaciones: "The owner didn't enter measurements or features.",
       metaTitulo: "Pending properties — Captive by Nodus",
       titulo: "Pending properties",
       descripcion:
@@ -725,6 +759,7 @@ export const en: Textos = {
       verEspacio: "View space",
       noPublicado: "No longer published",
       numeroPropietario: "Owner number",
+      verEspecificaciones: "See specifications and features",
       precioCaptive: "Price (only Captive sees it)",
       precioSinCapturar: "The owner didn't enter it",
       confirmarCon: "Confirm availability with",
@@ -1101,7 +1136,7 @@ export const en: Textos = {
       infoBasica: "Basic information",
       tipo: "Type",
       modalidad: "Listing type",
-      desdeCero: "Build-to-suit",
+      desdeCero: "BTS (Build to Suit)",
       direccion: "Address",
       estado: "State",
       ciudad: "City",
@@ -1131,6 +1166,11 @@ export const en: Textos = {
       alturaLibre: "Clear height",
       andenes: "Loading docks",
       cargaElectrica: "Power supply",
+      equipamientoTitulo: "Features",
+      equipamientoAyuda: "Check what the space has. It shows on the public listing.",
+      oficinasPrivadas: "Private offices",
+      frenteCalle: "Street frontage",
+      resistenciaPiso: "Floor load capacity",
       ubicacion: "Location on the map",
       latitud: "Latitude",
       longitud: "Longitude",
@@ -1184,15 +1224,142 @@ export const en: Textos = {
       errorNumero: "Enter a valid number",
     },
   },
+  captiveCenter: {
+    etiqueta: "Captive Center",
+    titulo: "Strategic Soft Landing for global operations in Mexico",
+    intro: [
+      "Strategy moves faster with the right ground. More than just office space, it's a strategic landing platform that minimizes risk, shortens time-to-operation and gives your team the infrastructure, legal framework and local support they need to succeed, with zero upfront CAPEX.",
+      "Whether you're launching a back-office, administrative hub or specialized team, we provide a base that grows with your operation from day one. Captive Center is Nodus's customized office solution for international companies expanding into Mexico.",
+    ],
+    serviciosTitulo: "Designed for how your company grows",
+    serviciosIntro:
+      "At Nodus, we develop fully customized corporate operations centers tailored to your business goals. From concept to ongoing management, we deliver a built-to-suit experience backed by legal, technical and strategic support.",
+    servicios: [
+      {
+        titulo: "Custom-built spaces",
+        texto: "Gray shell, semi-fitted or built-to-suit delivery.",
+      },
+      {
+        titulo: "Design & execution",
+        texto: "Concept, layout, construction, sustainability and brand alignment.",
+      },
+      {
+        titulo: "Operational management",
+        texto: "Facility services, IT support, security, cleaning and more.",
+      },
+      {
+        titulo: "Legal, tax and immigration advisory",
+        texto: "Entity setup, representation, permits and compliance.",
+      },
+      {
+        titulo: "Feasibility assessment & risk evaluation",
+        texto: "Site selection, legal and financial analysis.",
+      },
+      {
+        titulo: "Talent pool & institutional relations",
+        texto: "Recruitment, university partnerships and access to local talent.",
+      },
+    ],
+    beneficiosTitulo: "Not just space. A platform built for strategy.",
+    beneficiosIntro: "We don't just open your office, we build your growth platform in Mexico.",
+    beneficios: [
+      "Up to 50% savings in operational costs compared to traditional setups.",
+      "Agile, secure implementation across every stage of the process.",
+      "In-house experts in corporate law, tax and technology.",
+      "Active business community for partnerships, services and support from day one.",
+      "Workspaces with zero upfront CAPEX.",
+    ],
+    beneficiosCierre:
+      "With Nodus, your office is just the beginning. The real value is everything that comes with it.",
+    ubicacionesTitulo: "Strategic locations for scalable operations",
+    ubicacionesIntro:
+      "All locations are embedded in Mexico's most active business corridors, with immediate access to infrastructure, logistics and top-tier talent.",
+    ubicaciones: [
+      { ciudad: "Aguascalientes", sedes: "San Telmo, Bosques and Punto 45" },
+      { ciudad: "León", sedes: "Puerta Bajío and Stadium" },
+      { ciudad: "Querétaro", sedes: "Central Park" },
+      { ciudad: "San Luis Potosí", sedes: "Ileva" },
+    ],
+    ubicacionesNota: "We evaluate new locations upon request.",
+    procesoTitulo: "A clear, end-to-end process",
+    procesoIntro: "We integrate every step to help you begin operations without setbacks.",
+    proceso: [
+      {
+        titulo: "Validation & analysis",
+        puntos: [
+          "Feasibility and financial studies",
+          "Strategic site selection and tenant representation",
+          "Legal and tax review",
+        ],
+      },
+      {
+        titulo: "Setup & installation",
+        puntos: [
+          "Custom design and space planning",
+          "Construction and technical implementation",
+          "Sustainable criteria and full equipment",
+        ],
+      },
+      {
+        titulo: "Launch & operations",
+        puntos: [
+          "Full facility management",
+          "Talent acquisition and relocation",
+          "Continuous operational support",
+        ],
+      },
+    ],
+    testimoniosTitulo: "Companies that landed. And took off.",
+    testimoniosIntro:
+      "Global firms, regional leaders and bold innovators have trusted Nodus to land and grow in Mexico.",
+    testimonios: [
+      {
+        cita: "The experience has been exceptional. The office style, flexibility and administrative support have been key to operating efficiently under our hybrid model. Additionally, the Nodus team stands out for its high-quality service.",
+        autor: "Administrative Manager, EY",
+      },
+      {
+        cita: "The personalized attention, the facilities and the follow-up on our needs were key factors in choosing Nodus. We've received support to grow and generate new opportunities, and their team's willingness has been essential to expanding our operations.",
+        autor: "HR Business Partner, Rápido Solutions Group",
+      },
+    ],
+    ctaTitulo: "Ready to establish your Captive Center in Mexico?",
+    ctaPuntos: [
+      "Establish operations in Mexico",
+      "Reduce operational costs",
+      "Set up a corporate back-office or support team",
+      "Access workspaces with zero upfront CAPEX",
+      "Get legal, tax or immigration support",
+      "Connect with local talent or institutions",
+    ],
+    ctaTexto:
+      "Schedule a meeting with our specialists and we'll advise you on the best location, workspace design and a launch plan that saves time and costs.",
+    ctaBoton: "Schedule a meeting",
+    ctaAsunto: "Captive Center: schedule a meeting",
+    ctaMensaje:
+      "Hi, I'm interested in Captive Center to establish operations in Mexico. I'd like to schedule a meeting.",
+    lema: "Growth starts with clarity. Let's build your landing strategy together.",
+  },
   servicios: {
     metaTitulo: "Services — Captive by Nodus",
     metaDescripcion:
-      "Industrial, office and retail space for rent or sale, build-to-suit projects and tools for owners and brokers on Captive by Nodus.",
+      "Industrial, office and retail space for rent, purchase or sale, BTS (build to suit) projects and tools for owners and brokers on Captive by Nodus.",
     etiqueta: "Services",
     titulo: "Everything Captive does for your business",
     intro:
       "From finding the right warehouse, office or retail space to building it to suit or listing it: all in one place.",
     items: {
+      captiveCenter: {
+        titulo: "Captive Center: Soft Landing in Mexico",
+        resumen: "Your operations center in Mexico, with no upfront investment.",
+        descripcion:
+          "More than just office space: a strategic landing platform for international companies expanding into Mexico. It minimizes risk, shortens time-to-operation and gives your team the infrastructure, legal framework and local support they need to succeed, with zero upfront CAPEX.",
+        puntos: [
+          "Back-office, administrative hub or specialized teams",
+          "Custom-built spaces, design and operational management",
+          "Legal, tax and immigration advisory",
+        ],
+        boton: "Discover Captive Center",
+      },
       rentaVenta: {
         titulo: "Spaces for rent and sale",
         resumen: "Warehouses, offices and retail spaces ready to move in.",
@@ -1206,7 +1373,7 @@ export const en: Textos = {
         boton: "Search spaces",
       },
       desdeCero: {
-        titulo: "Build-to-suit projects",
+        titulo: "BTS (Build to Suit) projects",
         resumen: "Your space, built to fit.",
         descripcion:
           "When no existing property fits, find projects to build your warehouse, office or retail space around what your operation needs.",
@@ -1215,7 +1382,7 @@ export const en: Textos = {
           "For warehouses, offices and retail",
           "The Captive team works with the project developer alongside you",
         ],
-        boton: "See build-to-suit projects",
+        boton: "See BTS projects",
       },
       financiamiento: {
         titulo: "Financing",

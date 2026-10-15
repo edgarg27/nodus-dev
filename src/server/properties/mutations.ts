@@ -1,10 +1,12 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../lib/db/client.ts";
 import { agenciaContacto, propiedad } from "../../lib/db/schema.ts";
+import { limpiarEquipamiento } from "../../lib/equipamiento.ts";
 import { normalizeAddress } from "../../lib/normalize-address.ts";
 import {
   CAMPOS_DETALLE,
   CAMPOS_INDUSTRIALES,
+  CAMPOS_LOCAL,
   type DetallesPropiedadInput,
 } from "../../lib/property-details.ts";
 import { usaLaRed } from "../../lib/red-acceso.ts";
@@ -45,6 +47,12 @@ function detallesParaGuardar(input: DetallesPropiedadInput, tipoFinal: string) {
   }
   if (tipoFinal !== "nave_industrial") {
     for (const campo of CAMPOS_INDUSTRIALES) valores[campo] = null;
+  }
+  if (tipoFinal !== "local_comercial") {
+    for (const campo of CAMPOS_LOCAL) valores[campo] = null;
+  }
+  if (input.equipamiento !== undefined) {
+    valores.equipamiento = limpiarEquipamiento(tipoFinal, input.equipamiento);
   }
   return valores as Partial<Pick<PropiedadFila, (typeof CAMPOS_DETALLE)[number]>>;
 }

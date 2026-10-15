@@ -62,6 +62,11 @@ export function crearPropertyFormSchema(m: MensajesFormulario) {
     alturaLibreM: campoNumerico({ maximo: 999 }, m),
     andenes: campoNumerico({ entero: true, maximo: 9_999 }, m),
     potenciaKva: campoNumerico({ entero: true, maximo: 9_999_999 }, m),
+    // Casillas de "Equipamiento" (claves de src/lib/equipamiento.ts).
+    equipamiento: z.array(z.string()).optional(),
+    oficinasPrivadas: campoNumerico({ entero: true, maximo: 9_999 }, m),
+    frenteM: campoNumerico({ maximo: 99_999 }, m),
+    resistenciaPisoTon: campoNumerico({ maximo: 9_999 }, m),
     // Identificación y Red inmobiliaria (los selects de sí/no se manejan como "true"/"false").
     referencia: z.string().trim().max(60, m.errorMaximo(60)).optional(),
     titulo: z.string().trim().max(160, m.errorMaximo(160)).optional(),
@@ -84,6 +89,9 @@ export const CAMPOS_NUMERICOS_FORMULARIO = [
   "alturaLibreM",
   "andenes",
   "potenciaKva",
+  "oficinasPrivadas",
+  "frenteM",
+  "resistenciaPisoTon",
 ] as const;
 
 export function textoANumero(valor: string | undefined): number | null {

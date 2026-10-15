@@ -1,10 +1,11 @@
 "use client";
 
 import { Building2Icon, StoreIcon, WarehouseIcon, XIcon } from "lucide-react";
+import { PropertyFeatures } from "@/components/admin/property-features";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { formatearPrecio } from "@/lib/property-details";
+import { extraerDetalles, formatearPrecio } from "@/lib/property-details";
 import type { PropiedadPendienteDeRevision } from "@/server/properties/queries";
 
 interface PropertyDetailsDialogProps {
@@ -114,6 +115,15 @@ export function PropertyDetailsDialog({
                   : formatearPrecio(propiedad, propiedad.modalidad, idioma)}
               </span>
             </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-bold text-text">{p.especificacionesTitulo}</span>
+            <PropertyFeatures
+              tipo={propiedad.tipo}
+              detalles={extraerDetalles(propiedad)}
+              idioma={idioma}
+            />
           </div>
 
           <div className="flex flex-col gap-1.5">
