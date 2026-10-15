@@ -226,8 +226,8 @@ export const ETIQUETA_TIPO: Record<string, string> = {
 
 export const ETIQUETA_MODALIDAD: Record<string, string> = {
   renta: "Renta",
-  venta: "Venta",
-  desde_cero: "Proyecto desde cero",
+  venta: "Compra / Venta",
+  desde_cero: "BTS (Built to Suit)",
 };
 
 export const ETIQUETA_ESTADO: Record<string, string> = Object.fromEntries(

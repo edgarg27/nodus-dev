@@ -19,14 +19,14 @@ export const es = {
     } as Record<string, string>,
     modalidad: {
       renta: "Renta",
-      venta: "Venta",
-      desde_cero: "Proyecto desde cero",
+      venta: "Compra / Venta",
+      desde_cero: "BTS (Built to Suit)",
     } as Record<string, string>,
-    // "en renta", "en venta", "como proyecto desde cero" — para títulos.
+    // "en renta", "en venta", "en esquema BTS (Built to Suit)" — para títulos.
     operacion: {
       renta: "en renta",
       venta: "en venta",
-      desde_cero: "como proyecto desde cero",
+      desde_cero: "en esquema BTS (Built to Suit)",
     } as Record<string, string>,
   },
   idioma: {
@@ -70,6 +70,9 @@ export const es = {
     renta: "Renta",
     compra: "Compra / Venta",
     desdeCero: "BTS (Built to Suit)",
+    adecuacion: "Diseño / Adecuación de espacios",
+    mensajeAdecuacion:
+      "Hola, me interesa el servicio de diseño y adecuación de espacios. ¿Me pueden dar más información?",
     financiamiento: "¿Financiamiento?",
     si: "Sí",
     no: "No",
@@ -102,7 +105,7 @@ export const es = {
     buscas: {
       titulo: "¿Buscas un espacio?",
       texto:
-        "Encuentra naves industriales, oficinas o locales comerciales en renta, venta o como proyecto desde cero.",
+        "Encuentra naves industriales, oficinas o locales comerciales en renta, compra / venta o en esquema BTS (Built to Suit).",
       puntos: [
         "Filtra por modalidad, tipo y ubicación",
         "Compara espacios en un solo lugar",
@@ -133,7 +136,7 @@ export const es = {
     titulo: "Pensado para empresas que quieren crecer",
     items: [
       {
-        titulo: "Proyectos desde cero",
+        titulo: "Proyectos BTS (Built to Suit)",
         descripcion: "Construye tu espacio a la medida cuando ningún inmueble existente encaja.",
       },
       {
@@ -1118,7 +1121,7 @@ export const es = {
       infoBasica: "Información básica",
       tipo: "Tipo",
       modalidad: "Modalidad",
-      desdeCero: "Desde cero",
+      desdeCero: "BTS (Built to Suit)",
       direccion: "Dirección",
       estado: "Estado",
       ciudad: "Ciudad",
@@ -1206,7 +1209,7 @@ export const es = {
   servicios: {
     metaTitulo: "Servicios — Captive by Nodus",
     metaDescripcion:
-      "Renta y venta de naves, oficinas y locales, proyectos desde cero y herramientas para propietarios y brokers en Captive by Nodus.",
+      "Renta, compra y venta de naves, oficinas y locales, proyectos BTS (Built to Suit) y herramientas para propietarios y brokers en Captive by Nodus.",
     etiqueta: "Servicios",
     titulo: "Todo lo que Captive hace por tu empresa",
     intro:
@@ -1225,7 +1228,7 @@ export const es = {
         boton: "Buscar espacios",
       },
       desdeCero: {
-        titulo: "Proyectos desde cero",
+        titulo: "Proyectos BTS (Built to Suit)",
         resumen: "Tu espacio construido a la medida.",
         descripcion:
           "Cuando ningún inmueble existente encaja, encuentra proyectos para construir tu nave, oficina o local según lo que necesita tu operación.",
@@ -1234,7 +1237,7 @@ export const es = {
           "Para naves, oficinas y locales",
           "El equipo Captive te acompaña con quien desarrolla el proyecto",
         ],
-        boton: "Ver proyectos desde cero",
+        boton: "Ver proyectos BTS",
       },
       financiamiento: {
         titulo: "Financiamiento",

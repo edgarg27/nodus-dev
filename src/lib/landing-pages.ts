@@ -10,7 +10,7 @@ import type { FiltrosBusqueda } from "./search-params.ts";
 export const MODALIDADES_LANDING = [
   { slug: "renta", valor: "renta", texto: "en renta" },
   { slug: "venta", valor: "venta", texto: "en venta" },
-  { slug: "proyecto-desde-cero", valor: "desde_cero", texto: "como proyecto desde cero" },
+  { slug: "proyecto-desde-cero", valor: "desde_cero", texto: "en esquema BTS (Built to Suit)" },
 ] as const;
 
 export const TIPOS_LANDING = [

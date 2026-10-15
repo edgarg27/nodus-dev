@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "cn";
-import { useEffect, useRef, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useIdioma } from "@/components/i18n/idioma-provider";
 import {
   Dialog,
@@ -11,16 +11,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { hrefWhatsappCaptive } from "@/lib/captive-ayuda";
+import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 import type { Textos } from "@/lib/i18n";
 import { LocationAutocomplete } from "./location-autocomplete";
-import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 
 // Las etiquetas salen del diccionario del idioma activo; aquí solo los valores y su orden.
+// "Diseño / Adecuación de espacios" es un servicio de Captive, no un tipo de inmueble: en lugar de
+// buscar, abre el WhatsApp de Captive con un mensaje ya escrito (o, sin número configurado, el chat
+// con Captive de la web).
+const MODALIDAD_ADECUACION = "adecuacion";
+
+function enviarBusqueda(evento: FormEvent<HTMLFormElement>, mensaje: string) {
+  if (new FormData(evento.currentTarget).get("modalidad") !== MODALIDAD_ADECUACION) return;
+  evento.preventDefault();
+  const whatsapp = hrefWhatsappCaptive(mensaje);
+  if (whatsapp) window.open(whatsapp, "_blank", "noopener,noreferrer");
+  else window.location.assign("/mensajes/captive?ayuda=1");
+}
+
 function opcionesModalidad(t: Textos) {
   return [
     { value: "renta", etiqueta: t.hero.renta },
     { value: "venta", etiqueta: t.hero.compra },
     { value: "desde_cero", etiqueta: t.hero.desdeCero },
+    { value: MODALIDAD_ADECUACION, etiqueta: t.hero.adecuacion },
   ];
 }
 
@@ -145,6 +160,8 @@ function CampoUbicacion({ id, flotante }: { id: string; flotante: boolean }) {
 
 export function SearchHero() {
   const { t } = useIdioma();
+  const alBuscar = (evento: FormEvent<HTMLFormElement>) =>
+    enviarBusqueda(evento, t.hero.mensajeAdecuacion);
   const [headerHeight, setHeaderHeight] = useState(0);
   const [stuck, setStuck] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
@@ -225,6 +242,7 @@ export function SearchHero() {
           <form
             action="/buscar"
             method="get"
+            onSubmit={alBuscar}
             className="w-full rounded-2xl border border-white/30 bg-card/85 p-4 shadow-lg backdrop-blur-md sm:p-5"
           >
             <div className="grid grid-cols-1 items-end gap-x-5 gap-y-5 min-[480px]:grid-cols-2 min-[480px]:gap-y-4 lg:grid-cols-12 lg:gap-y-[18px]">
@@ -267,6 +285,7 @@ export function SearchHero() {
           <form
             action="/buscar"
             method="get"
+            onSubmit={alBuscar}
             className="flex w-full max-w-[860px] items-center gap-4"
           >
             <select
@@ -355,7 +374,12 @@ export function SearchHero() {
                   </button>
                 </DialogClose>
               </DialogHeader>
-              <form action="/buscar" method="get" className="flex flex-col gap-4">
+              <form
+                action="/buscar"
+                method="get"
+                onSubmit={alBuscar}
+                className="flex flex-col gap-4"
+              >
                 <CampoModalidad id="modal-modalidad" />
                 <CampoTipo id="modal-tipo" />
                 <CampoUbicacion id="modal-ubicacion" flotante={false} />

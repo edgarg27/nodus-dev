@@ -20,13 +20,13 @@ export const en: Textos = {
     },
     modalidad: {
       renta: "For rent",
-      venta: "For sale",
-      desde_cero: "Build-to-suit",
+      venta: "Buy / Sell",
+      desde_cero: "BTS (Build to Suit)",
     },
     operacion: {
       renta: "for rent",
       venta: "for sale",
-      desde_cero: "build-to-suit",
+      desde_cero: "as BTS (build to suit)",
     },
   },
   idioma: {
@@ -69,6 +69,9 @@ export const en: Textos = {
     renta: "Rent",
     compra: "Buy / Sell",
     desdeCero: "BTS (Build to Suit)",
+    adecuacion: "Space design / fit-out",
+    mensajeAdecuacion:
+      "Hi, I'm interested in your space design and fit-out service. Could you send me more information?",
     financiamiento: "Financing?",
     si: "Yes",
     no: "No",
@@ -101,7 +104,7 @@ export const en: Textos = {
     buscas: {
       titulo: "Looking for a space?",
       texto:
-        "Find industrial warehouses, offices or retail spaces for rent, for sale or build-to-suit.",
+        "Find industrial warehouses, offices or retail spaces for rent, to buy or sell, or as BTS (build to suit).",
       puntos: [
         "Filter by listing type, property type and location",
         "Compare spaces in one place",
@@ -132,7 +135,7 @@ export const en: Textos = {
     titulo: "Built for companies that want to grow",
     items: [
       {
-        titulo: "Build-to-suit projects",
+        titulo: "BTS (Build to Suit) projects",
         descripcion: "Build a space to your specs when no existing property fits.",
       },
       {
@@ -1101,7 +1104,7 @@ export const en: Textos = {
       infoBasica: "Basic information",
       tipo: "Type",
       modalidad: "Listing type",
-      desdeCero: "Build-to-suit",
+      desdeCero: "BTS (Build to Suit)",
       direccion: "Address",
       estado: "State",
       ciudad: "City",
@@ -1187,7 +1190,7 @@ export const en: Textos = {
   servicios: {
     metaTitulo: "Services — Captive by Nodus",
     metaDescripcion:
-      "Industrial, office and retail space for rent or sale, build-to-suit projects and tools for owners and brokers on Captive by Nodus.",
+      "Industrial, office and retail space for rent, purchase or sale, BTS (build to suit) projects and tools for owners and brokers on Captive by Nodus.",
     etiqueta: "Services",
     titulo: "Everything Captive does for your business",
     intro:
@@ -1206,7 +1209,7 @@ export const en: Textos = {
         boton: "Search spaces",
       },
       desdeCero: {
-        titulo: "Build-to-suit projects",
+        titulo: "BTS (Build to Suit) projects",
         resumen: "Your space, built to fit.",
         descripcion:
           "When no existing property fits, find projects to build your warehouse, office or retail space around what your operation needs.",
@@ -1215,7 +1218,7 @@ export const en: Textos = {
           "For warehouses, offices and retail",
           "The Captive team works with the project developer alongside you",
         ],
-        boton: "See build-to-suit projects",
+        boton: "See BTS projects",
       },
       financiamiento: {
         titulo: "Financing",

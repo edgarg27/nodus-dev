@@ -173,7 +173,7 @@ const TIPO_PLURAL: Record<string, string> = {
 const OPERACION: Record<string, string> = {
   renta: "en renta",
   venta: "en venta",
-  desde_cero: "desde cero",
+  desde_cero: "en esquema BTS (Built to Suit)",
 };
 
 function cifra(valor: number): string {

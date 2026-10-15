@@ -91,7 +91,7 @@ describe("tituloEspacio", () => {
     );
     expect(tituloEspacio("oficina", "venta", "León")).toBe("Oficina en venta en León");
     expect(tituloEspacio("local_comercial", "desde_cero", "Aguascalientes")).toBe(
-      "Local comercial como proyecto desde cero en Aguascalientes",
+      "Local comercial en esquema BTS (Built to Suit) en Aguascalientes",
     );
   });
 });
