@@ -10,8 +10,10 @@ import { AgencyByline } from "@/components/agency/agency-byline";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { PropertyContactPanel } from "@/components/properties/property-contact-panel";
 import { PropertyDetailMap } from "@/components/properties/property-detail-map";
+import { PropertyEquipment } from "@/components/properties/property-equipment";
 import { PropertyGallery } from "@/components/properties/property-gallery";
 import { PropertyKeyFacts } from "@/components/properties/property-key-facts";
+import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 import { localeDe } from "@/lib/i18n";
 import {
   datosClave,
@@ -32,7 +34,6 @@ import {
   obtenerPropiedadPublicaPorId,
 } from "@/server/properties/queries";
 import { ipDeEncabezados } from "@/server/rate-limit/check";
-import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -239,6 +240,12 @@ export default async function EspacioPage({ params }: EspacioPageProps) {
                 ))}
               </dl>
             </section>
+
+            <PropertyEquipment
+              tipo={propiedad.tipo}
+              equipamiento={detalles.equipamiento}
+              idioma={idioma}
+            />
 
             <section className="flex flex-col gap-3">
               <h2 className="text-lg font-bold text-text">{t.ficha.descripcion}</h2>

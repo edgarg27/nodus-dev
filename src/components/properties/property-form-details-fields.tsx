@@ -22,6 +22,7 @@ type CampoNumerico = Exclude<
   | "contactoId"
   | "compartidaEnRed"
   | "exclusiva"
+  | "equipamiento"
 >;
 
 interface PropertyFormDetailsFieldsProps {

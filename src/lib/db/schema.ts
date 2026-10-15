@@ -132,6 +132,13 @@ export const propiedad = pgTable(
     alturaLibreM: numeric("altura_libre_m", { precision: 5, scale: 2, mode: "number" }),
     andenes: integer("andenes"),
     potenciaKva: integer("potencia_kva"),
+    // Casillas de "Equipamiento" marcadas al publicar (claves de src/lib/equipamiento.ts).
+    equipamiento: text("equipamiento").array().notNull().default(sql`'{}'::text[]`),
+    oficinasPrivadas: integer("oficinas_privadas"),
+    // Solo locales comerciales: metros de frente a la calle.
+    frenteM: numeric("frente_m", { precision: 7, scale: 2, mode: "number" }),
+    // Solo naves: resistencia del piso en toneladas por m².
+    resistenciaPisoTon: numeric("resistencia_piso_ton", { precision: 6, scale: 2, mode: "number" }),
     // Identificación propia del propietario (E1-T2). `titulo` es texto público; `referencia` es interna.
     referencia: text("referencia"),
     titulo: text("titulo"),
@@ -192,6 +199,10 @@ export const propiedad = pgTable(
       .on(t.createdAt)
       .where(sql`${t.compartidaEnRed} = true and ${t.activo} = true`),
     check("chk_propiedad_precio_unidad", sql`${t.precioUnidad} in ('total','m2')`),
+    check(
+      "chk_propiedad_equipamiento_numeros",
+      sql`coalesce(${t.oficinasPrivadas}, 0) >= 0 and coalesce(${t.frenteM}, 0) >= 0 and coalesce(${t.resistenciaPisoTon}, 0) >= 0`,
+    ),
     check(
       "chk_propiedad_detalles_no_negativos",
       sql`coalesce(${t.precio}, 0) >= 0 and coalesce(${t.mantenimiento}, 0) >= 0 and coalesce(${t.superficieConstruidaM2}, 0) >= 0 and coalesce(${t.superficieTerrenoM2}, 0) >= 0 and coalesce(${t.banos}, 0) >= 0 and coalesce(${t.estacionamientos}, 0) >= 0 and coalesce(${t.alturaLibreM}, 0) >= 0 and coalesce(${t.andenes}, 0) >= 0 and coalesce(${t.potenciaKva}, 0) >= 0`,

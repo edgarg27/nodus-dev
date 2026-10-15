@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CLAVES_EQUIPAMIENTO } from "./equipamiento.ts";
 import { ESTADOS_MX } from "./estados.ts";
 import { type Idioma, localeDe, textosDe } from "./i18n/index.ts";
 
@@ -30,6 +31,10 @@ export const detallesPropiedadSchema = z.object({
   alturaLibreM: z.number().min(0).max(999).nullable().optional(),
   andenes: conteo.optional(),
   potenciaKva: z.number().int().min(0).max(9_999_999).nullable().optional(),
+  equipamiento: z.array(z.enum(CLAVES_EQUIPAMIENTO)).max(CLAVES_EQUIPAMIENTO.length).optional(),
+  oficinasPrivadas: conteo.optional(),
+  frenteM: z.number().min(0).max(99_999).nullable().optional(),
+  resistenciaPisoTon: z.number().min(0).max(9_999).nullable().optional(),
 });
 
 export type DetallesPropiedadInput = z.infer<typeof detallesPropiedadSchema>;
@@ -46,9 +51,20 @@ export const CAMPOS_DETALLE = [
   "alturaLibreM",
   "andenes",
   "potenciaKva",
+  "equipamiento",
+  "oficinasPrivadas",
+  "frenteM",
+  "resistenciaPisoTon",
 ] as const satisfies readonly (keyof DetallesPropiedadInput)[];
 
-export const CAMPOS_INDUSTRIALES = ["alturaLibreM", "andenes", "potenciaKva"] as const;
+export const CAMPOS_INDUSTRIALES = [
+  "alturaLibreM",
+  "andenes",
+  "potenciaKva",
+  "resistenciaPisoTon",
+] as const;
+// Solo locales comerciales.
+export const CAMPOS_LOCAL = ["frenteM"] as const;
 
 export interface DetallesPropiedad {
   precio: number | null;
@@ -62,6 +78,10 @@ export interface DetallesPropiedad {
   alturaLibreM: number | null;
   andenes: number | null;
   potenciaKva: number | null;
+  equipamiento: string[];
+  oficinasPrivadas: number | null;
+  frenteM: number | null;
+  resistenciaPisoTon: number | null;
 }
 
 function formatoNumero(valor: number, decimales = 0, idioma: Idioma = "es"): string {
@@ -187,11 +207,14 @@ export function especificaciones(
   agregar(t.etiquetaSuperficieTerreno, detalles.superficieTerrenoM2, " m²");
   agregar(t.etiquetaBanos, detalles.banos);
   agregar(t.etiquetaEstacionamientos, detalles.estacionamientos);
+  agregar(t.etiquetaOficinasPrivadas, detalles.oficinasPrivadas);
   if (tipo === "nave_industrial") {
     agregar(t.etiquetaAlturaLibre, detalles.alturaLibreM, " m");
     agregar(t.etiquetaAndenes, detalles.andenes);
     agregar(t.etiquetaCargaElectrica, detalles.potenciaKva, " kVA");
+    agregar(t.etiquetaResistenciaPiso, detalles.resistenciaPisoTon, " ton/m²");
   }
+  if (tipo === "local_comercial") agregar(t.etiquetaFrente, detalles.frenteM, " m");
   return filas;
 }
 
@@ -215,6 +238,12 @@ export function extraerDetalles(fila: Partial<Record<keyof DetallesPropiedad, un
     alturaLibreM: numero(fila.alturaLibreM),
     andenes: numero(fila.andenes),
     potenciaKva: numero(fila.potenciaKva),
+    equipamiento: Array.isArray(fila.equipamiento)
+      ? fila.equipamiento.filter((valor): valor is string => typeof valor === "string")
+      : [],
+    oficinasPrivadas: numero(fila.oficinasPrivadas),
+    frenteM: numero(fila.frenteM),
+    resistenciaPisoTon: numero(fila.resistenciaPisoTon),
   } satisfies DetallesPropiedad;
 }
 

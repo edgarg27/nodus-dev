@@ -267,6 +267,13 @@
       "when": 1792005899252,
       "tag": "0037_numero_propietario_trigger",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1792082090662,
+      "tag": "0038_equipamiento",
+      "breakpoints": true
     }
   ]
 }
