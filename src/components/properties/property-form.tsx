@@ -112,6 +112,9 @@ export function PropertyForm({ propiedad, contactos = [], conRed = true }: Prope
           compartidaEnRed: "false",
           exclusiva: "false",
           equipamiento: [],
+          // El primero del selector: así la sección de Equipamiento (que depende del tipo) aparece
+          // desde el inicio aunque no se toque el campo.
+          tipo: "oficina",
         },
   });
 
@@ -186,7 +189,9 @@ export function PropertyForm({ propiedad, contactos = [], conRed = true }: Prope
         exclusiva: valores.exclusiva === "true",
         comisionPct: textoANumero(valores.comisionPct),
         // Con una sola casilla, el navegador manda texto en lugar de lista.
-        equipamiento: [valores.equipamiento ?? []].flat(),
+        equipamiento: [valores.equipamiento ?? []]
+          .flat()
+          .filter((clave): clave is string => typeof clave === "string"),
       };
       const respuesta = propiedad
         ? await fetch(`/api/v1/properties/${propiedad.id}`, {

@@ -8,8 +8,9 @@ import { type Idioma, textosDe } from "@/lib/i18n";
 export function CaptiveCenterContact({ idioma }: { idioma: Idioma }) {
   const c = textosDe(idioma).captiveCenter;
   const { telefono, correo } = CONTACTO_CAPTIVE_CENTER;
+  const whatsapp = hrefWhatsappCaptive(c.ctaMensaje);
   const agendar =
-    hrefWhatsappCaptive(c.ctaMensaje) ??
+    whatsapp ??
     `mailto:${correo}?subject=${encodeURIComponent(c.ctaAsunto)}&body=${encodeURIComponent(c.ctaMensaje)}`;
 
   return (
@@ -31,8 +32,9 @@ export function CaptiveCenterContact({ idioma }: { idioma: Idioma }) {
       <div className="flex flex-col justify-center gap-3 lg:min-w-[260px]">
         <a
           href={agendar}
-          target="_blank"
-          rel="noopener noreferrer"
+          // WhatsApp abre en otra pestaña; el correo abre la aplicación de correo, sin pestaña vacía.
+          target={whatsapp ? "_blank" : undefined}
+          rel={whatsapp ? "noopener noreferrer" : undefined}
           className="flex h-12 items-center justify-center gap-2 rounded-lg bg-accent px-5 text-sm font-bold text-accent-foreground shadow-sm transition-colors duration-150 ease-out hover:bg-accent/90"
         >
           <CalendarCheckIcon className="size-4" aria-hidden="true" />
