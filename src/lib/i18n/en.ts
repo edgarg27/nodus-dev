@@ -1224,6 +1224,121 @@ export const en: Textos = {
       errorNumero: "Enter a valid number",
     },
   },
+  captiveCenter: {
+    etiqueta: "Captive Center",
+    titulo: "Strategic Soft Landing for global operations in Mexico",
+    intro: [
+      "Strategy moves faster with the right ground. More than just office space, it's a strategic landing platform that minimizes risk, shortens time-to-operation and gives your team the infrastructure, legal framework and local support they need to succeed, with zero upfront CAPEX.",
+      "Whether you're launching a back-office, administrative hub or specialized team, we provide a base that grows with your operation from day one. Captive Center is Nodus's customized office solution for international companies expanding into Mexico.",
+    ],
+    serviciosTitulo: "Designed for how your company grows",
+    serviciosIntro:
+      "At Nodus, we develop fully customized corporate operations centers tailored to your business goals. From concept to ongoing management, we deliver a built-to-suit experience backed by legal, technical and strategic support.",
+    servicios: [
+      {
+        titulo: "Custom-built spaces",
+        texto: "Gray shell, semi-fitted or built-to-suit delivery.",
+      },
+      {
+        titulo: "Design & execution",
+        texto: "Concept, layout, construction, sustainability and brand alignment.",
+      },
+      {
+        titulo: "Operational management",
+        texto: "Facility services, IT support, security, cleaning and more.",
+      },
+      {
+        titulo: "Legal, tax and immigration advisory",
+        texto: "Entity setup, representation, permits and compliance.",
+      },
+      {
+        titulo: "Feasibility assessment & risk evaluation",
+        texto: "Site selection, legal and financial analysis.",
+      },
+      {
+        titulo: "Talent pool & institutional relations",
+        texto: "Recruitment, university partnerships and access to local talent.",
+      },
+    ],
+    beneficiosTitulo: "Not just space. A platform built for strategy.",
+    beneficiosIntro: "We don't just open your office, we build your growth platform in Mexico.",
+    beneficios: [
+      "Up to 50% savings in operational costs compared to traditional setups.",
+      "Agile, secure implementation across every stage of the process.",
+      "In-house experts in corporate law, tax and technology.",
+      "Active business community for partnerships, services and support from day one.",
+      "Workspaces with zero upfront CAPEX.",
+    ],
+    beneficiosCierre:
+      "With Nodus, your office is just the beginning. The real value is everything that comes with it.",
+    ubicacionesTitulo: "Strategic locations for scalable operations",
+    ubicacionesIntro:
+      "All locations are embedded in Mexico's most active business corridors, with immediate access to infrastructure, logistics and top-tier talent.",
+    ubicaciones: [
+      { ciudad: "Aguascalientes", sedes: "San Telmo, Bosques and Punto 45" },
+      { ciudad: "León", sedes: "Puerta Bajío and Stadium" },
+      { ciudad: "Querétaro", sedes: "Central Park" },
+      { ciudad: "San Luis Potosí", sedes: "Ileva" },
+    ],
+    ubicacionesNota: "We evaluate new locations upon request.",
+    procesoTitulo: "A clear, end-to-end process",
+    procesoIntro: "We integrate every step to help you begin operations without setbacks.",
+    proceso: [
+      {
+        titulo: "Validation & analysis",
+        puntos: [
+          "Feasibility and financial studies",
+          "Strategic site selection and tenant representation",
+          "Legal and tax review",
+        ],
+      },
+      {
+        titulo: "Setup & installation",
+        puntos: [
+          "Custom design and space planning",
+          "Construction and technical implementation",
+          "Sustainable criteria and full equipment",
+        ],
+      },
+      {
+        titulo: "Launch & operations",
+        puntos: [
+          "Full facility management",
+          "Talent acquisition and relocation",
+          "Continuous operational support",
+        ],
+      },
+    ],
+    testimoniosTitulo: "Companies that landed. And took off.",
+    testimoniosIntro:
+      "Global firms, regional leaders and bold innovators have trusted Nodus to land and grow in Mexico.",
+    testimonios: [
+      {
+        cita: "The experience has been exceptional. The office style, flexibility and administrative support have been key to operating efficiently under our hybrid model. Additionally, the Nodus team stands out for its high-quality service.",
+        autor: "Administrative Manager, EY",
+      },
+      {
+        cita: "The personalized attention, the facilities and the follow-up on our needs were key factors in choosing Nodus. We've received support to grow and generate new opportunities, and their team's willingness has been essential to expanding our operations.",
+        autor: "HR Business Partner, Rápido Solutions Group",
+      },
+    ],
+    ctaTitulo: "Ready to establish your Captive Center in Mexico?",
+    ctaPuntos: [
+      "Establish operations in Mexico",
+      "Reduce operational costs",
+      "Set up a corporate back-office or support team",
+      "Access workspaces with zero upfront CAPEX",
+      "Get legal, tax or immigration support",
+      "Connect with local talent or institutions",
+    ],
+    ctaTexto:
+      "Schedule a meeting with our specialists and we'll advise you on the best location, workspace design and a launch plan that saves time and costs.",
+    ctaBoton: "Schedule a meeting",
+    ctaAsunto: "Captive Center: schedule a meeting",
+    ctaMensaje:
+      "Hi, I'm interested in Captive Center to establish operations in Mexico. I'd like to schedule a meeting.",
+    lema: "Growth starts with clarity. Let's build your landing strategy together.",
+  },
   servicios: {
     metaTitulo: "Services — Captive by Nodus",
     metaDescripcion:
@@ -1233,6 +1348,18 @@ export const en: Textos = {
     intro:
       "From finding the right warehouse, office or retail space to building it to suit or listing it: all in one place.",
     items: {
+      captiveCenter: {
+        titulo: "Captive Center: Soft Landing in Mexico",
+        resumen: "Your operations center in Mexico, with no upfront investment.",
+        descripcion:
+          "More than just office space: a strategic landing platform for international companies expanding into Mexico. It minimizes risk, shortens time-to-operation and gives your team the infrastructure, legal framework and local support they need to succeed, with zero upfront CAPEX.",
+        puntos: [
+          "Back-office, administrative hub or specialized teams",
+          "Custom-built spaces, design and operational management",
+          "Legal, tax and immigration advisory",
+        ],
+        boton: "Discover Captive Center",
+      },
       rentaVenta: {
         titulo: "Spaces for rent and sale",
         resumen: "Warehouses, offices and retail spaces ready to move in.",

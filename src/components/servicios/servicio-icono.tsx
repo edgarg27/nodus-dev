@@ -4,10 +4,12 @@ import {
   HammerIcon,
   KeyRoundIcon,
   type LucideIcon,
+  PlaneLandingIcon,
 } from "lucide-react";
 import type { ClaveServicio } from "@/lib/servicios";
 
 const ICONOS: Record<ClaveServicio, LucideIcon> = {
+  captiveCenter: PlaneLandingIcon,
   rentaVenta: Building2Icon,
   desdeCero: HammerIcon,
   financiamiento: BanknoteIcon,

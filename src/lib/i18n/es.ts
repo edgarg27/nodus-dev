@@ -1245,6 +1245,123 @@ export const es = {
       errorNumero: "Escribe un número válido",
     },
   },
+  // Sección completa de Captive Center en /servicios (de su presentación comercial).
+  captiveCenter: {
+    etiqueta: "Captive Center",
+    titulo: "Soft Landing estratégico para operaciones globales en México",
+    intro: [
+      "La estrategia avanza más rápido sobre el terreno correcto. Más que un espacio de oficina, es una plataforma de aterrizaje estratégico que reduce riesgos, acorta el tiempo para empezar a operar y le da a tu equipo la infraestructura, el marco legal y el soporte local que necesita, con cero CAPEX inicial.",
+      "Ya sea que lances un back-office, un centro administrativo o un equipo especializado, te damos una base que crece con tu operación desde el primer día. Captive Center es la solución de oficinas a la medida de Nodus para empresas internacionales que se expanden a México.",
+    ],
+    serviciosTitulo: "Diseñado para cómo crece tu empresa",
+    serviciosIntro:
+      "En Nodus desarrollamos centros de operación corporativos totalmente a la medida de tus objetivos de negocio. Del concepto a la gestión continua, con una experiencia BTS (Built to Suit) respaldada por soporte legal, técnico y estratégico.",
+    servicios: [
+      {
+        titulo: "Espacios a la medida",
+        texto: "Entrega en obra gris, semiacondicionada o BTS (Built to Suit).",
+      },
+      {
+        titulo: "Diseño y ejecución",
+        texto: "Concepto, distribución, construcción, sustentabilidad y alineación con tu marca.",
+      },
+      {
+        titulo: "Gestión operativa",
+        texto: "Servicios de mantenimiento, soporte de TI, seguridad, limpieza y más.",
+      },
+      {
+        titulo: "Asesoría legal, fiscal y migratoria",
+        texto: "Constitución de la empresa, representación, permisos y cumplimiento.",
+      },
+      {
+        titulo: "Factibilidad y evaluación de riesgos",
+        texto: "Selección del sitio y análisis legal y financiero.",
+      },
+      {
+        titulo: "Talento y relaciones institucionales",
+        texto: "Reclutamiento, vinculación con universidades y acceso a talento local.",
+      },
+    ],
+    beneficiosTitulo: "No solo un espacio: una plataforma pensada para la estrategia",
+    beneficiosIntro:
+      "No solo abrimos tu oficina: construimos tu plataforma de crecimiento en México.",
+    beneficios: [
+      "Hasta 50% de ahorro en costos operativos frente a esquemas tradicionales.",
+      "Implementación ágil y segura en cada etapa del proceso.",
+      "Expertos internos en derecho corporativo, impuestos y tecnología.",
+      "Comunidad empresarial activa para alianzas, servicios y apoyo desde el primer día.",
+      "Espacios de trabajo con cero CAPEX inicial.",
+    ],
+    beneficiosCierre:
+      "Con Nodus, tu oficina es solo el comienzo. El verdadero valor está en todo lo que viene con ella.",
+    ubicacionesTitulo: "Ubicaciones estratégicas para operaciones escalables",
+    ubicacionesIntro:
+      "Todas las ubicaciones están en los corredores comerciales más activos de México, con acceso inmediato a infraestructura, logística y talento de primer nivel.",
+    ubicaciones: [
+      { ciudad: "Aguascalientes", sedes: "San Telmo, Bosques y Punto 45" },
+      { ciudad: "León", sedes: "Puerta Bajío y Stadium" },
+      { ciudad: "Querétaro", sedes: "Central Park" },
+      { ciudad: "San Luis Potosí", sedes: "Ileva" },
+    ],
+    ubicacionesNota: "Evaluamos nuevas ubicaciones a petición.",
+    procesoTitulo: "Un proceso claro, de principio a fin",
+    procesoIntro: "Integramos cada paso para que empieces a operar sin contratiempos.",
+    proceso: [
+      {
+        titulo: "Validación y análisis",
+        puntos: [
+          "Estudios de factibilidad y financieros",
+          "Selección estratégica del sitio y representación del inquilino",
+          "Revisión legal y fiscal",
+        ],
+      },
+      {
+        titulo: "Diseño e instalación",
+        puntos: [
+          "Diseño a la medida y planeación del espacio",
+          "Construcción e implementación técnica",
+          "Criterios sustentables y equipamiento completo",
+        ],
+      },
+      {
+        titulo: "Arranque y operación",
+        puntos: [
+          "Administración integral de las instalaciones",
+          "Atracción y reubicación de talento",
+          "Soporte operativo continuo",
+        ],
+      },
+    ],
+    testimoniosTitulo: "Empresas que aterrizaron. Y despegaron.",
+    testimoniosIntro:
+      "Firmas globales, líderes regionales e innovadores han confiado en Nodus para llegar y crecer en México.",
+    testimonios: [
+      {
+        cita: "La experiencia ha sido excepcional. El estilo de las oficinas, la flexibilidad y el apoyo administrativo han sido clave para operar de forma eficiente con nuestro modelo híbrido. Además, el equipo de Nodus destaca por su servicio de alta calidad.",
+        autor: "Gerente administrativo, EY",
+      },
+      {
+        cita: "La atención personalizada, las instalaciones y el seguimiento a nuestras necesidades fueron factores clave para elegir Nodus. Hemos recibido apoyo para crecer y generar nuevas oportunidades, y la disposición de su equipo ha sido esencial para expandir nuestra operación.",
+        autor: "HR Business Partner, Rápido Solutions Group",
+      },
+    ],
+    ctaTitulo: "¿Listo para establecer tu Captive Center en México?",
+    ctaPuntos: [
+      "Establecer operaciones en México",
+      "Reducir costos operativos",
+      "Montar un back-office corporativo o un equipo de soporte",
+      "Acceder a espacios de trabajo con cero CAPEX inicial",
+      "Obtener apoyo legal, fiscal o migratorio",
+      "Conectar con talento o instituciones locales",
+    ],
+    ctaTexto:
+      "Agenda una reunión con nuestros especialistas y te asesoramos sobre la mejor ubicación, el diseño del espacio y un plan de arranque que ahorre tiempo y costos.",
+    ctaBoton: "Agendar una reunión",
+    ctaAsunto: "Captive Center: agendar una reunión",
+    ctaMensaje:
+      "Hola, me interesa Captive Center para establecer operaciones en México. Me gustaría agendar una reunión.",
+    lema: "El crecimiento comienza con la claridad. Construyamos juntos tu estrategia de aterrizaje.",
+  },
   servicios: {
     metaTitulo: "Servicios — Captive by Nodus",
     metaDescripcion:
@@ -1254,6 +1371,18 @@ export const es = {
     intro:
       "Desde encontrar la nave, oficina o local adecuado hasta construirlo a la medida o publicarlo: todo en un solo lugar.",
     items: {
+      captiveCenter: {
+        titulo: "Captive Center: Soft Landing en México",
+        resumen: "Tu centro de operaciones en México, sin inversión inicial.",
+        descripcion:
+          "Más que un espacio de oficina: una plataforma de aterrizaje estratégico para empresas internacionales que se expanden a México. Reduce riesgos, acorta el tiempo para empezar a operar y le da a tu equipo la infraestructura, el marco legal y el soporte local que necesita, con cero CAPEX inicial.",
+        puntos: [
+          "Back-office, centro administrativo o equipos especializados",
+          "Espacios a la medida, diseño y gestión operativa",
+          "Asesoría legal, fiscal y migratoria",
+        ],
+        boton: "Conocer Captive Center",
+      },
       rentaVenta: {
         titulo: "Renta y venta de espacios",
         resumen: "Naves, oficinas y locales listos para ocupar.",
