@@ -15,6 +15,7 @@ import { hrefWhatsappCaptive } from "@/lib/captive-ayuda";
 import { FINANCIAMIENTO_VISIBLE } from "@/lib/financiamiento-visibilidad";
 import type { Textos } from "@/lib/i18n";
 import { TIPOS_BUSQUEDA } from "@/lib/search-params";
+import { HeroSelect } from "./hero-select";
 import { LocationAutocomplete } from "./location-autocomplete";
 
 // Las etiquetas salen del diccionario del idioma activo; aquí solo los valores y su orden.
@@ -71,50 +72,37 @@ function SearchIcon() {
   );
 }
 
-function CampoModalidad({ id }: { id: string }) {
+// Modalidad y Tipo usan la misma lista desplegable que Ubicación (HeroSelect), no el menú nativo.
+function CampoModalidad({ id, flotante = false }: { id: string; flotante?: boolean }) {
   const { t } = useIdioma();
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={id} className="text-[13px] font-semibold text-foreground">
         {t.hero.modalidad}
       </label>
-      <select
+      <HeroSelect
         id={id}
         name="modalidad"
-        defaultValue=""
-        className="h-[46px] rounded-[10px] border border-input bg-background px-3.5 text-[15px] text-foreground"
-      >
-        <option value="">{t.hero.cualquiera}</option>
-        {opcionesModalidad(t).map((opcion) => (
-          <option key={opcion.value} value={opcion.value}>
-            {opcion.etiqueta}
-          </option>
-        ))}
-      </select>
+        flotante={flotante}
+        opciones={[{ value: "", etiqueta: t.hero.cualquiera }, ...opcionesModalidad(t)]}
+      />
     </div>
   );
 }
 
-function CampoTipo({ id }: { id: string }) {
+function CampoTipo({ id, flotante = false }: { id: string; flotante?: boolean }) {
   const { t } = useIdioma();
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={id} className="text-[13px] font-semibold text-foreground">
         {t.hero.tipo}
       </label>
-      <select
+      <HeroSelect
         id={id}
         name="tipo"
-        defaultValue=""
-        className="h-[46px] rounded-[10px] border border-input bg-background px-3.5 text-[15px] text-foreground"
-      >
-        <option value="">{t.hero.cualquiera}</option>
-        {opcionesTipo(t).map((opcion) => (
-          <option key={opcion.value} value={opcion.value}>
-            {opcion.etiqueta}
-          </option>
-        ))}
-      </select>
+        flotante={flotante}
+        opciones={[{ value: "", etiqueta: t.hero.cualquiera }, ...opcionesTipo(t)]}
+      />
     </div>
   );
 }
@@ -248,10 +236,10 @@ export function SearchHero() {
           >
             <div className="grid grid-cols-1 items-end gap-x-5 gap-y-5 min-[480px]:grid-cols-2 min-[480px]:gap-y-4 lg:grid-cols-12 lg:gap-y-[18px]">
               <div className="lg:col-span-3">
-                <CampoModalidad id="hero-modalidad" />
+                <CampoModalidad id="hero-modalidad" flotante />
               </div>
               <div className="lg:col-span-3">
-                <CampoTipo id="hero-tipo" />
+                <CampoTipo id="hero-tipo" flotante />
               </div>
               <div className={FINANCIAMIENTO_VISIBLE ? "lg:col-span-3" : "lg:col-span-5"}>
                 <CampoUbicacion id="hero-ubicacion" flotante />
