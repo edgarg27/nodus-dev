@@ -46,6 +46,7 @@ export function enlacesPorRol(actor: SiteHeaderActor, t: Textos["header"]): Enla
     ];
   }
   return [
+    { href: "/inicio", etiqueta: t.miInicio },
     { href: "/buscar", etiqueta: t.buscarEspacios },
     { href: "/mensajes", etiqueta: t.mensajes, insignia: actor.mensajesNoLeidos },
     ...guardados,

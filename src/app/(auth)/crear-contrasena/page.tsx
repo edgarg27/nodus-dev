@@ -9,7 +9,7 @@ interface CrearContrasenaPageProps {
 function destinoPorRol(rol: string): string {
   if (rol === "propietario") return "/panel";
   if (rol === "admin") return "/admin/propiedades";
-  return "/buscar";
+  return "/inicio";
 }
 
 // Se llega con la sesión que abrió el enlace del correo (confirmación de registro o recuperación).

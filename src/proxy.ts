@@ -37,6 +37,7 @@ const PREFIJOS_PROTEGIDOS = [
   "/verificacion",
   "/favoritos",
   "/mis-busquedas",
+  "/inicio",
   "/admin",
   "/api/v1/admin",
 ];

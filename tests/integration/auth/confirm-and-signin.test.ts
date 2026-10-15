@@ -102,7 +102,7 @@ describe("GET /auth/confirm", () => {
       const response = await GET(request);
 
       expect(response.status).toBe(307);
-      expect(response.headers.get("location")).toContain("/buscar");
+      expect(response.headers.get("location")).toContain("/inicio");
       expect(response.headers.get("location")).not.toContain("evil.example");
     }
   });

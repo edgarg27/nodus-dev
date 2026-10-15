@@ -111,13 +111,14 @@ export async function marcarBusquedaVista(
 }
 
 // Búsquedas del usuario con el total de resultados y cuántos se publicaron desde la última vez
-// que la abrió.
-export async function listarBusquedasGuardadas(usuarioId: string) {
+// que la abrió. `limite`: solo las más recientes (la pantalla de inicio del cliente muestra tres).
+export async function listarBusquedasGuardadas(usuarioId: string, limite?: number) {
   const filas = await db
     .select()
     .from(busquedaGuardada)
     .where(eq(busquedaGuardada.usuarioId, usuarioId))
-    .orderBy(desc(busquedaGuardada.createdAt));
+    .orderBy(desc(busquedaGuardada.createdAt))
+    .limit(limite ?? MAXIMO_BUSQUEDAS_POR_USUARIO);
 
   return Promise.all(
     filas.map(async (fila) => {
