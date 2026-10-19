@@ -3,9 +3,9 @@ import type { Textos } from "./es.ts";
 // Public-facing copy in English. Same shape as es.ts (enforced by `Textos`).
 export const en: Textos = {
   meta: {
-    tituloInicio: "Captive by Nodus — Industrial, office and retail space, nationwide and abroad",
+    tituloInicio: "Captive by Nodus — Office, industrial and retail space, nationwide and abroad",
     descripcionInicio:
-      "Find or list industrial warehouses, offices and retail spaces nationwide and abroad. Nodus connects companies with verified space providers.",
+      "Find or list offices, industrial warehouses and retail spaces nationwide and abroad. Nodus connects companies with verified space providers.",
   },
   etiquetas: {
     tipo: {
@@ -66,7 +66,7 @@ export const en: Textos = {
   },
   hero: {
     titulo: "Find the space to grow your business",
-    subtitulo: "Industrial warehouses, offices and retail spaces nationwide and abroad.",
+    subtitulo: "Offices, industrial warehouses and retail spaces nationwide and abroad.",
     modalidad: "Listing type",
     tipo: "Property type",
     ubicacion: "Location",
@@ -110,7 +110,7 @@ export const en: Textos = {
     buscas: {
       titulo: "Looking for a space?",
       texto:
-        "Find industrial warehouses, offices or retail spaces for rent, to buy or sell, or as BTS (build to suit).",
+        "Find offices, industrial warehouses or retail spaces for rent, to buy or sell, or as BTS (build to suit).",
       puntos: [
         "Filter by listing type, property type and location",
         "Compare spaces in one place",
@@ -132,7 +132,7 @@ export const en: Textos = {
   },
   destacados: {
     etiqueta: "Featured spaces",
-    titulo: "Warehouses, offices and retail ready for your next stage",
+    titulo: "Offices, warehouses and retail ready for your next stage",
     verTodos: "See all spaces",
     verDetalles: "View details",
   },
@@ -164,6 +164,10 @@ export const en: Textos = {
     casosTitulo: "Success stories",
     casosTexto: "Real stories from companies that already solved their space will appear here.",
     ejemplo: "Example",
+    carrusel: "Success stories",
+    casoAnterior: "Previous story",
+    casoSiguiente: "Next story",
+    irACaso: (n: number) => `Show story ${n}`,
     casosTextoReales: "Stories of companies that found their space.",
     logoAlt: "Nodus Flex Center",
     casos: [

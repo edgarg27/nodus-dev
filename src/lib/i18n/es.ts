@@ -2,9 +2,9 @@
 // misma forma: el tipo `Textos` sale de este objeto.
 export const es = {
   meta: {
-    tituloInicio: "Captive by Nodus — Naves, oficinas y locales a nivel nacional e internacional",
+    tituloInicio: "Captive by Nodus — Oficinas, naves y locales a nivel nacional e internacional",
     descripcionInicio:
-      "Encuentra o publica naves industriales, oficinas y locales comerciales a nivel nacional e internacional. Nodus conecta empresas con propietarios verificados.",
+      "Encuentra o publica oficinas, naves industriales y locales comerciales a nivel nacional e internacional. Nodus conecta empresas con propietarios verificados.",
   },
   etiquetas: {
     tipo: {
@@ -68,7 +68,7 @@ export const es = {
   hero: {
     titulo: "Encuentra el espacio para hacer crecer tu negocio",
     subtitulo:
-      "Naves industriales, oficinas y locales comerciales a nivel nacional e internacional.",
+      "Oficinas, naves industriales y locales comerciales a nivel nacional e internacional.",
     modalidad: "Modalidad",
     tipo: "Tipo de inmueble",
     ubicacion: "Ubicación",
@@ -112,7 +112,7 @@ export const es = {
     buscas: {
       titulo: "¿Buscas un espacio?",
       texto:
-        "Encuentra naves industriales, oficinas o locales comerciales en renta, compra / venta o en esquema BTS (Built to Suit).",
+        "Encuentra oficinas, naves industriales o locales comerciales en renta, compra / venta o en esquema BTS (Built to Suit).",
       puntos: [
         "Filtra por modalidad, tipo y ubicación",
         "Compara espacios en un solo lugar",
@@ -134,7 +134,7 @@ export const es = {
   },
   destacados: {
     etiqueta: "Espacios destacados",
-    titulo: "Naves, oficinas y locales listos para tu próxima etapa",
+    titulo: "Oficinas, naves y locales listos para tu próxima etapa",
     verTodos: "Ver todos los espacios",
     verDetalles: "Ver detalles",
   },
@@ -166,6 +166,10 @@ export const es = {
     casosTitulo: "Casos de éxito",
     casosTexto: "Aquí aparecerán los casos reales de empresas que ya resolvieron su espacio.",
     ejemplo: "Ejemplo",
+    carrusel: "Casos de éxito",
+    casoAnterior: "Caso anterior",
+    casoSiguiente: "Caso siguiente",
+    irACaso: (n: number) => `Ver caso ${n}`,
     casosTextoReales: "Historias de empresas que encontraron su espacio.",
     logoAlt: "Nodus Flex Center",
     casos: [

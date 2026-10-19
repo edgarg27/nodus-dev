@@ -2,10 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { type Idioma, textosDe } from "@/lib/i18n";
 
-// Ligas a las páginas por tipo (todas las ciudades), para visitantes y para Google.
+// Ligas a las páginas por tipo (todas las ciudades), para visitantes y para Google. Mismo orden que
+// la portada: oficinas, naves y locales.
 const EXPLORAR = [
-  { href: "/renta/naves-industriales", tipo: "nave_industrial", modalidad: "renta" },
   { href: "/renta/oficinas", tipo: "oficina", modalidad: "renta" },
+  { href: "/renta/naves-industriales", tipo: "nave_industrial", modalidad: "renta" },
   { href: "/renta/locales-comerciales", tipo: "local_comercial", modalidad: "renta" },
   { href: "/venta/naves-industriales", tipo: "nave_industrial", modalidad: "venta" },
 ];
