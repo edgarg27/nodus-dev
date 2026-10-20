@@ -1,0 +1,33 @@
+# Captive Center en producción (captivecenter.nodus.mx). Vive en el mismo VPS que nodus-app y se
+# conecta a su red de Docker: el Caddy de nodus-app recibe el tráfico, saca el certificado HTTPS y
+# se lo pasa a este contenedor (`captive:3000`). Las variables salen de `.env` (cópialo de
+# .env.production.example y llénalo); nunca lo subas a git.
+
+services:
+  captive:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_MAPTILER_KEY: ${NEXT_PUBLIC_MAPTILER_KEY}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+        NEXT_PUBLIC_SUPPORT_WHATSAPP: ${NEXT_PUBLIC_SUPPORT_WHATSAPP:-}
+        NEXT_PUBLIC_CAPTIVE_WHATSAPP: ${NEXT_PUBLIC_CAPTIVE_WHATSAPP:-}
+    image: captive-app:latest
+    env_file: .env
+    environment:
+      TZ: America/Mexico_City
+    restart: unless-stopped
+    expose:
+      - "3000"
+    networks:
+      nodus:
+        aliases:
+          - captive
+
+networks:
+  # La red que crea el docker-compose de nodus-app (/opt/nodus), donde está su Caddy.
+  nodus:
+    external: true
+    name: nodus_default

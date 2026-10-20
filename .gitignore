@@ -20,6 +20,7 @@ next-env.d.ts
 .env*
 !.env.example
 !.env.test.example
+!.env.production.example
 
 # --- Nodus: propio del proyecto ---
 # (Sin Supabase CLI ni Docker: no hay estado local de servicios que ignorar.)

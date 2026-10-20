@@ -3,9 +3,10 @@ import { todasLasLandings, urlDelSitio } from "@/lib/landing-pages";
 import { listarIdsPublicos } from "@/server/properties/queries";
 
 // /sitemap.xml: portada, búsqueda, servicios, páginas por tipo y ciudad, y cada espacio público.
-// Se regenera cada hora: si no, se generaría una sola vez al compilar y los espacios publicados
-// después no llegarían a Google hasta el siguiente despliegue.
-export const revalidate = 3600;
+// Se arma en cada petición: prerenderizado se generaría una sola vez al compilar (y la imagen de
+// Docker no tiene acceso a la base al compilar), así que los espacios publicados después nunca
+// llegarían a Google.
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = urlDelSitio();
