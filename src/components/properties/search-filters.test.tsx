@@ -1,9 +1,19 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { ESTADOS_MX } from "@/lib/estados";
 import { SearchFilters, type SearchFiltersInitial } from "./search-filters";
+
+// El financiamiento está oculto con FINANCIAMIENTO_VISIBLE (src/lib/financiamiento-visibilidad.ts).
+// Estas pruebas lo encienden para seguir cubriéndolo mientras tanto, y comprueban también que
+// apagado no aparece.
+const bandera = vi.hoisted(() => ({ visible: true }));
+vi.mock("@/lib/financiamiento-visibilidad", () => ({
+  get FINANCIAMIENTO_VISIBLE() {
+    return bandera.visible;
+  },
+}));
 
 async function abrirPanel() {
   await userEvent.click(screen.getByRole("button", { name: "Filtros" }));
@@ -18,6 +28,16 @@ function formulario(): HTMLFormElement {
 describe("SearchFilters", () => {
   afterEach(() => {
     cleanup();
+    bandera.visible = true;
+  });
+
+  it("con el financiamiento oculto no muestra sus radios ni manda el parámetro", async () => {
+    bandera.visible = false;
+    render(<SearchFilters initial={{ financiamiento: "true" }} />);
+    await abrirPanel();
+
+    expect(screen.queryByRole("radio", { name: "Sí" })).toBeNull();
+    expect(new FormData(formulario()).has("financiamiento")).toBe(false);
   });
 
   it("el select de estado incluye Cualquiera y los 3 estados, y preselecciona initial.estado", async () => {

@@ -7,6 +7,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { PropertyFormBasicsFields } from "./property-form-basics-fields";
 import { type PropertyFormValues, propertyFormSchema } from "./property-form-schema";
 
+// El financiamiento está oculto con FINANCIAMIENTO_VISIBLE (src/lib/financiamiento-visibilidad.ts).
+// Estas pruebas lo encienden para seguir cubriéndolo mientras tanto, y comprueban también que
+// apagado no aparece ni borra lo ya guardado.
+const bandera = vi.hoisted(() => ({ visible: true }));
+vi.mock("@/lib/financiamiento-visibilidad", () => ({
+  get FINANCIAMIENTO_VISIBLE() {
+    return bandera.visible;
+  },
+}));
+
 const VALORES_BASE: PropertyFormValues = {
   tipo: "nave_industrial",
   modalidad: "renta",
@@ -46,6 +56,19 @@ function Arnes({
 describe("PropertyFormBasicsFields / aceptaFinanciamiento", () => {
   afterEach(() => {
     cleanup();
+    bandera.visible = true;
+  });
+
+  it("con el financiamiento oculto no muestra los radios y conserva el valor guardado", async () => {
+    bandera.visible = false;
+    const onEnviar = vi.fn();
+    render(<Arnes defaultValues={{ aceptaFinanciamiento: "true" }} onEnviar={onEnviar} />);
+
+    expect(screen.queryByRole("radio", { name: "Sí" })).toBeNull();
+    await userEvent.click(screen.getByRole("button", { name: "Enviar" }));
+
+    expect(onEnviar).toHaveBeenCalledTimes(1);
+    expect(onEnviar.mock.calls[0]?.[0].aceptaFinanciamiento).toBe("true");
   });
 
   it("sin tocar el campo, el envío incluye aceptaFinanciamiento: false", async () => {
