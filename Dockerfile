@@ -47,8 +47,10 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
     NEXT_PUBLIC_CAPTIVE_WHATSAPP=$NEXT_PUBLIC_CAPTIVE_WHATSAPP
 
 # Al reunir los datos de las páginas, Next importa módulos que exigen las cadenas de la base. El .env
-# del servidor entra como secreto de BuildKit: existe solo durante este paso y no queda en la imagen.
-RUN --mount=type=secret,id=dotenv,target=/app/.env pnpm build
+# del servidor entra como secreto de BuildKit, solo durante este paso. La salida standalone copia
+# los .env que encuentra: se borran ahí mismo para que ningún secreto quede en la imagen (entran al
+# arrancar, con env_file).
+RUN --mount=type=secret,id=dotenv,target=/app/.env     pnpm build && rm -f .next/standalone/.env .next/standalone/.env.*
 
 # ---------- 3. Imagen final ----------
 FROM node:24-bookworm-slim AS runner
