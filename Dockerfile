@@ -18,9 +18,16 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
+# ---------- Migraciones ----------
+# Solo drizzle-kit y las migraciones: deploy/actualizar.sh la construye con `--target migrar` y la
+# corre con el .env del servidor antes de arrancar la versión nueva.
+FROM deps AS migrar
+COPY drizzle.config.ts ./
+COPY drizzle ./drizzle
+COPY src/lib/db ./src/lib/db
+CMD ["pnpm", "exec", "drizzle-kit", "migrate"]
+
 # ---------- 2. Construcción ----------
-# También sirve para aplicar migraciones (trae drizzle-kit): deploy/actualizar.sh la usa con
-# `--target build` antes de arrancar la versión nueva.
 FROM base AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -39,7 +46,9 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
     NEXT_PUBLIC_SUPPORT_WHATSAPP=$NEXT_PUBLIC_SUPPORT_WHATSAPP \
     NEXT_PUBLIC_CAPTIVE_WHATSAPP=$NEXT_PUBLIC_CAPTIVE_WHATSAPP
 
-RUN pnpm build
+# Al reunir los datos de las páginas, Next importa módulos que exigen las cadenas de la base. El .env
+# del servidor entra como secreto de BuildKit: existe solo durante este paso y no queda en la imagen.
+RUN --mount=type=secret,id=dotenv,target=/app/.env pnpm build
 
 # ---------- 3. Imagen final ----------
 FROM node:24-bookworm-slim AS runner

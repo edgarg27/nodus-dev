@@ -14,6 +14,9 @@ services:
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
         NEXT_PUBLIC_SUPPORT_WHATSAPP: ${NEXT_PUBLIC_SUPPORT_WHATSAPP:-}
         NEXT_PUBLIC_CAPTIVE_WHATSAPP: ${NEXT_PUBLIC_CAPTIVE_WHATSAPP:-}
+      # El .env entra al paso de construcción como secreto (ver Dockerfile), sin quedar en la imagen.
+      secrets:
+        - dotenv
     image: captive-app:latest
     env_file: .env
     environment:
@@ -25,6 +28,10 @@ services:
       nodus:
         aliases:
           - captive
+
+secrets:
+  dotenv:
+    file: ./.env
 
 networks:
   # La red que crea el docker-compose de nodus-app (/opt/nodus), donde está su Caddy.

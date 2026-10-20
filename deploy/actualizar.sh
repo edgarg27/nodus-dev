@@ -16,14 +16,8 @@ echo "==> Construyendo"
 docker compose build captive
 
 echo "==> Aplicando migraciones de la base"
-# La etapa "build" del Dockerfile trae drizzle-kit; ya quedó en caché del paso anterior.
-docker build --target build -t captive-migrar \
-  --build-arg NEXT_PUBLIC_SUPABASE_URL="$(grep ^NEXT_PUBLIC_SUPABASE_URL= .env | cut -d= -f2-)" \
-  --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="$(grep ^NEXT_PUBLIC_SUPABASE_ANON_KEY= .env | cut -d= -f2-)" \
-  --build-arg NEXT_PUBLIC_MAPTILER_KEY="$(grep ^NEXT_PUBLIC_MAPTILER_KEY= .env | cut -d= -f2-)" \
-  --build-arg NEXT_PUBLIC_SITE_URL="$(grep ^NEXT_PUBLIC_SITE_URL= .env | cut -d= -f2-)" \
-  . >/dev/null
-docker run --rm --env-file .env captive-migrar pnpm db:migrate
+docker build --target migrar -t captive-migrar . >/dev/null
+docker run --rm --env-file .env captive-migrar
 
 echo "==> Reiniciando"
 docker compose up -d
