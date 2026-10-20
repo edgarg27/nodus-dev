@@ -8,7 +8,8 @@ import { MONEDAS, type Moneda } from "./property-details.ts";
 
 export const MODALIDADES_BUSQUEDA = ["renta", "venta", "desde_cero"] as const;
 // En el orden en que se ofrecen en los selectores: oficina, local comercial, naves y bodegas.
-export const TIPOS_BUSQUEDA = ["oficina", "local_comercial", "nave_industrial"] as const;
+// En este orden se muestran en el buscador de la portada y en los filtros.
+export const TIPOS_BUSQUEDA = ["oficina", "nave_industrial", "local_comercial"] as const;
 export const ESTADOS_BUSQUEDA = CODIGOS_ESTADO;
 export const ORDENES_BUSQUEDA = [
   "relevancia",

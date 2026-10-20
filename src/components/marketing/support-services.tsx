@@ -1,9 +1,10 @@
-import { ArrowUpRightIcon, BuildingIcon } from "lucide-react";
+import { ArrowUpRightIcon } from "lucide-react";
 import Image from "next/image";
 import type { CasoExitoVista } from "@/lib/casos-exito";
 import { type Idioma, textosDe } from "@/lib/i18n";
 import { LOGO_BANNER, LOGO_BANNER_ALTO, LOGO_BANNER_ANCHO, URL_NODUS } from "@/lib/servicios-apoyo";
 import { Reveal } from "./reveal";
+import { type CasoCarrusel, SuccessCasesCarousel } from "./success-cases-carousel";
 
 interface SupportServicesProps {
   idioma: Idioma;
@@ -12,12 +13,12 @@ interface SupportServicesProps {
   casos: CasoExitoVista[];
 }
 
-// "Encuentra tu servicio de apoyo": banner publicitario de Nodus (con su logotipo) y casos de
-// éxito, que el admin captura en /admin/casos-exito.
+// "Encuentra tu servicio de apoyo": banner publicitario de Nodus (con su logotipo) y carrusel de
+// casos de éxito, que el admin captura en /admin/casos-exito.
 export function SupportServices({ idioma, casos }: SupportServicesProps) {
   const t = textosDe(idioma).apoyo;
   const hayCasosReales = casos.length > 0;
-  const tarjetas: (CasoExitoVista & { ejemplo: boolean })[] = hayCasosReales
+  const tarjetas: CasoCarrusel[] = hayCasosReales
     ? casos.map((caso) => ({ ...caso, ejemplo: false }))
     : t.casos.map((caso, indice) => ({
         id: `ejemplo-${indice}`,
@@ -74,37 +75,7 @@ export function SupportServices({ idioma, casos }: SupportServicesProps) {
               {hayCasosReales ? t.casosTextoReales : t.casosTexto}
             </p>
           </div>
-          <ul className="grid gap-5 md:grid-cols-3">
-            {tarjetas.map((caso) => (
-              <li
-                key={caso.id}
-                className="flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-sm"
-              >
-                <div className="relative flex h-40 items-center justify-center bg-gradient-to-br from-primary/70 to-primary text-primary-foreground/60">
-                  {caso.fotoUrl ? (
-                    // biome-ignore lint/performance/noImgElement: fotografía subida por el admin
-                    <img src={caso.fotoUrl} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <BuildingIcon className="size-10" strokeWidth={1.5} aria-hidden="true" />
-                  )}
-                  {caso.ejemplo ? (
-                    <span className="absolute top-3 left-3 rounded-full bg-surface px-2.5 py-0.5 text-xs font-bold text-foreground">
-                      {t.ejemplo}
-                    </span>
-                  ) : null}
-                </div>
-                <div className="flex flex-col gap-2 p-5">
-                  <span className="text-xs font-semibold tracking-wide text-warning uppercase">
-                    {caso.sector}
-                  </span>
-                  <h4 className="text-[17px] leading-snug font-bold text-foreground">
-                    {caso.titulo}
-                  </h4>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{caso.texto}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <SuccessCasesCarousel casos={tarjetas} />
         </div>
       </Reveal>
     </section>
