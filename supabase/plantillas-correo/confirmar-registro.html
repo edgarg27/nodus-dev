@@ -1,0 +1,38 @@
+<!--
+  Supabase → Authentication → Emails → Templates → "Confirm signup".
+  Asunto: Confirma tu cuenta en Captive Center
+  El enlace usa token_hash (funciona aunque se abra en otro navegador o dispositivo) y lo procesa
+  /auth/confirm, que lleva a "Crea tu contraseña".
+-->
+<div style="margin:0;padding:32px 16px;background:#f5f4f0;font-family:Arial,Helvetica,sans-serif;color:#0b1e3d;">
+  <div style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e6e3dc;">
+    <div style="padding:28px 32px 8px;">
+      <img src="{{ .SiteURL }}/brand/captive-center-logo-claro.png" alt="Captive Center" width="150" style="display:block;height:auto;border:0;" />
+    </div>
+    <div style="padding:16px 32px 32px;">
+      <h1 style="margin:0 0 12px;font-size:22px;line-height:1.3;color:#0b1e3d;">Confirma tu correo</h1>
+      <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#4a5568;">
+        Gracias por registrarte en Captive Center. Confirma tu correo para activar tu cuenta; después
+        elegirás tu contraseña.
+      </p>
+      <p style="margin:0 0 24px;">
+        <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email"
+           style="display:inline-block;background:#f2875a;color:#0b1e3d;text-decoration:none;font-weight:bold;font-size:15px;padding:14px 28px;border-radius:10px;">
+          Confirmar mi correo
+        </a>
+      </p>
+      <p style="margin:0 0 8px;font-size:13px;line-height:1.6;color:#718096;">
+        Si el botón no funciona, copia y pega este enlace en tu navegador:
+      </p>
+      <p style="margin:0 0 24px;font-size:12px;line-height:1.5;word-break:break-all;color:#4a5568;">
+        {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email
+      </p>
+      <p style="margin:0;font-size:13px;line-height:1.6;color:#718096;">
+        Si tú no creaste esta cuenta, ignora este correo.
+      </p>
+    </div>
+    <div style="padding:16px 32px;background:#0b1e3d;color:#c9d1e0;font-size:12px;line-height:1.5;">
+      Captive Center by Nodus Flex Center · Oficinas, naves y locales a nivel nacional e internacional
+    </div>
+  </div>
+</div>
