@@ -168,8 +168,14 @@ export function SignUpForm({ ref, rolInicial = "buscador" }: SignUpFormProps) {
 
   async function reenviarCorreo() {
     const supabase = createClient();
-    await supabase.auth.resend({ type: "signup", email: emailEnviado });
-    setMensajeReenvio("Correo reenviado");
+    const { error } = await supabase.auth.resend({ type: "signup", email: emailEnviado });
+    // Supabase no reenvía la confirmación a una cuenta ya confirmada (ni dice si existe), así que el
+    // aviso no promete que el correo salió.
+    setMensajeReenvio(
+      error && /rate|too many|seconds/i.test(error.message)
+        ? "Espera un momento antes de pedir otro correo."
+        : "Si tu cuenta aún no está confirmada, te lo enviamos de nuevo. Si ya la confirmaste, inicia sesión o usa «¿Olvidaste tu contraseña?».",
+    );
     setSegundosParaReenvio(SEGUNDOS_ESPERA_REENVIO);
     const intervalo = setInterval(() => {
       setSegundosParaReenvio((segundos) => {
