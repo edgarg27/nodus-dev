@@ -1,9 +1,10 @@
-import { eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { datosPropietarioDeMetadata } from "../../lib/auth/datos-propietario.ts";
 import { db } from "../../lib/db/client.ts";
 import { agenciaPerfil, usuario } from "../../lib/db/schema.ts";
 import { createClient } from "../../lib/supabase/server.ts";
 import { abrirSolicitudPorRegistro } from "../broker-requests/mutations.ts";
+import { crearClienteAdmin } from "../supabase/admin.ts";
 
 export interface ActorAutenticado {
   id: string;
@@ -31,6 +32,35 @@ function mapearActor(fila: typeof usuario.$inferSelect): ActorAutenticado {
     tipoAnunciante: fila.tipoAnunciante,
     numeroPropietario: fila.numeroPropietario,
   };
+}
+
+// Si en Supabase Auth se borra una cuenta y se vuelve a crear con el mismo correo, la fila vieja de
+// `usuario` (con el id de la cuenta borrada) conserva ese correo, que es único: la cuenta nueva no se
+// podría aprovisionar y quedaría "atorada" (con sesión, pero sin usuario en la app). Aquí, solo si
+// la cuenta vieja ya no existe en Auth, se le cambia el correo a "nombre+anterior-<id>@dominio"; la
+// fila se conserva con su historial (aprobaciones, solicitudes) y la nueva se crea normal.
+async function liberarCorreoDeCuentaBorrada(id: string, email: string): Promise<void> {
+  if (!email) return;
+  const [anterior] = await db
+    .select({ id: usuario.id })
+    .from(usuario)
+    .where(and(eq(usuario.email, email), ne(usuario.id, id)));
+  if (!anterior) return;
+
+  const { data, error } = await crearClienteAdmin().auth.admin.getUserById(anterior.id);
+  // Solo si Auth confirma que no existe; ante cualquier otro error no se toca nada.
+  const yaNoExiste =
+    !data?.user && (error?.status === 404 || /not found/i.test(error?.message ?? ""));
+  if (!yaNoExiste) return;
+
+  const [local, dominio] = email.split("@");
+  await db
+    .update(usuario)
+    .set({
+      email: `${local}+anterior-${anterior.id.slice(0, 8)}@${dominio}`,
+      updatedAt: new Date(),
+    })
+    .where(eq(usuario.id, anterior.id));
 }
 
 /**
@@ -76,6 +106,7 @@ export async function getUsuarioActual(): Promise<ActorAutenticado | null> {
   // vuelve el nombre de su agencia). Datos inválidos se ignoran: los puede completar en su perfil.
   const datosPropietario = rol === "propietario" ? datosPropietarioDeMetadata(metadata) : null;
 
+  await liberarCorreoDeCuentaBorrada(id, email);
   const insertados = await db
     .insert(usuario)
     .values({
