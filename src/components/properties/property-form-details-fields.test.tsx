@@ -91,7 +91,7 @@ describe("PropertyFormDetailsFields", () => {
     await userEvent.click(screen.getByRole("button", { name: "Enviar" }));
 
     expect(onEnviar).not.toHaveBeenCalled();
-    expect(await screen.findByText("Escribe un número o un rango, como 450 - 1200")).toBeTruthy();
+    expect(await screen.findByText("Escribe un número válido")).toBeTruthy();
     expect(screen.getByText("Escribe un número entero")).toBeTruthy();
   });
 

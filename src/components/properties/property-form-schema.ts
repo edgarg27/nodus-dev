@@ -35,7 +35,8 @@ function campoNumerico(opciones: { entero?: boolean; maximo: number }, m: Mensaj
     );
 }
 
-// Precio y mantenimiento aceptan un número o un rango en la misma casilla ("450 - 1200").
+// Precio y mantenimiento aceptan un número o un rango en la misma casilla ("450 - 1200"), sin
+// anunciarlo: el error es el mismo que el de cualquier número.
 function campoRango(maximo: number, m: MensajesFormulario) {
   return z
     .string()
@@ -44,7 +45,7 @@ function campoRango(maximo: number, m: MensajesFormulario) {
     .refine((valor) => {
       const rango = textoARango(valor);
       return rango !== null && (rango.hasta ?? rango.desde ?? 0) <= maximo;
-    }, m.errorRango);
+    }, m.errorNumero);
 }
 
 // El esquema se arma con los mensajes del idioma activo (el formulario usa crearPropertyFormSchema);
@@ -67,7 +68,7 @@ export function crearPropertyFormSchema(m: MensajesFormulario) {
     precio: campoRango(999_999_999_999, m),
     moneda: z.enum(MONEDAS).optional(),
     precioUnidad: z.enum(UNIDADES_PRECIO).optional(),
-    mantenimiento: campoRango(999_999_999_999, m),
+    mantenimiento: campoRango(9_999_999_999, m),
     superficieConstruidaM2: campoNumerico({ maximo: 9_999_999_999 }, m),
     superficieTerrenoM2: campoNumerico({ maximo: 9_999_999_999 }, m),
     banos: campoNumerico({ entero: true, maximo: 9_999 }, m),
