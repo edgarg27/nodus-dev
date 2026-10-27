@@ -18,6 +18,10 @@ describe("textoARango", () => {
     expect(textoARango("450 a 1200")).toEqual({ desde: 450, hasta: 1200 });
   });
 
+  it("no tiene tope", () => {
+    expect(textoARango("0 - 5,000,000,000,000")).toEqual({ desde: 0, hasta: 5_000_000_000_000 });
+  });
+
   it("rechaza texto, negativos, rangos al revés o de tres partes", () => {
     expect(textoARango("abc")).toBeNull();
     expect(textoARango("-450")).toBeNull();
