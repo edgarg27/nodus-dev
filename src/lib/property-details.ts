@@ -12,9 +12,8 @@ export const UNIDADES_PRECIO = ["total", "m2"] as const;
 export type Moneda = (typeof MONEDAS)[number];
 export type UnidadPrecio = (typeof UNIDADES_PRECIO)[number];
 
-const MONTO_MAXIMO = 999_999_999_999;
-
-const monto = z.number().min(0).max(MONTO_MAXIMO).nullable();
+// Precio y mantenimiento sin tope (columnas numeric sin precisión).
+const monto = z.number().min(0).nullable();
 const superficie = z.number().min(0).max(9_999_999_999).nullable();
 const conteo = z.number().int().min(0).max(9_999).nullable();
 

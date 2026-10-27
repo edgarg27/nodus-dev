@@ -47,10 +47,9 @@ function CampoNumero({
   register: UseFormRegister<PropertyFormValues>;
   errors: FieldErrors<PropertyFormValues>;
   decimales?: boolean;
-  // Acepta "450 - 1200": teclado de texto (el numérico del celular no trae guion) y ejemplo.
+  // Acepta "450 - 1200": teclado de texto (el numérico del celular no trae guion).
   rango?: boolean;
 }) {
-  const f = useIdioma().t.panel.formulario;
   const error = errors[campo];
   return (
     <div className="flex flex-col gap-2">
@@ -61,7 +60,6 @@ function CampoNumero({
       <Input
         id={campo}
         inputMode={rango ? "text" : decimales ? "decimal" : "numeric"}
-        placeholder={rango ? f.placeholderRango : undefined}
         autoComplete="off"
         className={inputClassName}
         {...register(campo)}

@@ -111,15 +111,16 @@ export const propiedad = pgTable(
     activo: boolean("activo").notNull().default(true),
     aceptaFinanciamiento: boolean("acepta_financiamiento").notNull().default(false),
     // Datos del espacio (todos opcionales: las propiedades anteriores no los tienen). Un precio
-    // nulo se muestra como "Precio a consultar". En renta el precio es mensual.
-    precio: numeric("precio", { precision: 14, scale: 2, mode: "number" }),
+    // nulo se muestra como "Precio a consultar". En renta el precio es mensual. Precio y
+    // mantenimiento son numeric sin precisión: no tienen tope.
+    precio: numeric("precio", { mode: "number" }),
     moneda: text("moneda").notNull().default("MXN"),
     precioUnidad: text("precio_unidad").notNull().default("total"),
-    mantenimiento: numeric("mantenimiento", { precision: 12, scale: 2, mode: "number" }),
+    mantenimiento: numeric("mantenimiento", { mode: "number" }),
     // Tope opcional cuando el propietario da un rango ("450 - 1200"): precio y mantenimiento son
     // el "desde" y estas columnas el "hasta" (nulo = un solo valor).
-    precioMax: numeric("precio_max", { precision: 14, scale: 2, mode: "number" }),
-    mantenimientoMax: numeric("mantenimiento_max", { precision: 12, scale: 2, mode: "number" }),
+    precioMax: numeric("precio_max", { mode: "number" }),
+    mantenimientoMax: numeric("mantenimiento_max", { mode: "number" }),
     superficieConstruidaM2: numeric("superficie_construida_m2", {
       precision: 12,
       scale: 2,

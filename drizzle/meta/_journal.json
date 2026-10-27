@@ -281,6 +281,13 @@
       "when": 1793062243591,
       "tag": "0039_precio_rango",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1793063186795,
+      "tag": "0040_precio_sin_tope",
+      "breakpoints": true
     }
   ]
 }
