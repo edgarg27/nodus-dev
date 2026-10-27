@@ -4,6 +4,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useForm } from "react-hook-form";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { textoARango } from "@/lib/precio-rango";
 import { PropertyFormDetailsFields } from "./property-form-details-fields";
 import { type PropertyFormValues, propertyFormSchema, textoANumero } from "./property-form-schema";
 
@@ -75,7 +76,7 @@ describe("PropertyFormDetailsFields", () => {
 
     expect(onEnviar).toHaveBeenCalledOnce();
     const valores = onEnviar.mock.calls[0]?.[0] as PropertyFormValues;
-    expect(textoANumero(valores.precio)).toBe(38000);
+    expect(textoARango(valores.precio)).toEqual({ desde: 38000, hasta: null });
     expect(textoANumero(valores.superficieConstruidaM2)).toBe(1856.5);
     expect(textoANumero(valores.andenes)).toBe(4);
     expect(textoANumero(valores.banos)).toBeNull();
@@ -90,7 +91,21 @@ describe("PropertyFormDetailsFields", () => {
     await userEvent.click(screen.getByRole("button", { name: "Enviar" }));
 
     expect(onEnviar).not.toHaveBeenCalled();
-    expect(await screen.findByText("Escribe un número válido")).toBeTruthy();
+    expect(await screen.findByText("Escribe un número o un rango, como 450 - 1200")).toBeTruthy();
     expect(screen.getByText("Escribe un número entero")).toBeTruthy();
+  });
+
+  it("acepta precio y mantenimiento como rango en la misma casilla", async () => {
+    const onEnviar = vi.fn();
+    render(<Arnes tipo="oficina" onEnviar={onEnviar} />);
+
+    await userEvent.type(screen.getByLabelText("Renta mensual"), "450 - 1200");
+    await userEvent.type(screen.getByLabelText(/Mantenimiento/), "67.5 - 180");
+    await userEvent.click(screen.getByRole("button", { name: "Enviar" }));
+
+    expect(onEnviar).toHaveBeenCalledOnce();
+    const valores = onEnviar.mock.calls[0]?.[0] as PropertyFormValues;
+    expect(textoARango(valores.precio)).toEqual({ desde: 450, hasta: 1200 });
+    expect(textoARango(valores.mantenimiento)).toEqual({ desde: 67.5, hasta: 180 });
   });
 });

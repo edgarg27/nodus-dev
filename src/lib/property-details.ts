@@ -24,6 +24,9 @@ export const detallesPropiedadSchema = z.object({
   moneda: z.enum(MONEDAS).optional(),
   precioUnidad: z.enum(UNIDADES_PRECIO).optional(),
   mantenimiento: monto.optional(),
+  // "Hasta" de un rango; si no supera al "desde" se guarda nulo (ver detallesParaGuardar).
+  precioMax: monto.optional(),
+  mantenimientoMax: monto.optional(),
   superficieConstruidaM2: superficie.optional(),
   superficieTerrenoM2: superficie.optional(),
   banos: conteo.optional(),
@@ -44,6 +47,8 @@ export const CAMPOS_DETALLE = [
   "moneda",
   "precioUnidad",
   "mantenimiento",
+  "precioMax",
+  "mantenimientoMax",
   "superficieConstruidaM2",
   "superficieTerrenoM2",
   "banos",
@@ -71,6 +76,8 @@ export interface DetallesPropiedad {
   moneda: string;
   precioUnidad: string;
   mantenimiento: number | null;
+  precioMax: number | null;
+  mantenimientoMax: number | null;
   superficieConstruidaM2: number | null;
   superficieTerrenoM2: number | null;
   banos: number | null;
@@ -91,10 +98,12 @@ function formatoNumero(valor: number, decimales = 0, idioma: Idioma = "es"): str
   });
 }
 
-// "$38,000 MXN /mes", "USD 4.50 /m² /mes", "$12,500,000 MXN" o "Precio a consultar".
+// "$38,000 MXN /mes", "USD 4.50 /m² /mes", "$450 – $1,200 MXN /m²" (rango) o "Precio a consultar".
 // El idioma solo cambia "/mes" y "Precio a consultar" (los paneles internos usan el default).
 export function formatearPrecio(
-  detalles: Pick<DetallesPropiedad, "precio" | "moneda" | "precioUnidad">,
+  detalles: Pick<DetallesPropiedad, "precio" | "moneda" | "precioUnidad"> & {
+    precioMax?: number | null;
+  },
   modalidad: string,
   idioma: Idioma = "es",
 ): string {
@@ -102,10 +111,15 @@ export function formatearPrecio(
   if (detalles.precio === null) return t.precioAConsultar;
   const prefijo = detalles.moneda === "USD" ? "USD " : "$";
   const sufijoMoneda = detalles.moneda === "USD" ? "" : " MXN";
-  const decimales = Number.isInteger(detalles.precio) ? 0 : 2;
+  const monto = (valor: number) =>
+    `${prefijo}${formatoNumero(valor, Number.isInteger(valor) ? 0 : 2, idioma)}`;
+  const tope =
+    detalles.precioMax != null && detalles.precioMax > detalles.precio
+      ? ` – ${monto(detalles.precioMax)}`
+      : "";
   const porM2 = detalles.precioUnidad === "m2" ? " /m²" : "";
   const porMes = modalidad === "renta" ? t.porMes : "";
-  return `${prefijo}${formatoNumero(detalles.precio, decimales, idioma)}${sufijoMoneda}${porM2}${porMes}`;
+  return `${monto(detalles.precio)}${tope}${sufijoMoneda}${porM2}${porMes}`;
 }
 
 // Etiquetas cortas para tarjetas: "1,856 m²", "5 baños", "3 estacionamientos", "8 m de altura libre"…
@@ -197,7 +211,12 @@ export function especificaciones(
     filas.push({
       etiqueta: t.etiquetaMantenimiento,
       valor: formatearPrecio(
-        { precio: detalles.mantenimiento, moneda: detalles.moneda, precioUnidad: "total" },
+        {
+          precio: detalles.mantenimiento,
+          precioMax: detalles.mantenimientoMax,
+          moneda: detalles.moneda,
+          precioUnidad: "total",
+        },
         "renta",
         idioma,
       ),
@@ -231,6 +250,8 @@ export function extraerDetalles(fila: Partial<Record<keyof DetallesPropiedad, un
     moneda: typeof fila.moneda === "string" ? fila.moneda : "MXN",
     precioUnidad: typeof fila.precioUnidad === "string" ? fila.precioUnidad : "total",
     mantenimiento: numero(fila.mantenimiento),
+    precioMax: numero(fila.precioMax),
+    mantenimientoMax: numero(fila.mantenimientoMax),
     superficieConstruidaM2: numero(fila.superficieConstruidaM2),
     superficieTerrenoM2: numero(fila.superficieTerrenoM2),
     banos: numero(fila.banos),

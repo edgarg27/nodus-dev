@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { CODIGOS_ESTADO, type CodigoEstado, estadoDesdeNombre } from "@/lib/estados";
 import { type Textos, textosDe } from "@/lib/i18n";
+import { textoARango } from "@/lib/precio-rango";
 import { type DetallesPropiedad, MONEDAS, UNIDADES_PRECIO } from "@/lib/property-details";
 import type { PropertyFormPhoto } from "./property-photo-field";
 import type { EstadoPublicacion } from "./status-badge";
@@ -34,6 +35,18 @@ function campoNumerico(opciones: { entero?: boolean; maximo: number }, m: Mensaj
     );
 }
 
+// Precio y mantenimiento aceptan un número o un rango en la misma casilla ("450 - 1200").
+function campoRango(maximo: number, m: MensajesFormulario) {
+  return z
+    .string()
+    .trim()
+    .optional()
+    .refine((valor) => {
+      const rango = textoARango(valor);
+      return rango !== null && (rango.hasta ?? rango.desde ?? 0) <= maximo;
+    }, m.errorRango);
+}
+
 // El esquema se arma con los mensajes del idioma activo (el formulario usa crearPropertyFormSchema);
 // propertyFormSchema es la versión en español.
 export function crearPropertyFormSchema(m: MensajesFormulario) {
@@ -51,10 +64,10 @@ export function crearPropertyFormSchema(m: MensajesFormulario) {
     // se queda en "true"/"false" y la conversión a boolean ocurre en el límite con la API
     // (`property-form.tsx`, al armar el body del POST/PATCH).
     aceptaFinanciamiento: z.enum(["true", "false"]),
-    precio: campoNumerico({ maximo: 999_999_999_999 }, m),
+    precio: campoRango(999_999_999_999, m),
     moneda: z.enum(MONEDAS).optional(),
     precioUnidad: z.enum(UNIDADES_PRECIO).optional(),
-    mantenimiento: campoNumerico({ maximo: 999_999_999_999 }, m),
+    mantenimiento: campoRango(999_999_999_999, m),
     superficieConstruidaM2: campoNumerico({ maximo: 9_999_999_999 }, m),
     superficieTerrenoM2: campoNumerico({ maximo: 9_999_999_999 }, m),
     banos: campoNumerico({ entero: true, maximo: 9_999 }, m),
@@ -79,9 +92,13 @@ export function crearPropertyFormSchema(m: MensajesFormulario) {
 
 export const propertyFormSchema = crearPropertyFormSchema(textosDe("es").panel.formulario);
 
+// Casilla del formulario → columnas "desde" y "hasta".
+export const CAMPOS_RANGO_FORMULARIO = [
+  ["precio", "precioMax"],
+  ["mantenimiento", "mantenimientoMax"],
+] as const;
+
 export const CAMPOS_NUMERICOS_FORMULARIO = [
-  "precio",
-  "mantenimiento",
   "superficieConstruidaM2",
   "superficieTerrenoM2",
   "banos",

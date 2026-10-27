@@ -8,6 +8,12 @@ import {
 } from "./property-details";
 
 describe("formatearPrecio", () => {
+  it("rango por m² con tope", () => {
+    expect(
+      formatearPrecio({ precio: 450, precioMax: 1200, moneda: "MXN", precioUnidad: "m2" }, "renta"),
+    ).toBe("$450 – $1,200 MXN /m² /mes");
+  });
+
   it("renta en MXN se muestra mensual", () => {
     expect(formatearPrecio({ precio: 38000, moneda: "MXN", precioUnidad: "total" }, "renta")).toBe(
       "$38,000 MXN /mes",

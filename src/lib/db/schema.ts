@@ -116,6 +116,10 @@ export const propiedad = pgTable(
     moneda: text("moneda").notNull().default("MXN"),
     precioUnidad: text("precio_unidad").notNull().default("total"),
     mantenimiento: numeric("mantenimiento", { precision: 12, scale: 2, mode: "number" }),
+    // Tope opcional cuando el propietario da un rango ("450 - 1200"): precio y mantenimiento son
+    // el "desde" y estas columnas el "hasta" (nulo = un solo valor).
+    precioMax: numeric("precio_max", { precision: 14, scale: 2, mode: "number" }),
+    mantenimientoMax: numeric("mantenimiento_max", { precision: 12, scale: 2, mode: "number" }),
     superficieConstruidaM2: numeric("superficie_construida_m2", {
       precision: 12,
       scale: 2,
@@ -202,6 +206,10 @@ export const propiedad = pgTable(
     check(
       "chk_propiedad_equipamiento_numeros",
       sql`coalesce(${t.oficinasPrivadas}, 0) >= 0 and coalesce(${t.frenteM}, 0) >= 0 and coalesce(${t.resistenciaPisoTon}, 0) >= 0`,
+    ),
+    check(
+      "chk_propiedad_rangos",
+      sql`(${t.precioMax} is null or ${t.precioMax} > coalesce(${t.precio}, 0)) and (${t.mantenimientoMax} is null or ${t.mantenimientoMax} > coalesce(${t.mantenimiento}, 0))`,
     ),
     check(
       "chk_propiedad_detalles_no_negativos",

@@ -1204,7 +1204,7 @@ export const es = {
       placeholderDescripcion: "Oficinas incluidas, uso de suelo, condiciones de acceso, etc.",
       precioMedidas: "Precio y medidas",
       precioMedidasAyuda:
-        "El precio solo lo ven tú y el equipo Captive, para cotizarle a quien pida informes; en la web se muestra “Precio sujeto a cotización”. Los metros sí son públicos.",
+        "El precio solo lo ven tú y el equipo Captive, para cotizarle a quien pida informes; en la web se muestra “Precio sujeto a cotización”. Los metros sí son públicos. En precio y mantenimiento puedes poner un rango, como 450 - 1200.",
       rentaMensual: "Renta mensual",
       precioVenta: "Precio de venta",
       precio: "Precio",
@@ -1280,6 +1280,8 @@ export const es = {
       comisionAyuda:
         "La comisión solo la ven otros propietarios en la Red; nunca aparece en la ficha pública.",
       errorNumero: "Escribe un número válido",
+      errorRango: "Escribe un número o un rango, como 450 - 1200",
+      placeholderRango: "450 o 450 - 1200",
     },
   },
   // Sección completa de Captive Center en /servicios (de su presentación comercial).
