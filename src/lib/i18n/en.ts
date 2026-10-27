@@ -1185,7 +1185,7 @@ export const en: Textos = {
       placeholderDescripcion: "Included offices, zoning, access conditions, etc.",
       precioMedidas: "Price and size",
       precioMedidasAyuda:
-        "Only you and the Captive team see the price, to quote it to whoever requests information; the site shows “Price upon quote”. Square meters are public.",
+        "Only you and the Captive team see the price, to quote it to whoever requests information; the site shows “Price upon quote”. Square meters are public. Price and maintenance fee can be a range, like 450 - 1200.",
       rentaMensual: "Monthly rent",
       precioVenta: "Sale price",
       precio: "Price",
@@ -1259,6 +1259,8 @@ export const en: Textos = {
       comisionAyuda:
         "Only other listers in the Network see the commission; it never appears on the public listing.",
       errorNumero: "Enter a valid number",
+      errorRango: "Enter a number or a range, like 450 - 1200",
+      placeholderRango: "450 or 450 - 1200",
     },
   },
   captiveCenter: {

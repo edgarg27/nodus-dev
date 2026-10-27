@@ -1,0 +1,3 @@
+ALTER TABLE "propiedad" ADD COLUMN "precio_max" numeric(14, 2);--> statement-breakpoint
+ALTER TABLE "propiedad" ADD COLUMN "mantenimiento_max" numeric(12, 2);--> statement-breakpoint
+ALTER TABLE "propiedad" ADD CONSTRAINT "chk_propiedad_rangos" CHECK (("propiedad"."precio_max" is null or "propiedad"."precio_max" > coalesce("propiedad"."precio", 0)) and ("propiedad"."mantenimiento_max" is null or "propiedad"."mantenimiento_max" > coalesce("propiedad"."mantenimiento", 0)));

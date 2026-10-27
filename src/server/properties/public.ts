@@ -2,8 +2,13 @@ import { PRECIO_PUBLICO } from "../../lib/precio-visibilidad.ts";
 
 // Con el precio "sujeto a cotización" (src/lib/precio-visibilidad.ts) lo público lo recibe nulo:
 // así cada pantalla muestra "Precio sujeto a cotización" y el dato no viaja al navegador.
-export function sinPrecioPublico<T extends { precio: number | null }>(fila: T): T {
-  return PRECIO_PUBLICO ? fila : { ...fila, precio: null };
+export function sinPrecioPublico<T extends { precio: number | null; precioMax?: number | null }>(
+  fila: T,
+): T {
+  if (PRECIO_PUBLICO) return fila;
+  return "precioMax" in fila
+    ? { ...fila, precio: null, precioMax: null }
+    : { ...fila, precio: null };
 }
 
 // Una propiedad tal como la ve el público: sin la comisión compartida (solo se ve en la Red,

@@ -34,6 +34,7 @@ export interface SolicitudDeCliente {
     publicada: boolean;
     // Precio capturado por el propietario: solo lo ve Captive, para cotizar.
     precio: number | null;
+    precioMax: number | null;
     moneda: string;
     precioUnidad: string;
     // Medidas, datos de nave o local y equipamiento, para responderle al cliente.
@@ -113,10 +114,12 @@ export async function obtenerCliente(
       tipo: propiedad.tipo,
       modalidad: propiedad.modalidad,
       precio: propiedad.precio,
+      precioMax: propiedad.precioMax,
       moneda: propiedad.moneda,
       precioUnidad: propiedad.precioUnidad,
       detalles: {
         mantenimiento: propiedad.mantenimiento,
+        mantenimientoMax: propiedad.mantenimientoMax,
         superficieConstruidaM2: propiedad.superficieConstruidaM2,
         superficieTerrenoM2: propiedad.superficieTerrenoM2,
         banos: propiedad.banos,
@@ -173,11 +176,13 @@ export async function obtenerCliente(
           modalidad: fila.modalidad,
           publicada: fila.activo && fila.estadoPublicacion === "publicada",
           precio: fila.precio,
+          precioMax: fila.precioMax,
           moneda: fila.moneda,
           precioUnidad: fila.precioUnidad,
           detalles: extraerDetalles({
             ...fila.detalles,
             precio: fila.precio,
+            precioMax: fila.precioMax,
             moneda: fila.moneda,
             precioUnidad: fila.precioUnidad,
           }),

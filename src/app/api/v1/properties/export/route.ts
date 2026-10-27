@@ -1,6 +1,7 @@
 import { aCsv, respuestaCsv } from "../../../../../lib/csv.ts";
 import { idiomaDeCookies, textosDe } from "../../../../../lib/i18n/index.ts";
 import { leerMisPropiedades } from "../../../../../lib/mis-propiedades-params.ts";
+import { rangoATexto } from "../../../../../lib/precio-rango.ts";
 import { requireRol } from "../../../../../server/auth/guards.ts";
 import { getUsuarioActual } from "../../../../../server/auth/session.ts";
 import { esUuid, respuestaError, sinSesion } from "../../../../../server/http/envelope.ts";
@@ -42,7 +43,8 @@ export async function GET(request: Request) {
       etiquetas.modalidad[fila.modalidad] ?? fila.modalidad,
       fila.direccion,
       fila.ciudad,
-      fila.precio,
+      // Un rango sale como texto ("450 - 1200"); un solo precio, como número.
+      fila.precioMax === null ? fila.precio : rangoATexto(fila.precio, fila.precioMax),
       fila.moneda,
       t.panel.estado[fila.estadoPublicacion] ?? fila.estadoPublicacion,
       fila.metricas.impresiones,

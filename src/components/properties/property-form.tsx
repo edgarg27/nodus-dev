@@ -10,6 +10,7 @@ import { useIdioma } from "@/components/i18n/idioma-provider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { mensajeDeErrorApi } from "@/lib/i18n/errores-api";
+import { rangoATexto, textoARango } from "@/lib/precio-rango";
 import {
   buscarPosiblesDuplicados,
   type PosibleDuplicado,
@@ -23,6 +24,7 @@ import { type ContactoOpcion, PropertyFormNetworkFields } from "./property-form-
 import { PropertyFormReviewDialog } from "./property-form-review-dialog";
 import {
   CAMPOS_NUMERICOS_FORMULARIO,
+  CAMPOS_RANGO_FORMULARIO,
   crearPropertyFormSchema,
   type PropertyFormInitialData,
   type PropertyFormValues,
@@ -104,6 +106,12 @@ export function PropertyForm({ propiedad, contactos = [], conRed = true }: Prope
               propiedad[campo] === null ? "" : String(propiedad[campo]),
             ]),
           ),
+          ...Object.fromEntries(
+            CAMPOS_RANGO_FORMULARIO.map(([desde, hasta]) => [
+              desde,
+              rangoATexto(propiedad[desde], propiedad[hasta]),
+            ]),
+          ),
         }
       : {
           aceptaFinanciamiento: "false",
@@ -180,6 +188,16 @@ export function PropertyForm({ propiedad, contactos = [], conRed = true }: Prope
         precioUnidad: valores.precioUnidad ?? "total",
         ...Object.fromEntries(
           CAMPOS_NUMERICOS_FORMULARIO.map((campo) => [campo, textoANumero(valores[campo])]),
+        ),
+        // "450 - 1200" se guarda como desde/hasta; el esquema ya validó el texto.
+        ...Object.fromEntries(
+          CAMPOS_RANGO_FORMULARIO.flatMap(([desde, hasta]) => {
+            const rango = textoARango(valores[desde]);
+            return [
+              [desde, rango?.desde ?? null],
+              [hasta, rango?.hasta ?? null],
+            ];
+          }),
         ),
         // Vacío borra el valor (null); la API distingue "no mandado" de "borrar".
         referencia: valores.referencia?.trim() || null,

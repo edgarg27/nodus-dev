@@ -39,6 +39,7 @@ function CampoNumero({
   register,
   errors,
   decimales = false,
+  rango = false,
 }: {
   campo: CampoNumerico;
   etiqueta: string;
@@ -46,7 +47,10 @@ function CampoNumero({
   register: UseFormRegister<PropertyFormValues>;
   errors: FieldErrors<PropertyFormValues>;
   decimales?: boolean;
+  // Acepta "450 - 1200": teclado de texto (el numérico del celular no trae guion) y ejemplo.
+  rango?: boolean;
 }) {
+  const f = useIdioma().t.panel.formulario;
   const error = errors[campo];
   return (
     <div className="flex flex-col gap-2">
@@ -56,7 +60,8 @@ function CampoNumero({
       </Label>
       <Input
         id={campo}
-        inputMode={decimales ? "decimal" : "numeric"}
+        inputMode={rango ? "text" : decimales ? "decimal" : "numeric"}
+        placeholder={rango ? f.placeholderRango : undefined}
         autoComplete="off"
         className={inputClassName}
         {...register(campo)}
@@ -94,7 +99,7 @@ export function PropertyFormDetailsFields({
           etiqueta={etiquetaPrecio}
           register={register}
           errors={errors}
-          decimales
+          rango
         />
         <div className="flex flex-col gap-2">
           <Label htmlFor="moneda" className="text-[13px] font-semibold text-foreground">
@@ -123,7 +128,7 @@ export function PropertyFormDetailsFields({
           sufijo={f.mensual}
           register={register}
           errors={errors}
-          decimales
+          rango
         />
         <CampoNumero
           campo="superficieConstruidaM2"

@@ -54,6 +54,17 @@ function detallesParaGuardar(input: DetallesPropiedadInput, tipoFinal: string) {
   if (input.equipamiento !== undefined) {
     valores.equipamiento = limpiarEquipamiento(tipoFinal, input.equipamiento);
   }
+  // Un "hasta" sin "desde" o que no lo supera no es rango: se guarda solo el "desde".
+  for (const [desde, hasta] of [
+    ["precio", "precioMax"],
+    ["mantenimiento", "mantenimientoMax"],
+  ] as const) {
+    const tope = input[hasta];
+    if (tope === undefined) continue;
+    const base = input[desde];
+    if (tope !== null && (base == null || tope <= base)) valores[hasta] = null;
+    if (base === null) valores[hasta] = null;
+  }
   return valores as Partial<Pick<PropiedadFila, (typeof CAMPOS_DETALLE)[number]>>;
 }
 
