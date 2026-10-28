@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import { cookies } from "next/headers";
+import { SessionSync } from "@/components/auth/session-sync";
 import { IdiomaProvider } from "@/components/i18n/idioma-provider";
 import { CaptiveHelpGlobal } from "@/components/marketing/captive-help-global";
 import { SiteHeader } from "@/components/nav/site-header";
@@ -70,6 +71,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                   : null
               }
             />
+            <SessionSync autenticado={actor !== null} />
             {children}
             {/* Un admin no tiene chat con Captive: no se le ofrece la ayuda. */}
             {actor?.rol === "admin" ? null : (
