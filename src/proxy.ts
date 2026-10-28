@@ -48,6 +48,14 @@ function esRutaProtegida(pathname: string): boolean {
   );
 }
 
+// Si getClaims() renovó la sesión, las cookies nuevas viven en `response`. Toda respuesta distinta
+// (redirección, 404, error de la API) debe llevarlas también: si no, el navegador conserva el
+// refresh token viejo, que Supabase ya rotó, y en la siguiente petición la sesión se cae.
+function conCookiesRenovadas<T extends NextResponse>(destino: T, origen: NextResponse): T {
+  for (const cookie of origen.cookies.getAll()) destino.cookies.set(cookie);
+  return destino;
+}
+
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -84,13 +92,13 @@ export async function proxy(request: NextRequest) {
   if (!esRutaProtegida(request.nextUrl.pathname)) return response;
 
   if (!haySesion) {
-    if (esApiAdmin) return apiNoAutenticado();
+    if (esApiAdmin) return conCookiesRenovadas(apiNoAutenticado(), response);
 
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
     url.search = "";
     url.searchParams.set("next", request.nextUrl.pathname);
-    return NextResponse.redirect(url);
+    return conCookiesRenovadas(NextResponse.redirect(url), response);
   }
 
   // Cuenta confirmada que aún no crea su contraseña (el registro no la pide): primero eso.
@@ -100,7 +108,7 @@ export async function proxy(request: NextRequest) {
     url.pathname = "/crear-contrasena";
     url.search = "";
     url.searchParams.set("next", request.nextUrl.pathname);
-    return NextResponse.redirect(url);
+    return conCookiesRenovadas(NextResponse.redirect(url), response);
   }
 
   if (esSuperficieAdmin) {
@@ -115,7 +123,10 @@ export async function proxy(request: NextRequest) {
 
     if (fila?.rol !== "admin") {
       // 404, nunca 403: no confirma que la ruta exista.
-      return esApiAdmin ? apiNoEncontrado() : new NextResponse(null, { status: 404 });
+      return conCookiesRenovadas(
+        esApiAdmin ? apiNoEncontrado() : new NextResponse(null, { status: 404 }),
+        response,
+      );
     }
   }
 
